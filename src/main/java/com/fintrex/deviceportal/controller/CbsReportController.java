@@ -1,0 +1,149 @@
+package com.fintrex.deviceportal.controller;
+
+import com.fintrex.deviceportal.config.DataTableRequest;
+import com.fintrex.deviceportal.config.DataTableResponse;
+import com.fintrex.deviceportal.service.CbsReportService;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.io.PrintWriter;
+import java.util.*;
+
+@RestController
+@RequestMapping("/api/cbs")
+public class CbsReportController {
+
+    private final CbsReportService cbsReportService;
+
+    public CbsReportController(CbsReportService cbsReportService) {
+        this.cbsReportService = cbsReportService;
+    }
+
+    @GetMapping("/metadata")
+    public ResponseEntity<Map<String, Object>> getMetadata() {
+        return ResponseEntity.ok(cbsReportService.getMetadata());
+    }
+
+    @PostMapping("/report1")
+    public DataTableResponse getReport1(@RequestBody DataTableRequest request) {
+        return cbsReportService.fetchReport1(request);
+    }
+
+    @GetMapping("/report1/download")
+    public void downloadReport1(
+            @RequestParam(value = "branch", required = false) String branch,
+            @RequestParam(value = "products", required = false) List<String> products,
+            @RequestParam(value = "asAt", required = false) String asAt,
+            HttpServletResponse response) throws Exception {
+
+        List<Map<String, Object>> data = cbsReportService.getReport1Data(branch, products, asAt);
+
+        response.setContentType("text/csv");
+        response.setHeader("Content-Disposition", "attachment; filename=\"portfolio_loan_report.csv\"");
+
+        PrintWriter writer = response.getWriter();
+        writer.println("Portfolio Date,Account No,Series,Legacy Account No,Branch Name,Product Name,Loan Amount,Rental,Total Due,Exposure,DPD,Performing Status,Loan Status");
+
+        for (Map<String, Object> row : data) {
+            writer.println(String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
+                    cleanCsv(row.get("portfolio_date")),
+                    cleanCsv(row.get("account_no")),
+                    cleanCsv(row.get("series")),
+                    cleanCsv(row.get("legacy_account_no")),
+                    cleanCsv(row.get("branch_name")),
+                    cleanCsv(row.get("product_name")),
+                    cleanCsv(row.get("loan_amount")),
+                    cleanCsv(row.get("rental")),
+                    cleanCsv(row.get("total_due")),
+                    cleanCsv(row.get("exposure")),
+                    cleanCsv(row.get("dpd")),
+                    cleanCsv(row.get("performing_status")),
+                    cleanCsv(row.get("portfolio_loan_status"))
+            ));
+        }
+        writer.flush();
+    }
+
+    @PostMapping("/report2")
+    public DataTableResponse getReport2(@RequestBody DataTableRequest request) {
+        return cbsReportService.fetchReport2(request);
+    }
+
+    @GetMapping("/report2/download")
+    public void downloadReport2(
+            @RequestParam(value = "branch", required = false) String branch,
+            @RequestParam(value = "asAt", required = false) String asAt,
+            HttpServletResponse response) throws Exception {
+
+        List<Map<String, Object>> data = cbsReportService.getReport2Data(branch, asAt);
+
+        response.setContentType("text/csv");
+        response.setHeader("Content-Disposition", "attachment; filename=\"client_report.csv\"");
+
+        PrintWriter writer = response.getWriter();
+        writer.println("Client Code,Client Type,Title,Full Name,NIC No,Mobile,Address,Branch Name,Entered Date");
+
+        for (Map<String, Object> row : data) {
+            writer.println(String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s",
+                    cleanCsv(row.get("client_code")),
+                    cleanCsv(row.get("client_type")),
+                    cleanCsv(row.get("title")),
+                    cleanCsv(row.get("full_name")),
+                    cleanCsv(row.get("id_no")),
+                    cleanCsv(row.get("mobile")),
+                    cleanCsv(row.get("address")),
+                    cleanCsv(row.get("branch_name")),
+                    cleanCsv(row.get("entered_date"))
+            ));
+        }
+        writer.flush();
+    }
+
+    @PostMapping("/report3")
+    public DataTableResponse getReport3(@RequestBody DataTableRequest request) {
+        return cbsReportService.fetchReport3(request);
+    }
+
+    @GetMapping("/report3/download")
+    public void downloadReport3(
+            @RequestParam(value = "branch", required = false) String branch,
+            @RequestParam(value = "products", required = false) List<String> products,
+            @RequestParam(value = "asAt", required = false) String asAt,
+            HttpServletResponse response) throws Exception {
+
+        List<Map<String, Object>> data = cbsReportService.getReport3Data(branch, products, asAt);
+
+        response.setContentType("text/csv");
+        response.setHeader("Content-Disposition", "attachment; filename=\"transaction_report.csv\"");
+
+        PrintWriter writer = response.getWriter();
+        writer.println("Transaction ID,Account No,Legacy Account No,Amount,Date,User,Narration,Branch Name,Product Name");
+
+        for (Map<String, Object> row : data) {
+            writer.println(String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s",
+                    cleanCsv(row.get("tran_id")),
+                    cleanCsv(row.get("account_no")),
+                    cleanCsv(row.get("legacy_account_no")),
+                    cleanCsv(row.get("amount")),
+                    cleanCsv(row.get("date")),
+                    cleanCsv(row.get("user")),
+                    cleanCsv(row.get("narration")),
+                    cleanCsv(row.get("branch_name")),
+                    cleanCsv(row.get("product_name"))
+            ));
+        }
+        writer.flush();
+    }
+
+    private String cleanCsv(Object val) {
+        if (val == null) {
+            return "";
+        }
+        String s = val.toString().replace("\"", "\"\"");
+        if (s.contains(",") || s.contains("\n") || s.contains("\r")) {
+            return "\"" + s + "\"";
+        }
+        return s;
+    }
+}
