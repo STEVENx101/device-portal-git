@@ -85,6 +85,7 @@
                 font-weight: 600;
                 font-size: 0.8rem;
                 padding: 3px 8px !important;
+                color: #ffffff !important;
             }
             .choices__list--dropdown {
                 background: rgba(255, 255, 255, 0.95) !important;
@@ -142,11 +143,19 @@
                                         <label class="form-label text-700 fw-semi-bold" for="selectProducts">Product</label>
                                         <select class="form-select" id="selectProducts" multiple></select>
                                     </div>
-                                    <div class="col-md-3">
+                                    <div class="col-md-3" id="asAtDateContainer">
                                         <label class="form-label text-700 fw-semi-bold" for="asAtDate">As at</label>
                                         <input class="form-control" type="date" id="asAtDate" value="2026-07-13">
                                     </div>
-                                    <div class="col-md-9 d-flex align-items-end justify-content-end gap-2">
+                                    <div class="col-md-3" id="fromDateContainer" style="display: none;">
+                                        <label class="form-label text-700 fw-semi-bold" for="fromDate">From Date</label>
+                                        <input class="form-control" type="date" id="fromDate" value="2026-07-01">
+                                    </div>
+                                    <div class="col-md-3" id="toDateContainer" style="display: none;">
+                                        <label class="form-label text-700 fw-semi-bold" for="toDate">To Date</label>
+                                        <input class="form-control" type="date" id="toDate" value="2026-07-13">
+                                    </div>
+                                    <div class="col-md-9 d-flex align-items-end justify-content-end gap-2" id="buttonContainer">
                                         <button class="btn btn-primary" type="button" id="applyFiltersBtn">
                                             <span class="fas fa-search me-1"></span> Refresh Data
                                         </button>
@@ -282,7 +291,9 @@
                 return {
                     branch: $('#selectBranch').val(),
                     products: products,
-                    asAt: $('#asAtDate').val()
+                    asAt: $('#asAtDate').val(),
+                    fromDate: $('#fromDate').val(),
+                    toDate: $('#toDate').val()
                 };
             }
 
@@ -395,6 +406,22 @@
                     ]
                 });
 
+                // Listen to tab switches to toggle date inputs
+                $('#reportTabs a').on('shown.bs.tab', function (e) {
+                    const targetId = $(e.target).attr('href');
+                    if (targetId === '#report1-pane') {
+                        $('#asAtDateContainer').show();
+                        $('#fromDateContainer').hide();
+                        $('#toDateContainer').hide();
+                        $('#buttonContainer').removeClass('col-md-6').addClass('col-md-9');
+                    } else {
+                        $('#asAtDateContainer').hide();
+                        $('#fromDateContainer').show();
+                        $('#toDateContainer').show();
+                        $('#buttonContainer').removeClass('col-md-9').addClass('col-md-6');
+                    }
+                });
+
                 // Apply Filters
                 $('#applyFiltersBtn').on('click', function() {
                     dtReport1.draw();
@@ -419,7 +446,12 @@
                     // Build query params
                     const queryParams = new URLSearchParams();
                     queryParams.append('branch', filters.branch);
-                    queryParams.append('asAt', filters.asAt);
+                    if (activeTabId === '#report1-pane') {
+                        queryParams.append('asAt', filters.asAt);
+                    } else {
+                        queryParams.append('fromDate', filters.fromDate);
+                        queryParams.append('toDate', filters.toDate);
+                    }
                     if (filters.products && filters.products.length > 0) {
                         filters.products.forEach(p => queryParams.append('products', p));
                     }

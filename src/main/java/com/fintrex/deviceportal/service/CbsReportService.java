@@ -59,10 +59,11 @@ public class CbsReportService {
         return datatableRepo.dataTable(request, sql, params);
     }
 
-    public List<Map<String, Object>> getReport2Data(String branch, String asAt) {
+    public List<Map<String, Object>> getReport2Data(String branch, String fromDate, String toDate) {
         Map<String, Object> filterMap = new HashMap<>();
         filterMap.put("branch", branch);
-        filterMap.put("asAt", asAt);
+        filterMap.put("fromDate", fromDate);
+        filterMap.put("toDate", toDate);
 
         Map<String, Object> params = new HashMap<>();
         String sql = buildReport2Query(filterMap, params);
@@ -75,11 +76,12 @@ public class CbsReportService {
         return datatableRepo.dataTable(request, sql, params);
     }
 
-    public List<Map<String, Object>> getReport3Data(String branch, List<String> products, String asAt) {
+    public List<Map<String, Object>> getReport3Data(String branch, List<String> products, String fromDate, String toDate) {
         Map<String, Object> filterMap = new HashMap<>();
         filterMap.put("branch", branch);
         filterMap.put("products", products);
-        filterMap.put("asAt", asAt);
+        filterMap.put("fromDate", fromDate);
+        filterMap.put("toDate", toDate);
 
         Map<String, Object> params = new HashMap<>();
         String sql = buildReport3Query(filterMap, params);
@@ -181,10 +183,15 @@ public class CbsReportService {
                 params.put("branch", branch.trim());
             }
 
-            String asAt = (String) filter.get("asAt");
-            if (asAt != null && !asAt.trim().isEmpty()) {
-                subQuery += " AND DATE(c.entered_date) <= :asAt";
-                params.put("asAt", asAt.trim());
+            String fromDate = (String) filter.get("fromDate");
+            String toDate = (String) filter.get("toDate");
+            if (fromDate != null && !fromDate.trim().isEmpty()) {
+                subQuery += " AND DATE(c.entered_date) >= :fromDate";
+                params.put("fromDate", fromDate.trim());
+            }
+            if (toDate != null && !toDate.trim().isEmpty()) {
+                subQuery += " AND DATE(c.entered_date) <= :toDate";
+                params.put("toDate", toDate.trim());
             }
         }
 
@@ -237,10 +244,15 @@ public class CbsReportService {
                 }
             }
 
-            String asAt = (String) filter.get("asAt");
-            if (asAt != null && !asAt.trim().isEmpty()) {
-                subQuery += " AND DATE(t.date) <= :asAt";
-                params.put("asAt", asAt.trim());
+            String fromDate = (String) filter.get("fromDate");
+            String toDate = (String) filter.get("toDate");
+            if (fromDate != null && !fromDate.trim().isEmpty()) {
+                subQuery += " AND DATE(t.date) >= :fromDate";
+                params.put("fromDate", fromDate.trim());
+            }
+            if (toDate != null && !toDate.trim().isEmpty()) {
+                subQuery += " AND DATE(t.date) <= :toDate";
+                params.put("toDate", toDate.trim());
             }
         }
 

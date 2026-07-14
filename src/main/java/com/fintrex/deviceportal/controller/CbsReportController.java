@@ -73,10 +73,11 @@ public class CbsReportController {
     @GetMapping("/report2/download")
     public void downloadReport2(
             @RequestParam(value = "branch", required = false) String branch,
-            @RequestParam(value = "asAt", required = false) String asAt,
+            @RequestParam(value = "fromDate", required = false) String fromDate,
+            @RequestParam(value = "toDate", required = false) String toDate,
             HttpServletResponse response) throws Exception {
 
-        List<Map<String, Object>> data = cbsReportService.getReport2Data(branch, asAt);
+        List<Map<String, Object>> data = cbsReportService.getReport2Data(branch, fromDate, toDate);
 
         response.setContentType("text/csv");
         response.setHeader("Content-Disposition", "attachment; filename=\"client_report.csv\"");
@@ -86,15 +87,15 @@ public class CbsReportController {
 
         for (Map<String, Object> row : data) {
             writer.println(String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s",
-                    cleanCsv(row.get("client_code")),
-                    cleanCsv(row.get("client_type")),
-                    cleanCsv(row.get("title")),
-                    cleanCsv(row.get("full_name")),
-                    cleanCsv(row.get("id_no")),
-                    cleanCsv(row.get("mobile")),
-                    cleanCsv(row.get("address")),
-                    cleanCsv(row.get("branch_name")),
-                    cleanCsv(row.get("entered_date"))
+                     cleanCsv(row.get("client_code")),
+                     cleanCsv(row.get("client_type")),
+                     cleanCsv(row.get("title")),
+                     cleanCsv(row.get("full_name")),
+                     cleanCsv(row.get("id_no")),
+                     cleanCsv(row.get("mobile")),
+                     cleanCsv(row.get("address")),
+                     cleanCsv(row.get("branch_name")),
+                     cleanCsv(row.get("entered_date"))
             ));
         }
         writer.flush();
@@ -109,10 +110,11 @@ public class CbsReportController {
     public void downloadReport3(
             @RequestParam(value = "branch", required = false) String branch,
             @RequestParam(value = "products", required = false) List<String> products,
-            @RequestParam(value = "asAt", required = false) String asAt,
+            @RequestParam(value = "fromDate", required = false) String fromDate,
+            @RequestParam(value = "toDate", required = false) String toDate,
             HttpServletResponse response) throws Exception {
 
-        List<Map<String, Object>> data = cbsReportService.getReport3Data(branch, products, asAt);
+        List<Map<String, Object>> data = cbsReportService.getReport3Data(branch, products, fromDate, toDate);
 
         response.setContentType("text/csv");
         response.setHeader("Content-Disposition", "attachment; filename=\"transaction_report.csv\"");
