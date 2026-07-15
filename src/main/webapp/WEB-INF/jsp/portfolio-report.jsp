@@ -119,18 +119,14 @@
                 <div class="content">
                     <%@include file="../jspf/topbar.jspf" %>
 
-                    <div class="d-flex mb-3 align-items-center justify-content-between">
+                    <div class="d-flex mb-2 align-items-center justify-content-between mt-2">
                         <div>
-                            <h4 class="mb-1 text-primary"><i class="fas fa-file-invoice-dollar me-2"></i>Device Finance Reports - Portfolio</h4>
-                            <p class="mb-0 text-500 fs--1">Consolidated reports from the core banking systems</p>
+                            <h4 class="mb-0 text-primary"><i class="fas fa-file-invoice-dollar me-2"></i>Device Finance Reports - Portfolio</h4>
                         </div>
                     </div>
 
                     <!-- Filter panel matching screenshot layout -->
-                    <div class="card glass-card mb-4" style="position: relative; z-index: 10;">
-                        <div class="card-header border-bottom border-200 bg-light">
-                            <h5 class="mb-0 text-800"><span class="fas fa-filter me-2"></span>Report Filter Panel</h5>
-                        </div>
+                    <div class="card glass-card mb-3" style="position: relative; z-index: 10;">
                         <div class="card-body">
                             <form id="filterForm">
                                 <div class="row g-3 align-items-end">
@@ -162,7 +158,7 @@
                     </div>
 
                     <!-- Table Card -->
-                    <div class="card glass-card mb-4" style="position: relative; z-index: 1;">
+                    <div class="card glass-card mb-3" style="position: relative; z-index: 1;">
                         <div class="card-body p-3">
                             <div class="table-responsive scrollbar">
                                 <table class="table table-hover table-striped align-middle mb-0 fs--1 w-100" id="tableReport1">
