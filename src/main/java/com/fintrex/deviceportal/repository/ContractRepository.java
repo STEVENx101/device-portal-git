@@ -48,14 +48,14 @@ public class ContractRepository {
     public ContractDetails getDetails(String financeNo) {
         String sql = """
             SELECT 
-                cc.FINANCE_NO, 
-                cs.CONTRACT_STATUS, 
-                cs.AMT_TO_COLLECTED, 
-                cs.PERFORMING_STATUS, 
+                l.account_no AS FINANCE_NO, 
+                p.loan_status AS CONTRACT_STATUS, 
+                p.total_due AS AMT_TO_COLLECTED, 
+                p.performing_status AS PERFORMING_STATUS, 
                 CASE 
-                    WHEN cc.Product IN ('LF', 'laptop') THEN 'ABSOLUTE' 
-                    WHEN cc.Product = 'MF' AND lm.knox_compatibility = 'yes' THEN 'KNOX' 
-                    WHEN cc.Product = 'MF' AND (lm.knox_compatibility = 'no' OR lm.knox_compatibility IS NULL) THEN 'DATACULTE' 
+                    WHEN pr.product_code IN ('LF', 'laptop') THEN 'ABSOLUTE' 
+                    WHEN pr.product_code = 'MF' AND lm.knox_compatibility = 'yes' THEN 'KNOX' 
+                    WHEN pr.product_code = 'MF' AND (lm.knox_compatibility = 'no' OR lm.knox_compatibility IS NULL) THEN 'DATACULTE' 
                     ELSE NULL 
                 END AS SECURITY, 
                 lmm.name AS MODEL, 
@@ -66,38 +66,38 @@ public class ContractRepository {
                 g1.full_name AS G1, 
                 g1.address AS G1_ADDRESS, 
                 g1.mobile AS G1_CONTACT, 
-                cc.FACILITY_GRANT_DATE, 
-                cc.MATURITY_DATE, 
-                cc.DUE_DATE, 
-                cc.RENTAL, 
-                cc.PERIOD, 
-                cc.FINANCE_AMOUNT, 
-                cs.ARR_DAYS, 
+                l.start_date AS FACILITY_GRANT_DATE, 
+                l.maturity_date AS MATURITY_DATE, 
+                l.due_day AS DUE_DATE, 
+                l.rental AS RENTAL, 
+                l.period AS PERIOD, 
+                l.loan_amount AS FINANCE_AMOUNT, 
+                p.dpd AS ARR_DAYS, 
                 COALESCE(lm.next_lock_date) AS NEXT_LOCK_DATE, 
                 COALESCE(lm.locked) AS LOCKED, 
-                cc.Product AS PRODUCT, 
+                pr.product_code AS PRODUCT, 
                 dl.current_device_status AS CURRENT_DEVICE_STATUS 
-            FROM call_center.contract cc 
-            LEFT JOIN call_center.snapshot cs 
-                ON cs.FINANCE_NO = cc.FINANCE_NO 
-                AND (cs.SNAP_DATE, cs.SNAP_TIME) = (
-                    SELECT SNAP_DATE, SNAP_TIME 
-                    FROM call_center.snapshot 
-                    WHERE FINANCE_NO = cc.FINANCE_NO 
-                    ORDER BY SNAP_DATE DESC, SNAP_TIME DESC 
-                    LIMIT 1
+            FROM cbs.loan l
+            LEFT JOIN cbs.portfolio p 
+                ON p.account_no = l.account_no 
+                AND p.portfolio_date = (
+                    SELECT MAX(portfolio_date) 
+                    FROM cbs.portfolio 
+                    WHERE account_no = l.account_no
                 ) 
+            LEFT JOIN cbs.product pr 
+                ON CAST(l.product AS UNSIGNED) = pr.code_val
+            LEFT JOIN cbs.client cust 
+                ON cust.client_code = l.client
+            LEFT JOIN cbs.client g1 
+                ON g1.client_code = l.guarantor1 
             LEFT JOIN loan.mobileloan lm 
-                ON lm.finance_no = cc.FINANCE_NO 
+                ON lm.finance_no = l.account_no 
             LEFT JOIN loan.device_loan dl 
-                ON dl.finance_no = cc.FINANCE_NO 
+                ON dl.finance_no = l.account_no 
             LEFT JOIN loan.mobileloan_model lmm 
                 ON lmm.id = COALESCE(lm.model, dl.model) 
-            LEFT JOIN call_center.nimble_client cust 
-                ON cust.client_code = cc.CLIENT_CODE 
-            LEFT JOIN call_center.nimble_client g1 
-                ON g1.client_code = cc.G1_CODE 
-            WHERE cc.FINANCE_NO = ?""";
+            WHERE l.account_no = ?""";
         System.out.println(sql);
 
         List<ContractDetails> results = jdbcTemplate.query(sql, (rs, rowNum) -> new ContractDetails(
