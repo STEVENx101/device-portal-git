@@ -118,4 +118,12 @@ public class ContractService {
 
         return datatable.dataTable(req, finalQuery);
     }
+
+    public java.util.Map<String, Object> getDashboardStats() {
+        return contractRepository.getDashboardStats();
+    }
+
+    public List<java.util.Map<String, Object>> getRecentLocks() {
+        return contractRepository.getRecentLocks();
+    }
 }

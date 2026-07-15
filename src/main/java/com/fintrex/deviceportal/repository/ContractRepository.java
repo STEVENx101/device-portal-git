@@ -143,4 +143,38 @@ public class ContractRepository {
 
         return results.isEmpty() ? null : results.get(0);
     }
+
+    public java.util.Map<String, Object> getDashboardStats() {
+        java.util.Map<String, Object> stats = new java.util.HashMap<>();
+        
+        Integer totalAccounts = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM cbs.loan", Integer.class);
+        stats.put("totalAccounts", totalAccounts != null ? totalAccounts : 0);
+        
+        Integer totalLocked = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM loan.mobileloan WHERE locked = 1", Integer.class);
+        stats.put("totalLocked", totalLocked != null ? totalLocked : 0);
+        
+        Double totalOutstanding = jdbcTemplate.queryForObject(
+            "SELECT SUM(p.total_due) FROM cbs.portfolio p WHERE p.portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio)", 
+            Double.class
+        );
+        stats.put("totalOutstanding", totalOutstanding != null ? totalOutstanding : 0.0);
+        
+        Integer knoxCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM loan.mobileloan WHERE knox_compatibility = 'yes'", Integer.class);
+        Integer dataculteCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM loan.mobileloan WHERE knox_compatibility = 'no' OR knox_compatibility IS NULL", Integer.class);
+        Integer laptopCount = jdbcTemplate.queryForObject(
+            "SELECT COUNT(*) FROM cbs.loan l JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val WHERE pr.product_code IN ('LF', 'laptop')", 
+            Integer.class
+        );
+        stats.put("knoxCount", knoxCount != null ? knoxCount : 0);
+        stats.put("dataculteCount", dataculteCount != null ? dataculteCount : 0);
+        stats.put("laptopCount", laptopCount != null ? laptopCount : 0);
+        
+        return stats;
+    }
+
+    public List<java.util.Map<String, Object>> getRecentLocks() {
+        return jdbcTemplate.queryForList(
+            "SELECT finance_no, status, date, changed_by, reason FROM loan.lock_log ORDER BY date DESC LIMIT 5"
+        );
+    }
 }

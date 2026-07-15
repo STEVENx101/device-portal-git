@@ -75,16 +75,184 @@
                         navbarTop.remove(navbarTop);
                     </script>
 
-                    <div class="card">
-                        <div class="card-body overflow-hidden p-lg-6">
-                            <div class="row align-items-center">
-                                <div class="col-lg-6"><img class="img-fluid" src="../assets/img/icons/spot-illustrations/21.png" alt="" /></div>
-                                <div class="col-lg-6 ps-lg-4 my-5 text-center text-lg-start">
-                                    
+                    <div class="d-flex mb-3 align-items-center justify-content-between mt-2">
+                        <div>
+                            <h4 class="mb-0 text-primary"><i class="fas fa-chart-pie me-2"></i>Device Finance Overview Dashboard</h4>
+                        </div>
+                    </div>
+
+                    <!-- KPI Cards Row -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-sm-6 col-md-3">
+                            <div class="card glass-card overflow-hidden">
+                                <div class="card-body p-3">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <div>
+                                            <p class="fs--2 text-600 mb-0 fw-semi-bold">TOTAL ACCOUNTS</p>
+                                            <h3 class="fw-bold mb-0 text-primary font-sans-serif" id="stat-total-accounts">0</h3>
+                                        </div>
+                                        <div class="avatar avatar-3xl bg-soft-primary rounded-circle">
+                                            <span class="fas fa-file-invoice-dollar fs-1"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-3">
+                            <div class="card glass-card overflow-hidden">
+                                <div class="card-body p-3">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <div>
+                                            <p class="fs--2 text-600 mb-0 fw-semi-bold">OUTSTANDING DUES</p>
+                                            <h3 class="fw-bold mb-0 text-success font-sans-serif" id="stat-outstanding">LKR 0.00</h3>
+                                        </div>
+                                        <div class="avatar avatar-3xl bg-soft-success rounded-circle">
+                                            <span class="fas fa-hand-holding-usd fs-1"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-3">
+                            <div class="card glass-card overflow-hidden">
+                                <div class="card-body p-3">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <div>
+                                            <p class="fs--2 text-600 mb-0 fw-semi-bold">LOCKED DEVICES</p>
+                                            <h3 class="fw-bold mb-0 text-danger font-sans-serif" id="stat-locked">0</h3>
+                                        </div>
+                                        <div class="avatar avatar-3xl bg-soft-danger rounded-circle">
+                                            <span class="fas fa-lock fs-1"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-3">
+                            <div class="card glass-card overflow-hidden">
+                                <div class="card-body p-3">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <div>
+                                            <p class="fs--2 text-600 mb-0 fw-semi-bold">KNOX DEVICES</p>
+                                            <h3 class="fw-bold mb-0 text-info font-sans-serif" id="stat-knox">0</h3>
+                                        </div>
+                                        <div class="avatar avatar-3xl bg-soft-info rounded-circle">
+                                            <span class="fas fa-shield-alt fs-1"></span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+
+                    <!-- Charts & Recent Actions row -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-5">
+                            <div class="card h-100">
+                                <div class="card-header bg-light d-flex align-items-center justify-content-between py-2">
+                                    <h6 class="mb-0 text-800 fw-semi-bold"><span class="fas fa-shield-alt me-2 text-primary"></span>Device Security Model Breakdown</h6>
+                                </div>
+                                <div class="card-body d-flex align-items-center justify-content-center">
+                                    <div style="max-height: 220px; width: 100%;">
+                                        <canvas id="securityChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-7">
+                            <div class="card h-100">
+                                <div class="card-header bg-light d-flex align-items-center justify-content-between py-2">
+                                    <h6 class="mb-0 text-800 fw-semi-bold"><span class="fas fa-history me-2 text-primary"></span>Recent Device Lock / Unlock logs</h6>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div class="table-responsive scrollbar">
+                                        <table class="table table-hover table-striped align-middle mb-0 fs--1">
+                                            <thead class="bg-200 text-900">
+                                                <tr>
+                                                    <th>Finance No</th>
+                                                    <th>Action</th>
+                                                    <th>Date</th>
+                                                    <th>User</th>
+                                                    <th>Reason</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="recent-locks-list">
+                                                <tr>
+                                                    <td colspan="5" class="text-center py-4 text-muted">Loading logs...</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Include Chart.js and jQuery -->
+                    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                    <script src="vendors/jquery/jquery.min.js"></script>
+                    <script>
+                        $(document).ready(function() {
+                            // Load KPI stats and chart data
+                            fetch('<%= request.getContextPath() %>/api/contracts/dashboard-stats')
+                                .then(res => res.json())
+                                .then(data => {
+                                    $('#stat-total-accounts').text(data.totalAccounts);
+                                    $('#stat-outstanding').text('LKR ' + data.totalOutstanding.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+                                    $('#stat-locked').text(data.totalLocked);
+                                    $('#stat-knox').text(data.knoxCount);
+
+                                    // Render Security distribution chart
+                                    const ctx = document.getElementById('securityChart').getContext('2d');
+                                    new Chart(ctx, {
+                                        type: 'doughnut',
+                                        data: {
+                                            labels: ['KNOX', 'DATACULTE', 'ABSOLUTE (Laptop)'],
+                                            datasets: [{
+                                                data: [data.knoxCount, data.dataculteCount, data.laptopCount],
+                                                backgroundColor: ['#2b4eff', '#a855f7', '#10b981'],
+                                                borderWidth: 0
+                                            }]
+                                        },
+                                        options: {
+                                            responsive: true,
+                                            maintainAspectRatio: false,
+                                            plugins: {
+                                                legend: {
+                                                    position: 'bottom'
+                                                }
+                                            }
+                                        }
+                                    });
+                                })
+                                .catch(err => console.error("Error loading dashboard statistics:", err));
+
+                            // Load Recent lock actions
+                            fetch('<%= request.getContextPath() %>/api/contracts/recent-locks')
+                                .then(res => res.json())
+                                .then(logs => {
+                                    const tbody = $('#recent-locks-list');
+                                    tbody.empty();
+                                    if (logs.length === 0) {
+                                        tbody.append('<tr><td colspan="5" class="text-center py-3 text-muted">No locking events found.</td></tr>');
+                                        return;
+                                    }
+                                    logs.forEach(log => {
+                                        const badgeClass = log.status === 'LOCKED' ? 'bg-danger' : 'bg-success';
+                                        tbody.append(`
+                                            <tr>
+                                                <td class="fw-bold"><a href="<%= request.getContextPath() %>/mobile?financeNo=${log.finance_no}">${log.finance_no}</a></td>
+                                                <td><span class="badge rounded-pill ${badgeClass}">${log.status}</span></td>
+                                                <td>${log.date}</td>
+                                                <td>${log.changed_by}</td>
+                                                <td class="text-truncate" style="max-width: 200px;" title="${log.reason}">${log.reason}</td>
+                                            </tr>
+                                        `);
+                                    });
+                                })
+                                .catch(err => console.error("Error loading lock actions:", err));
+                        });
+                    </script>
                     
                    
                 </div>

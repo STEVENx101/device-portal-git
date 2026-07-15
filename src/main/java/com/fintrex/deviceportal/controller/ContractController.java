@@ -54,4 +54,14 @@ public class ContractController {
     public DataTableResponse fetchlockdata(@RequestBody DataTableRequest request) throws Exception {
         return contractService.fetchlockdata(request);
     }
+
+    @GetMapping("/dashboard-stats")
+    public ResponseEntity<java.util.Map<String, Object>> getDashboardStats() {
+        return ResponseEntity.ok(contractService.getDashboardStats());
+    }
+
+    @GetMapping("/recent-locks")
+    public ResponseEntity<List<java.util.Map<String, Object>>> getRecentLocks() {
+        return ResponseEntity.ok(contractService.getRecentLocks());
+    }
 }
