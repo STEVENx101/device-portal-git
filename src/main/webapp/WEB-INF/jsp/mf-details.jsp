@@ -76,7 +76,7 @@
                         navbarTop.remove(navbarTop);
                     </script>
 
-                    <div class="d-flex flex-column align-items-center mt-3 mb-4">
+                    <div class="d-flex flex-column align-items-center mt-2 mb-2">
                         <div class="search-box w-50" data-list='{"valueNames":["title"]}'>
                             <form class="position-relative w-100" data-bs-toggle="search" data-bs-display="static"><input class="form-control search-input fuzzy-search" type="search" placeholder="Search by Finance No, Name, or NIC..." aria-label="Search" />
                                 <span class="fas fa-search search-box-icon"></span>
