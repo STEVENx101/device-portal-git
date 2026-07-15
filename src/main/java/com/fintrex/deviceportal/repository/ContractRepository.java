@@ -24,17 +24,23 @@ public class ContractRepository {
 
         if (startsWithDigit) {
             sql = """
-                SELECT FINANCE_NO, FULL_NAME, NIC_NO FROM call_center.contract 
-                WHERE Product IN ('MF', 'LF') AND (
-                    FINANCE_NO LIKE ? 
-                    OR NIC_NO LIKE ?
+                SELECT l.account_no AS FINANCE_NO, c.full_name AS FULL_NAME, c.id_no AS NIC_NO 
+                FROM cbs.loan l
+                JOIN cbs.client c ON l.client = c.client_code
+                LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
+                WHERE pr.product_code IN ('MF', 'LF') AND (
+                    l.account_no LIKE ? 
+                    OR c.id_no LIKE ?
                 ) LIMIT 6""";
             params = new Object[]{searchPattern, searchPattern};
         } else {
             sql = """
-                SELECT FINANCE_NO, FULL_NAME, NIC_NO FROM call_center.contract 
-                WHERE Product IN ('MF', 'LF') AND (
-                    FULL_NAME LIKE ?
+                SELECT l.account_no AS FINANCE_NO, c.full_name AS FULL_NAME, c.id_no AS NIC_NO 
+                FROM cbs.loan l
+                JOIN cbs.client c ON l.client = c.client_code
+                LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
+                WHERE pr.product_code IN ('MF', 'LF') AND (
+                    c.full_name LIKE ?
                 ) LIMIT 6""";
             params = new Object[]{searchPattern};
         }

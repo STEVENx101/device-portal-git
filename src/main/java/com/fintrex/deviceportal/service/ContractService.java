@@ -43,14 +43,14 @@ public class ContractService {
 
         String innerQuery = """
             SELECT 
-                r.REC_NO AS receipt_no, 
-                DATE(r.VAL_DATE) AS receipt_date, 
-                r.SETTLE_MODE AS receipt_mode, 
-                r.REC_AMOUNT AS amount 
-            FROM call_center.receipts r 
-            WHERE r.FIN_NO = '""" + finNo + """
+                t.tran_id AS receipt_no, 
+                DATE(t.date) AS receipt_date, 
+                t.narration AS receipt_mode, 
+                t.amount AS amount 
+            FROM cbs.transaction t 
+            WHERE t.account_no = '""" + finNo + """
             ' 
-            ORDER BY r.VAL_DATE DESC 
+            ORDER BY t.date DESC 
             LIMIT 5""";
 
         String finalQuery = """
