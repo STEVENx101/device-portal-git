@@ -86,10 +86,12 @@ public class ContractRepository {
             FROM cbs.loan l
             LEFT JOIN cbs.portfolio p 
                 ON p.account_no = l.account_no 
-                AND p.portfolio_date = (
-                    SELECT MAX(portfolio_date) 
+                AND (p.portfolio_date, p.sync_time) = (
+                    SELECT portfolio_date, sync_time 
                     FROM cbs.portfolio 
                     WHERE account_no = l.account_no
+                    ORDER BY portfolio_date DESC, sync_time DESC 
+                    LIMIT 1
                 ) 
             LEFT JOIN cbs.product pr 
                 ON CAST(l.product AS UNSIGNED) = pr.code_val
