@@ -49,4 +49,9 @@ public class ContractController {
     public DataTableResponse fetchsmsdata(@RequestBody DataTableRequest request) throws Exception {
         return contractService.fetchsmsdata(request);
     }
+
+    @PostMapping("/fetchlockdata")
+    public DataTableResponse fetchlockdata(@RequestBody DataTableRequest request) throws Exception {
+        return contractService.fetchlockdata(request);
+    }
 }

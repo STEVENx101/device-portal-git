@@ -35,7 +35,12 @@ public class CbsReportController {
             @RequestParam(value = "branch", required = false) String branch,
             @RequestParam(value = "products", required = false) List<String> products,
             @RequestParam(value = "asAt", required = false) String asAt,
+            @RequestParam(value = "downloadToken", required = false) String downloadToken,
             HttpServletResponse response) throws Exception {
+
+        if (downloadToken != null) {
+            response.setHeader("Set-Cookie", "downloadToken=" + downloadToken + "; Path=/");
+        }
 
         List<Map<String, Object>> data = cbsReportService.getReport1Data(branch, products, asAt);
 
@@ -75,7 +80,12 @@ public class CbsReportController {
             @RequestParam(value = "branch", required = false) String branch,
             @RequestParam(value = "fromDate", required = false) String fromDate,
             @RequestParam(value = "toDate", required = false) String toDate,
+            @RequestParam(value = "downloadToken", required = false) String downloadToken,
             HttpServletResponse response) throws Exception {
+
+        if (downloadToken != null) {
+            response.setHeader("Set-Cookie", "downloadToken=" + downloadToken + "; Path=/");
+        }
 
         List<Map<String, Object>> data = cbsReportService.getReport2Data(branch, fromDate, toDate);
 
@@ -112,7 +122,12 @@ public class CbsReportController {
             @RequestParam(value = "products", required = false) List<String> products,
             @RequestParam(value = "fromDate", required = false) String fromDate,
             @RequestParam(value = "toDate", required = false) String toDate,
+            @RequestParam(value = "downloadToken", required = false) String downloadToken,
             HttpServletResponse response) throws Exception {
+
+        if (downloadToken != null) {
+            response.setHeader("Set-Cookie", "downloadToken=" + downloadToken + "; Path=/");
+        }
 
         List<Map<String, Object>> data = cbsReportService.getReport3Data(branch, products, fromDate, toDate);
 

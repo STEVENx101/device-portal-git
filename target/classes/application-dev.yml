@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:mysql://intdb.fintrex.test:3306/device_portal
-    username: root
-    password: Test@-123
+    url: jdbc:mysql://intdb.fintrex.lk:3306/device_portal
+    username: cbs
+    password: hatxGap260
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:

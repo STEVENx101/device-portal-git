@@ -92,4 +92,30 @@ public class ContractService {
 
         return datatable.dataTable(req, finalQuery);
     }
+
+    public DataTableResponse fetchlockdata(DataTableRequest req) throws Exception {
+        String finNo = req.getData() != null ? req.getData().toString().trim() : null;
+        System.out.println("FIN_NO for Lock Log: " + finNo);
+
+        String innerQuery = """
+            SELECT 
+                l.status, 
+                l.date, 
+                l.changed_by, 
+                l.reason 
+            FROM loan.lock_log l 
+            WHERE l.finance_no = '""" + finNo + """
+            ' 
+            ORDER BY l.date DESC""";
+
+        String finalQuery = """
+            SELECT 
+                t.status, 
+                t.date, 
+                t.changed_by, 
+                t.reason 
+            FROM (""" + innerQuery + ") t WHERE TRUE";
+
+        return datatable.dataTable(req, finalQuery);
+    }
 }

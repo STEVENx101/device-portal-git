@@ -98,170 +98,193 @@
                     </div>
 
                     <div class="card" id="detailsCard" style="display: none;">
-                        <div class="card-body overflow-hidden">
-                            <div class="row">
-                                <div class="col-lg-4 border-md-end border-dashed">
-                                    <table class="table fs--1 mt-3">
-                                        <tbody>
-                                            <tr>
-                                                <td class="bg-100" style="width: 40%;">Account No</td>
-                                                <td><span class="val-account-no">-</span></td>
-                                            </tr>
-                                            <tr>
-                                                <td class="bg-100" style="width: 40%;">Account Status</td>
-                                                <td><span class="val-account-status">-</span></td>
-                                            </tr>
-                                            <tr>
-                                                <td class="bg-100" style="width: 40%;">Total Outstanding</td>
-                                                <td><span class="val-outstanding">-</span></td>
-                                            </tr>
-                                            <tr>
-                                                <td class="bg-100" style="width: 40%;">Performing Status</td>
-                                                <td><span class="val-performing-status">-</span></td>
-                                            </tr>
-                                            <tr>
-                                                <td class="bg-100" style="width: 40%;">Security</td>
-                                                <td><span class="val-security">-</span></td>
-                                            </tr>
-                                            <tr>
-                                                <td class="bg-100" style="width: 40%;">Model</td>
-                                                <td><span class="val-model">-</span></td>
-                                            </tr>
-                                            <tr class="row-next-lock-date">
-                                                <td class="bg-100" style="width: 40%;">Next Lock Date</td>
-                                                <td><span class="val-next-lock-date">-</span></td>
-                                            </tr>
-                                            <tr class="row-lock-status">
-                                                <td class="bg-100" style="width: 40%;">Lock Status</td>
-                                                <td><span class="val-lock-status">-</span></td>
-                                            </tr>
-                                            <tr class="row-device-status" style="display: none;">
-                                                <td class="bg-100" style="width: 40%;">Current Device Status</td>
-                                                <td><span class="val-device-status">-</span></td>
-                                            </tr>
-                                            <tr>
-                                                <td class="bg-100" style="width: 40%;">Facility Grant Date</td>
-                                                <td><span class="val-facility-grant-date">-</span></td>
-                                            </tr>
-                                            <tr>
-                                                <td class="bg-100" style="width: 40%;">Maturity Date</td>
-                                                <td><span class="val-maturity-date">-</span></td>
-                                            </tr>
-                                            <tr>
-                                                <td class="bg-100" style="width: 40%;">Due Date</td>
-                                                <td><span class="val-due-date">-</span></td>
-                                            </tr>
-                                            <tr>
-                                                <td class="bg-100" style="width: 40%;">Rental</td>
-                                                <td><span class="val-rental">-</span></td>
-                                            </tr>
-                                            <tr>
-                                                <td class="bg-100" style="width: 40%;">Tenor</td>
-                                                <td><span class="val-period">-</span></td>
-                                            </tr>
-                                            <tr>
-                                                <td class="bg-100" style="width: 40%;">Loan Amount</td>
-                                                <td><span class="val-finance-amount">-</span></td>
-                                            </tr>
-                                            <tr>
-                                                <td class="bg-100" style="width: 40%;">DPD</td>
-                                                <td><span class="val-arr-days">-</span></td>
-                                            </tr>
-                                            <tr>
-                                                <td class="bg-100" style="width: 40%;">Early Settlement Amount</td>
-                                                <td><span class="">-</span></td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0 text-primary"><span class="fas fa-info-circle me-2"></span>Contract Information Overview</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                                    <div class="text-500 fs--2 font-sans-serif fw-semi-bold">ACCOUNT NO</div>
+                                    <div class="fs--1 fw-bold val-account-no">-</div>
                                 </div>
-                                <div class="col-lg-8">
-                                    <ul class="nav nav-pills nav-justified mb-2" id="customer-guarantor-tabs" role="tablist">
-                                        <li class="nav-item" role="presentation">
-                                            <button class="nav-link active py-1 px-3 fs--1 fw-semi-bold" id="customer-tab" data-bs-toggle="pill" data-bs-target="#customer-details-pane" type="button" role="tab" aria-controls="customer-details-pane" aria-selected="true">Customer Details</button>
-                                        </li>
-                                        <li class="nav-item" role="presentation">
-                                            <button class="nav-link py-1 px-3 fs--1 fw-semi-bold" id="guarantor-tab" data-bs-toggle="pill" data-bs-target="#guarantor-details-pane" type="button" role="tab" aria-controls="guarantor-details-pane" aria-selected="false">Guarantor Details</button>
-                                        </li>
-                                    </ul>
-                                    <div class="tab-content" id="customer-guarantor-tabs-content">
-                                        <div class="tab-pane fade show active" id="customer-details-pane" role="tabpanel" aria-labelledby="customer-tab">
-                                            <table class="table table-borderless fs--1 fw-medium mb-0">
-                                                <tbody>
-                                                    <tr>
-                                                        <td class="p-1" style="width: 25%;">NIC:</td>
-                                                        <td class="p-1 text-600"><span id="val-cust-nic">-</span></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="p-1" style="width: 25%;">Name:</td>
-                                                        <td class="p-1 text-600"><span id="val-cust-name">-</span></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="p-1" style="width: 25%;">Address:</td>
-                                                        <td class="p-1 text-600"><span id="val-cust-address">-</span></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="p-1" style="width: 25%;">Mobile No:</td>
-                                                        <td class="p-1"><a class="text-600 text-decoration-none" id="val-cust-mobile-link" href="#"><span id="val-cust-mobile">-</span></a></td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                        <div class="tab-pane fade" id="guarantor-details-pane" role="tabpanel" aria-labelledby="guarantor-tab">
-                                            <div id="guarantors-wrapper">
-                                                <!-- Dynamically filled -->
-                                            </div>
-                                        </div>
+                                <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                                    <div class="text-500 fs--2 font-sans-serif fw-semi-bold">ACCOUNT STATUS</div>
+                                    <div class="fs--1 fw-bold val-account-status">-</div>
+                                </div>
+                                <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                                    <div class="text-500 fs--2 font-sans-serif fw-semi-bold">TOTAL OUTSTANDING</div>
+                                    <div class="fs--1 fw-bold val-outstanding">-</div>
+                                </div>
+                                <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                                    <div class="text-500 fs--2 font-sans-serif fw-semi-bold">PERFORMING STATUS</div>
+                                    <div class="fs--1 fw-bold val-performing-status">-</div>
+                                </div>
+                                <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                                    <div class="text-500 fs--2 font-sans-serif fw-semi-bold">DPD</div>
+                                    <div class="fs--1 fw-bold val-arr-days">-</div>
+                                </div>
+                                <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                                    <div class="text-500 fs--2 font-sans-serif fw-semi-bold">SECURITY / MODEL</div>
+                                    <div class="fs--1 fw-bold"><span class="val-security">-</span> / <span class="val-model">-</span></div>
+                                </div>
+                                <div class="col-6 col-sm-4 col-md-3 col-lg-2 row-lock-status">
+                                    <div class="text-500 fs--2 font-sans-serif fw-semi-bold">LOCK STATUS</div>
+                                    <div class="fs--1 fw-bold val-lock-status">-</div>
+                                </div>
+                                <div class="col-6 col-sm-4 col-md-3 col-lg-2 row-next-lock-date">
+                                    <div class="text-500 fs--2 font-sans-serif fw-semi-bold">NEXT LOCK DATE</div>
+                                    <div class="fs--1 fw-bold val-next-lock-date">-</div>
+                                </div>
+                                <div class="col-6 col-sm-4 col-md-3 col-lg-2 row-device-status" style="display: none;">
+                                    <div class="text-500 fs--2 font-sans-serif fw-semi-bold">CURRENT DEVICE STATUS</div>
+                                    <div class="fs--1 fw-bold val-device-status">-</div>
+                                </div>
+                                <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                                    <div class="text-500 fs--2 font-sans-serif fw-semi-bold">FACILITY GRANT DATE</div>
+                                    <div class="fs--1 fw-bold val-facility-grant-date">-</div>
+                                </div>
+                                <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                                    <div class="text-500 fs--2 font-sans-serif fw-semi-bold">MATURITY DATE</div>
+                                    <div class="fs--1 fw-bold val-maturity-date">-</div>
+                                </div>
+                                <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                                    <div class="text-500 fs--2 font-sans-serif fw-semi-bold">DUE DATE</div>
+                                    <div class="fs--1 fw-bold val-due-date">-</div>
+                                </div>
+                                <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                                    <div class="text-500 fs--2 font-sans-serif fw-semi-bold">RENTAL</div>
+                                    <div class="fs--1 fw-bold val-rental">-</div>
+                                </div>
+                                <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                                    <div class="text-500 fs--2 font-sans-serif fw-semi-bold">TENOR</div>
+                                    <div class="fs--1 fw-bold val-period">-</div>
+                                </div>
+                                <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                                    <div class="text-500 fs--2 font-sans-serif fw-semi-bold">LOAN AMOUNT</div>
+                                    <div class="fs--1 fw-bold val-finance-amount">-</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card glass-card mt-3" id="tabsCard" style="display: none;">
+                        <div class="card-header p-0 border-bottom border-200">
+                            <ul class="nav nav-tabs border-0" id="detail-tabs-list" role="tablist">
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="tab-cust" data-bs-toggle="tab" href="#cust-pane" role="tab" aria-controls="cust-pane" aria-selected="true">
+                                        <span class="fas fa-user me-2"></span>Customer Details
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="tab-guarantor" data-bs-toggle="tab" href="#guar-pane" role="tab" aria-controls="guar-pane" aria-selected="false">
+                                        <span class="fas fa-users me-2"></span>Guarantor Details
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="tab-statement" data-bs-toggle="tab" href="#stat-pane" role="tab" aria-controls="stat-pane" aria-selected="false">
+                                        <span class="fas fa-file-invoice-dollar"></span>Account Statement
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="tab-payments" data-bs-toggle="tab" href="#pay-pane" role="tab" aria-controls="pay-pane" aria-selected="false">
+                                        <span class="fas fa-receipt me-2"></span>Payments
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="tab-sms" data-bs-toggle="tab" href="#sms-pane" role="tab" aria-controls="sms-pane" aria-selected="false">
+                                        <span class="fas fa-sms me-2"></span>SMS Logs
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="tab-locks" data-bs-toggle="tab" href="#locks-pane" role="tab" aria-controls="locks-pane" aria-selected="false">
+                                        <span class="fas fa-lock me-2"></span>Lock/Unlock Logs
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="card-body p-3">
+                            <div class="tab-content" id="detail-tabs-content">
+                                <!-- Customer details pane -->
+                                <div class="tab-pane fade show active" id="cust-pane" role="tabpanel" aria-labelledby="tab-cust">
+                                    <div class="table-responsive">
+                                        <table class="table table-striped table-hover mb-0 fs--1">
+                                            <tbody>
+                                                <tr>
+                                                    <td class="bg-100 fw-bold" style="width: 20%;">NIC:</td>
+                                                    <td class="text-600"><span id="val-cust-nic">-</span></td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="bg-100 fw-bold" style="width: 20%;">Name:</td>
+                                                    <td class="text-600"><span id="val-cust-name">-</span></td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="bg-100 fw-bold" style="width: 20%;">Address:</td>
+                                                    <td class="text-600"><span id="val-cust-address">-</span></td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="bg-100 fw-bold" style="width: 20%;">Mobile No:</td>
+                                                    <td><a class="text-600 text-decoration-none fw-bold" id="val-cust-mobile-link" href="#"><span id="val-cust-mobile">-</span></a></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
                                     </div>
-
-                                    <!-- Divider -->
-                                    <hr class="my-4 border-dashed" />
-
-                                    <!-- Additional Details Tabs -->
-                                    <ul class="nav nav-pills nav-justified mb-2" id="additional-details-tabs" role="tablist">
-                                        <li class="nav-item" role="presentation">
-                                            <button class="nav-link active py-1 px-3 fs--1 fw-semi-bold" id="statement-tab" data-bs-toggle="pill" data-bs-target="#statement-pane" type="button" role="tab" aria-controls="statement-pane" aria-selected="true">Account Statement</button>
-                                        </li>
-                                        <li class="nav-item" role="presentation">
-                                            <button class="nav-link py-1 px-3 fs--1 fw-semi-bold" id="payments-tab" data-bs-toggle="pill" data-bs-target="#payments-pane" type="button" role="tab" aria-controls="payments-pane" aria-selected="false">Payments</button>
-                                        </li>
-                                        <li class="nav-item" role="presentation">
-                                            <button class="nav-link py-1 px-3 fs--1 fw-semi-bold" id="sms-tab" data-bs-toggle="pill" data-bs-target="#sms-pane" type="button" role="tab" aria-controls="sms-pane" aria-selected="false">SMS</button>
-                                        </li>
-                                    </ul>
-                                    <div class="tab-content" id="additional-details-tabs-content">
-                                        <div class="tab-pane fade show active" id="statement-pane" role="tabpanel" aria-labelledby="statement-tab">
-                                            <!-- Account Statement Content -->
-                                        </div>
-                                        <div class="tab-pane fade" id="payments-pane" role="tabpanel" aria-labelledby="payments-tab">
-                                            <div class="row mx-0 border-bottom border-dashed">
-                                                <table id="receipt_table" class="table fs--1 w-100">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>Receipt No</th>
-                                                            <th>Receipt Date</th>
-                                                            <th>Receipt Mode</th>
-                                                            <th>Amount</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody></tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-                                        <div class="tab-pane fade" id="sms-pane" role="tabpanel" aria-labelledby="sms-tab">
-                                            <div class="row mx-0 border-bottom border-dashed">
-                                                <table id="sms_table" class="table fs--1 w-100">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>Sent Date</th>
-                                                            <th>Mobile No</th>
-                                                            <th>Message</th>
-                                                            <th>Status</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody></tbody>
-                                                </table>
-                                            </div>
-                                        </div>
+                                </div>
+                                <!-- Guarantor details pane -->
+                                <div class="tab-pane fade" id="guar-pane" role="tabpanel" aria-labelledby="tab-guarantor">
+                                    <div id="guarantors-wrapper">
+                                        <!-- Dynamically filled -->
+                                    </div>
+                                </div>
+                                <!-- Account Statement pane -->
+                                <div class="tab-pane fade" id="stat-pane" role="tabpanel" aria-labelledby="tab-statement">
+                                    <p class="text-muted fs--1">No statement details registered for this account.</p>
+                                </div>
+                                <!-- Payments pane -->
+                                <div class="tab-pane fade" id="pay-pane" role="tabpanel" aria-labelledby="tab-payments">
+                                    <div class="table-responsive">
+                                        <table id="receipt_table" class="table table-hover table-striped mb-0 fs--1 w-100">
+                                            <thead>
+                                                <tr>
+                                                    <th>Receipt No</th>
+                                                    <th>Receipt Date</th>
+                                                    <th>Receipt Mode</th>
+                                                    <th>Amount</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <!-- SMS pane -->
+                                <div class="tab-pane fade" id="sms-pane" role="tabpanel" aria-labelledby="tab-sms">
+                                    <div class="table-responsive">
+                                        <table id="sms_table" class="table table-hover table-striped mb-0 fs--1 w-100">
+                                            <thead>
+                                                <tr>
+                                                    <th>Sent Date</th>
+                                                    <th>Mobile No</th>
+                                                    <th>Message</th>
+                                                    <th>Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <!-- Lock/Unlock logs pane -->
+                                <div class="tab-pane fade" id="locks-pane" role="tabpanel" aria-labelledby="tab-locks">
+                                    <div class="table-responsive">
+                                        <table id="locks_table" class="table table-hover table-striped mb-0 fs--1 w-100">
+                                            <thead>
+                                                <tr>
+                                                    <th>Date & Time</th>
+                                                    <th>Status</th>
+                                                    <th>Changed By</th>
+                                                    <th>Reason</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                        </table>
                                     </div>
                                 </div>
                             </div>
@@ -298,10 +321,10 @@
                         if (!contextPath && window.location.pathname.includes('/device-portal')) {
                             contextPath = '/device-portal';
                         }
-
                         $(document).ready(function () {
                             ReceiptTable('');
                             SmsTable('');
+                            LocksTable('');
                         });
 
 
@@ -457,8 +480,58 @@
                         }
 
 
-
-
+                        function LocksTable(financeNo) {
+                            const tableId = '#locks_table';
+                            if ($.fn.DataTable.isDataTable(tableId)) {
+                                $(tableId).DataTable().destroy();
+                            }
+                            $(tableId).DataTable({
+                                paging: false,
+                                lengthChange: false,
+                                info: true,
+                                searching: false,
+                                ordering: false,
+                                autoWidth: false,
+                                processing: true,
+                                serverSide: true,
+                                ajax: {
+                                    url: contextPath + '/api/contracts/fetchlockdata',
+                                    type: 'POST',
+                                    contentType: 'application/json',
+                                    data: function (d) {
+                                        d.data = financeNo || '';
+                                        return JSON.stringify(d);
+                                    },
+                                    dataSrc: function (json) {
+                                        return json.data || [];
+                                    },
+                                    error: function (xhr, error, code) {
+                                        console.error("Failed to load lock logs", xhr, error, code);
+                                    }
+                                },
+                                columns: [
+                                    { data: "date", defaultContent: "-" },
+                                    { 
+                                        data: "status", 
+                                        defaultContent: "-",
+                                        render: function (data) {
+                                            if (data === "LOCKED") {
+                                                return '<span class="badge badge-soft-danger">LOCKED</span>';
+                                            } else if (data === "UNLOCKED") {
+                                                return '<span class="badge badge-soft-success">UNLOCKED</span>';
+                                            }
+                                            return data;
+                                        }
+                                    },
+                                    { data: "changed_by", defaultContent: "-" },
+                                    { data: "reason", defaultContent: "-" }
+                                ],
+                                language: {
+                                    processing: 'Loading...',
+                                    emptyTable: "No lock logs available."
+                                }
+                            });
+                        }
 
 
                         document.addEventListener('DOMContentLoaded', function () {
@@ -466,6 +539,7 @@
                             const suggestionsDropdown = document.querySelector('.search-box .dropdown-menu');
                             const listContainer = suggestionsDropdown ? suggestionsDropdown.querySelector('.list') : null;
                             const detailsCard = document.getElementById('detailsCard');
+                            const tabsCard = document.getElementById('tabsCard');
 
 
                             let debounceTimeout = null;
@@ -631,28 +705,25 @@
                                             const guarantorsWrapper = document.getElementById('guarantors-wrapper');
                                             let guarantorsHtml = '';
                                              function getGuarantorHtml(title, name, address, contact) {
-                                                 return '<div class="font-sans-serif border-bottom border-dashed py-2">' +
-                                                         '<div class="card-body d-flex gap-3 flex-column align-items-start p-2">' +
-                                                         '<h6 class="mb-2 text-primary fw-bold">' + title + '</h6>' +
-                                                         '<table class="table table-borderless fs--1 fw-medium mb-0">' +
+                                                 return '<div class="table-responsive mb-3">' +
+                                                         '<table class="table table-striped table-hover mb-0 fs--1">' +
                                                          '<tbody>' +
                                                          '<tr>' +
-                                                         '<td class="p-1" style="width: 25%;">Name:</td>' +
-                                                         '<td class="p-1 text-600">' + (name || '-') + '</td>' +
+                                                         '<td class="bg-100 fw-bold" style="width: 20%;">Name:</td>' +
+                                                         '<td class="text-600">' + (name || '-') + '</td>' +
                                                          '</tr>' +
                                                          '<tr>' +
-                                                         '<td class="p-1" style="width: 25%;">Address:</td>' +
-                                                         '<td class="p-1 text-600">' + (address || '-') + '</td>' +
+                                                         '<td class="bg-100 fw-bold" style="width: 20%;">Address:</td>' +
+                                                         '<td class="text-600">' + (address || '-') + '</td>' +
                                                          '</tr>' +
                                                          '<tr>' +
-                                                         '<td class="p-1" style="width: 25%;">Mobile No:</td>' +
-                                                         '<td class="p-1">' +
-                                                         (contact ? '<a class="text-600 text-decoration-none" href="tel:' + contact + '">' + contact + '</a>' : '-') +
+                                                         '<td class="bg-100 fw-bold" style="width: 20%;">Mobile No:</td>' +
+                                                         '<td>' +
+                                                         (contact ? '<a class="text-600 text-decoration-none fw-bold" href="tel:' + contact + '">' + contact + '</a>' : '-') +
                                                          '</td>' +
                                                          '</tr>' +
                                                          '</tbody>' +
                                                          '</table>' +
-                                                         '</div>' +
                                                          '</div>';
                                              }
 
@@ -689,8 +760,10 @@
 
 
                                             detailsCard.style.display = 'block';
+                                            if (tabsCard) tabsCard.style.display = 'block';
                                             ReceiptTable(data.financeNo);
                                             SmsTable(data.financeNo);
+                                            LocksTable(data.financeNo);
                                             if (loader) loader.style.display = 'none';
                                         })
                                         .catch(error => {

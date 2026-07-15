@@ -36,7 +36,22 @@ public class PageController {
 
     @GetMapping("/cbs-reports")
     public String cbsReports() {
-        return "cbs-reports";
+        return "redirect:/portfolio";
+    }
+
+    @GetMapping("/portfolio")
+    public String portfolioReport() {
+        return "portfolio-report";
+    }
+
+    @GetMapping("/client")
+    public String clientReport() {
+        return "client-report";
+    }
+
+    @GetMapping("/transaction")
+    public String transactionReport() {
+        return "transaction-report";
     }
 
 }

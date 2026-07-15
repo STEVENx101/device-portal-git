@@ -7,13 +7,17 @@
     boolean hasDashboard = false;
     boolean hasDeviceFinance = false;
     boolean hasUserManagement = false;
-    boolean hasCbsReports = false;
+    boolean hasPortfolio = false;
+    boolean hasClientReport = false;
+    boolean hasTransactionReport = false;
     if (userScreens != null) {
         for (Screen s : userScreens) {
             if (s.getPath().equalsIgnoreCase("/dashboard")) hasDashboard = true;
             if (s.getPath().equalsIgnoreCase("/mobile")) hasDeviceFinance = true;
             if (s.getPath().equalsIgnoreCase("/user-management")) hasUserManagement = true;
-            if (s.getPath().equalsIgnoreCase("/cbs-reports")) hasCbsReports = true;
+            if (s.getPath().equalsIgnoreCase("/portfolio")) hasPortfolio = true;
+            if (s.getPath().equalsIgnoreCase("/client")) hasClientReport = true;
+            if (s.getPath().equalsIgnoreCase("/transaction")) hasTransactionReport = true;
         }
     }
     User navbarUser = (User) session.getAttribute("currentUser");
@@ -103,12 +107,12 @@ body {
     display: none !important;
 }
 
-/* Custom Premium Vertical Sidebar Navbar from scratch */
+/* Custom Premium Vertical Sidebar Navbar from scratch with hover expand */
 .navbar-vertical-modern {
     position: fixed !important;
     left: 10px !important;
     top: 10px !important;
-    width: 240px !important;
+    width: 70px !important;
     height: calc(100vh - 20px) !important;
     background: rgba(255, 255, 255, 0.65) !important;
     backdrop-filter: blur(20px) !important;
@@ -120,7 +124,77 @@ body {
     display: flex !important;
     flex-direction: column !important;
     justify-content: space-between !important;
+    padding: 1.5rem 0.5rem !important;
+    transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    overflow: hidden !important;
+}
+
+.navbar-vertical-modern:hover {
+    width: 240px !important;
     padding: 1.5rem 1rem !important;
+}
+
+/* Hide text elements in collapsed state, show on hover */
+.navbar-vertical-modern:not(:hover) .brand-text,
+.navbar-vertical-modern:not(:hover) .nav-item-link span:not(.fas),
+.navbar-vertical-modern:not(:hover) .nav-label-text,
+.navbar-vertical-modern:not(:hover) .dropdown-chevron,
+.navbar-vertical-modern:not(:hover) .user-details,
+.navbar-vertical-modern:not(:hover) .logout-btn span:not(.fas) {
+    display: none !important;
+}
+
+/* Center icons when collapsed */
+.navbar-vertical-modern:not(:hover) .nav-item-link,
+.navbar-vertical-modern:not(:hover) .logout-btn {
+    justify-content: center !important;
+    padding: 0.7rem 0 !important;
+}
+.navbar-vertical-modern:not(:hover) .user-info-block {
+    justify-content: center !important;
+    padding-left: 0 !important;
+}
+
+/* Dropdown Custom Styles */
+.nav-item-dropdown-custom {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+.dropdown-menu-custom {
+    display: none;
+    flex-direction: column;
+    gap: 4px;
+    padding-left: 1.5rem;
+    margin-top: 4px;
+}
+.navbar-vertical-modern:not(:hover) .dropdown-menu-custom {
+    display: none !important; /* Never show dropdown when collapsed */
+}
+.nav-item-dropdown-custom.open .dropdown-menu-custom {
+    display: flex;
+}
+.nav-item-dropdown-custom.open .dropdown-chevron {
+    transform: rotate(180deg);
+}
+.dropdown-item-custom {
+    color: #475569 !important;
+    font-weight: 600 !important;
+    padding: 0.5rem 0.8rem !important;
+    border-radius: 8px !important;
+    text-decoration: none !important;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s ease-in-out;
+}
+.dropdown-item-custom:hover {
+    color: #4f46e5 !important;
+    background: rgba(99, 102, 241, 0.1) !important;
+}
+.dropdown-item-custom.active {
+    color: #4f46e5 !important;
+    background: rgba(99, 102, 241, 0.15) !important;
 }
 
 .navbar-vertical-modern .brand-section {
@@ -132,11 +206,33 @@ body {
     padding-left: 0.5rem;
 }
 
-.navbar-vertical-modern .brand-text {
-    font-weight: 700;
-    font-size: 1.2rem;
-    color: #4f46e5;
-    letter-spacing: 0.02em;
+.navbar-vertical-modern .brand-logo-collapsed-circle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    background: transparent !important;
+    border-radius: 50%;
+    padding: 3px;
+    overflow: hidden;
+}
+.navbar-vertical-modern .brand-logo-collapsed {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+}
+.navbar-vertical-modern .brand-logo-expanded {
+    display: none;
+    height: 35px;
+    width: auto;
+}
+
+.navbar-vertical-modern:hover .brand-logo-collapsed-circle {
+    display: none !important;
+}
+.navbar-vertical-modern:hover .brand-logo-expanded {
+    display: block !important;
 }
 
 .navbar-vertical-modern .nav-links-section {
@@ -288,7 +384,8 @@ body {
     max-height: calc(100vh - 20px) !important;
     overflow: hidden !important;
     padding-bottom: 10px !important;
-    margin-left: 260px !important; /* Move content block to the right */
+    margin-left: 90px !important; /* Margined for collapsed modern sidebar (70px + spacing) */
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
 #detailsCard {
@@ -399,8 +496,10 @@ body {
 <div class="navbar-vertical-modern">
     <div class="d-flex flex-column">
         <a class="brand-section" href="<%= request.getContextPath() %>/dashboard">
-            <img src="assets/img/icons/spot-illustrations/falcon.png" alt="" width="35" />
-            <span class="brand-text">Fintrex</span>
+            <div class="brand-logo-collapsed-circle">
+                <img class="brand-logo-collapsed" src="<%= request.getContextPath() %>/assets/img/logo_collapsed.png" alt="Fintrex Icon" />
+            </div>
+            <img class="brand-logo-expanded" src="<%= request.getContextPath() %>/assets/img/logo.png" alt="Fintrex Logo" />
         </a>
         
         <div class="nav-links-section">
@@ -418,11 +517,31 @@ body {
                 </a>
             <% } %>
             
-            <% if (hasCbsReports) { %>
-                <a class="nav-item-link" id="nav-cbs" href="<%= request.getContextPath() %>/cbs-reports">
-                    <span class="fas fa-file-invoice-dollar"></span>
-                    <span>CBS Reports</span>
-                </a>
+            <% if (hasPortfolio || hasClientReport || hasTransactionReport) { %>
+                <div class="nav-item-dropdown-custom" id="nav-reports-group">
+                    <a class="nav-item-link dropdown-trigger" href="javascript:void(0)" id="nav-reports-trigger">
+                        <span class="fas fa-file-invoice-dollar"></span>
+                        <span class="nav-label-text">Reports</span>
+                        <span class="fas fa-chevron-down ms-auto dropdown-chevron"></span>
+                    </a>
+                    <div class="dropdown-menu-custom">
+                        <% if (hasPortfolio) { %>
+                        <a href="<%= request.getContextPath() %>/portfolio" class="dropdown-item-custom" id="nav-report-portfolio">
+                            <span class="fas fa-link me-2"></span>Portfolio
+                        </a>
+                        <% } %>
+                        <% if (hasClientReport) { %>
+                        <a href="<%= request.getContextPath() %>/client" class="dropdown-item-custom" id="nav-report-client">
+                            <span class="fas fa-user-tag me-2"></span>Client Report
+                        </a>
+                        <% } %>
+                        <% if (hasTransactionReport) { %>
+                        <a href="<%= request.getContextPath() %>/transaction" class="dropdown-item-custom" id="nav-report-transaction">
+                            <span class="fas fa-receipt me-2"></span>Transaction Report
+                        </a>
+                        <% } %>
+                    </div>
+                </div>
             <% } %>
 
             <% if (hasUserManagement) { %>
@@ -437,7 +556,7 @@ body {
     <!-- User Profile details stacked compactly at the bottom -->
     <div class="user-profile-section">
         <div class="user-info-block">
-            <img class="rounded-circle" src="assets/img/avatar.png" alt="" width="32" />
+            <img class="rounded-circle" src="<%= request.getContextPath() %>/assets/img/avatar.png" alt="" width="32" />
             <div class="user-details">
                 <span class="user-name"><%= navUserName %></span>
                 <span class="user-role"><%= navUserRole %></span>
@@ -453,6 +572,8 @@ body {
 <script>
     document.addEventListener("DOMContentLoaded", () => {
         const path = window.location.pathname;
+        const params = new URLSearchParams(window.location.search);
+        
         if (path.includes("dashboard")) {
             const el = document.getElementById("nav-dash");
             if (el) el.classList.add("active");
@@ -462,9 +583,32 @@ body {
         } else if (path.includes("user-management")) {
             const el = document.getElementById("nav-users");
             if (el) el.classList.add("active");
-        } else if (path.includes("cbs-reports")) {
-            const el = document.getElementById("nav-cbs");
-            if (el) el.classList.add("active");
+        } else if (path.includes("portfolio") || path.includes("client") || path.includes("transaction")) {
+            const group = document.getElementById("nav-reports-group");
+            if (group) group.classList.add("open");
+            
+            if (path.includes("portfolio")) {
+                const item = document.getElementById("nav-report-portfolio");
+                if (item) item.classList.add("active");
+            } else if (path.includes("client")) {
+                const item = document.getElementById("nav-report-client");
+                if (item) item.classList.add("active");
+            } else if (path.includes("transaction")) {
+                const item = document.getElementById("nav-report-transaction");
+                if (item) item.classList.add("active");
+            }
+        }
+
+        // Toggle custom dropdown on click
+        const trigger = document.getElementById("nav-reports-trigger");
+        if (trigger) {
+            trigger.addEventListener("click", (e) => {
+                e.preventDefault();
+                const group = document.getElementById("nav-reports-group");
+                if (group) {
+                    group.classList.toggle("open");
+                }
+            });
         }
     });
 </script>

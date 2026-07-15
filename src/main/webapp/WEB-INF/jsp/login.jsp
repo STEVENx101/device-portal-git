@@ -100,52 +100,7 @@
                                                 </div>
                                                 <div id="error-message" class="alert alert-danger p-2 fs--1"
                                                     style="display: none;"></div>
-                                                <form id="loginForm">
-                                                    <div class="mb-3">
-                                                        <input class="form-control ft-size" id="card-username"
-                                                            name="username" type="text" placeholder="Username"
-                                                            required />
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <input class="form-control ft-size" id="card-password"
-                                                            name="password" type="password" placeholder="Password"
-                                                            required />
-                                                    </div>
-                                                    <button class="btn btn-primary d-block w-100 mt-3" type="submit"
-                                                        name="submit">Log in</button>
-                                                </form>
 
-                                                <script>
-                                                    document.getElementById('loginForm').addEventListener('submit', function (e) {
-                                                        e.preventDefault();
-                                                        const errorDiv = document.getElementById('error-message');
-                                                        errorDiv.style.display = 'none';
-
-                                                        const formData = new URLSearchParams(new FormData(this));
-
-                                                        fetch('<%= request.getContextPath() %>/login', {
-                                                            method: 'POST',
-                                                            body: formData
-                                                        })
-                                                            .then(res => {
-                                                                if (res.ok) {
-                                                                    window.location.href = '<%= request.getContextPath() %>/dashboard';
-                                                                } else {
-                                                                    return res.json().then(data => {
-                                                                        throw new Error(data.message || 'Invalid credentials');
-                                                                    });
-                                                                }
-                                                            })
-                                                            .catch(err => {
-                                                                errorDiv.innerText = err.message;
-                                                                errorDiv.style.display = 'block';
-                                                            });
-                                                    });
-                                                </script>
-
-                                                <div class="text-center my-3 text-muted fs--1">
-                                                    <span>— OR —</span>
-                                                </div>
                                                 <button id="ssoLoginBtn" class="btn btn-outline-primary d-block w-100" type="button">
                                                     <span class="fas fa-key me-2"></span>Login with SSO
                                                 </button>
@@ -186,19 +141,21 @@
                     window.location.href = AUTH_SERVER + '/auth/login?client_redirect_uri=' + encodeURIComponent(clientRedirectUrl) + '&redirect=' + encodeURIComponent(target);
                 }
 
-                // Silent SSO verification on load
-                (async function initSSO() {
-                    const params = new URLSearchParams(window.location.search);
-                    if (params.get('logout') === 'true') {
-                        console.log('User manually logged out. Skipping silent SSO check.');
-                        return;
-                    }
+                async function handleSSOClick() {
+                    const errorDiv = document.getElementById('error-message');
+                    if (errorDiv) errorDiv.style.display = 'none';
+
+                    const ssoBtn = document.getElementById('ssoLoginBtn');
+                    ssoBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Connecting to SSO...';
+                    ssoBtn.disabled = true;
 
                     try {
+                        // Check if they already have an active session on the auth server
                         const res = await fetch(AUTH_SERVER + '/me', { credentials: 'include' });
                         if (res.ok) {
                             const ssoUser = await res.json();
 
+                            // Establish local session
                             const localRes = await fetch(CTX + '/api/login-callback', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
@@ -208,16 +165,18 @@
 
                             if (localRes.ok) {
                                 window.location.replace(CTX + getRedirectTarget());
-                            } else {
-                                console.log('Unable to create local session from SSO.');
+                                return;
                             }
                         }
                     } catch (err) {
-                        console.error('Silent SSO verification failed:', err);
+                        console.error('SSO verification check failed:', err);
                     }
-                })();
 
-                document.getElementById('ssoLoginBtn').addEventListener('click', redirectToLoginSSO);
+                    // If check fails or not logged in, proceed to redirect to auth server login page
+                    redirectToLoginSSO();
+                }
+
+                document.getElementById('ssoLoginBtn').addEventListener('click', handleSSOClick);
             </script>
         </body>
 
