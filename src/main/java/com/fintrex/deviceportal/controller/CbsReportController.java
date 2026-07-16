@@ -4,6 +4,7 @@ import com.fintrex.deviceportal.config.DataTableRequest;
 import com.fintrex.deviceportal.config.DataTableResponse;
 import com.fintrex.deviceportal.service.CbsReportService;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,7 +27,11 @@ public class CbsReportController {
     }
 
     @PostMapping("/report1")
-    public DataTableResponse getReport1(@RequestBody DataTableRequest request) {
+    public DataTableResponse getReport1(@RequestBody DataTableRequest request, HttpSession session) {
+        com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");
+        String username = currentUser != null ? currentUser.getUsername() : "system";
+        String filtersStr = request.getData() != null ? request.getData().toString() : "none";
+        cbsReportService.logReportActivity(username, "Portfolio Report", "VIEW", filtersStr);
         return cbsReportService.fetchReport1(request);
     }
 
@@ -36,7 +41,21 @@ public class CbsReportController {
             @RequestParam(value = "products", required = false) List<String> products,
             @RequestParam(value = "asAt", required = false) String asAt,
             @RequestParam(value = "downloadToken", required = false) String downloadToken,
+            HttpSession session,
             HttpServletResponse response) throws Exception {
+
+        List<com.fintrex.deviceportal.dto.Screen> permittedScreens = (List<com.fintrex.deviceportal.dto.Screen>) session.getAttribute("permittedScreens");
+        boolean canDownload = permittedScreens != null && permittedScreens.stream()
+                .anyMatch(s -> s.getPath().equalsIgnoreCase("/download-reports"));
+        if (!canDownload) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "You do not have permission to download reports.");
+            return;
+        }
+
+        com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");
+        String username = currentUser != null ? currentUser.getUsername() : "system";
+        String filtersStr = String.format("branch=%s, products=%s, asAt=%s", branch, products, asAt);
+        cbsReportService.logReportActivity(username, "Portfolio Report", "DOWNLOAD", filtersStr);
 
         if (downloadToken != null) {
             response.setHeader("Set-Cookie", "downloadToken=" + downloadToken + "; Path=/");
@@ -48,10 +67,10 @@ public class CbsReportController {
         response.setHeader("Content-Disposition", "attachment; filename=\"portfolio_loan_report.csv\"");
 
         PrintWriter writer = response.getWriter();
-        writer.println("Portfolio Date,Account No,Series,Legacy Account No,Branch Name,Product Name,Loan Amount,Rental,Total Due,Exposure,DPD,Performing Status,Loan Status,IMEI No,Device Status,Workhub SP No,Platform");
+        writer.println("Portfolio Date,Account No,Series,Legacy Account No,Branch Name,Product Name,Loan Amount,Rental,Total Due,Exposure,DPD,Performing Status,Loan Status,Disbursed Date,Closed Date,IMEI No,Device Status,Workhub SP No,Platform");
 
         for (Map<String, Object> row : data) {
-            writer.println(String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
+            writer.println(String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
                     cleanCsv(row.get("portfolio_date")),
                     cleanCsv(row.get("account_no")),
                     cleanCsv(row.get("series")),
@@ -65,6 +84,8 @@ public class CbsReportController {
                     cleanCsv(row.get("dpd")),
                     cleanCsv(row.get("performing_status")),
                     cleanCsv(row.get("portfolio_loan_status")),
+                    cleanCsv(row.get("disbursed_date")),
+                    cleanCsv(row.get("closed_date")),
                     cleanCsv(row.get("device_id")),
                     cleanCsv(row.get("device_status")),
                     cleanCsv(row.get("external_id")),
@@ -75,7 +96,11 @@ public class CbsReportController {
     }
 
     @PostMapping("/report2")
-    public DataTableResponse getReport2(@RequestBody DataTableRequest request) {
+    public DataTableResponse getReport2(@RequestBody DataTableRequest request, HttpSession session) {
+        com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");
+        String username = currentUser != null ? currentUser.getUsername() : "system";
+        String filtersStr = request.getData() != null ? request.getData().toString() : "none";
+        cbsReportService.logReportActivity(username, "Client Report", "VIEW", filtersStr);
         return cbsReportService.fetchReport2(request);
     }
 
@@ -85,7 +110,21 @@ public class CbsReportController {
             @RequestParam(value = "fromDate", required = false) String fromDate,
             @RequestParam(value = "toDate", required = false) String toDate,
             @RequestParam(value = "downloadToken", required = false) String downloadToken,
+            HttpSession session,
             HttpServletResponse response) throws Exception {
+
+        List<com.fintrex.deviceportal.dto.Screen> permittedScreens = (List<com.fintrex.deviceportal.dto.Screen>) session.getAttribute("permittedScreens");
+        boolean canDownload = permittedScreens != null && permittedScreens.stream()
+                .anyMatch(s -> s.getPath().equalsIgnoreCase("/download-reports"));
+        if (!canDownload) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "You do not have permission to download reports.");
+            return;
+        }
+
+        com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");
+        String username = currentUser != null ? currentUser.getUsername() : "system";
+        String filtersStr = String.format("branch=%s, fromDate=%s, toDate=%s", branch, fromDate, toDate);
+        cbsReportService.logReportActivity(username, "Client Report", "DOWNLOAD", filtersStr);
 
         if (downloadToken != null) {
             response.setHeader("Set-Cookie", "downloadToken=" + downloadToken + "; Path=/");
@@ -116,7 +155,11 @@ public class CbsReportController {
     }
 
     @PostMapping("/report3")
-    public DataTableResponse getReport3(@RequestBody DataTableRequest request) {
+    public DataTableResponse getReport3(@RequestBody DataTableRequest request, HttpSession session) {
+        com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");
+        String username = currentUser != null ? currentUser.getUsername() : "system";
+        String filtersStr = request.getData() != null ? request.getData().toString() : "none";
+        cbsReportService.logReportActivity(username, "Transaction Report", "VIEW", filtersStr);
         return cbsReportService.fetchReport3(request);
     }
 
@@ -127,7 +170,21 @@ public class CbsReportController {
             @RequestParam(value = "fromDate", required = false) String fromDate,
             @RequestParam(value = "toDate", required = false) String toDate,
             @RequestParam(value = "downloadToken", required = false) String downloadToken,
+            HttpSession session,
             HttpServletResponse response) throws Exception {
+
+        List<com.fintrex.deviceportal.dto.Screen> permittedScreens = (List<com.fintrex.deviceportal.dto.Screen>) session.getAttribute("permittedScreens");
+        boolean canDownload = permittedScreens != null && permittedScreens.stream()
+                .anyMatch(s -> s.getPath().equalsIgnoreCase("/download-reports"));
+        if (!canDownload) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "You do not have permission to download reports.");
+            return;
+        }
+
+        com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");
+        String username = currentUser != null ? currentUser.getUsername() : "system";
+        String filtersStr = String.format("branch=%s, products=%s, fromDate=%s, toDate=%s", branch, products, fromDate, toDate);
+        cbsReportService.logReportActivity(username, "Transaction Report", "DOWNLOAD", filtersStr);
 
         if (downloadToken != null) {
             response.setHeader("Set-Cookie", "downloadToken=" + downloadToken + "; Path=/");

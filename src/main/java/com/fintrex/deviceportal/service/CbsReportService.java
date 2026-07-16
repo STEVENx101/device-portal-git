@@ -17,6 +17,48 @@ public class CbsReportService {
     public CbsReportService(NamedParameterJdbcTemplate jdbc, DataTableRepo datatableRepo) {
         this.jdbc = jdbc;
         this.datatableRepo = datatableRepo;
+        initReportLogTable();
+        initDownloadScreen();
+    }
+
+    private void initReportLogTable() {
+        try {
+            jdbc.getJdbcTemplate().execute("""
+                CREATE TABLE IF NOT EXISTS device_portal.report_log (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    username VARCHAR(100) NOT NULL,
+                    report_name VARCHAR(100) NOT NULL,
+                    action_type VARCHAR(20) NOT NULL,
+                    filters TEXT,
+                    created_date DATETIME NOT NULL
+                )
+            """);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void initDownloadScreen() {
+        try {
+            jdbc.getJdbcTemplate().execute("""
+                INSERT INTO device_portal.screen (name, path, icon, group_name)
+                SELECT 'Download Reports', '/download-reports', 'fas fa-download', 'Reports'
+                WHERE NOT EXISTS (SELECT 1 FROM device_portal.screen WHERE path = '/download-reports')
+            """);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void logReportActivity(String username, String reportName, String actionType, String filters) {
+        try {
+            jdbc.getJdbcTemplate().update(
+                "INSERT INTO device_portal.report_log (username, report_name, action_type, filters, created_date) VALUES (?, ?, ?, ?, NOW())",
+                username, reportName, actionType, filters
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public Map<String, Object> getMetadata() {
@@ -25,11 +67,11 @@ public class CbsReportService {
         List<Map<String, Object>> branches = jdbc.queryForList(
                 "SELECT legacy_branch_code, branch_code, branch_name FROM cbs.branch ORDER BY branch_name ASC",
                 Map.of()
-        );
+            );
         List<Map<String, Object>> products = jdbc.queryForList(
                 "SELECT product_name, product_code, code_val FROM cbs.product ORDER BY product_name ASC",
                 Map.of()
-        );
+            );
 
         metadata.put("branches", branches);
         metadata.put("products", products);
@@ -107,6 +149,8 @@ public class CbsReportService {
                 l.rental, 
                 l.rate, 
                 l.period,
+                l.disbursed_date AS `disbursed_date`,
+                l.closed_date AS `closed_date`,
                 COALESCE(dl1.device_id, dl2.device_id) AS `device_id`,
                 COALESCE(dl1.device_status, dl2.device_status) AS `device_status`,
                 COALESCE(dl1.external_id, dl2.external_id) AS `external_id`,
@@ -161,6 +205,8 @@ public class CbsReportService {
                 t.rental, 
                 t.rate, 
                 t.period,
+                t.disbursed_date,
+                t.closed_date,
                 t.device_id,
                 t.device_status,
                 t.external_id,

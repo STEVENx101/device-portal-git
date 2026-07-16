@@ -10,6 +10,7 @@
     boolean hasPortfolio = false;
     boolean hasClientReport = false;
     boolean hasTransactionReport = false;
+    boolean canDownloadReports = false;
     if (userScreens != null) {
         for (Screen s : userScreens) {
             if (s.getPath().equalsIgnoreCase("/dashboard")) hasDashboard = true;
@@ -18,6 +19,7 @@
             if (s.getPath().equalsIgnoreCase("/portfolio")) hasPortfolio = true;
             if (s.getPath().equalsIgnoreCase("/client")) hasClientReport = true;
             if (s.getPath().equalsIgnoreCase("/transaction")) hasTransactionReport = true;
+            if (s.getPath().equalsIgnoreCase("/download-reports")) canDownloadReports = true;
         }
     }
     User navbarUser = (User) session.getAttribute("currentUser");

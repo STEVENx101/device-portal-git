@@ -118,9 +118,11 @@
                                         <button class="btn btn-primary" type="button" id="applyFiltersBtn">
                                             <span class="fas fa-search me-1"></span> Load Data
                                         </button>
+                                        <% if (canDownloadReports) { %>
                                         <button class="btn btn-success" type="button" id="downloadExcelBtn">
                                             <span class="fas fa-file-excel me-1"></span> Download CSV
                                         </button>
+                                        <% } %>
                                     </div>
                                 </div>
                             </form>
@@ -200,11 +202,8 @@
                 dtReport = $('#tableReport2').DataTable({
                     processing: true,
                     serverSide: true,
+                    deferLoading: true,
                     ajax: function(data, callback, settings) {
-                        if (!hasLoaded) {
-                            callback({ draw: data.draw, recordsTotal: 0, recordsFiltered: 0, data: [] });
-                            return;
-                        }
                         data.data = getFilters();
                         $.ajax({
                             url: '${pageContext.request.contextPath}/api/cbs/report2',
@@ -233,38 +232,40 @@
                     dtReport.draw();
                 });
 
-                $('#downloadExcelBtn').on('click', function() {
-                    const filters = getFilters();
-                    let downloadUrl = '${pageContext.request.contextPath}/api/cbs/report2/download';
+                if ($('#downloadExcelBtn').length) {
+                    $('#downloadExcelBtn').on('click', function() {
+                        const filters = getFilters();
+                        let downloadUrl = '${pageContext.request.contextPath}/api/cbs/report2/download';
 
-                    const queryParams = new URLSearchParams();
-                    queryParams.append('branch', filters.branch);
-                    queryParams.append('fromDate', filters.fromDate);
-                    queryParams.append('toDate', filters.toDate);
+                        const queryParams = new URLSearchParams();
+                        queryParams.append('branch', filters.branch);
+                        queryParams.append('fromDate', filters.fromDate);
+                        queryParams.append('toDate', filters.toDate);
 
-                    const token = new Date().getTime();
-                    queryParams.append('downloadToken', token);
+                        const token = new Date().getTime();
+                        queryParams.append('downloadToken', token);
 
-                    $('#loaderText').text('Generating CSV download, please wait... ');
-                    $('#cbsLoader').css('display', 'flex');
+                        $('#loaderText').text('Generating CSV download, please wait... ');
+                        $('#cbsLoader').css('display', 'flex');
 
-                    window.location.href = downloadUrl + '?' + queryParams.toString();
+                        window.location.href = downloadUrl + '?' + queryParams.toString();
 
-                    const fallbackTimer = setTimeout(function() {
-                        $('#cbsLoader').hide();
-                        clearInterval(checkTimer);
-                    }, 4000);
-
-                    const checkTimer = setInterval(function() {
-                        const cookieValue = getCookie("downloadToken");
-                        if (cookieValue == token) {
+                        const fallbackTimer = setTimeout(function() {
                             $('#cbsLoader').hide();
-                            document.cookie = "downloadToken=; Max-Age=-99999999; path=/";
-                            clearTimeout(fallbackTimer);
                             clearInterval(checkTimer);
-                        }
-                    }, 500);
-                });
+                        }, 4000);
+
+                        const checkTimer = setInterval(function() {
+                            const cookieValue = getCookie("downloadToken");
+                            if (cookieValue == token) {
+                                $('#cbsLoader').hide();
+                                document.cookie = "downloadToken=; Max-Age=-99999999; path=/";
+                                clearTimeout(fallbackTimer);
+                                clearInterval(checkTimer);
+                            }
+                        }, 500);
+                    });
+                }
             });
         </script>
 

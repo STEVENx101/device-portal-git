@@ -159,9 +159,11 @@
                                         <button class="btn btn-primary" type="button" id="applyFiltersBtn">
                                             <span class="fas fa-search me-1"></span> Refresh Data
                                         </button>
+                                        <% if (canDownloadReports) { %>
                                         <button class="btn btn-success" type="button" id="downloadExcelBtn">
                                             <span class="fas fa-file-excel me-1"></span> Download CSV
                                         </button>
+                                        <% } %>
                                     </div>
                                 </div>
                             </form>
@@ -210,6 +212,8 @@
                                                     <th>DPD</th>
                                                     <th>Perf. Status</th>
                                                     <th>Status</th>
+                                                    <th>Disbursed Date</th>
+                                                    <th>Closed Date</th>
                                                     <th>IMEI No</th>
                                                     <th>Device Status</th>
                                                     <th>Workhub SP No</th>
@@ -357,6 +361,8 @@
                         { data: 'dpd' },
                         { data: 'performing_status' },
                         { data: 'portfolio_loan_status' },
+                        { data: 'disbursed_date', defaultContent: '-' },
+                        { data: 'closed_date', defaultContent: '-' },
                         { data: 'device_id', defaultContent: '-' },
                         { data: 'device_status', defaultContent: '-' },
                         { data: 'external_id', defaultContent: '-' },
@@ -438,34 +444,36 @@
                 });
 
                 // Download Excel/CSV
-                $('#downloadExcelBtn').on('click', function() {
-                    const filters = getFilters();
-                    const activeTabId = $('#reportTabs a.active').attr('href');
-                    
-                    let downloadUrl = '<%= request.getContextPath() %>/api/cbs/';
-                    if (activeTabId === '#report1-pane') {
-                        downloadUrl += 'report1/download';
-                    } else if (activeTabId === '#report2-pane') {
-                        downloadUrl += 'report2/download';
-                    } else if (activeTabId === '#report3-pane') {
-                        downloadUrl += 'report3/download';
-                    }
+                if ($('#downloadExcelBtn').length) {
+                    $('#downloadExcelBtn').on('click', function() {
+                        const filters = getFilters();
+                        const activeTabId = $('#reportTabs a.active').attr('href');
+                        
+                        let downloadUrl = '<%= request.getContextPath() %>/api/cbs/';
+                        if (activeTabId === '#report1-pane') {
+                            downloadUrl += 'report1/download';
+                        } else if (activeTabId === '#report2-pane') {
+                            downloadUrl += 'report2/download';
+                        } else if (activeTabId === '#report3-pane') {
+                            downloadUrl += 'report3/download';
+                        }
 
-                    // Build query params
-                    const queryParams = new URLSearchParams();
-                    queryParams.append('branch', filters.branch);
-                    if (activeTabId === '#report1-pane') {
-                        queryParams.append('asAt', filters.asAt);
-                    } else {
-                        queryParams.append('fromDate', filters.fromDate);
-                        queryParams.append('toDate', filters.toDate);
-                    }
-                    if (filters.products && filters.products.length > 0) {
-                        filters.products.forEach(p => queryParams.append('products', p));
-                    }
+                        // Build query params
+                        const queryParams = new URLSearchParams();
+                        queryParams.append('branch', filters.branch);
+                        if (activeTabId === '#report1-pane') {
+                            queryParams.append('asAt', filters.asAt);
+                        } else {
+                            queryParams.append('fromDate', filters.fromDate);
+                            queryParams.append('toDate', filters.toDate);
+                        }
+                        if (filters.products && filters.products.length > 0) {
+                            filters.products.forEach(p => queryParams.append('products', p));
+                        }
 
-                    window.location.href = downloadUrl + '?' + queryParams.toString();
-                });
+                        window.location.href = downloadUrl + '?' + queryParams.toString();
+                    });
+                }
             });
         </script>
 

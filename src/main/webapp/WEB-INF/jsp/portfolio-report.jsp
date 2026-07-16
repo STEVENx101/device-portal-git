@@ -148,9 +148,11 @@
                                         <button class="btn btn-primary" type="button" id="applyFiltersBtn">
                                             <span class="fas fa-search me-1"></span> Load Data
                                         </button>
+                                        <% if (canDownloadReports) { %>
                                         <button class="btn btn-success" type="button" id="downloadExcelBtn">
                                             <span class="fas fa-file-excel me-1"></span> Download CSV
                                         </button>
+                                        <% } %>
                                     </div>
                                 </div>
                             </form>
@@ -177,6 +179,8 @@
                                             <th>DPD</th>
                                             <th>Perf. Status</th>
                                             <th>Status</th>
+                                            <th>Disbursed Date</th>
+                                            <th>Closed Date</th>
                                             <th>IMEI No</th>
                                             <th>Device Status</th>
                                             <th>Workhub SP No</th>
@@ -261,11 +265,8 @@
                 dtReport = $('#tableReport1').DataTable({
                     processing: true,
                     serverSide: true,
+                    deferLoading: true,
                     ajax: function(data, callback, settings) {
-                        if (!hasLoaded) {
-                            callback({ draw: data.draw, recordsTotal: 0, recordsFiltered: 0, data: [] });
-                            return;
-                        }
                         data.data = getFilters();
                         $.ajax({
                             url: '${pageContext.request.contextPath}/api/cbs/report1',
@@ -289,6 +290,8 @@
                         { data: 'dpd' },
                         { data: 'performing_status' },
                         { data: 'portfolio_loan_status' },
+                        { data: 'disbursed_date', defaultContent: '-' },
+                        { data: 'closed_date', defaultContent: '-' },
                         { data: 'device_id', defaultContent: '-' },
                         { data: 'device_status', defaultContent: '-' },
                         { data: 'external_id', defaultContent: '-' },
@@ -302,40 +305,42 @@
                     dtReport.draw();
                 });
 
-                $('#downloadExcelBtn').on('click', function() {
-                    const filters = getFilters();
-                    let downloadUrl = '${pageContext.request.contextPath}/api/cbs/report1/download';
+                if ($('#downloadExcelBtn').length) {
+                    $('#downloadExcelBtn').on('click', function() {
+                        const filters = getFilters();
+                        let downloadUrl = '${pageContext.request.contextPath}/api/cbs/report1/download';
 
-                    const queryParams = new URLSearchParams();
-                    queryParams.append('branch', filters.branch);
-                    queryParams.append('asAt', filters.asAt);
-                    if (filters.products && filters.products.length > 0) {
-                        filters.products.forEach(p => queryParams.append('products', p));
-                    }
-
-                    const token = new Date().getTime();
-                    queryParams.append('downloadToken', token);
-
-                    $('#loaderText').text('Generating CSV download, please wait...');
-                    $('#cbsLoader').css('display', 'flex');
-
-                    window.location.href = downloadUrl + '?' + queryParams.toString();
-
-                    const fallbackTimer = setTimeout(function() {
-                        $('#cbsLoader').hide();
-                        clearInterval(checkTimer);
-                    }, 4000);
-
-                    const checkTimer = setInterval(function() {
-                        const cookieValue = getCookie("downloadToken");
-                        if (cookieValue == token) {
-                            $('#cbsLoader').hide();
-                            document.cookie = "downloadToken=; Max-Age=-99999999; path=/";
-                            clearTimeout(fallbackTimer);
-                            clearInterval(checkTimer);
+                        const queryParams = new URLSearchParams();
+                        queryParams.append('branch', filters.branch);
+                        queryParams.append('asAt', filters.asAt);
+                        if (filters.products && filters.products.length > 0) {
+                            filters.products.forEach(p => queryParams.append('products', p));
                         }
-                    }, 500);
-                });
+
+                        const token = new Date().getTime();
+                        queryParams.append('downloadToken', token);
+
+                        $('#loaderText').text('Generating CSV download, please wait...');
+                        $('#cbsLoader').css('display', 'flex');
+
+                        window.location.href = downloadUrl + '?' + queryParams.toString();
+
+                        const fallbackTimer = setTimeout(function() {
+                            $('#cbsLoader').hide();
+                            clearInterval(checkTimer);
+                        }, 4000);
+
+                        const checkTimer = setInterval(function() {
+                            const cookieValue = getCookie("downloadToken");
+                            if (cookieValue == token) {
+                                $('#cbsLoader').hide();
+                                document.cookie = "downloadToken=; Max-Age=-99999999; path=/";
+                                clearTimeout(fallbackTimer);
+                                clearInterval(checkTimer);
+                            }
+                        }, 500);
+                    });
+                }
             });
         </script>
 
