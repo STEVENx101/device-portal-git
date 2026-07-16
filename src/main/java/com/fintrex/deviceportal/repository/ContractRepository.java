@@ -92,16 +92,16 @@ public class ContractRepository {
                 COALESCE(lm.next_lock_date) AS NEXT_LOCK_DATE, 
                 COALESCE(lm.locked) AS LOCKED, 
                 pr.product_code AS PRODUCT, 
-                dl.current_device_status AS CURRENT_DEVICE_STATUS,
+                dl.device_status AS CURRENT_DEVICE_STATUS,
                 dl.device_id AS IMEI_NO,
                 dl.external_id AS WORKHUB_SP_NO
             FROM cbs.loan l
             LEFT JOIN cbs.portfolio p 
-                ON p.account_no = l.account_no 
+                ON (p.account_no = l.account_no OR p.account_no = l.legacy_account_no) 
                 AND (p.portfolio_date, p.sync_time) = (
                     SELECT portfolio_date, sync_time 
                     FROM cbs.portfolio 
-                    WHERE account_no = l.account_no
+                    WHERE account_no = l.account_no OR account_no = l.legacy_account_no
                     ORDER BY portfolio_date DESC, sync_time DESC 
                     LIMIT 1
                 ) 
@@ -116,11 +116,13 @@ public class ContractRepository {
             LEFT JOIN cbs.client g3 
                 ON g3.client_code = l.guarantor3 
             LEFT JOIN loan.mobileloan lm 
-                ON lm.finance_no = l.account_no 
-            LEFT JOIN loan.device_loan dl 
-                ON dl.finance_no = l.account_no 
+                ON lm.finance_no = l.account_no OR lm.finance_no = l.legacy_account_no
+            LEFT JOIN cbs.device_loan dl 
+                ON dl.account_no = l.account_no OR dl.account_no = l.legacy_account_no
+            LEFT JOIN loan.device_loan dl2 
+                ON dl2.finance_no = l.account_no OR dl2.finance_no = l.legacy_account_no
             LEFT JOIN loan.mobileloan_model lmm 
-                ON lmm.id = COALESCE(lm.model, dl.model) 
+                ON lmm.id = COALESCE(lm.model, dl2.model) 
             WHERE l.account_no = ? OR l.legacy_account_no = ?""";
         System.out.println(sql);
 
