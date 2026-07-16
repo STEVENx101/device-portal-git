@@ -48,10 +48,10 @@ public class CbsReportController {
         response.setHeader("Content-Disposition", "attachment; filename=\"portfolio_loan_report.csv\"");
 
         PrintWriter writer = response.getWriter();
-        writer.println("Portfolio Date,Account No,Series,Legacy Account No,Branch Name,Product Name,Loan Amount,Rental,Total Due,Exposure,DPD,Performing Status,Loan Status");
+        writer.println("Portfolio Date,Account No,Series,Legacy Account No,Branch Name,Product Name,Loan Amount,Rental,Total Due,Exposure,DPD,Performing Status,Loan Status,IMEI No,Device Status,Workhub SP No,Platform");
 
         for (Map<String, Object> row : data) {
-            writer.println(String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
+            writer.println(String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
                     cleanCsv(row.get("portfolio_date")),
                     cleanCsv(row.get("account_no")),
                     cleanCsv(row.get("series")),
@@ -64,7 +64,11 @@ public class CbsReportController {
                     cleanCsv(row.get("exposure")),
                     cleanCsv(row.get("dpd")),
                     cleanCsv(row.get("performing_status")),
-                    cleanCsv(row.get("portfolio_loan_status"))
+                    cleanCsv(row.get("portfolio_loan_status")),
+                    cleanCsv(row.get("device_id")),
+                    cleanCsv(row.get("device_status")),
+                    cleanCsv(row.get("external_id")),
+                    cleanCsv(row.get("platform"))
             ));
         }
         writer.flush();

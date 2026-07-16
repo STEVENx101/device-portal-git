@@ -210,6 +210,10 @@
                                                     <th>DPD</th>
                                                     <th>Perf. Status</th>
                                                     <th>Status</th>
+                                                    <th>IMEI No</th>
+                                                    <th>Device Status</th>
+                                                    <th>Workhub SP No</th>
+                                                    <th>Platform</th>
                                                 </tr>
                                             </thead>
                                             <tbody></tbody>
@@ -352,7 +356,11 @@
                         { data: 'exposure', render: $.fn.dataTable.render.number(',', '.', 2) },
                         { data: 'dpd' },
                         { data: 'performing_status' },
-                        { data: 'portfolio_loan_status' }
+                        { data: 'portfolio_loan_status' },
+                        { data: 'device_id', defaultContent: '-' },
+                        { data: 'device_status', defaultContent: '-' },
+                        { data: 'external_id', defaultContent: '-' },
+                        { data: 'platform', defaultContent: '-' }
                     ]
                 });
 

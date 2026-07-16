@@ -92,8 +92,8 @@ public class CbsReportService {
         String subQuery = """
             SELECT 
                 p.portfolio_date, 
-                p.account_no, 
-                p.series, 
+                l.account_no, 
+                l.account_series AS `series`, 
                 p.loan_status AS `portfolio_loan_status`, 
                 p.total_due, 
                 p.exposure, 
@@ -106,11 +106,16 @@ public class CbsReportService {
                 l.loan_amount, 
                 l.rental, 
                 l.rate, 
-                l.period 
-            FROM cbs.portfolio p 
-            JOIN cbs.loan l ON p.account_no = l.account_no AND p.series = l.account_series 
+                l.period,
+                dl.device_id AS `device_id`,
+                dl.device_status AS `device_status`,
+                dl.external_id AS `external_id`,
+                dl.platform AS `platform`
+            FROM cbs.loan l
+            LEFT JOIN cbs.portfolio p ON p.account_no = l.account_no AND p.series = l.account_series 
             LEFT JOIN cbs.branch br ON CAST(l.branch AS UNSIGNED) = br.branch_code 
             LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val 
+            LEFT JOIN cbs.device_loan dl ON dl.account_no = l.account_no OR dl.account_no = l.legacy_account_no
             WHERE 1=1""";
 
         if (rawFilter instanceof Map) {
@@ -154,7 +159,11 @@ public class CbsReportService {
                 t.loan_amount, 
                 t.rental, 
                 t.rate, 
-                t.period 
+                t.period,
+                t.device_id,
+                t.device_status,
+                t.external_id,
+                t.platform
             FROM (""" + subQuery + ") t WHERE TRUE";
     }
 

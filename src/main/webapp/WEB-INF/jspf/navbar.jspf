@@ -196,6 +196,17 @@ body {
     color: #4f46e5 !important;
     background: rgba(99, 102, 241, 0.15) !important;
 }
+.dropdown-header-custom {
+    color: #94a3b8 !important;
+    font-weight: 700 !important;
+    font-size: 0.62rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+    padding: 0.6rem 0.8rem 0.2rem 0.8rem !important;
+    margin-top: 0.4rem;
+    pointer-events: none;
+    user-select: none;
+}
 
 .navbar-vertical-modern .brand-section {
     display: flex;
@@ -525,6 +536,7 @@ body {
                         <span class="fas fa-chevron-down ms-auto dropdown-chevron"></span>
                     </a>
                     <div class="dropdown-menu-custom">
+                        <div class="dropdown-header-custom">General Reports</div>
                         <% if (hasPortfolio) { %>
                         <a href="<%= request.getContextPath() %>/portfolio" class="dropdown-item-custom" id="nav-report-portfolio">
                             <span class="fas fa-link me-2"></span>Portfolio
@@ -535,11 +547,18 @@ body {
                             <span class="fas fa-user-tag me-2"></span>Client Report
                         </a>
                         <% } %>
+                        
+                        <div class="dropdown-header-custom">Recovery Reports</div>
                         <% if (hasTransactionReport) { %>
                         <a href="<%= request.getContextPath() %>/transaction" class="dropdown-item-custom" id="nav-report-transaction">
                             <span class="fas fa-receipt me-2"></span>Transaction Report
                         </a>
                         <% } %>
+
+                        <div class="dropdown-header-custom">Exception Reports</div>
+                        <a href="javascript:void(0)" class="dropdown-item-custom disabled" style="opacity: 0.5; pointer-events: none;">
+                            <span class="fas fa-exclamation-triangle me-2"></span>No exception reports
+                        </a>
                     </div>
                 </div>
             <% } %>
