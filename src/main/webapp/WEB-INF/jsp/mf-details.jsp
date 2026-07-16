@@ -163,6 +163,14 @@
                                     <div class="text-500 fs--2 font-sans-serif fw-semi-bold">LOAN AMOUNT</div>
                                     <div class="fs--1 fw-bold val-finance-amount">-</div>
                                 </div>
+                                <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                                    <div class="text-500 fs--2 font-sans-serif fw-semi-bold">IMEI NO</div>
+                                    <div class="fs--1 fw-bold val-imei-no">-</div>
+                                </div>
+                                <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                                    <div class="text-500 fs--2 font-sans-serif fw-semi-bold">WORKHUB SP NO</div>
+                                    <div class="fs--1 fw-bold val-workhub-sp-no">-</div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -198,6 +206,11 @@
                                 <li class="nav-item">
                                     <a class="nav-link" id="tab-locks" data-bs-toggle="tab" href="#locks-pane" role="tab" aria-controls="locks-pane" aria-selected="false">
                                         <span class="fas fa-lock me-2"></span>Lock/Unlock Logs
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="tab-remarks" data-bs-toggle="tab" href="#remarks-pane" role="tab" aria-controls="remarks-pane" aria-selected="false">
+                                        <span class="fas fa-comment me-2"></span>Remarks
                                     </a>
                                 </li>
                             </ul>
@@ -248,6 +261,7 @@
                                                     <th>Receipt No</th>
                                                     <th>Receipt Date</th>
                                                     <th>Receipt Mode</th>
+                                                    <th>Narration</th>
                                                     <th>Amount</th>
                                                 </tr>
                                             </thead>
@@ -281,6 +295,31 @@
                                                     <th>Status</th>
                                                     <th>Changed By</th>
                                                     <th>Reason</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <!-- Remarks pane -->
+                                <div class="tab-pane fade" id="remarks-pane" role="tabpanel" aria-labelledby="tab-remarks">
+                                    <div class="mb-3">
+                                        <form id="remark-form">
+                                            <div class="input-group">
+                                                <input type="text" id="remark-input" class="form-control" placeholder="Enter remark here..." required />
+                                                <button class="btn btn-primary" type="submit">
+                                                    <span class="fas fa-paper-plane me-1"></span>Submit
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div class="table-responsive">
+                                        <table id="remarks_table" class="table table-hover table-striped mb-0 fs--1 w-100">
+                                            <thead>
+                                                <tr>
+                                                    <th>Remark</th>
+                                                    <th>By</th>
+                                                    <th>When</th>
                                                 </tr>
                                             </thead>
                                             <tbody></tbody>
@@ -321,10 +360,47 @@
                         if (!contextPath && window.location.pathname.includes('/device-portal')) {
                             contextPath = '/device-portal';
                         }
+                        let currentFinanceNo = '';
                         $(document).ready(function () {
                             ReceiptTable('');
                             SmsTable('');
                             LocksTable('');
+                            RemarksTable('');
+
+                            const remarkForm = document.getElementById('remark-form');
+                            if (remarkForm) {
+                                remarkForm.addEventListener('submit', function (e) {
+                                    e.preventDefault();
+                                    const input = document.getElementById('remark-input');
+                                    const remark = input.value.trim();
+                                    if (!remark || !currentFinanceNo) return;
+
+                                    const params = new URLSearchParams();
+                                    params.append('financeNo', currentFinanceNo);
+                                    params.append('remark', remark);
+
+                                    fetch(contextPath + '/api/contracts/remarks', {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/x-www-form-urlencoded'
+                                        },
+                                        body: params
+                                    })
+                                    .then(response => response.json())
+                                    .then(res => {
+                                        if (res.status === 'success') {
+                                            input.value = '';
+                                            RemarksTable(currentFinanceNo);
+                                        } else {
+                                            alert('Failed to add remark.');
+                                        }
+                                    })
+                                    .catch(err => {
+                                        console.error('Error adding remark:', err);
+                                        alert('Error adding remark.');
+                                    });
+                                });
+                            }
                         });
 
 
@@ -384,6 +460,10 @@
                                     },
                                     {
                                         data: "receipt_mode",
+                                        defaultContent: "-"
+                                    },
+                                    {
+                                        data: "narration",
                                         defaultContent: "-"
                                     },
                                     {
@@ -533,6 +613,40 @@
                             });
                         }
 
+                        function RemarksTable(financeNo) {
+                            const tableBody = document.querySelector('#remarks_table tbody');
+                            if (!tableBody) return;
+
+                            if (!financeNo) {
+                                tableBody.innerHTML = '<tr><td colspan="3" class="text-center text-muted">No remarks registered.</td></tr>';
+                                return;
+                            }
+
+                            tableBody.innerHTML = '<tr><td colspan="3" class="text-center"><div class="spinner-border text-primary spinner-border-sm" role="status"></div> Loading remarks...</td></tr>';
+
+                            fetch(contextPath + '/api/contracts/remarks?financeNo=' + encodeURIComponent(financeNo))
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (!data || data.length === 0) {
+                                        tableBody.innerHTML = '<tr><td colspan="3" class="text-center text-muted">No remarks registered.</td></tr>';
+                                    } else {
+                                        let html = '';
+                                        data.forEach(item => {
+                                            html += '<tr>' +
+                                                    '<td>' + (item.remark || '-') + '</td>' +
+                                                    '<td>' + (item.created_by || '-') + '</td>' +
+                                                    '<td>' + (item.created_date || '-') + '</td>' +
+                                                    '</tr>';
+                                        });
+                                        tableBody.innerHTML = html;
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Error loading remarks:', error);
+                                    tableBody.innerHTML = '<tr><td colspan="3" class="text-center text-danger">Failed to load remarks.</td></tr>';
+                                });
+                        }
+
 
                         document.addEventListener('DOMContentLoaded', function () {
                             const searchInput = document.querySelector('.search-box .search-input');
@@ -648,6 +762,9 @@
                                             document.querySelectorAll('.val-performing-status').forEach(el => el.textContent = data.performingStatus || '-');
                                             document.querySelectorAll('.val-security').forEach(el => el.textContent = data.security || '-');
                                             document.querySelectorAll('.val-model').forEach(el => el.textContent = data.model || '-');
+                                            currentFinanceNo = data.financeNo || '';
+                                            document.querySelectorAll('.val-imei-no').forEach(el => el.textContent = data.imeiNo || '-');
+                                            document.querySelectorAll('.val-workhub-sp-no').forEach(el => el.textContent = data.workhubSpNo || '-');
 
                                             document.querySelectorAll('.val-facility-grant-date').forEach(el => el.textContent = data.facilityGrantDate || '-');
                                             document.querySelectorAll('.val-maturity-date').forEach(el => el.textContent = data.maturityDate || '-');
@@ -704,28 +821,32 @@
 
                                             const guarantorsWrapper = document.getElementById('guarantors-wrapper');
                                             let guarantorsHtml = '';
-                                             function getGuarantorHtml(title, name, address, contact) {
-                                                 return '<div class="table-responsive mb-3">' +
-                                                         '<table class="table table-striped table-hover mb-0 fs--1">' +
-                                                         '<tbody>' +
-                                                         '<tr>' +
-                                                         '<td class="bg-100 fw-bold" style="width: 20%;">Name:</td>' +
-                                                         '<td class="text-600">' + (name || '-') + '</td>' +
-                                                         '</tr>' +
-                                                         '<tr>' +
-                                                         '<td class="bg-100 fw-bold" style="width: 20%;">Address:</td>' +
-                                                         '<td class="text-600">' + (address || '-') + '</td>' +
-                                                         '</tr>' +
-                                                         '<tr>' +
-                                                         '<td class="bg-100 fw-bold" style="width: 20%;">Mobile No:</td>' +
-                                                         '<td>' +
-                                                         (contact ? '<a class="text-600 text-decoration-none fw-bold" href="tel:' + contact + '">' + contact + '</a>' : '-') +
-                                                         '</td>' +
-                                                         '</tr>' +
-                                                         '</tbody>' +
-                                                         '</table>' +
-                                                         '</div>';
-                                             }
+                                            function getGuarantorHtml(title, name, address, contact, nic) {
+                                                return '<div class="table-responsive mb-3">' +
+                                                        '<table class="table table-striped table-hover mb-0 fs--1">' +
+                                                        '<tbody>' +
+                                                        '<tr>' +
+                                                        '<td class="bg-100 fw-bold" style="width: 20%;">NIC:</td>' +
+                                                        '<td class="text-600">' + (nic || '-') + '</td>' +
+                                                        '</tr>' +
+                                                        '<tr>' +
+                                                        '<td class="bg-100 fw-bold" style="width: 20%;">Name:</td>' +
+                                                        '<td class="text-600">' + (name || '-') + '</td>' +
+                                                        '</tr>' +
+                                                        '<tr>' +
+                                                        '<td class="bg-100 fw-bold" style="width: 20%;">Address:</td>' +
+                                                        '<td class="text-600">' + (address || '-') + '</td>' +
+                                                        '</tr>' +
+                                                        '<tr>' +
+                                                        '<td class="bg-100 fw-bold" style="width: 20%;">Mobile No:</td>' +
+                                                        '<td>' +
+                                                        (contact ? '<a class="text-600 text-decoration-none fw-bold" href="tel:' + contact + '">' + contact + '</a>' : '-') +
+                                                        '</td>' +
+                                                        '</tr>' +
+                                                        '</tbody>' +
+                                                        '</table>' +
+                                                        '</div>';
+                                            }
 
                                             function isGuarantorPresent(name) {
                                                 return name && name.trim() !== '' && name.trim() !== '-';
@@ -742,13 +863,13 @@
                                             const showNumber = count > 1;
 
                                             if (isGuarantorPresent(data.g1)) {
-                                                guarantorsHtml += getGuarantorHtml(showNumber ? 'Guarantor 1' : 'Guarantor', data.g1, data.g1Address, data.g1Contact);
+                                                guarantorsHtml += getGuarantorHtml(showNumber ? 'Guarantor 1' : 'Guarantor', data.g1, data.g1Address, data.g1Contact, data.g1Nic);
                                             }
                                             if (isGuarantorPresent(data.g2)) {
-                                                guarantorsHtml += getGuarantorHtml(showNumber ? 'Guarantor 2' : 'Guarantor', data.g2, data.g2Address, data.g2Contact);
+                                                guarantorsHtml += getGuarantorHtml(showNumber ? 'Guarantor 2' : 'Guarantor', data.g2, data.g2Address, data.g2Contact, data.g2Nic);
                                             }
                                             if (isGuarantorPresent(data.g3)) {
-                                                guarantorsHtml += getGuarantorHtml(showNumber ? 'Guarantor 3' : 'Guarantor', data.g3, data.g3Address, data.g3Contact);
+                                                guarantorsHtml += getGuarantorHtml(showNumber ? 'Guarantor 3' : 'Guarantor', data.g3, data.g3Address, data.g3Contact, data.g3Nic);
                                             }
 
                                             if (!guarantorsHtml) {
@@ -764,6 +885,7 @@
                                             ReceiptTable(data.financeNo);
                                             SmsTable(data.financeNo);
                                             LocksTable(data.financeNo);
+                                            RemarksTable(data.financeNo);
                                             if (loader) loader.style.display = 'none';
                                         })
                                         .catch(error => {

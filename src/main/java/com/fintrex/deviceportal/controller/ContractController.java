@@ -64,4 +64,22 @@ public class ContractController {
     public ResponseEntity<List<java.util.Map<String, Object>>> getRecentLocks() {
         return ResponseEntity.ok(contractService.getRecentLocks());
     }
+
+    @GetMapping("/remarks")
+    public ResponseEntity<List<java.util.Map<String, Object>>> getRemarks(@RequestParam("financeNo") String financeNo) {
+        return ResponseEntity.ok(contractService.getRemarks(financeNo));
+    }
+
+    @PostMapping("/remarks")
+    public ResponseEntity<java.util.Map<String, Object>> addRemark(
+            @RequestParam("financeNo") String financeNo,
+            @RequestParam("remark") String remark,
+            jakarta.servlet.http.HttpSession session) {
+        java.util.Map<String, Object> response = new java.util.HashMap<>();
+        com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");
+        String username = currentUser != null ? currentUser.getUsername() : "system";
+        contractService.addRemark(financeNo, remark, username);
+        response.put("status", "success");
+        return ResponseEntity.ok(response);
+    }
 }

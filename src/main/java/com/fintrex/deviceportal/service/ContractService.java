@@ -46,9 +46,12 @@ public class ContractService {
                 t.tran_id AS receipt_no, 
                 DATE(t.date) AS receipt_date, 
                 t.narration AS receipt_mode, 
+                t.narration AS narration, 
                 t.amount AS amount 
             FROM cbs.transaction t 
-            WHERE t.account_no = '""" + finNo + """
+            JOIN cbs.loan l ON t.account_no = l.account_no
+            WHERE l.account_no = '""" + finNo + """
+            ' OR l.legacy_account_no = '""" + finNo + """
             ' 
             ORDER BY t.date DESC 
             LIMIT 5""";
@@ -58,6 +61,7 @@ public class ContractService {
                 t.receipt_no, 
                 t.receipt_date, 
                 t.receipt_mode, 
+                t.narration, 
                 t.amount 
             FROM (""" + innerQuery + ") t WHERE TRUE";
 
@@ -77,7 +81,9 @@ public class ContractService {
                 s.date, 
                 s.status 
             FROM sms_portal.sms_log s 
-            WHERE s.finance_no = '""" + finNo + """
+            JOIN cbs.loan l ON s.finance_no = l.account_no
+            WHERE l.account_no = '""" + finNo + """
+            ' OR l.legacy_account_no = '""" + finNo + """
             ' 
             ORDER BY s.date DESC 
             LIMIT 5""";
@@ -104,7 +110,9 @@ public class ContractService {
                 l.changed_by, 
                 l.reason 
             FROM loan.lock_log l 
-            WHERE l.finance_no = '""" + finNo + """
+            JOIN cbs.loan cl ON l.finance_no = cl.account_no
+            WHERE cl.account_no = '""" + finNo + """
+            ' OR cl.legacy_account_no = '""" + finNo + """
             ' 
             ORDER BY l.date DESC""";
 
@@ -125,5 +133,19 @@ public class ContractService {
 
     public List<java.util.Map<String, Object>> getRecentLocks() {
         return contractRepository.getRecentLocks();
+    }
+
+    public List<java.util.Map<String, Object>> getRemarks(String financeNo) {
+        if (financeNo == null || financeNo.trim().isEmpty()) {
+            return List.of();
+        }
+        return contractRepository.getRemarks(financeNo.trim());
+    }
+
+    public void addRemark(String financeNo, String remark, String username) {
+        if (financeNo == null || financeNo.trim().isEmpty() || remark == null || remark.trim().isEmpty()) {
+            return;
+        }
+        contractRepository.addRemark(financeNo.trim(), remark.trim(), username);
     }
 }

@@ -46,6 +46,12 @@ public class ContractDetails {
     private String product;
     private String currentDeviceStatus;
 
+    private String imeiNo;
+    private String workhubSpNo;
+    private String g1Nic;
+    private String g2Nic;
+    private String g3Nic;
+
     public void setReceipts(List<Receipt> receipts) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }

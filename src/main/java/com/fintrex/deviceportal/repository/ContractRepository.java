@@ -24,18 +24,19 @@ public class ContractRepository {
 
         if (startsWithDigit) {
             sql = """
-                SELECT l.account_no AS FINANCE_NO, c.full_name AS FULL_NAME, c.id_no AS NIC_NO 
+                SELECT COALESCE(l.legacy_account_no, l.account_no) AS FINANCE_NO, c.full_name AS FULL_NAME, c.id_no AS NIC_NO 
                 FROM cbs.loan l
                 JOIN cbs.client c ON l.client = c.client_code
                 LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
                 WHERE pr.product_code IN ('MF', 'LF') AND (
                     l.account_no LIKE ? 
+                    OR l.legacy_account_no LIKE ?
                     OR c.id_no LIKE ?
                 ) LIMIT 6""";
-            params = new Object[]{searchPattern, searchPattern};
+            params = new Object[]{searchPattern, searchPattern, searchPattern};
         } else {
             sql = """
-                SELECT l.account_no AS FINANCE_NO, c.full_name AS FULL_NAME, c.id_no AS NIC_NO 
+                SELECT COALESCE(l.legacy_account_no, l.account_no) AS FINANCE_NO, c.full_name AS FULL_NAME, c.id_no AS NIC_NO 
                 FROM cbs.loan l
                 JOIN cbs.client c ON l.client = c.client_code
                 LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
@@ -54,7 +55,7 @@ public class ContractRepository {
     public ContractDetails getDetails(String financeNo) {
         String sql = """
             SELECT 
-                l.account_no AS FINANCE_NO, 
+                COALESCE(l.legacy_account_no, l.account_no) AS FINANCE_NO, 
                 p.loan_status AS CONTRACT_STATUS, 
                 p.total_due AS AMT_TO_COLLECTED, 
                 p.performing_status AS PERFORMING_STATUS, 
@@ -72,6 +73,15 @@ public class ContractRepository {
                 g1.full_name AS G1, 
                 g1.address AS G1_ADDRESS, 
                 g1.mobile AS G1_CONTACT, 
+                g1.id_no AS G1_NIC,
+                g2.full_name AS G2, 
+                g2.address AS G2_ADDRESS, 
+                g2.mobile AS G2_CONTACT, 
+                g2.id_no AS G2_NIC,
+                g3.full_name AS G3, 
+                g3.address AS G3_ADDRESS, 
+                g3.mobile AS G3_CONTACT, 
+                g3.id_no AS G3_NIC,
                 l.start_date AS FACILITY_GRANT_DATE, 
                 l.maturity_date AS MATURITY_DATE, 
                 l.due_day AS DUE_DATE, 
@@ -82,7 +92,9 @@ public class ContractRepository {
                 COALESCE(lm.next_lock_date) AS NEXT_LOCK_DATE, 
                 COALESCE(lm.locked) AS LOCKED, 
                 pr.product_code AS PRODUCT, 
-                dl.current_device_status AS CURRENT_DEVICE_STATUS 
+                dl.current_device_status AS CURRENT_DEVICE_STATUS,
+                dl.device_id AS IMEI_NO,
+                dl.external_id AS WORKHUB_SP_NO
             FROM cbs.loan l
             LEFT JOIN cbs.portfolio p 
                 ON p.account_no = l.account_no 
@@ -99,13 +111,17 @@ public class ContractRepository {
                 ON cust.client_code = l.client
             LEFT JOIN cbs.client g1 
                 ON g1.client_code = l.guarantor1 
+            LEFT JOIN cbs.client g2 
+                ON g2.client_code = l.guarantor2 
+            LEFT JOIN cbs.client g3 
+                ON g3.client_code = l.guarantor3 
             LEFT JOIN loan.mobileloan lm 
                 ON lm.finance_no = l.account_no 
             LEFT JOIN loan.device_loan dl 
                 ON dl.finance_no = l.account_no 
             LEFT JOIN loan.mobileloan_model lmm 
                 ON lmm.id = COALESCE(lm.model, dl.model) 
-            WHERE l.account_no = ?""";
+            WHERE l.account_no = ? OR l.legacy_account_no = ?""";
         System.out.println(sql);
 
         List<ContractDetails> results = jdbcTemplate.query(sql, (rs, rowNum) -> new ContractDetails(
@@ -122,12 +138,12 @@ public class ContractRepository {
                 rs.getString("G1"),
                 rs.getString("G1_ADDRESS"),
                 rs.getString("G1_CONTACT"),
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
+                rs.getString("G2"),
+                rs.getString("G2_ADDRESS"),
+                rs.getString("G2_CONTACT"),
+                rs.getString("G3"),
+                rs.getString("G3_ADDRESS"),
+                rs.getString("G3_CONTACT"),
                 rs.getString("FACILITY_GRANT_DATE"),
                 rs.getString("MATURITY_DATE"),
                 rs.getString("DUE_DATE"),
@@ -138,8 +154,13 @@ public class ContractRepository {
                 rs.getString("NEXT_LOCK_DATE"),
                 rs.getObject("LOCKED", Integer.class),
                 rs.getString("PRODUCT"),
-                rs.getString("CURRENT_DEVICE_STATUS")
-        ), financeNo);
+                rs.getString("CURRENT_DEVICE_STATUS"),
+                rs.getString("IMEI_NO"),
+                rs.getString("WORKHUB_SP_NO"),
+                rs.getString("G1_NIC"),
+                rs.getString("G2_NIC"),
+                rs.getString("G3_NIC")
+        ), financeNo, financeNo);
 
         return results.isEmpty() ? null : results.get(0);
     }
@@ -176,5 +197,45 @@ public class ContractRepository {
         return jdbcTemplate.queryForList(
             "SELECT finance_no, status, date, changed_by, reason FROM loan.lock_log ORDER BY date DESC LIMIT 5"
         );
+    }
+
+    public void initRemarksTable() {
+        String sql = """
+            CREATE TABLE IF NOT EXISTS device_portal.contract_remark (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                finance_no VARCHAR(50) NOT NULL,
+                remark TEXT NOT NULL,
+                created_by VARCHAR(50) NOT NULL,
+                created_date DATETIME NOT NULL
+            )
+        """;
+        jdbcTemplate.execute(sql);
+    }
+
+    public List<java.util.Map<String, Object>> getRemarks(String financeNo) {
+        initRemarksTable();
+        String sql = """
+            SELECT r.remark, r.created_by, DATE_FORMAT(r.created_date, '%Y-%m-%d %H:%i:%s') AS created_date 
+            FROM device_portal.contract_remark r
+            JOIN cbs.loan l ON r.finance_no = l.account_no
+            WHERE l.account_no = ? OR l.legacy_account_no = ?
+            ORDER BY r.created_date DESC
+        """;
+        return jdbcTemplate.queryForList(sql, financeNo, financeNo);
+    }
+
+    public void addRemark(String financeNo, String remark, String createdBy) {
+        initRemarksTable();
+        String resolvedFinanceNo = financeNo;
+        try {
+            resolvedFinanceNo = jdbcTemplate.queryForObject(
+                "SELECT account_no FROM cbs.loan WHERE account_no = ? OR legacy_account_no = ? LIMIT 1",
+                String.class, financeNo, financeNo
+            );
+        } catch (Exception e) {
+            // fallback
+        }
+        String sql = "INSERT INTO device_portal.contract_remark (finance_no, remark, created_by, created_date) VALUES (?, ?, ?, NOW())";
+        jdbcTemplate.update(sql, resolvedFinanceNo, remark, createdBy);
     }
 }
