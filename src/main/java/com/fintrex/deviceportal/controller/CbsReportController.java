@@ -211,6 +211,9 @@ public class CbsReportController {
                     cleanCsv(row.get("product_name"))
             ));
         }
+        writer.flush();
+    }
+
     @PostMapping("/report4")
     public DataTableResponse getReport4(@RequestBody DataTableRequest request, HttpSession session) {
         com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");
