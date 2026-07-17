@@ -187,14 +187,10 @@
                             }
                         }
 
-                        // Otherwise, fetch /me from the auth server
-                        const headers = {};
-                        if (token) {
-                            headers['Authorization'] = 'Bearer ' + token;
-                        }
-                        const res = await fetch(AUTH_SERVER + '/me', { 
-                            headers: headers,
-                            credentials: 'include' 
+                        // Otherwise, fetch /me proxied through our backend
+                        const url = CTX + '/api/sso-me' + (token ? '?token=' + encodeURIComponent(token) : '');
+                        const res = await fetch(url, { 
+                            credentials: 'same-origin' 
                         });
 
                         if (res.ok) {

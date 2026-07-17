@@ -147,4 +147,62 @@ public class AuthController {
         newSession.setAttribute("loggedOut", true);
         return "redirect:/login?logout=true";
     }
+
+    @GetMapping("/api/sso-me")
+    @ResponseBody
+    public ResponseEntity<?> ssoMe(
+            jakarta.servlet.http.HttpServletRequest request,
+            @org.springframework.web.bind.annotation.RequestParam(value = "token", required = false) String paramToken) {
+
+        String token = paramToken;
+        if (token == null || token.isEmpty()) {
+            if (request.getCookies() != null) {
+                for (jakarta.servlet.http.Cookie cookie : request.getCookies()) {
+                    if ("session_token".equals(cookie.getName())) {
+                        token = cookie.getValue();
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (token == null || token.isEmpty()) {
+            return ResponseEntity.status(401).body(Map.of("error", "No session token found"));
+        }
+
+        try {
+            javax.net.ssl.SSLContext sslContext = javax.net.ssl.SSLContext.getInstance("TLS");
+            sslContext.init(null, new javax.net.ssl.TrustManager[]{new javax.net.ssl.X509TrustManager() {
+                public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType) {}
+                public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType) {}
+                public java.security.cert.X509Certificate[] getAcceptedIssuers() { return new java.security.cert.X509Certificate[0]; }
+            }}, new java.security.SecureRandom());
+
+            java.net.http.HttpClient client = java.net.http.HttpClient.newBuilder()
+                    .connectTimeout(java.time.Duration.ofSeconds(10))
+                    .sslContext(sslContext)
+                    .build();
+
+            java.net.http.HttpRequest.Builder reqBuilder = java.net.http.HttpRequest.newBuilder()
+                    .uri(new java.net.URI(authServer + "/me"))
+                    .timeout(java.time.Duration.ofSeconds(10))
+                    .GET();
+
+            reqBuilder.header("Cookie", "session_token=" + token);
+            reqBuilder.header("Authorization", "Bearer " + token);
+
+            java.net.http.HttpResponse<String> response = client.send(reqBuilder.build(), java.net.http.HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() == 200) {
+                return ResponseEntity.ok()
+                        .header("Content-Type", "application/json")
+                        .body(response.body());
+            } else {
+                return ResponseEntity.status(response.statusCode()).body(response.body());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(Map.of("error", "SSO backend call failed: " + e.getMessage()));
+        }
+    }
 }
