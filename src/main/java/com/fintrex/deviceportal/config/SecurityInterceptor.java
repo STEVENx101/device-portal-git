@@ -36,17 +36,6 @@ public class SecurityInterceptor implements HandlerInterceptor {
         HttpSession session = request.getSession();
         User currentUser = (User) session.getAttribute("currentUser");
 
-        // Development Auto-login: If not logged in and not explicitly logged out
-        if (currentUser == null && session.getAttribute("loggedOut") == null) {
-            User adminUser = userService.getUserByUsername("admin");
-            if (adminUser != null) {
-                session.setAttribute("currentUser", adminUser);
-                List<Screen> screens = userService.getPermittedScreens(adminUser.getUserTypeId());
-                session.setAttribute("permittedScreens", screens);
-                currentUser = adminUser;
-                System.out.println("Dev Mode: Automatically logged in as 'admin'");
-            }
-        }
 
         if (currentUser == null) {
             response.sendRedirect(contextPath + "/login");
