@@ -211,26 +211,37 @@
                                             <form id="permissionForm">
                                                 <div class="d-flex flex-column gap-3 mb-4" id="screensContainer">
                                                     <%
-                                                        List<Screen> screenList = (List<Screen>) request.getAttribute("screens");
-                                                        if (screenList != null) {
-                                                            for (Screen s : screenList) {
-                                                    %>
-                                                    <div class="d-flex align-items-center justify-content-between p-2 border rounded border-200">
-                                                        <div class="d-flex align-items-center">
-                                                            <span class="fs-1 text-primary me-3"><i class="<%= s.getIcon() %>"></i></span>
-                                                            <div>
-                                                                <span class="fw-semi-bold d-block text-800"><%= s.getName() %></span>
-                                                                <span class="text-500 fs--2 font-monospace"><%= s.getPath() %></span>
-                                                            </div>
-                                                        </div>
-                                                        <div class="form-check form-switch mb-0">
-                                                            <input class="form-check-input permission-switch" type="checkbox" name="screenIds" value="<%= s.getId() %>" id="screen_<%= s.getId() %>">
-                                                        </div>
-                                                    </div>
-                                                    <%
-                                                            }
-                                                        }
-                                                    %>
+                                                         List<Screen> screenList = (List<Screen>) request.getAttribute("screens");
+                                                         if (screenList != null) {
+                                                             List<Screen> actualScreens = new java.util.ArrayList<>();
+                                                             List<Screen> specialScreens = new java.util.ArrayList<>();
+                                                             for (Screen s : screenList) {
+                                                                 if (s.getPath().equalsIgnoreCase("/download-reports") || s.getPath().equalsIgnoreCase("/report-logs")) {
+                                                                     specialScreens.add(s);
+                                                                 } else {
+                                                                     actualScreens.add(s);
+                                                                 }
+                                                             }
+                                                             List<Screen> sortedScreens = new java.util.ArrayList<>(actualScreens);
+                                                             sortedScreens.addAll(specialScreens);
+                                                             for (Screen s : sortedScreens) {
+                                                     %>
+                                                     <div class="d-flex align-items-center justify-content-between p-2 border rounded border-200">
+                                                         <div class="d-flex align-items-center">
+                                                             <span class="fs-1 text-primary me-3"><i class="<%= s.getIcon() %>"></i></span>
+                                                             <div>
+                                                                 <span class="fw-semi-bold d-block text-800"><%= s.getName() %></span>
+                                                                 <span class="text-500 fs--2 font-monospace"><%= s.getPath() %></span>
+                                                             </div>
+                                                         </div>
+                                                         <div class="form-check form-switch mb-0">
+                                                             <input class="form-check-input permission-switch" type="checkbox" name="screenIds" value="<%= s.getId() %>" id="screen_<%= s.getId() %>">
+                                                         </div>
+                                                     </div>
+                                                     <%
+                                                             }
+                                                         }
+                                                     %>
                                                 </div>
                                                 <button class="btn btn-primary d-block w-100" type="submit" id="savePermissionsBtn">
                                                     <span class="fas fa-save me-1"></span> Save Permissions

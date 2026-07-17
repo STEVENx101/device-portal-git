@@ -153,6 +153,11 @@
                                             <span class="fas fa-file-excel me-1"></span> Download CSV
                                         </button>
                                         <% } %>
+                                        <% if (hasReportLogs) { %>
+                                        <a class="btn btn-info" href="${pageContext.request.contextPath}/report-logs" style="background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%) !important; border: none !important; color: #ffffff !important; box-shadow: 0 4px 12px rgba(14, 165, 233, 0.2) !important;">
+                                            <span class="fas fa-history me-1"></span> View Logs
+                                        </a>
+                                        <% } %>
                                     </div>
                                 </div>
                             </form>

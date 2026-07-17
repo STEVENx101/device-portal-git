@@ -279,6 +279,11 @@ public class CbsReportController {
         writer.flush();
     }
 
+    @PostMapping("/report-logs")
+    public DataTableResponse getReportLogs(@RequestBody DataTableRequest request) {
+        return cbsReportService.fetchReportLogs(request);
+    }
+
     private String cleanCsv(Object val) {
         if (val == null) {
             return "";

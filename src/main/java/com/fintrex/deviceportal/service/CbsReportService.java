@@ -39,6 +39,21 @@ public class CbsReportService {
                     WHERE uts.user_type_id = ut.id AND uts.screen_id = s.id
                 )
             """);
+            jdbc.getJdbcTemplate().execute("""
+                INSERT INTO device_portal.screen (name, path, icon, group_name)
+                SELECT 'Report Logs', '/report-logs', 'fas fa-history', 'Reports'
+                WHERE NOT EXISTS (SELECT 1 FROM device_portal.screen WHERE path = '/report-logs')
+            """);
+            jdbc.getJdbcTemplate().execute("""
+                INSERT INTO device_portal.user_type_screen (user_type_id, screen_id)
+                SELECT ut.id, s.id
+                FROM device_portal.user_type ut, device_portal.screen s
+                WHERE s.path = '/report-logs'
+                AND NOT EXISTS (
+                    SELECT 1 FROM device_portal.user_type_screen uts 
+                    WHERE uts.user_type_id = ut.id AND uts.screen_id = s.id
+                )
+            """);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -435,6 +450,35 @@ public class CbsReportService {
                 t.rate, 
                 t.disbursed_date,
                 t.closed_date 
+            FROM (""" + subQuery + ") t WHERE TRUE";
+    }
+
+    public DataTableResponse fetchReportLogs(DataTableRequest request) {
+        Map<String, Object> params = new HashMap<>();
+        String sql = buildReportLogsQuery(request.getData(), params);
+        return datatableRepo.dataTable(request, sql, params);
+    }
+
+    private String buildReportLogsQuery(Object rawFilter, Map<String, Object> params) {
+        String subQuery = """
+            SELECT 
+                id, 
+                username, 
+                report_name, 
+                action_type, 
+                filters, 
+                created_date 
+            FROM device_portal.report_log
+            WHERE 1=1""";
+
+        return """
+            SELECT 
+                t.id, 
+                t.username, 
+                t.report_name, 
+                t.action_type, 
+                t.filters, 
+                t.created_date 
             FROM (""" + subQuery + ") t WHERE TRUE";
     }
 }

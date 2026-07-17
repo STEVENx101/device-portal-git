@@ -59,4 +59,9 @@ public class PageController {
         return "agreement-report";
     }
 
+    @GetMapping("/report-logs")
+    public String reportLogs() {
+        return "report-logs";
+    }
+
 }
