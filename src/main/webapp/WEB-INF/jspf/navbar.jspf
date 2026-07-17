@@ -10,6 +10,7 @@
     boolean hasPortfolio = false;
     boolean hasClientReport = false;
     boolean hasTransactionReport = false;
+    boolean hasAgreementReport = false;
     boolean canDownloadReports = false;
     if (userScreens != null) {
         for (Screen s : userScreens) {
@@ -19,6 +20,7 @@
             if (s.getPath().equalsIgnoreCase("/portfolio")) hasPortfolio = true;
             if (s.getPath().equalsIgnoreCase("/client")) hasClientReport = true;
             if (s.getPath().equalsIgnoreCase("/transaction")) hasTransactionReport = true;
+            if (s.getPath().equalsIgnoreCase("/agreement")) hasAgreementReport = true;
             if (s.getPath().equalsIgnoreCase("/download-reports")) canDownloadReports = true;
         }
     }
@@ -530,7 +532,7 @@ body {
                 </a>
             <% } %>
             
-            <% if (hasPortfolio || hasClientReport || hasTransactionReport) { %>
+            <% if (hasPortfolio || hasClientReport || hasTransactionReport || hasAgreementReport) { %>
                 <div class="nav-item-dropdown-custom" id="nav-reports-group">
                     <a class="nav-item-link dropdown-trigger" href="javascript:void(0)" id="nav-reports-trigger">
                         <span class="fas fa-file-invoice-dollar"></span>
@@ -542,6 +544,11 @@ body {
                         <% if (hasPortfolio) { %>
                         <a href="<%= request.getContextPath() %>/portfolio" class="dropdown-item-custom" id="nav-report-portfolio">
                             <span class="fas fa-link me-2"></span>Portfolio
+                        </a>
+                        <% } %>
+                        <% if (hasAgreementReport) { %>
+                        <a href="<%= request.getContextPath() %>/agreement" class="dropdown-item-custom" id="nav-report-agreement">
+                            <span class="fas fa-file-contract me-2"></span>Agreement Report
                         </a>
                         <% } %>
                         <% if (hasClientReport) { %>
@@ -604,12 +611,15 @@ body {
         } else if (path.includes("user-management")) {
             const el = document.getElementById("nav-users");
             if (el) el.classList.add("active");
-        } else if (path.includes("portfolio") || path.includes("client") || path.includes("transaction")) {
+        } else if (path.includes("portfolio") || path.includes("client") || path.includes("transaction") || path.includes("agreement")) {
             const group = document.getElementById("nav-reports-group");
             if (group) group.classList.add("open");
             
             if (path.includes("portfolio")) {
                 const item = document.getElementById("nav-report-portfolio");
+                if (item) item.classList.add("active");
+            } else if (path.includes("agreement")) {
+                const item = document.getElementById("nav-report-agreement");
                 if (item) item.classList.add("active");
             } else if (path.includes("client")) {
                 const item = document.getElementById("nav-report-client");

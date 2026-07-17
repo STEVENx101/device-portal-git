@@ -211,6 +211,68 @@ public class CbsReportController {
                     cleanCsv(row.get("product_name"))
             ));
         }
+    @PostMapping("/report4")
+    public DataTableResponse getReport4(@RequestBody DataTableRequest request, HttpSession session) {
+        com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");
+        String username = currentUser != null ? currentUser.getUsername() : "system";
+        String filtersStr = request.getData() != null ? request.getData().toString() : "none";
+        cbsReportService.logReportActivity(username, "Agreement Report", "VIEW", filtersStr);
+        return cbsReportService.fetchReport4(request);
+    }
+
+    @GetMapping("/report4/download")
+    public void downloadReport4(
+            @RequestParam(value = "branch", required = false) String branch,
+            @RequestParam(value = "products", required = false) List<String> products,
+            @RequestParam(value = "fromDate", required = false) String fromDate,
+            @RequestParam(value = "toDate", required = false) String toDate,
+            @RequestParam(value = "downloadToken", required = false) String downloadToken,
+            HttpSession session,
+            HttpServletResponse response) throws Exception {
+
+        List<com.fintrex.deviceportal.dto.Screen> permittedScreens = (List<com.fintrex.deviceportal.dto.Screen>) session.getAttribute("permittedScreens");
+        boolean canDownload = permittedScreens != null && permittedScreens.stream()
+                .anyMatch(s -> s.getPath().equalsIgnoreCase("/download-reports"));
+        if (!canDownload) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "You do not have permission to download reports.");
+            return;
+        }
+
+        com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");
+        String username = currentUser != null ? currentUser.getUsername() : "system";
+        String filtersStr = String.format("branch=%s, products=%s, fromDate=%s, toDate=%s", branch, products, fromDate, toDate);
+        cbsReportService.logReportActivity(username, "Agreement Report", "DOWNLOAD", filtersStr);
+
+        if (downloadToken != null) {
+            response.setHeader("Set-Cookie", "downloadToken=" + downloadToken + "; Path=/");
+        }
+
+        List<Map<String, Object>> data = cbsReportService.getReport4Data(branch, products, fromDate, toDate);
+
+        response.setContentType("text/csv");
+        response.setHeader("Content-Disposition", "attachment; filename=\"agreement_report.csv\"");
+
+        PrintWriter writer = response.getWriter();
+        writer.println("Account No,Series,Legacy Account No,Client Code,Client Name,NIC No,Branch Name,Product Name,Loan Amount,Period,Rental,Rate,Disbursed Date,Closed Date");
+
+        for (Map<String, Object> row : data) {
+            writer.println(String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
+                    cleanCsv(row.get("account_no")),
+                    cleanCsv(row.get("series")),
+                    cleanCsv(row.get("legacy_account_no")),
+                    cleanCsv(row.get("client_code")),
+                    cleanCsv(row.get("client_name")),
+                    cleanCsv(row.get("id_no")),
+                    cleanCsv(row.get("branch_name")),
+                    cleanCsv(row.get("product_name")),
+                    cleanCsv(row.get("loan_amount")),
+                    cleanCsv(row.get("period")),
+                    cleanCsv(row.get("rental")),
+                    cleanCsv(row.get("rate")),
+                    cleanCsv(row.get("disbursed_date")),
+                    cleanCsv(row.get("closed_date"))
+            ));
+        }
         writer.flush();
     }
 

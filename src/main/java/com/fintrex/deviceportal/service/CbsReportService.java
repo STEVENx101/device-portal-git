@@ -19,6 +19,29 @@ public class CbsReportService {
         this.datatableRepo = datatableRepo;
         initReportLogTable();
         initDownloadScreen();
+        initAgreementScreen();
+    }
+
+    private void initAgreementScreen() {
+        try {
+            jdbc.getJdbcTemplate().execute("""
+                INSERT INTO device_portal.screen (name, path, icon, group_name)
+                SELECT 'Agreement Report', '/agreement', 'fas fa-file-contract', 'Reports'
+                WHERE NOT EXISTS (SELECT 1 FROM device_portal.screen WHERE path = '/agreement')
+            """);
+            jdbc.getJdbcTemplate().execute("""
+                INSERT INTO device_portal.user_type_screen (user_type_id, screen_id)
+                SELECT ut.id, s.id
+                FROM device_portal.user_type ut, device_portal.screen s
+                WHERE s.path = '/agreement'
+                AND NOT EXISTS (
+                    SELECT 1 FROM device_portal.user_type_screen uts 
+                    WHERE uts.user_type_id = ut.id AND uts.screen_id = s.id
+                )
+            """);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void initReportLogTable() {
@@ -182,7 +205,7 @@ public class CbsReportService {
 
             String asAt = (String) filter.get("asAt");
             if (asAt != null && !asAt.trim().isEmpty()) {
-                subQuery += " AND p.portfolio_date <= :asAt";
+                subQuery += " AND l.disbursed_date <= :asAt";
                 params.put("asAt", asAt.trim());
             }
         }
@@ -323,6 +346,95 @@ public class CbsReportService {
                 t.narration, 
                 t.branch_name AS `branch_name`, 
                 t.product_name AS `product_name` 
+            FROM (""" + subQuery + ") t WHERE TRUE";
+    }
+
+    public DataTableResponse fetchReport4(DataTableRequest request) {
+        Map<String, Object> params = new HashMap<>();
+        String sql = buildReport4Query(request.getData(), params);
+        return datatableRepo.dataTable(request, sql, params);
+    }
+
+    public List<Map<String, Object>> getReport4Data(String branch, List<String> products, String fromDate, String toDate) {
+        Map<String, Object> filterMap = new HashMap<>();
+        filterMap.put("branch", branch);
+        filterMap.put("products", products);
+        filterMap.put("fromDate", fromDate);
+        filterMap.put("toDate", toDate);
+
+        Map<String, Object> params = new HashMap<>();
+        String sql = buildReport4Query(filterMap, params);
+        return jdbc.queryForList(sql, params);
+    }
+
+    private String buildReport4Query(Object rawFilter, Map<String, Object> params) {
+        String subQuery = """
+            SELECT 
+                l.account_no, 
+                l.account_series AS `series`, 
+                l.legacy_account_no, 
+                l.client AS `client_code`,
+                c.full_name AS `client_name`,
+                c.id_no AS `id_no`,
+                COALESCE(br.branch_name, l.branch) AS `branch_name`, 
+                COALESCE(pr.product_name, l.product) AS `product_name`, 
+                l.loan_amount, 
+                l.period,
+                l.rental, 
+                l.rate, 
+                l.disbursed_date AS `disbursed_date`,
+                l.closed_date AS `closed_date`
+            FROM cbs.loan l
+            LEFT JOIN cbs.client c ON l.client = c.client_code
+            LEFT JOIN cbs.branch br ON CAST(l.branch AS UNSIGNED) = br.branch_code 
+            LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
+            WHERE 1=1""";
+
+        if (rawFilter instanceof Map) {
+            Map<?, ?> filter = (Map<?, ?>) rawFilter;
+            String branch = (String) filter.get("branch");
+            if (branch != null && !branch.trim().isEmpty() && !branch.equalsIgnoreCase("All")) {
+                subQuery += " AND br.legacy_branch_code = :branch";
+                params.put("branch", branch.trim());
+            }
+
+            Object productsObj = filter.get("products");
+            if (productsObj instanceof List) {
+                List<?> products = (List<?>) productsObj;
+                if (!products.isEmpty()) {
+                    subQuery += " AND pr.product_code IN (:products)";
+                    params.put("products", products);
+                }
+            }
+
+            String fromDate = (String) filter.get("fromDate");
+            String toDate = (String) filter.get("toDate");
+            if (fromDate != null && !fromDate.trim().isEmpty()) {
+                subQuery += " AND DATE(l.disbursed_date) >= :fromDate";
+                params.put("fromDate", fromDate.trim());
+            }
+            if (toDate != null && !toDate.trim().isEmpty()) {
+                subQuery += " AND DATE(l.disbursed_date) <= :toDate";
+                params.put("toDate", toDate.trim());
+            }
+        }
+
+        return """
+            SELECT 
+                t.account_no, 
+                t.series, 
+                t.legacy_account_no, 
+                t.client_code,
+                t.client_name,
+                t.id_no,
+                t.branch_name, 
+                t.product_name, 
+                t.loan_amount, 
+                t.period,
+                t.rental, 
+                t.rate, 
+                t.disbursed_date,
+                t.closed_date 
             FROM (""" + subQuery + ") t WHERE TRUE";
     }
 }
