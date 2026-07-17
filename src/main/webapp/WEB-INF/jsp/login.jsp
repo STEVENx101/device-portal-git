@@ -134,19 +134,6 @@
                     return p.get('redirect') || '/dashboard';
                 }
 
-                function decodeJwt(token) {
-                    try {
-                        const base64Url = token.split('.')[1];
-                        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-                        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-                            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-                        }).join(''));
-                        return JSON.parse(jsonPayload);
-                    } catch (e) {
-                        return null;
-                    }
-                }
-
                 async function redirectToLoginSSO() {
                     const target = getRedirectTarget();
                     // Route directly to the whitelisted device-portal/login endpoint
@@ -162,37 +149,9 @@
                     ssoBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Connecting to SSO...';
                     ssoBtn.disabled = true;
 
-                    const urlParams = new URLSearchParams(window.location.search);
-                    const token = urlParams.get('session_token') || urlParams.get('token');
-
                     try {
-                        // First, if we have a token in the URL, try to decode and use it directly
-                        if (token) {
-                            const decoded = decodeJwt(token);
-                            if (decoded && decoded.email) {
-                                const localRes = await fetch(CTX + '/api/login-callback', {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    credentials: 'same-origin',
-                                    body: JSON.stringify({
-                                        email: decoded.email,
-                                        name: decoded.name || ''
-                                    })
-                                });
-
-                                if (localRes.ok) {
-                                    window.location.replace(CTX + getRedirectTarget());
-                                    return;
-                                }
-                            }
-                        }
-
-                        // Otherwise, fetch /me proxied through our backend
-                        const url = CTX + '/api/sso-me' + (token ? '?token=' + encodeURIComponent(token) : '');
-                        const res = await fetch(url, { 
-                            credentials: 'same-origin' 
-                        });
-
+                        // Check if they already have an active session on the auth server
+                        const res = await fetch(AUTH_SERVER + '/me', { credentials: 'include' });
                         if (res.ok) {
                             const ssoUser = await res.json();
 
@@ -218,14 +177,6 @@
                 }
 
                 document.getElementById('ssoLoginBtn').addEventListener('click', handleSSOClick);
-
-                // Auto-trigger SSO check if session_token is present in URL
-                window.addEventListener('DOMContentLoaded', () => {
-                    const urlParams = new URLSearchParams(window.location.search);
-                    if (urlParams.has('session_token') || urlParams.has('token')) {
-                        handleSSOClick();
-                    }
-                });
             </script>
         </body>
 
