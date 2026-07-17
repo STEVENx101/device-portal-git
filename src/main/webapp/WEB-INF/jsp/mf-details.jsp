@@ -13,7 +13,7 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>Fintrex | Mobile Details &amp; Device Finance Portal</title>
+        <title>Fintrex | Facility Information</title>
 
         <link rel="apple-touch-icon" sizes="180x180" href="../assets/img/favicons/apple-touch-icon.png">
         <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicons/favicon-32x32.png">
@@ -103,71 +103,71 @@
                         </div>
                         <div class="card-body">
                             <div class="row g-3">
-                                <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                                <div class="col-6 col-sm-4 col-md-3 col-lg-2 text-center">
                                     <div class="text-500 fs--2 font-sans-serif fw-semi-bold">ACCOUNT NO</div>
                                     <div class="fs--1 fw-bold val-account-no">-</div>
                                 </div>
-                                <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                                <div class="col-6 col-sm-4 col-md-3 col-lg-2 text-center">
                                     <div class="text-500 fs--2 font-sans-serif fw-semi-bold">ACCOUNT STATUS</div>
                                     <div class="fs--1 fw-bold val-account-status">-</div>
                                 </div>
-                                <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                                <div class="col-6 col-sm-4 col-md-3 col-lg-2 text-center">
                                     <div class="text-500 fs--2 font-sans-serif fw-semi-bold">TOTAL OUTSTANDING</div>
                                     <div class="fs--1 fw-bold val-outstanding">-</div>
                                 </div>
-                                <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                                <div class="col-6 col-sm-4 col-md-3 col-lg-2 text-center">
                                     <div class="text-500 fs--2 font-sans-serif fw-semi-bold">PERFORMING STATUS</div>
                                     <div class="fs--1 fw-bold val-performing-status">-</div>
                                 </div>
-                                <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                                <div class="col-6 col-sm-4 col-md-3 col-lg-2 text-center">
                                     <div class="text-500 fs--2 font-sans-serif fw-semi-bold">DPD</div>
                                     <div class="fs--1 fw-bold val-arr-days">-</div>
                                 </div>
-                                <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                                <div class="col-6 col-sm-4 col-md-3 col-lg-2 text-center">
                                     <div class="text-500 fs--2 font-sans-serif fw-semi-bold">SECURITY / MODEL</div>
                                     <div class="fs--1 fw-bold"><span class="val-security">-</span> / <span class="val-model">-</span></div>
                                 </div>
-                                <div class="col-6 col-sm-4 col-md-3 col-lg-2 row-lock-status">
+                                <div class="col-6 col-sm-4 col-md-3 col-lg-2 row-lock-status text-center">
                                     <div class="text-500 fs--2 font-sans-serif fw-semi-bold">LOCK STATUS</div>
                                     <div class="fs--1 fw-bold val-lock-status">-</div>
                                 </div>
-                                <div class="col-6 col-sm-4 col-md-3 col-lg-2 row-next-lock-date">
+                                <div class="col-6 col-sm-4 col-md-3 col-lg-2 row-next-lock-date text-center">
                                     <div class="text-500 fs--2 font-sans-serif fw-semi-bold">NEXT LOCK DATE</div>
                                     <div class="fs--1 fw-bold val-next-lock-date">-</div>
                                 </div>
-                                <div class="col-6 col-sm-4 col-md-3 col-lg-2 row-device-status" style="display: none;">
+                                <div class="col-6 col-sm-4 col-md-3 col-lg-2 row-device-status text-center" style="display: none;">
                                     <div class="text-500 fs--2 font-sans-serif fw-semi-bold">CURRENT DEVICE STATUS</div>
                                     <div class="fs--1 fw-bold val-device-status">-</div>
                                 </div>
-                                <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                                <div class="col-6 col-sm-4 col-md-3 col-lg-2 text-center">
                                     <div class="text-500 fs--2 font-sans-serif fw-semi-bold">FACILITY GRANT DATE</div>
                                     <div class="fs--1 fw-bold val-facility-grant-date">-</div>
                                 </div>
-                                <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                                <div class="col-6 col-sm-4 col-md-3 col-lg-2 text-center">
                                     <div class="text-500 fs--2 font-sans-serif fw-semi-bold">MATURITY DATE</div>
                                     <div class="fs--1 fw-bold val-maturity-date">-</div>
                                 </div>
-                                <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                                <div class="col-6 col-sm-4 col-md-3 col-lg-2 text-center">
                                     <div class="text-500 fs--2 font-sans-serif fw-semi-bold">DUE DATE</div>
                                     <div class="fs--1 fw-bold val-due-date">-</div>
                                 </div>
-                                <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                                <div class="col-6 col-sm-4 col-md-3 col-lg-2 text-center">
                                     <div class="text-500 fs--2 font-sans-serif fw-semi-bold">RENTAL</div>
                                     <div class="fs--1 fw-bold val-rental">-</div>
                                 </div>
-                                <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                                <div class="col-6 col-sm-4 col-md-3 col-lg-2 text-center">
                                     <div class="text-500 fs--2 font-sans-serif fw-semi-bold">TENOR</div>
                                     <div class="fs--1 fw-bold val-period">-</div>
                                 </div>
-                                <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                                <div class="col-6 col-sm-4 col-md-3 col-lg-2 text-center">
                                     <div class="text-500 fs--2 font-sans-serif fw-semi-bold">LOAN AMOUNT</div>
                                     <div class="fs--1 fw-bold val-finance-amount">-</div>
                                 </div>
-                                <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                                <div class="col-6 col-sm-4 col-md-3 col-lg-2 text-center">
                                     <div class="text-500 fs--2 font-sans-serif fw-semi-bold">IMEI NO</div>
                                     <div class="fs--1 fw-bold val-imei-no">-</div>
                                 </div>
-                                <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                                <div class="col-6 col-sm-4 col-md-3 col-lg-2 text-center">
                                     <div class="text-500 fs--2 font-sans-serif fw-semi-bold">WORKHUB SP NO</div>
                                     <div class="fs--1 fw-bold val-workhub-sp-no">-</div>
                                 </div>

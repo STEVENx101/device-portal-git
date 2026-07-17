@@ -184,7 +184,7 @@ body {
     transform: rotate(180deg);
 }
 .dropdown-item-custom {
-    color: #475569 !important;
+    color: #64748b !important;
     font-weight: 600 !important;
     padding: 0.5rem 0.8rem !important;
     border-radius: 8px !important;
@@ -203,7 +203,7 @@ body {
     background: rgba(99, 102, 241, 0.15) !important;
 }
 .dropdown-header-custom {
-    color: #94a3b8 !important;
+    color: #000000 !important;
     font-weight: 700 !important;
     font-size: 0.62rem !important;
     text-transform: uppercase !important;
@@ -530,7 +530,7 @@ body {
             <% if (hasDeviceFinance) { %>
                 <a class="nav-item-link" id="nav-finance" href="<%= request.getContextPath() %>/mobile">
                     <span class="fas fa-mobile-alt"></span>
-                    <span>Device Finance</span>
+                    <span>Facility Information</span>
                 </a>
             <% } %>
             
@@ -558,19 +558,17 @@ body {
                             <span class="fas fa-user-tag me-2"></span>Client Report
                         </a>
                         <% } %>
+                        <% if (hasTransactionReport) { %>
+                        <a href="<%= request.getContextPath() %>/transaction" class="dropdown-item-custom" id="nav-report-transaction">
+                            <span class="fas fa-receipt me-2"></span>Transaction Report
+                        </a>
+                        <% } %>
                         <% if (hasReportLogs) { %>
                         <a href="<%= request.getContextPath() %>/report-logs" class="dropdown-item-custom" id="nav-report-logs">
                             <span class="fas fa-history me-2"></span>Report Logs
                         </a>
                         <% } %>
                         
-                        <div class="dropdown-header-custom">Recovery Reports</div>
-                        <% if (hasTransactionReport) { %>
-                        <a href="<%= request.getContextPath() %>/transaction" class="dropdown-item-custom" id="nav-report-transaction">
-                            <span class="fas fa-receipt me-2"></span>Transaction Report
-                        </a>
-                        <% } %>
-
                         <div class="dropdown-header-custom">Exception Reports</div>
                         <a href="javascript:void(0)" class="dropdown-item-custom disabled" style="opacity: 0.5; pointer-events: none;">
                             <span class="fas fa-exclamation-triangle me-2"></span>No exception reports

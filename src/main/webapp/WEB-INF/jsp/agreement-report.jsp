@@ -149,16 +149,16 @@
                                         <input class="form-control" type="date" id="toDate" value="2026-07-13">
                                     </div>
                                     <div class="col-md-3 d-flex align-items-end justify-content-end gap-2">
-                                        <button class="btn btn-primary" type="button" id="applyFiltersBtn">
+                                        <button class="btn btn-primary btn-sm" type="button" id="applyFiltersBtn">
                                             <span class="fas fa-search me-1"></span> Load Data
                                         </button>
                                         <% if (canDownloadReports) { %>
-                                        <button class="btn btn-success" type="button" id="downloadExcelBtn">
+                                        <button class="btn btn-success btn-sm" type="button" id="downloadExcelBtn">
                                             <span class="fas fa-file-excel me-1"></span> Download CSV
                                         </button>
                                         <% } %>
                                         <% if (hasReportLogs) { %>
-                                        <a class="btn btn-info" href="${pageContext.request.contextPath}/report-logs" style="background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%) !important; border: none !important; color: #ffffff !important; box-shadow: 0 4px 12px rgba(14, 165, 233, 0.2) !important;">
+                                        <a class="btn btn-info btn-sm" href="${pageContext.request.contextPath}/report-logs" style="background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%) !important; border: none !important; color: #ffffff !important; box-shadow: 0 4px 12px rgba(14, 165, 233, 0.2) !important;">
                                             <span class="fas fa-history me-1"></span> View Logs
                                         </a>
                                         <% } %>

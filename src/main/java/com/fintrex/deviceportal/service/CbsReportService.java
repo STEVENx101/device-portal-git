@@ -20,6 +20,11 @@ public class CbsReportService {
         initReportLogTable();
         initDownloadScreen();
         initAgreementScreen();
+        try {
+            jdbc.getJdbcTemplate().execute("UPDATE device_portal.screen SET name = 'Facility Information' WHERE path = '/mobile'");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void initAgreementScreen() {
