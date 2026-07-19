@@ -7,7 +7,7 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>Fintrex | Portfolio Report</title>
+        <title>Fintrex | Duplicate Loans</title>
 
         <link rel="apple-touch-icon" sizes="180x180" href="${pageContext.request.contextPath}/assets/img/favicons/apple-touch-icon.png">
         <link rel="icon" type="image/png" sizes="32x32" href="${pageContext.request.contextPath}/assets/img/favicons/favicon-32x32.png">
@@ -27,8 +27,7 @@
         <link href="${pageContext.request.contextPath}/assets/css/user-rtl.min.css" rel="stylesheet" id="user-style-rtl">
         <link href="${pageContext.request.contextPath}/assets/css/user.min.css" rel="stylesheet" id="user-style-default">
 
-        <!-- Vendors for DataTables and Choices.js -->
-        <link href="${pageContext.request.contextPath}/vendors/choices/choices.min.css" rel="stylesheet">
+        <!-- Vendors for DataTables -->
         <link href="${pageContext.request.contextPath}/vendors/datatables.net-bs5/dataTables.bootstrap5.min.css" rel="stylesheet">
 
         <script>
@@ -71,36 +70,6 @@
             .bg-primary {
                 background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%) !important;
             }
-            /* Custom choices tags style */
-            .choices {
-                z-index: 1005 !important;
-            }
-            .choices__inner {
-                background: rgba(255, 255, 255, 0.6) !important;
-                border: 1px solid rgba(226, 232, 240, 0.8) !important;
-                border-radius: 8px !important;
-                min-height: 42px !important;
-            }
-            .choices__list--multiple .choices__item,
-            .choices__list--multiple .choices__item * {
-                background-color: #2b4eff !important;
-                border: none !important;
-                border-radius: 4px !important;
-                font-weight: 600;
-                font-size: 0.8rem;
-                padding: 3px 8px !important;
-                color: #ffffff !important;
-            }
-            .choices__list--dropdown {
-                background: rgba(255, 255, 255, 0.95) !important;
-                backdrop-filter: blur(10px);
-                border-radius: 8px !important;
-                border: 1px solid rgba(226, 232, 240, 0.8) !important;
-                z-index: 1005 !important;
-            }
-            select[data-choice="active"] {
-                display: none !important;
-            }
         </style>
     </head>
 
@@ -121,30 +90,16 @@
 
                     <div class="d-flex mb-2 align-items-center justify-content-between mt-2">
                         <div>
-                            <h4 class="mb-0 text-primary"><i class="fas fa-file-invoice-dollar me-2"></i>Device Finance Reports - Portfolio</h4>
+                            <h4 class="mb-0 text-primary"><i class="fas fa-copy me-2"></i>Exception Reports - Duplicate Loans</h4>
                         </div>
                     </div>
 
-                    <!-- Filter panel matching screenshot layout -->
+                    <!-- Filter panel -->
                     <div class="card glass-card mb-3" style="position: relative; z-index: 10;">
                         <div class="card-body">
                             <form id="filterForm">
                                 <div class="row g-3 align-items-end">
-                                    <div class="col-md-2">
-                                        <label class="form-label text-700 fw-semi-bold" for="selectBranch">Select Branch</label>
-                                        <select class="form-select" id="selectBranch">
-                                            <option value="All">All</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label class="form-label text-700 fw-semi-bold" for="selectProducts">Product</label>
-                                        <select class="form-select" id="selectProducts" multiple></select>
-                                    </div>
-                                    <div class="col-md-2">
-                                        <label class="form-label text-700 fw-semi-bold" for="asAtDate">As at</label>
-                                        <input class="form-control" type="date" id="asAtDate" value="2026-07-13">
-                                    </div>
-                                    <div class="col-md-4 d-flex align-items-end justify-content-end gap-2">
+                                    <div class="col-md-12 d-flex align-items-end justify-content-end gap-2">
                                         <button class="btn btn-primary btn-sm" type="button" id="applyFiltersBtn">
                                             <span class="fas fa-search me-1"></span> Load Data
                                         </button>
@@ -152,11 +107,6 @@
                                         <button class="btn btn-success btn-sm" type="button" id="downloadExcelBtn">
                                             <span class="fas fa-file-excel me-1"></span> Download CSV
                                         </button>
-                                        <% } %>
-                                        <% if (hasReportLogs) { %>
-                                        <a class="btn btn-info btn-sm" href="${pageContext.request.contextPath}/report-logs" style="background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%) !important; border: none !important; color: #ffffff !important; box-shadow: 0 4px 12px rgba(14, 165, 233, 0.2) !important;">
-                                            <span class="fas fa-history me-1"></span> View Logs
-                                        </a>
                                         <% } %>
                                     </div>
                                 </div>
@@ -168,26 +118,17 @@
                     <div class="card glass-card mb-3" style="position: relative; z-index: 1;">
                         <div class="card-body p-3">
                             <div class="table-responsive scrollbar">
-                                <table class="table table-hover table-striped align-middle mb-0 fs--1 w-100" id="tableReport1">
+                                <table class="table table-hover table-striped align-middle mb-0 fs--1 w-100" id="tableDuplicateLoans">
                                     <thead class="bg-200 text-900">
                                         <tr>
-                                            <th>Portfolio Date</th>
+                                            <th>IMEI No</th>
                                             <th>Account No</th>
                                             <th>Series</th>
                                             <th>Legacy Account</th>
+                                            <th>Customer Name</th>
+                                            <th>NIC/ID No</th>
                                             <th>Loan Amount</th>
-                                            <th>Rental</th>
-                                            <th>Total Due</th>
-                                            <th>Exposure</th>
-                                            <th>DPD</th>
-                                            <th>Perf. Status</th>
-                                            <th>Status</th>
-                                            <th>Disbursed Date</th>
-                                            <th>Closed Date</th>
-                                            <th>IMEI No</th>
-                                            <th>Device Status</th>
-                                            <th>Workhub SP No</th>
-                                            <th>Platform</th>
+                                            <th>Vendor Name</th>
                                         </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -200,6 +141,14 @@
             </div>
         </main>
 
+        <!-- Loading spinner overlay -->
+        <div id="cbsLoader" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.7); z-index:9999; align-items:center; justify-content:center; flex-direction:column;">
+            <div class="spinner-border text-primary mb-2" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <div id="loaderText" class="fw-bold text-primary">Generating CSV download, please wait...</div>
+        </div>
+
         <!-- Scripts -->
         <script src="${pageContext.request.contextPath}/vendors/jquery/jquery.min.js"></script>
         <script src="${pageContext.request.contextPath}/vendors/popper/popper.min.js"></script>
@@ -208,23 +157,12 @@
         <script src="${pageContext.request.contextPath}/vendors/is/is.min.js"></script>
         <script src="${pageContext.request.contextPath}/vendors/fontawesome/all.min.js"></script>
         <script src="${pageContext.request.contextPath}/vendors/lodash/lodash.min.js"></script>
-        <script src="${pageContext.request.contextPath}/vendors/choices/choices.min.js"></script>
         <script src="${pageContext.request.contextPath}/vendors/datatables.net/jquery.dataTables.min.js"></script>
         <script src="${pageContext.request.contextPath}/vendors/datatables.net-bs5/dataTables.bootstrap5.min.js"></script>
         <script src="${pageContext.request.contextPath}/assets/js/theme.js"></script>
         <script>
-            let productChoices;
             let dtReport;
             let hasLoaded = false;
-
-            function getFilters() {
-                const products = productChoices ? productChoices.getValue(true) : [];
-                return {
-                    branch: $('#selectBranch').val(),
-                    products: products,
-                    asAt: $('#asAtDate').val()
-                };
-            }
 
             function getCookie(name) {
                 const value = `; ${document.cookie}`;
@@ -233,47 +171,15 @@
             }
 
             $(document).ready(function() {
-                productChoices = new Choices('#selectProducts', {
-                    removeItemButton: true,
-                    placeholder: true,
-                    placeholderValue: 'Select Products',
-                    shouldSort: false
-                });
-
-                // Auto refresh table when selections change
-                $('#selectProducts').on('change', function() {
-                    if (hasLoaded && dtReport) {
-                        dtReport.draw();
-                    }
-                });
-
-                // Load Metadata
-                fetch('${pageContext.request.contextPath}/api/cbs/metadata')
-                    .then(res => res.json())
-                    .then(data => {
-                        const branchSelect = $('#selectBranch');
-                        data.branches.forEach(b => {
-                            branchSelect.append(new Option(b.branch_name, b.legacy_branch_code));
-                        });
-
-                        const productList = data.products.map(p => ({
-                            value: p.product_code,
-                            label: p.product_name,
-                            selected: false
-                        }));
-                        productChoices.setChoices(productList, 'value', 'label', true);
-                    })
-                    .catch(err => console.error("Error loading filter metadata:", err));
-
-                dtReport = $('#tableReport1').DataTable({
+                dtReport = $('#tableDuplicateLoans').DataTable({
                     processing: true,
                     serverSide: true,
                     deferLoading: true,
-                    ordering: false,
+                    ordering: false, // Disables sorting from column headers
                     ajax: function(data, callback, settings) {
-                        data.data = getFilters();
+                        data.data = {};
                         $.ajax({
-                            url: '${pageContext.request.contextPath}/api/cbs/report1',
+                            url: '${pageContext.request.contextPath}/api/cbs/duplicate-loans',
                             type: 'POST',
                             contentType: 'application/json',
                             data: JSON.stringify(data),
@@ -281,23 +187,14 @@
                         });
                     },
                     columns: [
-                        { data: 'portfolio_date' },
+                        { data: 'imei_no', defaultContent: '-' },
                         { data: 'account_no' },
                         { data: 'series' },
                         { data: 'legacy_account_no', defaultContent: '-' },
+                        { data: 'client_name', defaultContent: '-' },
+                        { data: 'client_nic', defaultContent: '-' },
                         { data: 'loan_amount', render: $.fn.dataTable.render.number(',', '.', 2) },
-                        { data: 'rental', render: $.fn.dataTable.render.number(',', '.', 2) },
-                        { data: 'total_due', render: $.fn.dataTable.render.number(',', '.', 2) },
-                        { data: 'exposure', render: $.fn.dataTable.render.number(',', '.', 2) },
-                        { data: 'dpd' },
-                        { data: 'performing_status' },
-                        { data: 'portfolio_loan_status' },
-                        { data: 'disbursed_date', defaultContent: '-' },
-                        { data: 'closed_date', defaultContent: '-' },
-                        { data: 'device_id', defaultContent: '-' },
-                        { data: 'device_status', defaultContent: '-' },
-                        { data: 'external_id', defaultContent: '-' },
-                        { data: 'platform', defaultContent: '-' }
+                        { data: 'vendor_name', defaultContent: '-' }
                     ]
                 });
 
@@ -309,20 +206,12 @@
 
                 if ($('#downloadExcelBtn').length) {
                     $('#downloadExcelBtn').on('click', function() {
-                        const filters = getFilters();
-                        let downloadUrl = '${pageContext.request.contextPath}/api/cbs/report1/download';
-
+                        let downloadUrl = '${pageContext.request.contextPath}/api/cbs/duplicate-loans/download';
                         const queryParams = new URLSearchParams();
-                        queryParams.append('branch', filters.branch);
-                        queryParams.append('asAt', filters.asAt);
-                        if (filters.products && filters.products.length > 0) {
-                            filters.products.forEach(p => queryParams.append('products', p));
-                        }
-
                         const token = new Date().getTime();
                         queryParams.append('downloadToken', token);
 
-                        $('#loaderText').text('Generating CSV download, please wait...');
+                        $('#loaderText').text('Generating CSV download, please wait... ');
                         $('#cbsLoader').css('display', 'flex');
 
                         window.location.href = downloadUrl + '?' + queryParams.toString();
@@ -334,21 +223,17 @@
 
                         const checkTimer = setInterval(function() {
                             const cookieValue = getCookie("downloadToken");
-                            if (cookieValue == token) {
+                            if (cookieValue === token.toString()) {
                                 $('#cbsLoader').hide();
-                                document.cookie = "downloadToken=; Max-Age=-99999999; path=/";
-                                clearTimeout(fallbackTimer);
                                 clearInterval(checkTimer);
+                                clearTimeout(fallbackTimer);
+                                // Delete cookie
+                                document.cookie = "downloadToken=; Max-Age=0; path=/";
                             }
                         }, 500);
                     });
                 }
             });
         </script>
-
-        <div id="cbsLoader" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.7); z-index: 9999; justify-content: center; align-items: center; flex-direction: column;">
-            <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"></div>
-            <span class="mt-2 fw-semi-bold" id="loaderText">Generating CSV download, please wait...</span>
-        </div>
     </body>
 </html>

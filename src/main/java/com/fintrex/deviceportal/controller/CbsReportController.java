@@ -284,6 +284,178 @@ public class CbsReportController {
         return cbsReportService.fetchReportLogs(request);
     }
 
+    @PostMapping("/arrears")
+    public DataTableResponse getArrears(@RequestBody DataTableRequest request, HttpSession session) {
+        com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");
+        String username = currentUser != null ? currentUser.getUsername() : "system";
+        String filtersStr = request.getData() != null ? request.getData().toString() : "none";
+        cbsReportService.logReportActivity(username, "Arrears Report", "VIEW", filtersStr);
+        return cbsReportService.fetchArrearsReport(request);
+    }
+
+    @GetMapping("/arrears/download")
+    public void downloadArrears(
+            @RequestParam(value = "asAt", required = false) String asAt,
+            @RequestParam(value = "downloadToken", required = false) String downloadToken,
+            HttpSession session,
+            HttpServletResponse response) throws Exception {
+        verifyDownloadPermission(session, response);
+        com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");
+        String username = currentUser != null ? currentUser.getUsername() : "system";
+        String filtersStr = String.format("asAt=%s", asAt);
+        cbsReportService.logReportActivity(username, "Arrears Report", "DOWNLOAD", filtersStr);
+
+        setDownloadTokenCookie(response, downloadToken);
+        List<Map<String, Object>> data = cbsReportService.getArrearsReportData(asAt);
+        writeRecoveryCsv(response, "arrears_report.csv", data);
+    }
+
+    @PostMapping("/npa")
+    public DataTableResponse getNpa(@RequestBody DataTableRequest request, HttpSession session) {
+        com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");
+        String username = currentUser != null ? currentUser.getUsername() : "system";
+        String filtersStr = request.getData() != null ? request.getData().toString() : "none";
+        cbsReportService.logReportActivity(username, "NPA Report", "VIEW", filtersStr);
+        return cbsReportService.fetchNpaReport(request);
+    }
+
+    @GetMapping("/npa/download")
+    public void downloadNpa(
+            @RequestParam(value = "asAt", required = false) String asAt,
+            @RequestParam(value = "downloadToken", required = false) String downloadToken,
+            HttpSession session,
+            HttpServletResponse response) throws Exception {
+        verifyDownloadPermission(session, response);
+        com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");
+        String username = currentUser != null ? currentUser.getUsername() : "system";
+        String filtersStr = String.format("asAt=%s", asAt);
+        cbsReportService.logReportActivity(username, "NPA Report", "DOWNLOAD", filtersStr);
+
+        setDownloadTokenCookie(response, downloadToken);
+        List<Map<String, Object>> data = cbsReportService.getNpaReportData(asAt);
+        writeRecoveryCsv(response, "npa_report.csv", data);
+    }
+
+    @PostMapping("/nearing-npa")
+    public DataTableResponse getNearingNpa(@RequestBody DataTableRequest request, HttpSession session) {
+        com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");
+        String username = currentUser != null ? currentUser.getUsername() : "system";
+        String filtersStr = request.getData() != null ? request.getData().toString() : "none";
+        cbsReportService.logReportActivity(username, "Nearing NPA Report", "VIEW", filtersStr);
+        return cbsReportService.fetchNearingNpaReport(request);
+    }
+
+    @GetMapping("/nearing-npa/download")
+    public void downloadNearingNpa(
+            @RequestParam(value = "asAt", required = false) String asAt,
+            @RequestParam(value = "downloadToken", required = false) String downloadToken,
+            HttpSession session,
+            HttpServletResponse response) throws Exception {
+        verifyDownloadPermission(session, response);
+        com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");
+        String username = currentUser != null ? currentUser.getUsername() : "system";
+        String filtersStr = String.format("asAt=%s", asAt);
+        cbsReportService.logReportActivity(username, "Nearing NPA Report", "DOWNLOAD", filtersStr);
+
+        setDownloadTokenCookie(response, downloadToken);
+        List<Map<String, Object>> data = cbsReportService.getNearingNpaReportData(asAt);
+        writeRecoveryCsv(response, "nearing_npa_report.csv", data);
+    }
+
+    @PostMapping("/duplicate-loans")
+    public DataTableResponse getDuplicateLoans(@RequestBody DataTableRequest request, HttpSession session) {
+        com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");
+        String username = currentUser != null ? currentUser.getUsername() : "system";
+        String filtersStr = request.getData() != null ? request.getData().toString() : "none";
+        cbsReportService.logReportActivity(username, "Duplicate Loans Report", "VIEW", filtersStr);
+        return cbsReportService.fetchDuplicateLoansReport(request);
+    }
+
+    @GetMapping("/duplicate-loans/download")
+    public void downloadDuplicateLoans(
+            @RequestParam(value = "downloadToken", required = false) String downloadToken,
+            HttpSession session,
+            HttpServletResponse response) throws Exception {
+        verifyDownloadPermission(session, response);
+        com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");
+        String username = currentUser != null ? currentUser.getUsername() : "system";
+        cbsReportService.logReportActivity(username, "Duplicate Loans Report", "DOWNLOAD", "none");
+
+        setDownloadTokenCookie(response, downloadToken);
+        List<Map<String, Object>> data = cbsReportService.getDuplicateLoansReportData();
+        writeDuplicateLoansCsv(response, "duplicate_loans_report.csv", data);
+    }
+
+    private void verifyDownloadPermission(HttpSession session, HttpServletResponse response) throws Exception {
+        List<com.fintrex.deviceportal.dto.Screen> permittedScreens = (List<com.fintrex.deviceportal.dto.Screen>) session.getAttribute("permittedScreens");
+        boolean canDownload = permittedScreens != null && permittedScreens.stream()
+                .anyMatch(s -> s.getPath().equalsIgnoreCase("/download-reports"));
+        if (!canDownload) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "You do not have permission to download reports.");
+            throw new SecurityException("No download permission");
+        }
+    }
+
+    private void setDownloadTokenCookie(HttpServletResponse response, String downloadToken) {
+        if (downloadToken != null) {
+            response.setHeader("Set-Cookie", "downloadToken=" + downloadToken + "; Path=/");
+        }
+    }
+
+    private void writeRecoveryCsv(HttpServletResponse response, String filename, List<Map<String, Object>> data) throws Exception {
+        response.setContentType("text/csv");
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
+
+        PrintWriter writer = response.getWriter();
+        writer.println("Account No,Series,Legacy Account No,Customer Name,NIC/ID No,Mobile No,Address,Loan Amount,Rental,Total Due,Exposure,DPD,Status,Performing Status,NPL Status,Recovery Officer,Last Payment Date,Last Payment Amount");
+
+        for (Map<String, Object> row : data) {
+            writer.println(String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
+                    cleanCsv(row.get("account_no")),
+                    cleanCsv(row.get("series")),
+                    cleanCsv(row.get("legacy_account_no")),
+                    cleanCsv(row.get("client_name")),
+                    cleanCsv(row.get("client_nic")),
+                    cleanCsv(row.get("client_mobile")),
+                    cleanCsv(row.get("client_address")),
+                    cleanCsv(row.get("loan_amount")),
+                    cleanCsv(row.get("rental")),
+                    cleanCsv(row.get("total_due")),
+                    cleanCsv(row.get("exposure")),
+                    cleanCsv(row.get("dpd")),
+                    cleanCsv(row.get("loan_status")),
+                    cleanCsv(row.get("performing_status")),
+                    cleanCsv(row.get("npl_status")),
+                    cleanCsv(row.get("recovery_officer")),
+                    cleanCsv(row.get("last_payment_date")),
+                    cleanCsv(row.get("last_payment_amount"))
+            ));
+        }
+        writer.flush();
+    }
+
+    private void writeDuplicateLoansCsv(HttpServletResponse response, String filename, List<Map<String, Object>> data) throws Exception {
+        response.setContentType("text/csv");
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
+
+        PrintWriter writer = response.getWriter();
+        writer.println("IMEI No,Account No,Series,Legacy Account No,Customer Name,NIC/ID No,Loan Amount,Vendor Name");
+
+        for (Map<String, Object> row : data) {
+            writer.println(String.format("%s,%s,%s,%s,%s,%s,%s,%s",
+                    cleanCsv(row.get("imei_no")),
+                    cleanCsv(row.get("account_no")),
+                    cleanCsv(row.get("series")),
+                    cleanCsv(row.get("legacy_account_no")),
+                    cleanCsv(row.get("client_name")),
+                    cleanCsv(row.get("client_nic")),
+                    cleanCsv(row.get("loan_amount")),
+                    cleanCsv(row.get("vendor_name"))
+            ));
+        }
+        writer.flush();
+    }
+
     private String cleanCsv(Object val) {
         if (val == null) {
             return "";

@@ -171,6 +171,10 @@
                                     <div class="text-500 fs--2 font-sans-serif fw-semi-bold">WORKHUB SP NO</div>
                                     <div class="fs--1 fw-bold val-workhub-sp-no">-</div>
                                 </div>
+                                <div class="col-6 col-sm-4 col-md-3 col-lg-2 text-center">
+                                    <div class="text-500 fs--2 font-sans-serif fw-semi-bold">VENDOR NAME</div>
+                                    <div class="fs--1 fw-bold val-vendor-name">-</div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -765,6 +769,7 @@
                                             currentFinanceNo = data.financeNo || '';
                                             document.querySelectorAll('.val-imei-no').forEach(el => el.textContent = data.imeiNo || '-');
                                             document.querySelectorAll('.val-workhub-sp-no').forEach(el => el.textContent = data.workhubSpNo || '-');
+                                            document.querySelectorAll('.val-vendor-name').forEach(el => el.textContent = data.vendorName || '-');
 
                                             document.querySelectorAll('.val-facility-grant-date').forEach(el => el.textContent = data.facilityGrantDate || '-');
                                             document.querySelectorAll('.val-maturity-date').forEach(el => el.textContent = data.maturityDate || '-');

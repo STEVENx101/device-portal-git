@@ -12,6 +12,10 @@
     boolean hasTransactionReport = false;
     boolean hasAgreementReport = false;
     boolean hasReportLogs = false;
+    boolean hasArrearsReport = false;
+    boolean hasNpaReport = false;
+    boolean hasNearingNpaReport = false;
+    boolean hasDuplicateLoansReport = false;
     boolean canDownloadReports = false;
     if (userScreens != null) {
         for (Screen s : userScreens) {
@@ -23,6 +27,10 @@
             if (s.getPath().equalsIgnoreCase("/transaction")) hasTransactionReport = true;
             if (s.getPath().equalsIgnoreCase("/agreement")) hasAgreementReport = true;
             if (s.getPath().equalsIgnoreCase("/report-logs")) hasReportLogs = true;
+            if (s.getPath().equalsIgnoreCase("/arrears-report")) hasArrearsReport = true;
+            if (s.getPath().equalsIgnoreCase("/npa-report")) hasNpaReport = true;
+            if (s.getPath().equalsIgnoreCase("/nearing-npa-report")) hasNearingNpaReport = true;
+            if (s.getPath().equalsIgnoreCase("/duplicate-loans-report")) hasDuplicateLoansReport = true;
             if (s.getPath().equalsIgnoreCase("/download-reports")) canDownloadReports = true;
         }
     }
@@ -243,6 +251,22 @@ body {
     display: none;
     height: 35px;
     width: auto;
+}
+.navbar-vertical-modern .brand-logo-text {
+    display: none;
+    font-size: 1.25rem;
+    font-weight: 750;
+    color: #4f46e5 !important;
+    font-family: 'Outfit', 'Inter', sans-serif;
+    align-self: center;
+    margin-left: 8px;
+    letter-spacing: 0.05em;
+    background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+.navbar-vertical-modern:hover .brand-logo-text {
+    display: inline-block !important;
 }
 
 .navbar-vertical-modern:hover .brand-logo-collapsed-circle {
@@ -517,6 +541,7 @@ body {
                 <img class="brand-logo-collapsed" src="<%= request.getContextPath() %>/assets/img/logo_collapsed.png" alt="Fintrex Icon" />
             </div>
             <img class="brand-logo-expanded" src="<%= request.getContextPath() %>/assets/img/logo.png" alt="Fintrex Logo" />
+            <span class="brand-logo-text">Insight</span>
         </a>
         
         <div class="nav-links-section">
@@ -534,7 +559,7 @@ body {
                 </a>
             <% } %>
             
-            <% if (hasPortfolio || hasClientReport || hasTransactionReport || hasAgreementReport || hasReportLogs) { %>
+            <% if (hasPortfolio || hasClientReport || hasTransactionReport || hasAgreementReport || hasReportLogs || hasArrearsReport || hasNpaReport || hasNearingNpaReport) { %>
                 <div class="nav-item-dropdown-custom" id="nav-reports-group">
                     <a class="nav-item-link dropdown-trigger" href="javascript:void(0)" id="nav-reports-trigger">
                         <span class="fas fa-file-invoice-dollar"></span>
@@ -569,10 +594,29 @@ body {
                         </a>
                         <% } %>
                         
-                        <div class="dropdown-header-custom">Exception Reports</div>
-                        <a href="javascript:void(0)" class="dropdown-item-custom disabled" style="opacity: 0.5; pointer-events: none;">
-                            <span class="fas fa-exclamation-triangle me-2"></span>No exception reports
+                        <div class="dropdown-header-custom">Recovery Reports</div>
+                        <% if (hasArrearsReport) { %>
+                        <a href="<%= request.getContextPath() %>/arrears-report" class="dropdown-item-custom" id="nav-report-arrears">
+                            <span class="fas fa-clock me-2"></span>Arrears Report
                         </a>
+                        <% } %>
+                        <% if (hasNpaReport) { %>
+                        <a href="<%= request.getContextPath() %>/npa-report" class="dropdown-item-custom" id="nav-report-npa">
+                            <span class="fas fa-exclamation-triangle me-2"></span>NPA Report
+                        </a>
+                        <% } %>
+                        <% if (hasNearingNpaReport) { %>
+                        <a href="<%= request.getContextPath() %>/nearing-npa-report" class="dropdown-item-custom" id="nav-report-nearing-npa">
+                            <span class="fas fa-hourglass-half me-2"></span>Nearing NPA Report
+                        </a>
+                        <% } %>
+                        
+                        <div class="dropdown-header-custom">Exception Reports</div>
+                        <% if (hasDuplicateLoansReport) { %>
+                        <a href="<%= request.getContextPath() %>/duplicate-loans-report" class="dropdown-item-custom" id="nav-report-duplicate-loans">
+                            <span class="fas fa-copy me-2"></span>Duplicate Loans
+                        </a>
+                        <% } %>
                     </div>
                 </div>
             <% } %>
@@ -616,7 +660,7 @@ body {
         } else if (path.includes("user-management")) {
             const el = document.getElementById("nav-users");
             if (el) el.classList.add("active");
-        } else if (path.includes("portfolio") || path.includes("client") || path.includes("transaction") || path.includes("agreement") || path.includes("report-logs")) {
+        } else if (path.includes("portfolio") || path.includes("client") || path.includes("transaction") || path.includes("agreement") || path.includes("report-logs") || path.includes("arrears-report") || path.includes("npa-report") || path.includes("nearing-npa-report") || path.includes("duplicate-loans-report")) {
             const group = document.getElementById("nav-reports-group");
             if (group) group.classList.add("open");
             
@@ -634,6 +678,18 @@ body {
                 if (item) item.classList.add("active");
             } else if (path.includes("report-logs")) {
                 const item = document.getElementById("nav-report-logs");
+                if (item) item.classList.add("active");
+            } else if (path.includes("arrears-report")) {
+                const item = document.getElementById("nav-report-arrears");
+                if (item) item.classList.add("active");
+            } else if (path.includes("npa-report")) {
+                const item = document.getElementById("nav-report-npa");
+                if (item) item.classList.add("active");
+            } else if (path.includes("nearing-npa-report")) {
+                const item = document.getElementById("nav-report-nearing-npa");
+                if (item) item.classList.add("active");
+            } else if (path.includes("duplicate-loans-report")) {
+                const item = document.getElementById("nav-report-duplicate-loans");
                 if (item) item.classList.add("active");
             }
         }

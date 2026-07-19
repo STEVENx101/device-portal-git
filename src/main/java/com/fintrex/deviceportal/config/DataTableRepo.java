@@ -21,7 +21,7 @@ public class DataTableRepo {
                     Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 
     private final Pattern removeAsPattern =
-            Pattern.compile("AS\\s*[`']?(\\w+)[`']?", Pattern.CASE_INSENSITIVE);
+            Pattern.compile("\\bAS\\b\\s+[`']?(\\w+)[`']?", Pattern.CASE_INSENSITIVE);
 
     public DataTableResponse dataTable(DataTableRequest request, String sql, Object... args) {
         return getDataTable(request, sql, false, null, args);

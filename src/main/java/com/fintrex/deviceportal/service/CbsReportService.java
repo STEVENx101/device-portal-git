@@ -20,6 +20,7 @@ public class CbsReportService {
         initReportLogTable();
         initDownloadScreen();
         initAgreementScreen();
+        initRecoveryScreens();
         try {
             jdbc.getJdbcTemplate().execute("UPDATE device_portal.screen SET name = 'Facility Information' WHERE path = '/mobile'");
         } catch (Exception e) {
@@ -78,6 +79,11 @@ public class CbsReportService {
             """);
         } catch (Exception e) {
             e.printStackTrace();
+        }
+        try {
+            jdbc.getJdbcTemplate().execute("ALTER TABLE device_portal.report_log ADD COLUMN filters TEXT");
+        } catch (Exception e) {
+            // Ignore if column already exists
         }
     }
 
@@ -484,6 +490,248 @@ public class CbsReportService {
                 t.action_type, 
                 t.filters, 
                 t.created_date 
+            FROM (""" + subQuery + ") t WHERE TRUE";
+    }
+
+    private void initRecoveryScreens() {
+        try {
+            // Arrears Report
+            jdbc.getJdbcTemplate().execute("""
+                INSERT INTO device_portal.screen (name, path, icon, group_name)
+                SELECT 'Arrears Report', '/arrears-report', 'fas fa-clock', 'Reports'
+                WHERE NOT EXISTS (SELECT 1 FROM device_portal.screen WHERE path = '/arrears-report')
+            """);
+            jdbc.getJdbcTemplate().execute("""
+                INSERT INTO device_portal.user_type_screen (user_type_id, screen_id)
+                SELECT ut.id, s.id
+                FROM device_portal.user_type ut, device_portal.screen s
+                WHERE s.path = '/arrears-report'
+                AND NOT EXISTS (
+                    SELECT 1 FROM device_portal.user_type_screen uts 
+                    WHERE uts.user_type_id = ut.id AND uts.screen_id = s.id
+                )
+            """);
+
+            // NPA Report
+            jdbc.getJdbcTemplate().execute("""
+                INSERT INTO device_portal.screen (name, path, icon, group_name)
+                SELECT 'NPA Report', '/npa-report', 'fas fa-exclamation-triangle', 'Reports'
+                WHERE NOT EXISTS (SELECT 1 FROM device_portal.screen WHERE path = '/npa-report')
+            """);
+            jdbc.getJdbcTemplate().execute("""
+                INSERT INTO device_portal.user_type_screen (user_type_id, screen_id)
+                SELECT ut.id, s.id
+                FROM device_portal.user_type ut, device_portal.screen s
+                WHERE s.path = '/npa-report'
+                AND NOT EXISTS (
+                    SELECT 1 FROM device_portal.user_type_screen uts 
+                    WHERE uts.user_type_id = ut.id AND uts.screen_id = s.id
+                )
+            """);
+
+            // Nearing NPA Report
+            jdbc.getJdbcTemplate().execute("""
+                INSERT INTO device_portal.screen (name, path, icon, group_name)
+                SELECT 'Nearing NPA Report', '/nearing-npa-report', 'fas fa-hourglass-half', 'Reports'
+                WHERE NOT EXISTS (SELECT 1 FROM device_portal.screen WHERE path = '/nearing-npa-report')
+            """);
+            jdbc.getJdbcTemplate().execute("""
+                INSERT INTO device_portal.user_type_screen (user_type_id, screen_id)
+                SELECT ut.id, s.id
+                FROM device_portal.user_type ut, device_portal.screen s
+                WHERE s.path = '/nearing-npa-report'
+                AND NOT EXISTS (
+                    SELECT 1 FROM device_portal.user_type_screen uts 
+                    WHERE uts.user_type_id = ut.id AND uts.screen_id = s.id
+                )
+            """);
+
+            // Duplicate Loans Report (Exception Reports)
+            jdbc.getJdbcTemplate().execute("""
+                INSERT INTO device_portal.screen (name, path, icon, group_name)
+                SELECT 'Duplicate Loans', '/duplicate-loans-report', 'fas fa-copy', 'Reports'
+                WHERE NOT EXISTS (SELECT 1 FROM device_portal.screen WHERE path = '/duplicate-loans-report')
+            """);
+            jdbc.getJdbcTemplate().execute("""
+                INSERT INTO device_portal.user_type_screen (user_type_id, screen_id)
+                SELECT ut.id, s.id
+                FROM device_portal.user_type ut, device_portal.screen s
+                WHERE s.path = '/duplicate-loans-report'
+                AND NOT EXISTS (
+                    SELECT 1 FROM device_portal.user_type_screen uts 
+                    WHERE uts.user_type_id = ut.id AND uts.screen_id = s.id
+                )
+            """);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public DataTableResponse fetchArrearsReport(DataTableRequest request) {
+        Map<String, Object> params = new HashMap<>();
+        String sql = buildRecoveryReportQuery(request.getData(), params, "arrears");
+        System.out.println("ARREARS REPORT SQL: " + sql);
+        System.out.println("ARREARS REPORT PARAMS: " + params);
+        DataTableResponse response = datatableRepo.dataTable(request, sql, params);
+        System.out.println("ARREARS REPORT RESPONSE TOTAL: " + response.getRecordsTotal());
+        return response;
+    }
+
+    public List<Map<String, Object>> getArrearsReportData(String asAt) {
+        Map<String, Object> filterMap = new HashMap<>();
+        filterMap.put("asAt", asAt);
+        Map<String, Object> params = new HashMap<>();
+        String sql = buildRecoveryReportQuery(filterMap, params, "arrears");
+        return jdbc.queryForList(sql, params);
+    }
+
+    public DataTableResponse fetchNpaReport(DataTableRequest request) {
+        Map<String, Object> params = new HashMap<>();
+        String sql = buildRecoveryReportQuery(request.getData(), params, "npa");
+        System.out.println("NPA REPORT SQL: " + sql);
+        System.out.println("NPA REPORT PARAMS: " + params);
+        DataTableResponse response = datatableRepo.dataTable(request, sql, params);
+        System.out.println("NPA REPORT RESPONSE TOTAL: " + response.getRecordsTotal());
+        return response;
+    }
+
+    public List<Map<String, Object>> getNpaReportData(String asAt) {
+        Map<String, Object> filterMap = new HashMap<>();
+        filterMap.put("asAt", asAt);
+        Map<String, Object> params = new HashMap<>();
+        String sql = buildRecoveryReportQuery(filterMap, params, "npa");
+        return jdbc.queryForList(sql, params);
+    }
+
+    public DataTableResponse fetchNearingNpaReport(DataTableRequest request) {
+        Map<String, Object> params = new HashMap<>();
+        String sql = buildRecoveryReportQuery(request.getData(), params, "nearing-npa");
+        System.out.println("NEARING NPA REPORT SQL: " + sql);
+        System.out.println("NEARING NPA REPORT PARAMS: " + params);
+        DataTableResponse response = datatableRepo.dataTable(request, sql, params);
+        System.out.println("NEARING NPA REPORT RESPONSE TOTAL: " + response.getRecordsTotal());
+        return response;
+    }
+
+    public List<Map<String, Object>> getNearingNpaReportData(String asAt) {
+        Map<String, Object> filterMap = new HashMap<>();
+        filterMap.put("asAt", asAt);
+        Map<String, Object> params = new HashMap<>();
+        String sql = buildRecoveryReportQuery(filterMap, params, "nearing-npa");
+        return jdbc.queryForList(sql, params);
+    }
+
+    public DataTableResponse fetchDuplicateLoansReport(DataTableRequest request) {
+        Map<String, Object> params = new HashMap<>();
+        String sql = buildDuplicateLoansQuery(params);
+        return datatableRepo.dataTable(request, sql, params);
+    }
+
+    public List<Map<String, Object>> getDuplicateLoansReportData() {
+        Map<String, Object> params = new HashMap<>();
+        String sql = buildDuplicateLoansQuery(params);
+        return jdbc.queryForList(sql, params);
+    }
+
+    private String buildDuplicateLoansQuery(Map<String, Object> params) {
+        return """
+            SELECT 
+                dl.device_id AS imei_no,
+                COALESCE(l1.account_no, l2.account_no) AS account_no,
+                COALESCE(l1.account_series, l2.account_series) AS series,
+                COALESCE(l1.legacy_account_no, l2.legacy_account_no) AS legacy_account_no,
+                COALESCE(c1.full_name, c2.full_name) AS client_name,
+                COALESCE(c1.id_no, c2.id_no) AS client_nic,
+                COALESCE(l1.loan_amount, l2.loan_amount) AS loan_amount,
+                COALESCE(v1.name, v2.name) AS vendor_name
+            FROM cbs.device_loan dl
+            LEFT JOIN cbs.loan l1 ON dl.account_no = l1.account_no
+            LEFT JOIN cbs.loan l2 ON dl.account_no = l2.legacy_account_no
+            LEFT JOIN cbs.client c1 ON l1.client = c1.client_code
+            LEFT JOIN cbs.client c2 ON l2.client = c2.client_code
+            LEFT JOIN cbs.vendor v1 ON l1.vendor = v1.code
+            LEFT JOIN cbs.vendor v2 ON l2.vendor = v2.code
+            WHERE dl.device_id IN (
+                SELECT device_id 
+                FROM cbs.device_loan 
+                WHERE device_id IS NOT NULL AND device_id != ''
+                GROUP BY device_id 
+                HAVING COUNT(*) > 1
+            )
+        """;
+    }
+
+    private String buildRecoveryReportQuery(Object rawFilter, Map<String, Object> params, String type) {
+        String filterClause = "";
+        if ("arrears".equals(type)) {
+            filterClause = " AND (p1.dpd > 0 OR p2.dpd > 0)";
+        } else if ("npa".equals(type)) {
+            filterClause = " AND (p1.npl_status != 'Current Bucket' OR p2.npl_status != 'Current Bucket')";
+        } else if ("nearing-npa".equals(type)) {
+            filterClause = " AND ((p1.dpd >= 60 AND p1.dpd <= 90) OR (p2.dpd >= 60 AND p2.dpd <= 90))";
+        }
+
+        String subQuery = """
+            SELECT 
+                l.account_no, 
+                l.account_series AS `series`, 
+                l.legacy_account_no, 
+                c.full_name AS `client_name`,
+                c.id_no AS `client_nic`,
+                c.mobile AS `client_mobile`,
+                c.address AS `client_address`,
+                l.loan_amount, 
+                l.rental, 
+                COALESCE(p1.total_due, p2.total_due) AS `total_due`, 
+                COALESCE(p1.exposure, p2.exposure) AS `exposure`, 
+                COALESCE(p1.dpd, p2.dpd) AS `dpd`, 
+                COALESCE(p1.loan_status, p2.loan_status) AS `loan_status`,
+                COALESCE(p1.performing_status, p2.performing_status) AS `performing_status`, 
+                COALESCE(p1.npl_status, p2.npl_status) AS `npl_status`, 
+                COALESCE(p1.recovery_officer, p2.recovery_officer) AS `recovery_officer`,
+                COALESCE(p1.last_payment_date, p2.last_payment_date) AS `last_payment_date`,
+                COALESCE(p1.last_payment_amount, p2.last_payment_amount) AS `last_payment_amount`
+            FROM cbs.loan l
+            LEFT JOIN cbs.portfolio p1 ON p1.account_no = l.account_no AND p1.series = l.account_series 
+            LEFT JOIN cbs.portfolio p2 ON p2.account_no = l.legacy_account_no AND p2.series = l.account_series 
+            LEFT JOIN cbs.client c ON l.client = c.client_code
+            WHERE 1=1""" + filterClause;
+
+        if (rawFilter instanceof Map) {
+            Map<?, ?> filter = (Map<?, ?>) rawFilter;
+            String asAt = (String) filter.get("asAt");
+            if (asAt != null && !asAt.trim().isEmpty()) {
+                subQuery += " AND l.disbursed_date <= :asAt";
+                params.put("asAt", asAt.trim());
+            }
+        }
+
+        return """
+            SELECT 
+                t.account_no, 
+                t.series, 
+                t.legacy_account_no, 
+                t.client_name, 
+                t.client_nic, 
+                t.client_mobile, 
+                t.client_address, 
+                t.loan_amount, 
+                t.rental, 
+                t.total_due, 
+                t.exposure, 
+                t.dpd, 
+                CASE 
+                    WHEN t.loan_status = 'A' THEN 'Active Loan'
+                    WHEN t.loan_status = 'F' THEN 'Fully Paid'
+                    WHEN t.loan_status = 'N' THEN 'NPA (DPD over 90 days)'
+                    WHEN t.loan_status = 'P' THEN 'Paid Off'
+                    ELSE t.loan_status 
+                END AS `loan_status`,
+                t.performing_status, 
+                t.npl_status, 
+                t.recovery_officer,
+                t.last_payment_date,
+                t.last_payment_amount
             FROM (""" + subQuery + ") t WHERE TRUE";
     }
 }

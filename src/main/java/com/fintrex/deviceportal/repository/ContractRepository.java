@@ -94,8 +94,12 @@ public class ContractRepository {
                 pr.product_code AS PRODUCT, 
                 dl.device_status AS CURRENT_DEVICE_STATUS,
                 dl.device_id AS IMEI_NO,
-                dl.external_id AS WORKHUB_SP_NO
-            FROM cbs.loan l
+                dl.external_id AS WORKHUB_SP_NO,
+                v.name AS VENDOR_NAME
+            FROM (
+                SELECT * FROM cbs.loan 
+                WHERE account_no = ? OR legacy_account_no = ?
+            ) l
             LEFT JOIN cbs.portfolio p 
                 ON (p.account_no = l.account_no OR p.account_no = l.legacy_account_no) 
                 AND (p.portfolio_date, p.sync_time) = (
@@ -123,7 +127,9 @@ public class ContractRepository {
                 ON dl2.finance_no = l.account_no OR dl2.finance_no = l.legacy_account_no
             LEFT JOIN loan.mobileloan_model lmm 
                 ON lmm.id = COALESCE(lm.model, dl2.model) 
-            WHERE l.account_no = ? OR l.legacy_account_no = ?""";
+            LEFT JOIN cbs.vendor v 
+                ON l.vendor = v.code
+            WHERE 1=1""";
         System.out.println(sql);
 
         List<ContractDetails> results = jdbcTemplate.query(sql, (rs, rowNum) -> new ContractDetails(
@@ -161,7 +167,8 @@ public class ContractRepository {
                 rs.getString("WORKHUB_SP_NO"),
                 rs.getString("G1_NIC"),
                 rs.getString("G2_NIC"),
-                rs.getString("G3_NIC")
+                rs.getString("G3_NIC"),
+                rs.getString("VENDOR_NAME")
         ), financeNo, financeNo);
 
         return results.isEmpty() ? null : results.get(0);

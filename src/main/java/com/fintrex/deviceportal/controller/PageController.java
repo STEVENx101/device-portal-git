@@ -64,4 +64,24 @@ public class PageController {
         return "report-logs";
     }
 
+    @GetMapping("/arrears-report")
+    public String arrearsReport() {
+        return "arrears-report";
+    }
+
+    @GetMapping("/npa-report")
+    public String npaReport() {
+        return "npa-report";
+    }
+
+    @GetMapping("/nearing-npa-report")
+    public String nearingNpaReport() {
+        return "nearing-npa-report";
+    }
+
+    @GetMapping("/duplicate-loans-report")
+    public String duplicateLoansReport() {
+        return "duplicate-loans-report";
+    }
+
 }
