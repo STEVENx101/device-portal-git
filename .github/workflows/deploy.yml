@@ -28,6 +28,7 @@ jobs:
       - name: Deploy to Tomcat
         run: |
           cp target/portal.war /opt/tomcat10/webapps/
+          
 
       - name: Start/Reload App in Tomcat
         run: |
