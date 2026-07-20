@@ -1,4 +1,4 @@
-name: Deploy Portal to Tomcat
+name: Deploy Portal to New Server
 
 on:
   push:
@@ -8,7 +8,10 @@ on:
 
 jobs:
   build-and-deploy:
-    runs-on: self-hosted
+    runs-on:
+      - self-hosted
+      - Linux
+      - int-din-new   # Replace with the actual custom label of your new runner
 
     steps:
       - name: Checkout Code
@@ -25,28 +28,13 @@ jobs:
           chmod +x mvnw
           ./mvnw clean package -DskipTests
 
-      - name: Deploy to Tomcat
+      - name: Stop Tomcat
+        run: sudo systemctl stop tomcat-deviceportal
+
+      - name: Deploy WAR
         run: |
-          cp target/portal.war /opt/tomcat10/webapps/
+          rm -rf /var/www/tomcat-deviceportal/webapps/portal
+          cp target/portal.war /var/www/tomcat-deviceportal/webapps/
 
-      - name: Start/Reload App in Tomcat
-        run: |
-          # Read port from server.xml (default to 8080 if not found)
-          PORT=$(grep -oP '<Connector port="\K[0-9]+(?="[^>]*protocol="HTTP/1.1")' /opt/tomcat10/conf/server.xml | head -n 1)
-          PORT=${PORT:-8080}
-
-          # Read username and password from tomcat-users.xml for manager-script or manager roles
-          USER=$(grep -oP 'username="\K[^"]+(?="[^>]*roles="[^"]*manager-script[^"]*")' /opt/tomcat10/conf/tomcat-users.xml | head -n 1)
-          PASS=$(grep -oP 'password="\K[^"]+(?="[^>]*roles="[^"]*manager-script[^"]*")' /opt/tomcat10/conf/tomcat-users.xml | head -n 1)
-
-          if [ -z "$USER" ] || [ -z "$PASS" ]; then
-            # Fallback pattern if roles attribute comes before username/password
-            USER=$(grep -oP 'roles="[^"]*manager-script[^"]*".*username="\K[^"]+(?=")' /opt/tomcat10/conf/tomcat-users.xml | head -n 1)
-            PASS=$(grep -oP 'roles="[^"]*manager-script[^"]*".*password="\K[^"]+(?=")' /opt/tomcat10/conf/tomcat-users.xml | head -n 1)
-          fi
-
-          echo "Deploying to Tomcat on port $PORT..."
-          curl -s -u "$USER:$PASS" "http://localhost:$PORT/manager/text/start?path=/portal" || \
-          curl -s -u "$USER:$PASS" "http://localhost:$PORT/manager/text/reload?path=/portal"
-
-
+      - name: Start Tomcat
+        run: sudo systemctl start tomcat-deviceportal
