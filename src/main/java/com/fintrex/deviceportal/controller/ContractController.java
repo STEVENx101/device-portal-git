@@ -55,15 +55,6 @@ public class ContractController {
         return contractService.fetchlockdata(request);
     }
 
-    @GetMapping("/dashboard-stats")
-    public ResponseEntity<java.util.Map<String, Object>> getDashboardStats() {
-        return ResponseEntity.ok(contractService.getDashboardStats());
-    }
-
-    @GetMapping("/recent-locks")
-    public ResponseEntity<List<java.util.Map<String, Object>>> getRecentLocks() {
-        return ResponseEntity.ok(contractService.getRecentLocks());
-    }
 
     @GetMapping("/remarks")
     public ResponseEntity<List<java.util.Map<String, Object>>> getRemarks(@RequestParam("financeNo") String financeNo) {

@@ -101,11 +101,11 @@ public class ContractRepository {
                 WHERE account_no = ? OR legacy_account_no = ?
             ) l
             LEFT JOIN cbs.portfolio p 
-                ON (p.account_no = l.account_no OR p.account_no = l.legacy_account_no) 
+                ON p.account_no = l.account_no 
                 AND (p.portfolio_date, p.sync_time) = (
                     SELECT portfolio_date, sync_time 
                     FROM cbs.portfolio 
-                    WHERE account_no = l.account_no OR account_no = l.legacy_account_no
+                    WHERE account_no = l.account_no 
                     ORDER BY portfolio_date DESC, sync_time DESC 
                     LIMIT 1
                 ) 
@@ -120,11 +120,11 @@ public class ContractRepository {
             LEFT JOIN cbs.client g3 
                 ON g3.client_code = l.guarantor3 
             LEFT JOIN loan.mobileloan lm 
-                ON lm.finance_no = l.account_no OR lm.finance_no = l.legacy_account_no
+                ON lm.finance_no = l.account_no 
             LEFT JOIN cbs.device_loan dl 
-                ON dl.account_no = l.account_no OR dl.account_no = l.legacy_account_no
+                ON dl.account_no = l.account_no 
             LEFT JOIN loan.device_loan dl2 
-                ON dl2.finance_no = l.account_no OR dl2.finance_no = l.legacy_account_no
+                ON dl2.finance_no = l.account_no 
             LEFT JOIN loan.mobileloan_model lmm 
                 ON lmm.id = COALESCE(lm.model, dl2.model) 
             LEFT JOIN cbs.vendor v 
@@ -174,39 +174,6 @@ public class ContractRepository {
         return results.isEmpty() ? null : results.get(0);
     }
 
-    public java.util.Map<String, Object> getDashboardStats() {
-        java.util.Map<String, Object> stats = new java.util.HashMap<>();
-        
-        Integer totalAccounts = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM cbs.loan", Integer.class);
-        stats.put("totalAccounts", totalAccounts != null ? totalAccounts : 0);
-        
-        Integer totalLocked = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM loan.mobileloan WHERE locked = 1", Integer.class);
-        stats.put("totalLocked", totalLocked != null ? totalLocked : 0);
-        
-        Double totalOutstanding = jdbcTemplate.queryForObject(
-            "SELECT SUM(p.total_due) FROM cbs.portfolio p WHERE p.portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio)", 
-            Double.class
-        );
-        stats.put("totalOutstanding", totalOutstanding != null ? totalOutstanding : 0.0);
-        
-        Integer knoxCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM loan.mobileloan WHERE knox_compatibility = 'yes'", Integer.class);
-        Integer dataculteCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM loan.mobileloan WHERE knox_compatibility = 'no' OR knox_compatibility IS NULL", Integer.class);
-        Integer laptopCount = jdbcTemplate.queryForObject(
-            "SELECT COUNT(*) FROM cbs.loan l JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val WHERE pr.product_code IN ('LF', 'laptop')", 
-            Integer.class
-        );
-        stats.put("knoxCount", knoxCount != null ? knoxCount : 0);
-        stats.put("dataculteCount", dataculteCount != null ? dataculteCount : 0);
-        stats.put("laptopCount", laptopCount != null ? laptopCount : 0);
-        
-        return stats;
-    }
-
-    public List<java.util.Map<String, Object>> getRecentLocks() {
-        return jdbcTemplate.queryForList(
-            "SELECT finance_no, status, date, changed_by, reason FROM loan.lock_log ORDER BY date DESC LIMIT 5"
-        );
-    }
 
     public void initRemarksTable() {
         String sql = """

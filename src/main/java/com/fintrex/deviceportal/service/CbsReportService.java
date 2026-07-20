@@ -200,16 +200,15 @@ public class CbsReportService {
                 l.period,
                 DATE_FORMAT(l.disbursed_date, '%Y-%m-%d') AS `disbursed_date`,
                 DATE_FORMAT(l.closed_date, '%Y-%m-%d') AS `closed_date`,
-                COALESCE(dl1.device_id, dl2.device_id) AS `device_id`,
-                COALESCE(dl1.device_status, dl2.device_status) AS `device_status`,
-                COALESCE(dl1.external_id, dl2.external_id) AS `external_id`,
-                COALESCE(dl1.platform, dl2.platform) AS `platform`
+                dl.device_id AS `device_id`,
+                dl.device_status AS `device_status`,
+                dl.external_id AS `external_id`,
+                dl.platform AS `platform`
             FROM cbs.loan l
             LEFT JOIN cbs.portfolio p ON p.account_no = l.account_no AND p.series = l.account_series 
             LEFT JOIN cbs.branch br ON CAST(l.branch AS UNSIGNED) = br.branch_code 
             LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val 
-            LEFT JOIN cbs.device_loan dl1 ON dl1.account_no = l.account_no
-            LEFT JOIN cbs.device_loan dl2 ON dl2.account_no = l.legacy_account_no
+            LEFT JOIN cbs.device_loan dl ON dl.account_no = l.account_no
             WHERE 1=1""";
 
         if (rawFilter instanceof Map) {
@@ -637,55 +636,43 @@ public class CbsReportService {
 
     public DataTableResponse fetchArrearsReport(DataTableRequest request) {
         Map<String, Object> params = new HashMap<>();
-        String sql = buildRecoveryReportQuery(request.getData(), params, "arrears");
-        System.out.println("ARREARS REPORT SQL: " + sql);
-        System.out.println("ARREARS REPORT PARAMS: " + params);
-        DataTableResponse response = datatableRepo.dataTable(request, sql, params);
-        System.out.println("ARREARS REPORT RESPONSE TOTAL: " + response.getRecordsTotal());
-        return response;
+        String sql = buildArrearsReportQuery(request.getData(), params);
+        return datatableRepo.dataTable(request, sql, params);
     }
 
     public List<Map<String, Object>> getArrearsReportData(String asAt) {
         Map<String, Object> filterMap = new HashMap<>();
         filterMap.put("asAt", asAt);
         Map<String, Object> params = new HashMap<>();
-        String sql = buildRecoveryReportQuery(filterMap, params, "arrears");
+        String sql = buildArrearsReportQuery(filterMap, params);
         return jdbc.queryForList(sql, params);
     }
 
     public DataTableResponse fetchNpaReport(DataTableRequest request) {
         Map<String, Object> params = new HashMap<>();
-        String sql = buildRecoveryReportQuery(request.getData(), params, "npa");
-        System.out.println("NPA REPORT SQL: " + sql);
-        System.out.println("NPA REPORT PARAMS: " + params);
-        DataTableResponse response = datatableRepo.dataTable(request, sql, params);
-        System.out.println("NPA REPORT RESPONSE TOTAL: " + response.getRecordsTotal());
-        return response;
+        String sql = buildNpaReportQuery(request.getData(), params);
+        return datatableRepo.dataTable(request, sql, params);
     }
 
     public List<Map<String, Object>> getNpaReportData(String asAt) {
         Map<String, Object> filterMap = new HashMap<>();
         filterMap.put("asAt", asAt);
         Map<String, Object> params = new HashMap<>();
-        String sql = buildRecoveryReportQuery(filterMap, params, "npa");
+        String sql = buildNpaReportQuery(filterMap, params);
         return jdbc.queryForList(sql, params);
     }
 
     public DataTableResponse fetchNearingNpaReport(DataTableRequest request) {
         Map<String, Object> params = new HashMap<>();
-        String sql = buildRecoveryReportQuery(request.getData(), params, "nearing-npa");
-        System.out.println("NEARING NPA REPORT SQL: " + sql);
-        System.out.println("NEARING NPA REPORT PARAMS: " + params);
-        DataTableResponse response = datatableRepo.dataTable(request, sql, params);
-        System.out.println("NEARING NPA REPORT RESPONSE TOTAL: " + response.getRecordsTotal());
-        return response;
+        String sql = buildNearingNpaReportQuery(request.getData(), params);
+        return datatableRepo.dataTable(request, sql, params);
     }
 
     public List<Map<String, Object>> getNearingNpaReportData(String asAt) {
         Map<String, Object> filterMap = new HashMap<>();
         filterMap.put("asAt", asAt);
         Map<String, Object> params = new HashMap<>();
-        String sql = buildRecoveryReportQuery(filterMap, params, "nearing-npa");
+        String sql = buildNearingNpaReportQuery(filterMap, params);
         return jdbc.queryForList(sql, params);
     }
 
@@ -729,16 +716,7 @@ public class CbsReportService {
         """;
     }
 
-    private String buildRecoveryReportQuery(Object rawFilter, Map<String, Object> params, String type) {
-        String filterClause = "";
-        if ("arrears".equals(type)) {
-            filterClause = " AND (p1.dpd > 0 OR p2.dpd > 0)";
-        } else if ("npa".equals(type)) {
-            filterClause = " AND (p1.npl_status != 'Current Bucket' OR p2.npl_status != 'Current Bucket')";
-        } else if ("nearing-npa".equals(type)) {
-            filterClause = " AND ((p1.dpd >= 60 AND p1.dpd <= 90) OR (p2.dpd >= 60 AND p2.dpd <= 90))";
-        }
-
+    private String buildArrearsReportQuery(Object rawFilter, Map<String, Object> params) {
         String subQuery = """
             SELECT 
                 l.account_no, 
@@ -763,7 +741,135 @@ public class CbsReportService {
             LEFT JOIN cbs.portfolio p1 ON p1.account_no = l.account_no AND p1.series = l.account_series 
             LEFT JOIN cbs.portfolio p2 ON p2.account_no = l.legacy_account_no AND p2.series = l.account_series 
             LEFT JOIN cbs.client c ON l.client = c.client_code
-            WHERE 1=1""" + filterClause;
+            WHERE 1=1 AND (p1.dpd > 0 OR p2.dpd > 0)""";
+
+        if (rawFilter instanceof Map) {
+            Map<?, ?> filter = (Map<?, ?>) rawFilter;
+            String asAt = (String) filter.get("asAt");
+            if (asAt != null && !asAt.trim().isEmpty()) {
+                subQuery += " AND l.disbursed_date <= :asAt";
+                params.put("asAt", asAt.trim());
+            }
+        }
+
+        return """
+            SELECT 
+                t.account_no, 
+                t.series, 
+                t.legacy_account_no, 
+                t.client_name, 
+                t.client_nic, 
+                t.client_mobile, 
+                t.client_address, 
+                t.loan_amount, 
+                t.rental, 
+                t.total_due, 
+                t.exposure, 
+                t.dpd, 
+                CASE 
+                    WHEN t.loan_status = 'A' THEN 'Active Loan'
+                    WHEN t.loan_status = 'F' THEN 'Fully Paid'
+                    WHEN t.loan_status = 'N' THEN 'NPA (DPD over 90 days)'
+                    WHEN t.loan_status = 'P' THEN 'Paid Off'
+                    ELSE t.loan_status 
+                END AS `loan_status`,
+                t.performing_status, 
+                t.npl_status, 
+                t.recovery_officer,
+                t.last_payment_date,
+                t.last_payment_amount
+            FROM (""" + subQuery + ") t WHERE TRUE";
+    }
+
+    private String buildNpaReportQuery(Object rawFilter, Map<String, Object> params) {
+        String subQuery = """
+            SELECT 
+                l.account_no, 
+                l.account_series AS `series`, 
+                l.legacy_account_no, 
+                c.full_name AS `client_name`,
+                c.id_no AS `client_nic`,
+                c.mobile AS `client_mobile`,
+                c.address AS `client_address`,
+                l.loan_amount, 
+                l.rental, 
+                p.total_due AS `total_due`, 
+                p.exposure AS `exposure`, 
+                p.dpd AS `dpd`, 
+                p.loan_status AS `loan_status`,
+                p.performing_status AS `performing_status`, 
+                p.npl_status AS `npl_status`, 
+                p.recovery_officer AS `recovery_officer`,
+                DATE_FORMAT(p.last_payment_date, '%Y-%m-%d') AS `last_payment_date`,
+                p.last_payment_amount AS `last_payment_amount`
+            FROM cbs.loan l
+            LEFT JOIN cbs.portfolio p ON p.account_no = l.account_no AND p.series = l.account_series 
+            LEFT JOIN cbs.client c ON l.client = c.client_code
+            WHERE 1=1 AND p.performing_status = 'Non-Performing'""";
+
+        if (rawFilter instanceof Map) {
+            Map<?, ?> filter = (Map<?, ?>) rawFilter;
+            String asAt = (String) filter.get("asAt");
+            if (asAt != null && !asAt.trim().isEmpty()) {
+                subQuery += " AND l.disbursed_date <= :asAt";
+                params.put("asAt", asAt.trim());
+            }
+        }
+
+        return """
+            SELECT 
+                t.account_no, 
+                t.series, 
+                t.legacy_account_no, 
+                t.client_name, 
+                t.client_nic, 
+                t.client_mobile, 
+                t.client_address, 
+                t.loan_amount, 
+                t.rental, 
+                t.total_due, 
+                t.exposure, 
+                t.dpd, 
+                CASE 
+                    WHEN t.loan_status = 'A' THEN 'Active Loan'
+                    WHEN t.loan_status = 'F' THEN 'Fully Paid'
+                    WHEN t.loan_status = 'N' THEN 'NPA (DPD over 90 days)'
+                    WHEN t.loan_status = 'P' THEN 'Paid Off'
+                    ELSE t.loan_status 
+                END AS `loan_status`,
+                t.performing_status, 
+                t.npl_status, 
+                t.recovery_officer,
+                t.last_payment_date,
+                t.last_payment_amount
+            FROM (""" + subQuery + ") t WHERE TRUE";
+    }
+
+    private String buildNearingNpaReportQuery(Object rawFilter, Map<String, Object> params) {
+        String subQuery = """
+            SELECT 
+                l.account_no, 
+                l.account_series AS `series`, 
+                l.legacy_account_no, 
+                c.full_name AS `client_name`,
+                c.id_no AS `client_nic`,
+                c.mobile AS `client_mobile`,
+                c.address AS `client_address`,
+                l.loan_amount, 
+                l.rental, 
+                p.total_due AS `total_due`, 
+                p.exposure AS `exposure`, 
+                p.dpd AS `dpd`, 
+                p.loan_status AS `loan_status`,
+                p.performing_status AS `performing_status`, 
+                p.npl_status AS `npl_status`, 
+                p.recovery_officer AS `recovery_officer`,
+                DATE_FORMAT(p.last_payment_date, '%Y-%m-%d') AS `last_payment_date`,
+                p.last_payment_amount AS `last_payment_amount`
+            FROM cbs.loan l
+            LEFT JOIN cbs.portfolio p ON p.account_no = l.account_no AND p.series = l.account_series 
+            LEFT JOIN cbs.client c ON l.client = c.client_code
+            WHERE 1=1 AND (p.dpd >= 60 AND p.dpd <= 90)""";
 
         if (rawFilter instanceof Map) {
             Map<?, ?> filter = (Map<?, ?>) rawFilter;
@@ -805,7 +911,7 @@ public class CbsReportService {
 
     public DataTableResponse fetchUnlockArrearsReport(DataTableRequest request) {
         Map<String, Object> params = new HashMap<>();
-        String sql = buildExceptionLockReportQuery(request.getData(), params, "unlock-arrears");
+        String sql = buildUnlockArrearsReportQuery(request.getData(), params);
         return datatableRepo.dataTable(request, sql, params);
     }
 
@@ -813,13 +919,13 @@ public class CbsReportService {
         Map<String, Object> filterMap = new HashMap<>();
         filterMap.put("asAt", asAt);
         Map<String, Object> params = new HashMap<>();
-        String sql = buildExceptionLockReportQuery(filterMap, params, "unlock-arrears");
+        String sql = buildUnlockArrearsReportQuery(filterMap, params);
         return jdbc.queryForList(sql, params);
     }
 
     public DataTableResponse fetchLockNoArrearsReport(DataTableRequest request) {
         Map<String, Object> params = new HashMap<>();
-        String sql = buildExceptionLockReportQuery(request.getData(), params, "lock-no-arrears");
+        String sql = buildLockNoArrearsReportQuery(request.getData(), params);
         return datatableRepo.dataTable(request, sql, params);
     }
 
@@ -827,18 +933,11 @@ public class CbsReportService {
         Map<String, Object> filterMap = new HashMap<>();
         filterMap.put("asAt", asAt);
         Map<String, Object> params = new HashMap<>();
-        String sql = buildExceptionLockReportQuery(filterMap, params, "lock-no-arrears");
+        String sql = buildLockNoArrearsReportQuery(filterMap, params);
         return jdbc.queryForList(sql, params);
     }
 
-    private String buildExceptionLockReportQuery(Object rawFilter, Map<String, Object> params, String type) {
-        String filterClause = "";
-        if ("unlock-arrears".equals(type)) {
-            filterClause = " AND COALESCE(lm1.locked, lm2.locked) = 0 AND COALESCE(p1.dpd, p2.dpd) > 0";
-        } else if ("lock-no-arrears".equals(type)) {
-            filterClause = " AND COALESCE(lm1.locked, lm2.locked) = 1 AND (COALESCE(p1.dpd, p2.dpd) <= 0 OR COALESCE(p1.dpd, p2.dpd) IS NULL)";
-        }
-
+    private String buildUnlockArrearsReportQuery(Object rawFilter, Map<String, Object> params) {
         String subQuery = """
             SELECT 
                 l.account_no, 
@@ -850,21 +949,73 @@ public class CbsReportService {
                 c.address AS `client_address`,
                 l.loan_amount, 
                 l.rental, 
-                COALESCE(p1.total_due, p2.total_due) AS `total_due`, 
-                COALESCE(p1.exposure, p2.exposure) AS `exposure`, 
-                COALESCE(p1.dpd, p2.dpd) AS `dpd`, 
+                p.total_due AS `total_due`, 
+                p.exposure AS `exposure`, 
+                p.dpd AS `dpd`, 
                 CASE 
-                    WHEN COALESCE(lm1.locked, lm2.locked) = 1 THEN 'Locked'
+                    WHEN lm.locked = 1 THEN 'Locked'
                     ELSE 'Unlocked'
                 END AS `lock_status`,
-                COALESCE(p1.recovery_officer, p2.recovery_officer) AS `recovery_officer`
+                p.recovery_officer AS `recovery_officer`
             FROM cbs.loan l
-            LEFT JOIN cbs.portfolio p1 ON p1.account_no = l.account_no AND p1.series = l.account_series 
-            LEFT JOIN cbs.portfolio p2 ON p2.account_no = l.legacy_account_no AND p2.series = l.account_series 
+            LEFT JOIN cbs.portfolio p ON p.account_no = l.account_no AND p.series = l.account_series 
             LEFT JOIN cbs.client c ON l.client = c.client_code
-            LEFT JOIN loan.mobileloan lm1 ON lm1.finance_no = l.account_no
-            LEFT JOIN loan.mobileloan lm2 ON lm2.finance_no = l.legacy_account_no
-            WHERE 1=1""" + filterClause;
+            LEFT JOIN loan.mobileloan lm ON lm.finance_no = l.account_no
+            WHERE 1=1 AND (lm.locked = 0 OR lm.locked IS NULL) AND p.dpd > 0""";
+
+        if (rawFilter instanceof Map) {
+            Map<?, ?> filter = (Map<?, ?>) rawFilter;
+            String asAt = (String) filter.get("asAt");
+            if (asAt != null && !asAt.trim().isEmpty()) {
+                subQuery += " AND l.disbursed_date <= :asAt";
+                params.put("asAt", asAt.trim());
+            }
+        }
+
+        return """
+            SELECT 
+                t.account_no, 
+                t.series, 
+                t.legacy_account_no, 
+                t.client_name, 
+                t.client_nic, 
+                t.client_mobile, 
+                t.client_address, 
+                t.loan_amount, 
+                t.rental, 
+                t.total_due, 
+                t.exposure, 
+                t.dpd, 
+                t.lock_status,
+                t.recovery_officer
+            FROM (""" + subQuery + ") t WHERE TRUE";
+    }
+
+    private String buildLockNoArrearsReportQuery(Object rawFilter, Map<String, Object> params) {
+        String subQuery = """
+            SELECT 
+                l.account_no, 
+                l.account_series AS `series`, 
+                l.legacy_account_no, 
+                c.full_name AS `client_name`,
+                c.id_no AS `client_nic`,
+                c.mobile AS `client_mobile`,
+                c.address AS `client_address`,
+                l.loan_amount, 
+                l.rental, 
+                p.total_due AS `total_due`, 
+                p.exposure AS `exposure`, 
+                p.dpd AS `dpd`, 
+                CASE 
+                    WHEN lm.locked = 1 THEN 'Locked'
+                    ELSE 'Unlocked'
+                END AS `lock_status`,
+                p.recovery_officer AS `recovery_officer`
+            FROM cbs.loan l
+            LEFT JOIN cbs.portfolio p ON p.account_no = l.account_no AND p.series = l.account_series 
+            LEFT JOIN cbs.client c ON l.client = c.client_code
+            LEFT JOIN loan.mobileloan lm ON lm.finance_no = l.account_no
+            WHERE 1=1 AND lm.locked = 1 AND (p.dpd <= 0 OR p.dpd IS NULL)""";
 
         if (rawFilter instanceof Map) {
             Map<?, ?> filter = (Map<?, ?>) rawFilter;
@@ -934,23 +1085,21 @@ public class CbsReportService {
                 c.address AS `client_address`,
                 l.loan_amount, 
                 l.rental, 
-                COALESCE(p1.total_due, p2.total_due) AS `total_due`, 
-                COALESCE(p1.exposure, p2.exposure) AS `exposure`, 
-                COALESCE(p1.dpd, p2.dpd) AS `dpd`, 
+                p.total_due AS `total_due`, 
+                p.exposure AS `exposure`, 
+                p.dpd AS `dpd`, 
                 CASE 
-                    WHEN COALESCE(lm1.locked, lm2.locked) = 1 THEN 'Locked'
+                    WHEN lm.locked = 1 THEN 'Locked'
                     ELSE 'Unlocked'
                 END AS `lock_status`,
-                COALESCE(p1.recovery_officer, p2.recovery_officer) AS `recovery_officer`
+                p.recovery_officer AS `recovery_officer`
             FROM cbs.loan l
-            LEFT JOIN cbs.portfolio p1 ON p1.account_no = l.account_no AND p1.series = l.account_series 
-            LEFT JOIN cbs.portfolio p2 ON p2.account_no = l.legacy_account_no AND p2.series = l.account_series 
+            LEFT JOIN cbs.portfolio p ON p.account_no = l.account_no AND p.series = l.account_series 
             LEFT JOIN cbs.client c ON l.client = c.client_code
-            LEFT JOIN loan.mobileloan lm1 ON lm1.finance_no = l.account_no
-            LEFT JOIN loan.mobileloan lm2 ON lm2.finance_no = l.legacy_account_no
+            LEFT JOIN loan.mobileloan lm ON lm.finance_no = l.account_no
             WHERE 1=1 
-              AND COALESCE(p1.exposure, p2.exposure) > 0 
-              AND COALESCE(p1.exposure, p2.exposure) <= l.rental""";
+              AND p.exposure > 0 
+              AND p.exposure <= l.rental""";
 
         if (rawFilter instanceof Map) {
             Map<?, ?> filter = (Map<?, ?>) rawFilter;
@@ -992,24 +1141,22 @@ public class CbsReportService {
                 c.address AS `client_address`,
                 l.loan_amount, 
                 l.rental, 
-                COALESCE(p1.total_due, p2.total_due) AS `total_due`, 
-                COALESCE(p1.exposure, p2.exposure) AS `exposure`, 
-                COALESCE(p1.dpd, p2.dpd) AS `dpd`, 
+                p.total_due AS `total_due`, 
+                p.exposure AS `exposure`, 
+                p.dpd AS `dpd`, 
                 CASE 
-                    WHEN COALESCE(lm1.locked, lm2.locked) = 1 THEN 'Locked'
+                    WHEN lm.locked = 1 THEN 'Locked'
                     ELSE 'Unlocked'
                 END AS `lock_status`,
-                COALESCE(p1.recovery_officer, p2.recovery_officer) AS `recovery_officer`
+                p.recovery_officer AS `recovery_officer`
             FROM cbs.loan l
-            LEFT JOIN cbs.portfolio p1 ON p1.account_no = l.account_no AND p1.series = l.account_series 
-            LEFT JOIN cbs.portfolio p2 ON p2.account_no = l.legacy_account_no AND p2.series = l.account_series 
+            LEFT JOIN cbs.portfolio p ON p.account_no = l.account_no AND p.series = l.account_series 
             LEFT JOIN cbs.client c ON l.client = c.client_code
-            LEFT JOIN loan.mobileloan lm1 ON lm1.finance_no = l.account_no
-            LEFT JOIN loan.mobileloan lm2 ON lm2.finance_no = l.legacy_account_no
+            LEFT JOIN loan.mobileloan lm ON lm.finance_no = l.account_no
             WHERE 1=1 
               AND l.maturity_date < CURDATE()
-              AND COALESCE(p1.exposure, p2.exposure) > 0 
-              AND COALESCE(p1.exposure, p2.exposure) < 1000""";
+              AND p.exposure > 0 
+              AND p.exposure < 1000""";
 
         if (rawFilter instanceof Map) {
             Map<?, ?> filter = (Map<?, ?>) rawFilter;
