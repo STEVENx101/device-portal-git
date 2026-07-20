@@ -182,14 +182,14 @@ public class CbsReportService {
     private String buildReport1Query(Object rawFilter, Map<String, Object> params) {
         String subQuery = """
             SELECT 
-                DATE_FORMAT(p.portfolio_date, '%Y-%m-%d') AS portfolio_date, 
+                DATE_FORMAT(COALESCE(p1.portfolio_date, p2.portfolio_date), '%Y-%m-%d') AS portfolio_date, 
                 l.account_no, 
                 l.account_series AS `series`, 
-                p.loan_status AS `portfolio_loan_status`, 
-                p.total_due, 
-                p.exposure, 
-                p.dpd, 
-                p.performing_status, 
+                COALESCE(p1.loan_status, p2.loan_status) AS `portfolio_loan_status`, 
+                COALESCE(p1.total_due, p2.total_due) AS total_due, 
+                COALESCE(p1.exposure, p2.exposure) AS exposure, 
+                COALESCE(p1.dpd, p2.dpd) AS dpd, 
+                COALESCE(p1.performing_status, p2.performing_status) AS performing_status, 
                 l.legacy_account_no, 
                 COALESCE(pr.product_name, l.product) AS `product_name`, 
                 COALESCE(br.branch_name, l.branch) AS `branch_name`, 
@@ -200,15 +200,17 @@ public class CbsReportService {
                 l.period,
                 DATE_FORMAT(l.disbursed_date, '%Y-%m-%d') AS `disbursed_date`,
                 DATE_FORMAT(l.closed_date, '%Y-%m-%d') AS `closed_date`,
-                dl.device_id AS `device_id`,
-                dl.device_status AS `device_status`,
-                dl.external_id AS `external_id`,
-                dl.platform AS `platform`
+                COALESCE(dl1.device_id, dl2.device_id) AS `device_id`,
+                COALESCE(dl1.device_status, dl2.device_status) AS `device_status`,
+                COALESCE(dl1.external_id, dl2.external_id) AS `external_id`,
+                COALESCE(dl1.platform, dl2.platform) AS `platform`
             FROM cbs.loan l
-            LEFT JOIN cbs.portfolio p ON p.account_no = l.account_no AND p.series = l.account_series 
+            LEFT JOIN cbs.portfolio p1 ON p1.account_no = l.account_no AND p1.series = l.account_series 
+            LEFT JOIN cbs.portfolio p2 ON p2.account_no = l.legacy_account_no AND p2.series = l.account_series 
             LEFT JOIN cbs.branch br ON CAST(l.branch AS UNSIGNED) = br.branch_code 
             LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val 
-            LEFT JOIN cbs.device_loan dl ON dl.account_no = l.account_no
+            LEFT JOIN cbs.device_loan dl1 ON dl1.account_no = l.account_no
+            LEFT JOIN cbs.device_loan dl2 ON dl2.account_no = l.legacy_account_no
             WHERE 1=1""";
 
         if (rawFilter instanceof Map) {
@@ -318,17 +320,18 @@ public class CbsReportService {
             SELECT 
                 t.tran_id, 
                 t.account_no, 
-                t.legacy_account_no, 
+                COALESCE(l1.legacy_account_no, l2.legacy_account_no) AS legacy_account_no, 
                 t.amount, 
                 DATE_FORMAT(t.date, '%Y-%m-%d') AS `date`, 
                 t.user, 
                 t.narration, 
-                COALESCE(br.branch_name, l.branch) AS `branch_name`, 
-                COALESCE(pr.product_name, l.product) AS `product_name` 
+                COALESCE(br.branch_name, l1.branch, l2.branch) AS `branch_name`, 
+                COALESCE(pr.product_name, l1.product, l2.product) AS `product_name` 
             FROM cbs.transaction t 
-            LEFT JOIN cbs.loan l ON t.account_no = l.account_no 
-            LEFT JOIN cbs.branch br ON CAST(l.branch AS UNSIGNED) = br.branch_code 
-            LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val 
+            LEFT JOIN cbs.loan l1 ON t.account_no = l1.account_no 
+            LEFT JOIN cbs.loan l2 ON t.account_no = l2.legacy_account_no 
+            LEFT JOIN cbs.branch br ON CAST(COALESCE(l1.branch, l2.branch) AS UNSIGNED) = br.branch_code 
+            LEFT JOIN cbs.product pr ON CAST(COALESCE(l1.product, l2.product) AS UNSIGNED) = pr.code_val 
             WHERE 1=1""";
 
         if (rawFilter instanceof Map) {
@@ -793,19 +796,20 @@ public class CbsReportService {
                 c.address AS `client_address`,
                 l.loan_amount, 
                 l.rental, 
-                p.total_due AS `total_due`, 
-                p.exposure AS `exposure`, 
-                p.dpd AS `dpd`, 
-                p.loan_status AS `loan_status`,
-                p.performing_status AS `performing_status`, 
-                p.npl_status AS `npl_status`, 
-                p.recovery_officer AS `recovery_officer`,
-                DATE_FORMAT(p.last_payment_date, '%Y-%m-%d') AS `last_payment_date`,
-                p.last_payment_amount AS `last_payment_amount`
+                COALESCE(p1.total_due, p2.total_due) AS `total_due`, 
+                COALESCE(p1.exposure, p2.exposure) AS `exposure`, 
+                COALESCE(p1.dpd, p2.dpd) AS `dpd`, 
+                COALESCE(p1.loan_status, p2.loan_status) AS `loan_status`,
+                COALESCE(p1.performing_status, p2.performing_status) AS `performing_status`, 
+                COALESCE(p1.npl_status, p2.npl_status) AS `npl_status`, 
+                COALESCE(p1.recovery_officer, p2.recovery_officer) AS `recovery_officer`,
+                DATE_FORMAT(COALESCE(p1.last_payment_date, p2.last_payment_date), '%Y-%m-%d') AS `last_payment_date`,
+                COALESCE(p1.last_payment_amount, p2.last_payment_amount) AS `last_payment_amount`
             FROM cbs.loan l
-            LEFT JOIN cbs.portfolio p ON p.account_no = l.account_no AND p.series = l.account_series 
+            LEFT JOIN cbs.portfolio p1 ON p1.account_no = l.account_no AND p1.series = l.account_series 
+            LEFT JOIN cbs.portfolio p2 ON p2.account_no = l.legacy_account_no AND p2.series = l.account_series 
             LEFT JOIN cbs.client c ON l.client = c.client_code
-            WHERE 1=1 AND p.performing_status = 'Non-Performing'""";
+            WHERE 1=1 AND (p1.performing_status = 'Non-Performing' OR p2.performing_status = 'Non-Performing')""";
 
         if (rawFilter instanceof Map) {
             Map<?, ?> filter = (Map<?, ?>) rawFilter;
@@ -857,19 +861,20 @@ public class CbsReportService {
                 c.address AS `client_address`,
                 l.loan_amount, 
                 l.rental, 
-                p.total_due AS `total_due`, 
-                p.exposure AS `exposure`, 
-                p.dpd AS `dpd`, 
-                p.loan_status AS `loan_status`,
-                p.performing_status AS `performing_status`, 
-                p.npl_status AS `npl_status`, 
-                p.recovery_officer AS `recovery_officer`,
-                DATE_FORMAT(p.last_payment_date, '%Y-%m-%d') AS `last_payment_date`,
-                p.last_payment_amount AS `last_payment_amount`
+                COALESCE(p1.total_due, p2.total_due) AS `total_due`, 
+                COALESCE(p1.exposure, p2.exposure) AS `exposure`, 
+                COALESCE(p1.dpd, p2.dpd) AS `dpd`, 
+                COALESCE(p1.loan_status, p2.loan_status) AS `loan_status`,
+                COALESCE(p1.performing_status, p2.performing_status) AS `performing_status`, 
+                COALESCE(p1.npl_status, p2.npl_status) AS `npl_status`, 
+                COALESCE(p1.recovery_officer, p2.recovery_officer) AS `recovery_officer`,
+                DATE_FORMAT(COALESCE(p1.last_payment_date, p2.last_payment_date), '%Y-%m-%d') AS `last_payment_date`,
+                COALESCE(p1.last_payment_amount, p2.last_payment_amount) AS `last_payment_amount`
             FROM cbs.loan l
-            LEFT JOIN cbs.portfolio p ON p.account_no = l.account_no AND p.series = l.account_series 
+            LEFT JOIN cbs.portfolio p1 ON p1.account_no = l.account_no AND p1.series = l.account_series 
+            LEFT JOIN cbs.portfolio p2 ON p2.account_no = l.legacy_account_no AND p2.series = l.account_series 
             LEFT JOIN cbs.client c ON l.client = c.client_code
-            WHERE 1=1 AND (p.dpd >= 60 AND p.dpd <= 90)""";
+            WHERE 1=1 AND ((p1.dpd >= 60 AND p1.dpd <= 90) OR (p2.dpd >= 60 AND p2.dpd <= 90))""";
 
         if (rawFilter instanceof Map) {
             Map<?, ?> filter = (Map<?, ?>) rawFilter;
@@ -949,19 +954,21 @@ public class CbsReportService {
                 c.address AS `client_address`,
                 l.loan_amount, 
                 l.rental, 
-                p.total_due AS `total_due`, 
-                p.exposure AS `exposure`, 
-                p.dpd AS `dpd`, 
+                COALESCE(p1.total_due, p2.total_due) AS `total_due`, 
+                COALESCE(p1.exposure, p2.exposure) AS `exposure`, 
+                COALESCE(p1.dpd, p2.dpd) AS `dpd`, 
                 CASE 
-                    WHEN lm.locked = 1 THEN 'Locked'
+                    WHEN COALESCE(lm1.locked, lm2.locked) = 1 THEN 'Locked'
                     ELSE 'Unlocked'
                 END AS `lock_status`,
-                p.recovery_officer AS `recovery_officer`
+                COALESCE(p1.recovery_officer, p2.recovery_officer) AS `recovery_officer`
             FROM cbs.loan l
-            LEFT JOIN cbs.portfolio p ON p.account_no = l.account_no AND p.series = l.account_series 
+            LEFT JOIN cbs.portfolio p1 ON p1.account_no = l.account_no AND p1.series = l.account_series 
+            LEFT JOIN cbs.portfolio p2 ON p2.account_no = l.legacy_account_no AND p2.series = l.account_series 
             LEFT JOIN cbs.client c ON l.client = c.client_code
-            LEFT JOIN loan.mobileloan lm ON lm.finance_no = l.account_no
-            WHERE 1=1 AND (lm.locked = 0 OR lm.locked IS NULL) AND p.dpd > 0""";
+            LEFT JOIN loan.mobileloan lm1 ON lm1.finance_no = l.account_no
+            LEFT JOIN loan.mobileloan lm2 ON lm2.finance_no = l.legacy_account_no
+            WHERE 1=1 AND COALESCE(lm1.locked, lm2.locked) = 0 AND (p1.dpd > 0 OR p2.dpd > 0)""";
 
         if (rawFilter instanceof Map) {
             Map<?, ?> filter = (Map<?, ?>) rawFilter;
@@ -1003,19 +1010,21 @@ public class CbsReportService {
                 c.address AS `client_address`,
                 l.loan_amount, 
                 l.rental, 
-                p.total_due AS `total_due`, 
-                p.exposure AS `exposure`, 
-                p.dpd AS `dpd`, 
+                COALESCE(p1.total_due, p2.total_due) AS `total_due`, 
+                COALESCE(p1.exposure, p2.exposure) AS `exposure`, 
+                COALESCE(p1.dpd, p2.dpd) AS `dpd`, 
                 CASE 
-                    WHEN lm.locked = 1 THEN 'Locked'
+                    WHEN COALESCE(lm1.locked, lm2.locked) = 1 THEN 'Locked'
                     ELSE 'Unlocked'
                 END AS `lock_status`,
-                p.recovery_officer AS `recovery_officer`
+                COALESCE(p1.recovery_officer, p2.recovery_officer) AS `recovery_officer`
             FROM cbs.loan l
-            LEFT JOIN cbs.portfolio p ON p.account_no = l.account_no AND p.series = l.account_series 
+            LEFT JOIN cbs.portfolio p1 ON p1.account_no = l.account_no AND p1.series = l.account_series 
+            LEFT JOIN cbs.portfolio p2 ON p2.account_no = l.legacy_account_no AND p2.series = l.account_series 
             LEFT JOIN cbs.client c ON l.client = c.client_code
-            LEFT JOIN loan.mobileloan lm ON lm.finance_no = l.account_no
-            WHERE 1=1 AND lm.locked = 1 AND (p.dpd <= 0 OR p.dpd IS NULL)""";
+            LEFT JOIN loan.mobileloan lm1 ON lm1.finance_no = l.account_no
+            LEFT JOIN loan.mobileloan lm2 ON lm2.finance_no = l.legacy_account_no
+            WHERE 1=1 AND COALESCE(lm1.locked, lm2.locked) = 1 AND (COALESCE(p1.dpd, p2.dpd) <= 0 OR COALESCE(p1.dpd, p2.dpd) IS NULL)""";
 
         if (rawFilter instanceof Map) {
             Map<?, ?> filter = (Map<?, ?>) rawFilter;
@@ -1085,21 +1094,23 @@ public class CbsReportService {
                 c.address AS `client_address`,
                 l.loan_amount, 
                 l.rental, 
-                p.total_due AS `total_due`, 
-                p.exposure AS `exposure`, 
-                p.dpd AS `dpd`, 
+                COALESCE(p1.total_due, p2.total_due) AS `total_due`, 
+                COALESCE(p1.exposure, p2.exposure) AS `exposure`, 
+                COALESCE(p1.dpd, p2.dpd) AS `dpd`, 
                 CASE 
-                    WHEN lm.locked = 1 THEN 'Locked'
+                    WHEN COALESCE(lm1.locked, lm2.locked) = 1 THEN 'Locked'
                     ELSE 'Unlocked'
                 END AS `lock_status`,
-                p.recovery_officer AS `recovery_officer`
+                COALESCE(p1.recovery_officer, p2.recovery_officer) AS `recovery_officer`
             FROM cbs.loan l
-            LEFT JOIN cbs.portfolio p ON p.account_no = l.account_no AND p.series = l.account_series 
+            LEFT JOIN cbs.portfolio p1 ON p1.account_no = l.account_no AND p1.series = l.account_series 
+            LEFT JOIN cbs.portfolio p2 ON p2.account_no = l.legacy_account_no AND p2.series = l.account_series 
             LEFT JOIN cbs.client c ON l.client = c.client_code
-            LEFT JOIN loan.mobileloan lm ON lm.finance_no = l.account_no
+            LEFT JOIN loan.mobileloan lm1 ON lm1.finance_no = l.account_no
+            LEFT JOIN loan.mobileloan lm2 ON lm2.finance_no = l.legacy_account_no
             WHERE 1=1 
-              AND p.exposure > 0 
-              AND p.exposure <= l.rental""";
+              AND COALESCE(p1.exposure, p2.exposure) > 0 
+              AND COALESCE(p1.exposure, p2.exposure) <= l.rental""";
 
         if (rawFilter instanceof Map) {
             Map<?, ?> filter = (Map<?, ?>) rawFilter;
@@ -1141,28 +1152,22 @@ public class CbsReportService {
                 c.address AS `client_address`,
                 l.loan_amount, 
                 l.rental, 
-                p.total_due AS `total_due`, 
-                p.exposure AS `exposure`, 
-                p.dpd AS `dpd`, 
+                COALESCE(p1.total_due, p2.total_due) AS `total_due`, 
+                COALESCE(p1.exposure, p2.exposure) AS `exposure`, 
+                COALESCE(p1.dpd, p2.dpd) AS `dpd`, 
                 CASE 
-                    WHEN lm.locked = 1 THEN 'Locked'
+                    WHEN COALESCE(lm1.locked, lm2.locked) = 1 THEN 'Locked'
                     ELSE 'Unlocked'
                 END AS `lock_status`,
-                p.recovery_officer AS `recovery_officer`
+                COALESCE(p1.recovery_officer, p2.recovery_officer) AS `recovery_officer`
             FROM cbs.loan l
-            LEFT JOIN cbs.portfolio p ON p.account_no = l.account_no AND p.series = l.account_series 
+            LEFT JOIN cbs.portfolio p1 ON p1.account_no = l.account_no AND p1.series = l.account_series 
+            LEFT JOIN cbs.portfolio p2 ON p2.account_no = l.legacy_account_no AND p2.series = l.account_series 
             LEFT JOIN cbs.client c ON l.client = c.client_code
-            LEFT JOIN loan.mobileloan lm ON lm.finance_no = l.account_no
+            LEFT JOIN loan.mobileloan lm1 ON lm1.finance_no = l.account_no
+            LEFT JOIN loan.mobileloan lm2 ON lm2.finance_no = l.legacy_account_no
             WHERE 1=1 
               AND l.maturity_date < CURDATE()
-              AND p.exposure > 0 
-              AND p.exposure < 1000""";
-
-        if (rawFilter instanceof Map) {
-            Map<?, ?> filter = (Map<?, ?>) rawFilter;
-            String asAt = (String) filter.get("asAt");
-            if (asAt != null && !asAt.trim().isEmpty()) {
-                subQuery += " AND l.disbursed_date <= :asAt";
                 params.put("asAt", asAt.trim());
             }
         }

@@ -56,13 +56,13 @@ public class ContractRepository {
         String sql = """
             SELECT 
                 COALESCE(l.legacy_account_no, l.account_no) AS FINANCE_NO, 
-                p.loan_status AS CONTRACT_STATUS, 
-                p.total_due AS AMT_TO_COLLECTED, 
-                p.performing_status AS PERFORMING_STATUS, 
+                COALESCE(p1.loan_status, p2.loan_status) AS CONTRACT_STATUS, 
+                COALESCE(p1.total_due, p2.total_due) AS AMT_TO_COLLECTED, 
+                COALESCE(p1.performing_status, p2.performing_status) AS PERFORMING_STATUS, 
                 CASE 
                     WHEN pr.product_code IN ('LF', 'laptop') THEN 'ABSOLUTE' 
-                    WHEN pr.product_code = 'MF' AND lm.knox_compatibility = 'yes' THEN 'KNOX' 
-                    WHEN pr.product_code = 'MF' AND (lm.knox_compatibility = 'no' OR lm.knox_compatibility IS NULL) THEN 'DATACULTE' 
+                    WHEN pr.product_code = 'MF' AND COALESCE(lm1.knox_compatibility, lm2.knox_compatibility) = 'yes' THEN 'KNOX' 
+                    WHEN pr.product_code = 'MF' AND (COALESCE(lm1.knox_compatibility, lm2.knox_compatibility) = 'no' OR COALESCE(lm1.knox_compatibility, lm2.knox_compatibility) IS NULL) THEN 'DATACULTE' 
                     ELSE NULL 
                 END AS SECURITY, 
                 lmm.name AS MODEL, 
@@ -88,24 +88,33 @@ public class ContractRepository {
                 l.rental AS RENTAL, 
                 l.period AS PERIOD, 
                 l.loan_amount AS FINANCE_AMOUNT, 
-                p.dpd AS ARR_DAYS, 
-                COALESCE(lm.next_lock_date) AS NEXT_LOCK_DATE, 
-                COALESCE(lm.locked) AS LOCKED, 
+                COALESCE(p1.dpd, p2.dpd) AS ARR_DAYS, 
+                COALESCE(lm1.next_lock_date, lm2.next_lock_date) AS NEXT_LOCK_DATE, 
+                COALESCE(lm1.locked, lm2.locked) AS LOCKED, 
                 pr.product_code AS PRODUCT, 
-                dl.device_status AS CURRENT_DEVICE_STATUS,
-                dl.device_id AS IMEI_NO,
-                dl.external_id AS WORKHUB_SP_NO,
+                COALESCE(dl1.device_status, dl2.device_status) AS CURRENT_DEVICE_STATUS,
+                COALESCE(dl1.device_id, dl2.device_id) AS IMEI_NO,
+                COALESCE(dl1.external_id, dl2.external_id) AS WORKHUB_SP_NO,
                 v.name AS VENDOR_NAME
             FROM (
                 SELECT * FROM cbs.loan 
                 WHERE account_no = ? OR legacy_account_no = ?
             ) l
-            LEFT JOIN cbs.portfolio p 
-                ON p.account_no = l.account_no 
-                AND (p.portfolio_date, p.sync_time) = (
+            LEFT JOIN cbs.portfolio p1 
+                ON p1.account_no = l.account_no 
+                AND (p1.portfolio_date, p1.sync_time) = (
                     SELECT portfolio_date, sync_time 
                     FROM cbs.portfolio 
                     WHERE account_no = l.account_no 
+                    ORDER BY portfolio_date DESC, sync_time DESC 
+                    LIMIT 1
+                ) 
+            LEFT JOIN cbs.portfolio p2 
+                ON p2.account_no = l.legacy_account_no 
+                AND (p2.portfolio_date, p2.sync_time) = (
+                    SELECT portfolio_date, sync_time 
+                    FROM cbs.portfolio 
+                    WHERE account_no = l.legacy_account_no 
                     ORDER BY portfolio_date DESC, sync_time DESC 
                     LIMIT 1
                 ) 
@@ -119,14 +128,20 @@ public class ContractRepository {
                 ON g2.client_code = l.guarantor2 
             LEFT JOIN cbs.client g3 
                 ON g3.client_code = l.guarantor3 
-            LEFT JOIN loan.mobileloan lm 
-                ON lm.finance_no = l.account_no 
-            LEFT JOIN cbs.device_loan dl 
-                ON dl.account_no = l.account_no 
-            LEFT JOIN loan.device_loan dl2 
-                ON dl2.finance_no = l.account_no 
+            LEFT JOIN loan.mobileloan lm1 
+                ON lm1.finance_no = l.account_no 
+            LEFT JOIN loan.mobileloan lm2 
+                ON lm2.finance_no = l.legacy_account_no 
+            LEFT JOIN cbs.device_loan dl1 
+                ON dl1.account_no = l.account_no 
+            LEFT JOIN cbs.device_loan dl2 
+                ON dl2.account_no = l.legacy_account_no 
+            LEFT JOIN loan.device_loan dl2_1 
+                ON dl2_1.finance_no = l.account_no 
+            LEFT JOIN loan.device_loan dl2_2 
+                ON dl2_2.finance_no = l.legacy_account_no 
             LEFT JOIN loan.mobileloan_model lmm 
-                ON lmm.id = COALESCE(lm.model, dl2.model) 
+                ON lmm.id = COALESCE(lm1.model, lm2.model, dl2_1.model, dl2_2.model) 
             LEFT JOIN cbs.vendor v 
                 ON l.vendor = v.code
             WHERE 1=1""";
