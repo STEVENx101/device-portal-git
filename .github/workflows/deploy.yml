@@ -11,7 +11,7 @@ jobs:
     runs-on:
       - self-hosted
       - Linux
-      - int-din-new   # Replace with the actual custom label of your new runner
+      - int-din-new
 
     steps:
       - name: Checkout Code
@@ -29,13 +29,15 @@ jobs:
           ./mvnw clean package -DskipTests
 
       - name: Stop Tomcat
-        run: sudo systemctl stop tomcat-deviceportal
+        run: |
+          sudo systemctl stop tomcat-deviceportal
 
       - name: Deploy WAR
-  run: |
-    sudo rm -rf /var/www/tomcat-deviceportal/webapps/portal
-    sudo rm -f /var/www/tomcat-deviceportal/webapps/portal.war
-    sudo cp target/portal.war /var/www/tomcat-deviceportal/webapps/portal.war
+        run: |
+          sudo rm -rf /var/www/tomcat-deviceportal/webapps/portal
+          sudo rm -f /var/www/tomcat-deviceportal/webapps/portal.war
+          sudo cp target/portal.war /var/www/tomcat-deviceportal/webapps/portal.war
 
       - name: Start Tomcat
-        run: sudo systemctl start tomcat-deviceportal
+        run: |
+          sudo systemctl start tomcat-deviceportal
