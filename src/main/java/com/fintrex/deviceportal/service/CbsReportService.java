@@ -182,7 +182,7 @@ public class CbsReportService {
     private String buildReport1Query(Object rawFilter, Map<String, Object> params) {
         String subQuery = """
             SELECT 
-                p.portfolio_date, 
+                DATE_FORMAT(p.portfolio_date, '%Y-%m-%d') AS portfolio_date, 
                 l.account_no, 
                 l.account_series AS `series`, 
                 p.loan_status AS `portfolio_loan_status`, 
@@ -198,8 +198,8 @@ public class CbsReportService {
                 l.rental, 
                 l.rate, 
                 l.period,
-                l.disbursed_date AS `disbursed_date`,
-                l.closed_date AS `closed_date`,
+                DATE_FORMAT(l.disbursed_date, '%Y-%m-%d') AS `disbursed_date`,
+                DATE_FORMAT(l.closed_date, '%Y-%m-%d') AS `closed_date`,
                 COALESCE(dl1.device_id, dl2.device_id) AS `device_id`,
                 COALESCE(dl1.device_status, dl2.device_status) AS `device_status`,
                 COALESCE(dl1.external_id, dl2.external_id) AS `external_id`,
@@ -274,7 +274,7 @@ public class CbsReportService {
                 c.mobile, 
                 c.address, 
                 COALESCE(br.branch_name, l.branch) AS `branch_name`, 
-                c.entered_date 
+                DATE_FORMAT(c.entered_date, '%Y-%m-%d') AS `entered_date` 
             FROM cbs.client c 
             LEFT JOIN cbs.loan l ON c.client_code = l.client 
             LEFT JOIN cbs.branch br ON CAST(l.branch AS UNSIGNED) = br.branch_code 
@@ -321,7 +321,7 @@ public class CbsReportService {
                 t.account_no, 
                 t.legacy_account_no, 
                 t.amount, 
-                t.date, 
+                DATE_FORMAT(t.date, '%Y-%m-%d') AS `date`, 
                 t.user, 
                 t.narration, 
                 COALESCE(br.branch_name, l.branch) AS `branch_name`, 
@@ -408,8 +408,8 @@ public class CbsReportService {
                 l.period,
                 l.rental, 
                 l.rate, 
-                l.disbursed_date AS `disbursed_date`,
-                l.closed_date AS `closed_date`
+                DATE_FORMAT(l.disbursed_date, '%Y-%m-%d') AS `disbursed_date`,
+                DATE_FORMAT(l.closed_date, '%Y-%m-%d') AS `closed_date`
             FROM cbs.loan l
             LEFT JOIN cbs.client c ON l.client = c.client_code
             LEFT JOIN cbs.branch br ON CAST(l.branch AS UNSIGNED) = br.branch_code 
@@ -478,7 +478,7 @@ public class CbsReportService {
                 report_name, 
                 action_type, 
                 filters, 
-                created_date 
+                DATE_FORMAT(created_date, '%Y-%m-%d') AS `created_date` 
             FROM device_portal.report_log
             WHERE 1=1""";
 
@@ -591,6 +591,40 @@ public class CbsReportService {
                 SELECT ut.id, s.id
                 FROM device_portal.user_type ut, device_portal.screen s
                 WHERE s.path = '/lock-no-arrears-report'
+                AND NOT EXISTS (
+                    SELECT 1 FROM device_portal.user_type_screen uts 
+                    WHERE uts.user_type_id = ut.id AND uts.screen_id = s.id
+                )
+            """);
+
+            // One Rental Left Report
+            jdbc.getJdbcTemplate().execute("""
+                INSERT INTO device_portal.screen (name, path, icon, group_name)
+                SELECT 'One Rental Left', '/one-rental-report', 'fas fa-calculator', 'Reports'
+                WHERE NOT EXISTS (SELECT 1 FROM device_portal.screen WHERE path = '/one-rental-report')
+            """);
+            jdbc.getJdbcTemplate().execute("""
+                INSERT INTO device_portal.user_type_screen (user_type_id, screen_id)
+                SELECT ut.id, s.id
+                FROM device_portal.user_type ut, device_portal.screen s
+                WHERE s.path = '/one-rental-report'
+                AND NOT EXISTS (
+                    SELECT 1 FROM device_portal.user_type_screen uts 
+                    WHERE uts.user_type_id = ut.id AND uts.screen_id = s.id
+                )
+            """);
+
+            // Matured Low Balance Report
+            jdbc.getJdbcTemplate().execute("""
+                INSERT INTO device_portal.screen (name, path, icon, group_name)
+                SELECT 'Matured Low Balance', '/matured-low-balance-report', 'fas fa-calendar-check', 'Reports'
+                WHERE NOT EXISTS (SELECT 1 FROM device_portal.screen WHERE path = '/matured-low-balance-report')
+            """);
+            jdbc.getJdbcTemplate().execute("""
+                INSERT INTO device_portal.user_type_screen (user_type_id, screen_id)
+                SELECT ut.id, s.id
+                FROM device_portal.user_type ut, device_portal.screen s
+                WHERE s.path = '/matured-low-balance-report'
                 AND NOT EXISTS (
                     SELECT 1 FROM device_portal.user_type_screen uts 
                     WHERE uts.user_type_id = ut.id AND uts.screen_id = s.id
@@ -723,7 +757,7 @@ public class CbsReportService {
                 COALESCE(p1.performing_status, p2.performing_status) AS `performing_status`, 
                 COALESCE(p1.npl_status, p2.npl_status) AS `npl_status`, 
                 COALESCE(p1.recovery_officer, p2.recovery_officer) AS `recovery_officer`,
-                COALESCE(p1.last_payment_date, p2.last_payment_date) AS `last_payment_date`,
+                DATE_FORMAT(COALESCE(p1.last_payment_date, p2.last_payment_date), '%Y-%m-%d') AS `last_payment_date`,
                 COALESCE(p1.last_payment_amount, p2.last_payment_amount) AS `last_payment_amount`
             FROM cbs.loan l
             LEFT JOIN cbs.portfolio p1 ON p1.account_no = l.account_no AND p1.series = l.account_series 
@@ -831,6 +865,151 @@ public class CbsReportService {
             LEFT JOIN loan.mobileloan lm1 ON lm1.finance_no = l.account_no
             LEFT JOIN loan.mobileloan lm2 ON lm2.finance_no = l.legacy_account_no
             WHERE 1=1""" + filterClause;
+
+        if (rawFilter instanceof Map) {
+            Map<?, ?> filter = (Map<?, ?>) rawFilter;
+            String asAt = (String) filter.get("asAt");
+            if (asAt != null && !asAt.trim().isEmpty()) {
+                subQuery += " AND l.disbursed_date <= :asAt";
+                params.put("asAt", asAt.trim());
+            }
+        }
+
+        return """
+            SELECT 
+                t.account_no, 
+                t.series, 
+                t.legacy_account_no, 
+                t.client_name, 
+                t.client_nic, 
+                t.client_mobile, 
+                t.client_address, 
+                t.loan_amount, 
+                t.rental, 
+                t.total_due, 
+                t.exposure, 
+                t.dpd, 
+                t.lock_status,
+                t.recovery_officer
+            FROM (""" + subQuery + ") t WHERE TRUE";
+    }
+
+    public DataTableResponse fetchOneRentalReport(DataTableRequest request) {
+        Map<String, Object> params = new HashMap<>();
+        String sql = buildOneRentalReportQuery(request.getData(), params);
+        return datatableRepo.dataTable(request, sql, params);
+    }
+
+    public List<Map<String, Object>> getOneRentalReportData(String asAt) {
+        Map<String, Object> filterMap = new HashMap<>();
+        filterMap.put("asAt", asAt);
+        Map<String, Object> params = new HashMap<>();
+        String sql = buildOneRentalReportQuery(filterMap, params);
+        return jdbc.queryForList(sql, params);
+    }
+
+    public DataTableResponse fetchMaturedLowBalanceReport(DataTableRequest request) {
+        Map<String, Object> params = new HashMap<>();
+        String sql = buildMaturedLowBalanceReportQuery(request.getData(), params);
+        return datatableRepo.dataTable(request, sql, params);
+    }
+
+    public List<Map<String, Object>> getMaturedLowBalanceReportData(String asAt) {
+        Map<String, Object> filterMap = new HashMap<>();
+        filterMap.put("asAt", asAt);
+        Map<String, Object> params = new HashMap<>();
+        String sql = buildMaturedLowBalanceReportQuery(filterMap, params);
+        return jdbc.queryForList(sql, params);
+    }
+
+    private String buildOneRentalReportQuery(Object rawFilter, Map<String, Object> params) {
+        String subQuery = """
+            SELECT 
+                l.account_no, 
+                l.account_series AS `series`, 
+                l.legacy_account_no, 
+                c.full_name AS `client_name`,
+                c.id_no AS `client_nic`,
+                c.mobile AS `client_mobile`,
+                c.address AS `client_address`,
+                l.loan_amount, 
+                l.rental, 
+                COALESCE(p1.total_due, p2.total_due) AS `total_due`, 
+                COALESCE(p1.exposure, p2.exposure) AS `exposure`, 
+                COALESCE(p1.dpd, p2.dpd) AS `dpd`, 
+                CASE 
+                    WHEN COALESCE(lm1.locked, lm2.locked) = 1 THEN 'Locked'
+                    ELSE 'Unlocked'
+                END AS `lock_status`,
+                COALESCE(p1.recovery_officer, p2.recovery_officer) AS `recovery_officer`
+            FROM cbs.loan l
+            LEFT JOIN cbs.portfolio p1 ON p1.account_no = l.account_no AND p1.series = l.account_series 
+            LEFT JOIN cbs.portfolio p2 ON p2.account_no = l.legacy_account_no AND p2.series = l.account_series 
+            LEFT JOIN cbs.client c ON l.client = c.client_code
+            LEFT JOIN loan.mobileloan lm1 ON lm1.finance_no = l.account_no
+            LEFT JOIN loan.mobileloan lm2 ON lm2.finance_no = l.legacy_account_no
+            WHERE 1=1 
+              AND COALESCE(p1.exposure, p2.exposure) > 0 
+              AND COALESCE(p1.exposure, p2.exposure) <= l.rental""";
+
+        if (rawFilter instanceof Map) {
+            Map<?, ?> filter = (Map<?, ?>) rawFilter;
+            String asAt = (String) filter.get("asAt");
+            if (asAt != null && !asAt.trim().isEmpty()) {
+                subQuery += " AND l.disbursed_date <= :asAt";
+                params.put("asAt", asAt.trim());
+            }
+        }
+
+        return """
+            SELECT 
+                t.account_no, 
+                t.series, 
+                t.legacy_account_no, 
+                t.client_name, 
+                t.client_nic, 
+                t.client_mobile, 
+                t.client_address, 
+                t.loan_amount, 
+                t.rental, 
+                t.total_due, 
+                t.exposure, 
+                t.dpd, 
+                t.lock_status,
+                t.recovery_officer
+            FROM (""" + subQuery + ") t WHERE TRUE";
+    }
+
+    private String buildMaturedLowBalanceReportQuery(Object rawFilter, Map<String, Object> params) {
+        String subQuery = """
+            SELECT 
+                l.account_no, 
+                l.account_series AS `series`, 
+                l.legacy_account_no, 
+                c.full_name AS `client_name`,
+                c.id_no AS `client_nic`,
+                c.mobile AS `client_mobile`,
+                c.address AS `client_address`,
+                l.loan_amount, 
+                l.rental, 
+                COALESCE(p1.total_due, p2.total_due) AS `total_due`, 
+                COALESCE(p1.exposure, p2.exposure) AS `exposure`, 
+                COALESCE(p1.dpd, p2.dpd) AS `dpd`, 
+                CASE 
+                    WHEN COALESCE(lm1.locked, lm2.locked) = 1 THEN 'Locked'
+                    ELSE 'Unlocked'
+                END AS `lock_status`,
+                COALESCE(p1.recovery_officer, p2.recovery_officer) AS `recovery_officer`
+            FROM cbs.loan l
+            LEFT JOIN cbs.portfolio p1 ON p1.account_no = l.account_no AND p1.series = l.account_series 
+            LEFT JOIN cbs.portfolio p2 ON p2.account_no = l.legacy_account_no AND p2.series = l.account_series 
+            LEFT JOIN cbs.client c ON l.client = c.client_code
+            LEFT JOIN loan.mobileloan lm1 ON lm1.finance_no = l.account_no
+            LEFT JOIN loan.mobileloan lm2 ON lm2.finance_no = l.legacy_account_no
+            WHERE 1=1 
+              AND l.maturity_date < CURDATE()
+              AND COALESCE(p1.exposure, p2.exposure) > 0 
+              AND COALESCE(p1.exposure, p2.exposure) < 1000""";
 
         if (rawFilter instanceof Map) {
             Map<?, ?> filter = (Map<?, ?>) rawFilter;

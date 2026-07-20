@@ -94,4 +94,14 @@ public class PageController {
         return "lock-no-arrears-report";
     }
 
+    @GetMapping("/one-rental-report")
+    public String oneRentalReport() {
+        return "one-rental-report";
+    }
+
+    @GetMapping("/matured-low-balance-report")
+    public String maturedLowBalanceReport() {
+        return "matured-low-balance-report";
+    }
+
 }

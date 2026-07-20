@@ -301,6 +301,17 @@
                     ]
                 });
 
+                // Row click handler to open facility info
+                $('#tableReport1 tbody').on('click', 'tr', function () {
+                    const rowData = dtReport.row(this).data();
+                    if (rowData) {
+                        const searchVal = (rowData.legacy_account_no && rowData.legacy_account_no !== '-') ? rowData.legacy_account_no : rowData.account_no;
+                        if (searchVal) {
+                            window.location.href = '${pageContext.request.contextPath}/mobile?query=' + encodeURIComponent(searchVal);
+                        }
+                    }
+                });
+
                 $('#applyFiltersBtn').on('click', function() {
                     hasLoaded = true;
                     $(this).html('<span class="fas fa-sync-alt me-1"></span> Refresh Data');

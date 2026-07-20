@@ -179,9 +179,7 @@
                                             <th>Series</th>
                                             <th>Legacy Account</th>
                                             <th>Client Code</th>
-                                            <th>Client Name</th>
                                             <th>NIC No</th>
-                                            <th>Branch Name</th>
                                             <th>Product Name</th>
                                             <th>Loan Amount</th>
                                             <th>Period</th>
@@ -189,6 +187,7 @@
                                             <th>Rate</th>
                                             <th>Disbursed Date</th>
                                             <th>Closed Date</th>
+                                            <th>Client Name</th>
                                         </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -286,17 +285,27 @@
                         { data: 'series' },
                         { data: 'legacy_account_no', defaultContent: '-' },
                         { data: 'client_code' },
-                        { data: 'client_name', defaultContent: '-' },
                         { data: 'id_no', defaultContent: '-' },
-                        { data: 'branch_name' },
                         { data: 'product_name' },
                         { data: 'loan_amount', render: $.fn.dataTable.render.number(',', '.', 2) },
                         { data: 'period' },
                         { data: 'rental', render: $.fn.dataTable.render.number(',', '.', 2) },
                         { data: 'rate', render: $.fn.dataTable.render.number(',', '.', 2) },
                         { data: 'disbursed_date', defaultContent: '-' },
-                        { data: 'closed_date', defaultContent: '-' }
+                        { data: 'closed_date', defaultContent: '-' },
+                        { data: 'client_name', defaultContent: '-' }
                     ]
+                });
+
+                // Row click handler to open facility info
+                $('#tableReport4 tbody').on('click', 'tr', function () {
+                    const rowData = dtReport.row(this).data();
+                    if (rowData) {
+                        const searchVal = (rowData.legacy_account_no && rowData.legacy_account_no !== '-') ? rowData.legacy_account_no : rowData.account_no;
+                        if (searchVal) {
+                            window.location.href = '${pageContext.request.contextPath}/mobile?query=' + encodeURIComponent(searchVal);
+                        }
+                    }
                 });
 
                 $('#applyFiltersBtn').on('click', function() {

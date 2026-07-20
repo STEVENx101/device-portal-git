@@ -128,7 +128,6 @@
                                             <th>Account No</th>
                                             <th>Series</th>
                                             <th>Legacy Account</th>
-                                            <th>Customer Name</th>
                                             <th>NIC/ID No</th>
                                             <th>Mobile No</th>
                                             <th>Address</th>
@@ -139,6 +138,7 @@
                                             <th>DPD</th>
                                             <th>Locked Status</th>
                                             <th>Recovery Officer</th>
+                                            <th>Customer Name</th>
                                         </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -209,7 +209,6 @@
                         { data: 'account_no' },
                         { data: 'series' },
                         { data: 'legacy_account_no', defaultContent: '-' },
-                        { data: 'client_name', defaultContent: '-' },
                         { data: 'client_nic', defaultContent: '-' },
                         { data: 'client_mobile', defaultContent: '-' },
                         { data: 'client_address', defaultContent: '-' },
@@ -219,8 +218,20 @@
                         { data: 'exposure', render: $.fn.dataTable.render.number(',', '.', 2) },
                         { data: 'dpd' },
                         { data: 'lock_status', defaultContent: '-' },
-                        { data: 'recovery_officer', defaultContent: '-' }
+                        { data: 'recovery_officer', defaultContent: '-' },
+                        { data: 'client_name', defaultContent: '-' }
                     ]
+                });
+
+                // Row click handler to open facility info
+                $('#tableLockNoArrears tbody').on('click', 'tr', function () {
+                    const rowData = dtReport.row(this).data();
+                    if (rowData) {
+                        const searchVal = (rowData.legacy_account_no && rowData.legacy_account_no !== '-') ? rowData.legacy_account_no : rowData.account_no;
+                        if (searchVal) {
+                            window.location.href = '${pageContext.request.contextPath}/mobile?query=' + encodeURIComponent(searchVal);
+                        }
+                    }
                 });
 
                 $('#applyFiltersBtn').on('click', function() {

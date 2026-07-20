@@ -7,7 +7,7 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>Fintrex | Unlock with Arrears</title>
+        <title>Fintrex | Matured Low Balance</title>
 
         <link rel="apple-touch-icon" sizes="180x180" href="${pageContext.request.contextPath}/assets/img/favicons/apple-touch-icon.png">
         <link rel="icon" type="image/png" sizes="32x32" href="${pageContext.request.contextPath}/assets/img/favicons/favicon-32x32.png">
@@ -90,7 +90,7 @@
 
                     <div class="d-flex mb-2 align-items-center justify-content-between mt-2">
                         <div>
-                            <h4 class="mb-0 text-primary"><i class="fas fa-lock-open me-2"></i>Exception Reports - Unlock with Arrears</h4>
+                            <h4 class="mb-0 text-primary"><i class="fas fa-calendar-check me-2"></i>Exception Reports - Matured Low Balance</h4>
                         </div>
                     </div>
 
@@ -122,7 +122,7 @@
                     <div class="card glass-card mb-3" style="position: relative; z-index: 1;">
                         <div class="card-body p-3">
                             <div class="table-responsive scrollbar">
-                                <table class="table table-hover table-striped align-middle mb-0 fs--1 w-100" id="tableUnlockArrears">
+                                <table class="table table-hover table-striped align-middle mb-0 fs--1 w-100" id="tableMaturedLowBalance">
                                     <thead class="bg-200 text-900">
                                         <tr>
                                             <th>Account No</th>
@@ -190,7 +190,7 @@
                 const today = new Date().toISOString().split('T')[0];
                 $('#asAtDate').val(today);
 
-                dtReport = $('#tableUnlockArrears').DataTable({
+                dtReport = $('#tableMaturedLowBalance').DataTable({
                     processing: true,
                     serverSide: true,
                     deferLoading: true,
@@ -198,7 +198,7 @@
                     ajax: function(data, callback, settings) {
                         data.data = getFilters();
                         $.ajax({
-                            url: '${pageContext.request.contextPath}/api/cbs/unlock-arrears',
+                            url: '${pageContext.request.contextPath}/api/cbs/matured-low-balance',
                             type: 'POST',
                             contentType: 'application/json',
                             data: JSON.stringify(data),
@@ -217,14 +217,14 @@
                         { data: 'total_due', render: $.fn.dataTable.render.number(',', '.', 2) },
                         { data: 'exposure', render: $.fn.dataTable.render.number(',', '.', 2) },
                         { data: 'dpd' },
-                        { data: 'lock_status', defaultContent: '-' },
+                        { data: 'lock_status' },
                         { data: 'recovery_officer', defaultContent: '-' },
-                        { data: 'client_name', defaultContent: '-' }
+                        { data: 'client_name' }
                     ]
                 });
 
                 // Row click handler to open facility info
-                $('#tableUnlockArrears tbody').on('click', 'tr', function () {
+                $('#tableMaturedLowBalance tbody').on('click', 'tr', function () {
                     const rowData = dtReport.row(this).data();
                     if (rowData) {
                         const searchVal = (rowData.legacy_account_no && rowData.legacy_account_no !== '-') ? rowData.legacy_account_no : rowData.account_no;
@@ -243,9 +243,11 @@
                 if ($('#downloadExcelBtn').length) {
                     $('#downloadExcelBtn').on('click', function() {
                         const filters = getFilters();
-                        let downloadUrl = '${pageContext.request.contextPath}/api/cbs/unlock-arrears/download';
+                        let downloadUrl = '${pageContext.request.contextPath}/api/cbs/matured-low-balance/download';
+
                         const queryParams = new URLSearchParams();
                         queryParams.append('asAt', filters.asAt);
+
                         const token = new Date().getTime();
                         queryParams.append('downloadToken', token);
 
@@ -261,11 +263,11 @@
 
                         const checkTimer = setInterval(function() {
                             const cookieValue = getCookie("downloadToken");
-                            if (cookieValue === token.toString()) {
+                            if (cookieValue == token) {
                                 $('#cbsLoader').hide();
-                                clearInterval(checkTimer);
+                                document.cookie = "downloadToken=; Max-Age=-99999999; path=/";
                                 clearTimeout(fallbackTimer);
-                                document.cookie = "downloadToken=; Max-Age=0; path=/";
+                                clearInterval(checkTimer);
                             }
                         }, 500);
                     });

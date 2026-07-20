@@ -659,6 +659,13 @@
                             const detailsCard = document.getElementById('detailsCard');
                             const tabsCard = document.getElementById('tabsCard');
 
+                            const urlParams = new URLSearchParams(window.location.search);
+                            const urlQuery = urlParams.get('query');
+                            if (urlQuery && urlQuery.trim().length > 0 && searchInput) {
+                                searchInput.value = urlQuery.trim();
+                                fetchDetails(urlQuery.trim());
+                            }
+
 
                             let debounceTimeout = null;
 

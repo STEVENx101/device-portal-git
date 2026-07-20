@@ -125,10 +125,10 @@
                                             <th>Account No</th>
                                             <th>Series</th>
                                             <th>Legacy Account</th>
-                                            <th>Customer Name</th>
                                             <th>NIC/ID No</th>
                                             <th>Loan Amount</th>
                                             <th>Vendor Name</th>
+                                            <th>Customer Name</th>
                                         </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -191,11 +191,22 @@
                         { data: 'account_no' },
                         { data: 'series' },
                         { data: 'legacy_account_no', defaultContent: '-' },
-                        { data: 'client_name', defaultContent: '-' },
                         { data: 'client_nic', defaultContent: '-' },
                         { data: 'loan_amount', render: $.fn.dataTable.render.number(',', '.', 2) },
-                        { data: 'vendor_name', defaultContent: '-' }
+                        { data: 'vendor_name', defaultContent: '-' },
+                        { data: 'client_name', defaultContent: '-' }
                     ]
+                });
+
+                // Row click handler to open facility info
+                $('#tableDuplicateLoans tbody').on('click', 'tr', function () {
+                    const rowData = dtReport.row(this).data();
+                    if (rowData) {
+                        const searchVal = (rowData.legacy_account_no && rowData.legacy_account_no !== '-') ? rowData.legacy_account_no : rowData.account_no;
+                        if (searchVal) {
+                            window.location.href = '${pageContext.request.contextPath}/mobile?query=' + encodeURIComponent(searchVal);
+                        }
+                    }
                 });
 
                 $('#applyFiltersBtn').on('click', function() {

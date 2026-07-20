@@ -144,12 +144,11 @@
                                             <th>Client Code</th>
                                             <th>Type</th>
                                             <th>Title</th>
-                                            <th>Full Name</th>
                                             <th>NIC No</th>
                                             <th>Mobile</th>
                                             <th>Address</th>
-                                            <th>Branch Name</th>
                                             <th>Entered Date</th>
+                                            <th>Full Name</th>
                                         </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -222,13 +221,23 @@
                         { data: 'client_code' },
                         { data: 'client_type' },
                         { data: 'title' },
-                        { data: 'full_name' },
                         { data: 'id_no' },
                         { data: 'mobile', defaultContent: '-' },
                         { data: 'address', defaultContent: '-' },
-                        { data: 'branch_name', defaultContent: '-' },
-                        { data: 'entered_date' }
+                        { data: 'entered_date' },
+                        { data: 'full_name' }
                     ]
+                });
+
+                // Row click handler to open facility info by NIC
+                $('#tableReport2 tbody').on('click', 'tr', function () {
+                    const rowData = dtReport.row(this).data();
+                    if (rowData) {
+                        const searchVal = rowData.id_no;
+                        if (searchVal) {
+                            window.location.href = '${pageContext.request.contextPath}/mobile?query=' + encodeURIComponent(searchVal);
+                        }
+                    }
                 });
 
                 $('#applyFiltersBtn').on('click', function() {

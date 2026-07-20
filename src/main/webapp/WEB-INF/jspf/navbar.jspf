@@ -18,6 +18,8 @@
     boolean hasDuplicateLoansReport = false;
     boolean hasUnlockArrearsReport = false;
     boolean hasLockNoArrearsReport = false;
+    boolean hasOneRentalReport = false;
+    boolean hasMaturedLowBalanceReport = false;
     boolean canDownloadReports = false;
     if (userScreens != null) {
         for (Screen s : userScreens) {
@@ -35,6 +37,8 @@
             if (s.getPath().equalsIgnoreCase("/duplicate-loans-report")) hasDuplicateLoansReport = true;
             if (s.getPath().equalsIgnoreCase("/unlock-arrears-report")) hasUnlockArrearsReport = true;
             if (s.getPath().equalsIgnoreCase("/lock-no-arrears-report")) hasLockNoArrearsReport = true;
+            if (s.getPath().equalsIgnoreCase("/one-rental-report")) hasOneRentalReport = true;
+            if (s.getPath().equalsIgnoreCase("/matured-low-balance-report")) hasMaturedLowBalanceReport = true;
             if (s.getPath().equalsIgnoreCase("/download-reports")) canDownloadReports = true;
         }
     }
@@ -222,8 +226,58 @@ body {
     letter-spacing: 0.05em !important;
     padding: 0.6rem 0.8rem 0.2rem 0.8rem !important;
     margin-top: 0.4rem;
-    pointer-events: none;
     user-select: none;
+}
+
+/* Submenu Category Styles */
+.submenu-group {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+.submenu-trigger {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    pointer-events: auto !important;
+    padding: 0.6rem 0.8rem !important;
+    border-radius: 8px;
+    transition: all 0.2s ease-in-out;
+}
+.submenu-trigger:hover {
+    background: rgba(99, 102, 241, 0.05) !important;
+    color: #4f46e5 !important;
+}
+.submenu-chevron {
+    font-size: 0.65rem;
+    transition: transform 0.2s ease-in-out;
+    color: #64748b;
+}
+.submenu-items {
+    display: none;
+    flex-direction: column;
+    gap: 4px;
+    padding-left: 0.5rem;
+    margin-top: 2px;
+}
+.submenu-group.open .submenu-items {
+    display: flex;
+}
+.submenu-group.open .submenu-chevron {
+    transform: rotate(180deg);
+}
+.navbar-vertical-modern:not(:hover) .submenu-trigger {
+    display: none !important;
+}
+.submenu-items .dropdown-item-custom {
+    padding-left: 1.5rem !important;
+}
+.table td, .table th {
+    white-space: nowrap !important;
+}
+.table tbody tr {
+    cursor: pointer;
 }
 
 .navbar-vertical-modern .brand-section {
@@ -285,6 +339,23 @@ body {
     flex-direction: column;
     gap: 8px;
     flex-grow: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* Custom scrollbar styling for the vertical nav links section */
+.navbar-vertical-modern .nav-links-section::-webkit-scrollbar {
+    width: 5px;
+}
+.navbar-vertical-modern .nav-links-section::-webkit-scrollbar-track {
+    background: transparent;
+}
+.navbar-vertical-modern .nav-links-section::-webkit-scrollbar-thumb {
+    background: rgba(99, 102, 241, 0.3) !important;
+    border-radius: 4px !important;
+}
+.navbar-vertical-modern .nav-links-section::-webkit-scrollbar-thumb:hover {
+    background: rgba(168, 85, 247, 0.5) !important;
 }
 
 .navbar-vertical-modern .nav-item-link {
@@ -571,66 +642,97 @@ body {
                         <span class="fas fa-chevron-down ms-auto dropdown-chevron"></span>
                     </a>
                     <div class="dropdown-menu-custom">
-                        <div class="dropdown-header-custom">General Reports</div>
-                        <% if (hasPortfolio) { %>
-                        <a href="<%= request.getContextPath() %>/portfolio" class="dropdown-item-custom" id="nav-report-portfolio">
-                            <span class="fas fa-link me-2"></span>Portfolio
-                        </a>
-                        <% } %>
-                        <% if (hasAgreementReport) { %>
-                        <a href="<%= request.getContextPath() %>/agreement" class="dropdown-item-custom" id="nav-report-agreement">
-                            <span class="fas fa-file-contract me-2"></span>Agreement Report
-                        </a>
-                        <% } %>
-                        <% if (hasClientReport) { %>
-                        <a href="<%= request.getContextPath() %>/client" class="dropdown-item-custom" id="nav-report-client">
-                            <span class="fas fa-user-tag me-2"></span>Client Report
-                        </a>
-                        <% } %>
-                        <% if (hasTransactionReport) { %>
-                        <a href="<%= request.getContextPath() %>/transaction" class="dropdown-item-custom" id="nav-report-transaction">
-                            <span class="fas fa-receipt me-2"></span>Transaction Report
-                        </a>
-                        <% } %>
-                        <% if (hasReportLogs) { %>
-                        <a href="<%= request.getContextPath() %>/report-logs" class="dropdown-item-custom" id="nav-report-logs">
-                            <span class="fas fa-history me-2"></span>Report Logs
-                        </a>
-                        <% } %>
+                        <div class="submenu-group" id="submenu-general">
+                            <div class="dropdown-header-custom submenu-trigger" id="trigger-general">
+                                <span>General Reports</span>
+                                <span class="fas fa-chevron-down ms-auto submenu-chevron"></span>
+                            </div>
+                            <div class="submenu-items">
+                                <% if (hasPortfolio) { %>
+                                <a href="<%= request.getContextPath() %>/portfolio" class="dropdown-item-custom" id="nav-report-portfolio">
+                                    Portfolio
+                                </a>
+                                <% } %>
+                                <% if (hasAgreementReport) { %>
+                                <a href="<%= request.getContextPath() %>/agreement" class="dropdown-item-custom" id="nav-report-agreement">
+                                    Agreement Report
+                                </a>
+                                <% } %>
+                                <% if (hasClientReport) { %>
+                                <a href="<%= request.getContextPath() %>/client" class="dropdown-item-custom" id="nav-report-client">
+                                    Customer Static Data
+                                </a>
+                                <% } %>
+                                <% if (hasTransactionReport) { %>
+                                <a href="<%= request.getContextPath() %>/transaction" class="dropdown-item-custom" id="nav-report-transaction">
+                                    Transaction Report
+                                </a>
+                                <% } %>
+                                <% if (hasReportLogs) { %>
+                                <a href="<%= request.getContextPath() %>/report-logs" class="dropdown-item-custom" id="nav-report-logs">
+                                    Report Logs
+                                </a>
+                                <% } %>
+                            </div>
+                        </div>
                         
-                        <div class="dropdown-header-custom">Recovery Reports</div>
-                        <% if (hasArrearsReport) { %>
-                        <a href="<%= request.getContextPath() %>/arrears-report" class="dropdown-item-custom" id="nav-report-arrears">
-                            <span class="fas fa-clock me-2"></span>Arrears Report
-                        </a>
-                        <% } %>
-                        <% if (hasNpaReport) { %>
-                        <a href="<%= request.getContextPath() %>/npa-report" class="dropdown-item-custom" id="nav-report-npa">
-                            <span class="fas fa-exclamation-triangle me-2"></span>NPA Report
-                        </a>
-                        <% } %>
-                        <% if (hasNearingNpaReport) { %>
-                        <a href="<%= request.getContextPath() %>/nearing-npa-report" class="dropdown-item-custom" id="nav-report-nearing-npa">
-                            <span class="fas fa-hourglass-half me-2"></span>Nearing NPA Report
-                        </a>
-                        <% } %>
+                        <div class="submenu-group" id="submenu-recovery">
+                            <div class="dropdown-header-custom submenu-trigger" id="trigger-recovery">
+                                <span>Recovery Reports</span>
+                                <span class="fas fa-chevron-down ms-auto submenu-chevron"></span>
+                            </div>
+                            <div class="submenu-items">
+                                <% if (hasArrearsReport) { %>
+                                <a href="<%= request.getContextPath() %>/arrears-report" class="dropdown-item-custom" id="nav-report-arrears">
+                                    Arrears Report
+                                </a>
+                                <% } %>
+                                <% if (hasNpaReport) { %>
+                                <a href="<%= request.getContextPath() %>/npa-report" class="dropdown-item-custom" id="nav-report-npa">
+                                    NPA Report
+                                </a>
+                                <% } %>
+                                <% if (hasNearingNpaReport) { %>
+                                <a href="<%= request.getContextPath() %>/nearing-npa-report" class="dropdown-item-custom" id="nav-report-nearing-npa">
+                                    Nearing NPA Report
+                                </a>
+                                <% } %>
+                            </div>
+                        </div>
                         
-                        <div class="dropdown-header-custom">Exception Reports</div>
-                        <% if (hasDuplicateLoansReport) { %>
-                        <a href="<%= request.getContextPath() %>/duplicate-loans-report" class="dropdown-item-custom" id="nav-report-duplicate-loans">
-                            <span class="fas fa-copy me-2"></span>Duplicate Loans
-                        </a>
-                        <% } %>
-                        <% if (hasUnlockArrearsReport) { %>
-                        <a href="<%= request.getContextPath() %>/unlock-arrears-report" class="dropdown-item-custom" id="nav-report-unlock-arrears">
-                            <span class="fas fa-lock-open me-2"></span>Unlock with Arrears
-                        </a>
-                        <% } %>
-                        <% if (hasLockNoArrearsReport) { %>
-                        <a href="<%= request.getContextPath() %>/lock-no-arrears-report" class="dropdown-item-custom" id="nav-report-lock-no-arrears">
-                            <span class="fas fa-lock me-2"></span>Lock with No Arrears
-                        </a>
-                        <% } %>
+                        <div class="submenu-group" id="submenu-exception">
+                            <div class="dropdown-header-custom submenu-trigger" id="trigger-exception">
+                                <span>Exception Reports</span>
+                                <span class="fas fa-chevron-down ms-auto submenu-chevron"></span>
+                            </div>
+                            <div class="submenu-items">
+                                <% if (hasDuplicateLoansReport) { %>
+                                <a href="<%= request.getContextPath() %>/duplicate-loans-report" class="dropdown-item-custom" id="nav-report-duplicate-loans">
+                                    Duplicate Loans
+                                </a>
+                                <% } %>
+                                <% if (hasUnlockArrearsReport) { %>
+                                <a href="<%= request.getContextPath() %>/unlock-arrears-report" class="dropdown-item-custom" id="nav-report-unlock-arrears">
+                                    Unlock with Arrears
+                                </a>
+                                <% } %>
+                                <% if (hasLockNoArrearsReport) { %>
+                                <a href="<%= request.getContextPath() %>/lock-no-arrears-report" class="dropdown-item-custom" id="nav-report-lock-no-arrears">
+                                    Lock with No Arrears
+                                </a>
+                                <% } %>
+                                <% if (hasOneRentalReport) { %>
+                                <a href="<%= request.getContextPath() %>/one-rental-report" class="dropdown-item-custom" id="nav-report-one-rental">
+                                    One Rental Left
+                                </a>
+                                <% } %>
+                                <% if (hasMaturedLowBalanceReport) { %>
+                                <a href="<%= request.getContextPath() %>/matured-low-balance-report" class="dropdown-item-custom" id="nav-report-matured-low-balance">
+                                    Matured Low Balance
+                                </a>
+                                <% } %>
+                            </div>
+                        </div>
                     </div>
                 </div>
             <% } %>
@@ -681,36 +783,68 @@ body {
             if (path.includes("portfolio")) {
                 const item = document.getElementById("nav-report-portfolio");
                 if (item) item.classList.add("active");
+                const sub = document.getElementById("submenu-general");
+                if (sub) sub.classList.add("open");
             } else if (path.includes("agreement")) {
                 const item = document.getElementById("nav-report-agreement");
                 if (item) item.classList.add("active");
+                const sub = document.getElementById("submenu-general");
+                if (sub) sub.classList.add("open");
             } else if (path.includes("client")) {
                 const item = document.getElementById("nav-report-client");
                 if (item) item.classList.add("active");
+                const sub = document.getElementById("submenu-general");
+                if (sub) sub.classList.add("open");
             } else if (path.includes("transaction")) {
                 const item = document.getElementById("nav-report-transaction");
                 if (item) item.classList.add("active");
+                const sub = document.getElementById("submenu-general");
+                if (sub) sub.classList.add("open");
             } else if (path.includes("report-logs")) {
                 const item = document.getElementById("nav-report-logs");
                 if (item) item.classList.add("active");
+                const sub = document.getElementById("submenu-general");
+                if (sub) sub.classList.add("open");
             } else if (path.includes("arrears-report")) {
                 const item = document.getElementById("nav-report-arrears");
                 if (item) item.classList.add("active");
+                const sub = document.getElementById("submenu-recovery");
+                if (sub) sub.classList.add("open");
             } else if (path.includes("npa-report")) {
                 const item = document.getElementById("nav-report-npa");
                 if (item) item.classList.add("active");
+                const sub = document.getElementById("submenu-recovery");
+                if (sub) sub.classList.add("open");
             } else if (path.includes("nearing-npa-report")) {
                 const item = document.getElementById("nav-report-nearing-npa");
                 if (item) item.classList.add("active");
+                const sub = document.getElementById("submenu-recovery");
+                if (sub) sub.classList.add("open");
             } else if (path.includes("duplicate-loans-report")) {
                 const item = document.getElementById("nav-report-duplicate-loans");
                 if (item) item.classList.add("active");
+                const sub = document.getElementById("submenu-exception");
+                if (sub) sub.classList.add("open");
             } else if (path.includes("unlock-arrears-report")) {
                 const item = document.getElementById("nav-report-unlock-arrears");
                 if (item) item.classList.add("active");
+                const sub = document.getElementById("submenu-exception");
+                if (sub) sub.classList.add("open");
             } else if (path.includes("lock-no-arrears-report")) {
                 const item = document.getElementById("nav-report-lock-no-arrears");
                 if (item) item.classList.add("active");
+                const sub = document.getElementById("submenu-exception");
+                if (sub) sub.classList.add("open");
+            } else if (path.includes("one-rental-report")) {
+                const item = document.getElementById("nav-report-one-rental");
+                if (item) item.classList.add("active");
+                const sub = document.getElementById("submenu-exception");
+                if (sub) sub.classList.add("open");
+            } else if (path.includes("matured-low-balance-report")) {
+                const item = document.getElementById("nav-report-matured-low-balance");
+                if (item) item.classList.add("active");
+                const sub = document.getElementById("submenu-exception");
+                if (sub) sub.classList.add("open");
             }
         }
 
@@ -725,5 +859,18 @@ body {
                 }
             });
         }
+
+        // Toggle submenu dropdowns on click
+        const subTriggers = document.querySelectorAll(".submenu-trigger");
+        subTriggers.forEach(subTrigger => {
+            subTrigger.addEventListener("click", (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const parentGroup = subTrigger.closest(".submenu-group");
+                if (parentGroup) {
+                    parentGroup.classList.toggle("open");
+                }
+            });
+        });
     });
 </script>

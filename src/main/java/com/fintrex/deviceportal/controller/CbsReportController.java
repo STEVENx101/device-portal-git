@@ -67,15 +67,14 @@ public class CbsReportController {
         response.setHeader("Content-Disposition", "attachment; filename=\"portfolio_loan_report.csv\"");
 
         PrintWriter writer = response.getWriter();
-        writer.println("Portfolio Date,Account No,Series,Legacy Account No,Branch Name,Product Name,Loan Amount,Rental,Total Due,Exposure,DPD,Performing Status,Loan Status,Disbursed Date,Closed Date,IMEI No,Device Status,Workhub SP No,Platform");
+        writer.println("Portfolio Date,Account No,Series,Legacy Account No,Product Name,Loan Amount,Rental,Total Due,Exposure,DPD,Performing Status,Loan Status,Disbursed Date,Closed Date,IMEI No,Device Status,Workhub SP No,Platform");
 
         for (Map<String, Object> row : data) {
-            writer.println(String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
+            writer.println(String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
                     cleanCsv(row.get("portfolio_date")),
                     cleanCsv(row.get("account_no")),
                     cleanCsv(row.get("series")),
                     cleanCsv(row.get("legacy_account_no")),
-                    cleanCsv(row.get("branch_name")),
                     cleanCsv(row.get("product_name")),
                     cleanCsv(row.get("loan_amount")),
                     cleanCsv(row.get("rental")),
@@ -136,19 +135,18 @@ public class CbsReportController {
         response.setHeader("Content-Disposition", "attachment; filename=\"client_report.csv\"");
 
         PrintWriter writer = response.getWriter();
-        writer.println("Client Code,Client Type,Title,Full Name,NIC No,Mobile,Address,Branch Name,Entered Date");
+        writer.println("Client Code,Client Type,Title,NIC No,Mobile,Address,Entered Date,Full Name");
 
         for (Map<String, Object> row : data) {
-            writer.println(String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s",
+            writer.println(String.format("%s,%s,%s,%s,%s,%s,%s,%s",
                      cleanCsv(row.get("client_code")),
                      cleanCsv(row.get("client_type")),
                      cleanCsv(row.get("title")),
-                     cleanCsv(row.get("full_name")),
                      cleanCsv(row.get("id_no")),
                      cleanCsv(row.get("mobile")),
                      cleanCsv(row.get("address")),
-                     cleanCsv(row.get("branch_name")),
-                     cleanCsv(row.get("entered_date"))
+                     cleanCsv(row.get("entered_date")),
+                     cleanCsv(row.get("full_name"))
             ));
         }
         writer.flush();
@@ -196,10 +194,10 @@ public class CbsReportController {
         response.setHeader("Content-Disposition", "attachment; filename=\"transaction_report.csv\"");
 
         PrintWriter writer = response.getWriter();
-        writer.println("Transaction ID,Account No,Legacy Account No,Amount,Date,User,Narration,Branch Name,Product Name");
+        writer.println("Transaction ID,Account No,Legacy Account No,Amount,Date,User,Narration,Product Name");
 
         for (Map<String, Object> row : data) {
-            writer.println(String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s",
+            writer.println(String.format("%s,%s,%s,%s,%s,%s,%s,%s",
                     cleanCsv(row.get("tran_id")),
                     cleanCsv(row.get("account_no")),
                     cleanCsv(row.get("legacy_account_no")),
@@ -207,7 +205,6 @@ public class CbsReportController {
                     cleanCsv(row.get("date")),
                     cleanCsv(row.get("user")),
                     cleanCsv(row.get("narration")),
-                    cleanCsv(row.get("branch_name")),
                     cleanCsv(row.get("product_name"))
             ));
         }
@@ -256,24 +253,23 @@ public class CbsReportController {
         response.setHeader("Content-Disposition", "attachment; filename=\"agreement_report.csv\"");
 
         PrintWriter writer = response.getWriter();
-        writer.println("Account No,Series,Legacy Account No,Client Code,Client Name,NIC No,Branch Name,Product Name,Loan Amount,Period,Rental,Rate,Disbursed Date,Closed Date");
+        writer.println("Account No,Series,Legacy Account No,Client Code,NIC No,Product Name,Loan Amount,Period,Rental,Rate,Disbursed Date,Closed Date,Client Name");
 
         for (Map<String, Object> row : data) {
-            writer.println(String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
+            writer.println(String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
                     cleanCsv(row.get("account_no")),
                     cleanCsv(row.get("series")),
                     cleanCsv(row.get("legacy_account_no")),
                     cleanCsv(row.get("client_code")),
-                    cleanCsv(row.get("client_name")),
                     cleanCsv(row.get("id_no")),
-                    cleanCsv(row.get("branch_name")),
                     cleanCsv(row.get("product_name")),
                     cleanCsv(row.get("loan_amount")),
                     cleanCsv(row.get("period")),
                     cleanCsv(row.get("rental")),
                     cleanCsv(row.get("rate")),
                     cleanCsv(row.get("disbursed_date")),
-                    cleanCsv(row.get("closed_date"))
+                    cleanCsv(row.get("closed_date")),
+                    cleanCsv(row.get("client_name"))
             ));
         }
         writer.flush();
@@ -438,19 +434,70 @@ public class CbsReportController {
         writeExceptionLockCsv(response, "lock_with_no_arrears_report.csv", data);
     }
 
+    @PostMapping("/one-rental")
+    public DataTableResponse getOneRental(@RequestBody DataTableRequest request, HttpSession session) {
+        com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");
+        String username = currentUser != null ? currentUser.getUsername() : "system";
+        String filtersStr = request.getData() != null ? request.getData().toString() : "none";
+        cbsReportService.logReportActivity(username, "One Rental Left Exception Report", "VIEW", filtersStr);
+        return cbsReportService.fetchOneRentalReport(request);
+    }
+
+    @GetMapping("/one-rental/download")
+    public void downloadOneRental(
+            @RequestParam(value = "asAt", required = false) String asAt,
+            @RequestParam(value = "downloadToken", required = false) String downloadToken,
+            HttpSession session,
+            HttpServletResponse response) throws Exception {
+        verifyDownloadPermission(session, response);
+        com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");
+        String username = currentUser != null ? currentUser.getUsername() : "system";
+        String filtersStr = String.format("asAt=%s", asAt);
+        cbsReportService.logReportActivity(username, "One Rental Left Exception Report", "DOWNLOAD", filtersStr);
+
+        setDownloadTokenCookie(response, downloadToken);
+        List<Map<String, Object>> data = cbsReportService.getOneRentalReportData(asAt);
+        writeExceptionLockCsv(response, "one_rental_left_report.csv", data);
+    }
+
+    @PostMapping("/matured-low-balance")
+    public DataTableResponse getMaturedLowBalance(@RequestBody DataTableRequest request, HttpSession session) {
+        com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");
+        String username = currentUser != null ? currentUser.getUsername() : "system";
+        String filtersStr = request.getData() != null ? request.getData().toString() : "none";
+        cbsReportService.logReportActivity(username, "Matured Low Balance Exception Report", "VIEW", filtersStr);
+        return cbsReportService.fetchMaturedLowBalanceReport(request);
+    }
+
+    @GetMapping("/matured-low-balance/download")
+    public void downloadMaturedLowBalance(
+            @RequestParam(value = "asAt", required = false) String asAt,
+            @RequestParam(value = "downloadToken", required = false) String downloadToken,
+            HttpSession session,
+            HttpServletResponse response) throws Exception {
+        verifyDownloadPermission(session, response);
+        com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");
+        String username = currentUser != null ? currentUser.getUsername() : "system";
+        String filtersStr = String.format("asAt=%s", asAt);
+        cbsReportService.logReportActivity(username, "Matured Low Balance Exception Report", "DOWNLOAD", filtersStr);
+
+        setDownloadTokenCookie(response, downloadToken);
+        List<Map<String, Object>> data = cbsReportService.getMaturedLowBalanceReportData(asAt);
+        writeExceptionLockCsv(response, "matured_low_balance_report.csv", data);
+    }
+
     private void writeExceptionLockCsv(HttpServletResponse response, String filename, List<Map<String, Object>> data) throws Exception {
         response.setContentType("text/csv");
         response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
 
         PrintWriter writer = response.getWriter();
-        writer.println("Account No,Series,Legacy Account No,Customer Name,NIC/ID No,Mobile No,Address,Loan Amount,Rental,Total Due,Exposure,DPD,Locked Status,Recovery Officer");
+        writer.println("Account No,Series,Legacy Account No,NIC/ID No,Mobile No,Address,Loan Amount,Rental,Total Due,Exposure,DPD,Locked Status,Recovery Officer,Customer Name");
 
         for (Map<String, Object> row : data) {
             writer.println(String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
                     cleanCsv(row.get("account_no")),
                     cleanCsv(row.get("series")),
                     cleanCsv(row.get("legacy_account_no")),
-                    cleanCsv(row.get("client_name")),
                     cleanCsv(row.get("client_nic")),
                     cleanCsv(row.get("client_mobile")),
                     cleanCsv(row.get("client_address")),
@@ -460,7 +507,8 @@ public class CbsReportController {
                     cleanCsv(row.get("exposure")),
                     cleanCsv(row.get("dpd")),
                     cleanCsv(row.get("lock_status")),
-                    cleanCsv(row.get("recovery_officer"))
+                    cleanCsv(row.get("recovery_officer")),
+                    cleanCsv(row.get("client_name"))
             ));
         }
         writer.flush();
@@ -487,14 +535,13 @@ public class CbsReportController {
         response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
 
         PrintWriter writer = response.getWriter();
-        writer.println("Account No,Series,Legacy Account No,Customer Name,NIC/ID No,Mobile No,Address,Loan Amount,Rental,Total Due,Exposure,DPD,Status,Performing Status,NPL Status,Recovery Officer,Last Payment Date,Last Payment Amount");
+        writer.println("Account No,Series,Legacy Account No,NIC/ID No,Mobile No,Address,Loan Amount,Rental,Total Due,Exposure,DPD,Status,Performing Status,NPL Status,Recovery Officer,Last Payment Date,Last Payment Amount,Customer Name");
 
         for (Map<String, Object> row : data) {
             writer.println(String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
                     cleanCsv(row.get("account_no")),
                     cleanCsv(row.get("series")),
                     cleanCsv(row.get("legacy_account_no")),
-                    cleanCsv(row.get("client_name")),
                     cleanCsv(row.get("client_nic")),
                     cleanCsv(row.get("client_mobile")),
                     cleanCsv(row.get("client_address")),
@@ -508,7 +555,8 @@ public class CbsReportController {
                     cleanCsv(row.get("npl_status")),
                     cleanCsv(row.get("recovery_officer")),
                     cleanCsv(row.get("last_payment_date")),
-                    cleanCsv(row.get("last_payment_amount"))
+                    cleanCsv(row.get("last_payment_amount")),
+                    cleanCsv(row.get("client_name"))
             ));
         }
         writer.flush();
@@ -519,7 +567,7 @@ public class CbsReportController {
         response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
 
         PrintWriter writer = response.getWriter();
-        writer.println("IMEI No,Account No,Series,Legacy Account No,Customer Name,NIC/ID No,Loan Amount,Vendor Name");
+        writer.println("IMEI No,Account No,Series,Legacy Account No,NIC/ID No,Loan Amount,Vendor Name,Customer Name");
 
         for (Map<String, Object> row : data) {
             writer.println(String.format("%s,%s,%s,%s,%s,%s,%s,%s",
@@ -527,10 +575,10 @@ public class CbsReportController {
                     cleanCsv(row.get("account_no")),
                     cleanCsv(row.get("series")),
                     cleanCsv(row.get("legacy_account_no")),
-                    cleanCsv(row.get("client_name")),
                     cleanCsv(row.get("client_nic")),
                     cleanCsv(row.get("loan_amount")),
-                    cleanCsv(row.get("vendor_name"))
+                    cleanCsv(row.get("vendor_name")),
+                    cleanCsv(row.get("client_name"))
             ));
         }
         writer.flush();

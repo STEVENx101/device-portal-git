@@ -178,7 +178,6 @@
                                             <th>Transaction ID</th>
                                             <th>Account No</th>
                                             <th>Legacy Account</th>
-                                            <th>Branch Name</th>
                                             <th>Product Name</th>
                                             <th>Amount</th>
                                             <th>Date</th>
@@ -280,13 +279,23 @@
                         { data: 'tran_id' },
                         { data: 'account_no' },
                         { data: 'legacy_account_no', defaultContent: '-' },
-                        { data: 'branch_name', defaultContent: '-' },
                         { data: 'product_name', defaultContent: '-' },
                         { data: 'amount', render: $.fn.dataTable.render.number(',', '.', 2) },
                         { data: 'date' },
                         { data: 'user' },
                         { data: 'narration' }
                     ]
+                });
+
+                // Row click handler to open facility info
+                $('#tableReport3 tbody').on('click', 'tr', function () {
+                    const rowData = dtReport.row(this).data();
+                    if (rowData) {
+                        const searchVal = (rowData.legacy_account_no && rowData.legacy_account_no !== '-') ? rowData.legacy_account_no : rowData.account_no;
+                        if (searchVal) {
+                            window.location.href = '${pageContext.request.contextPath}/mobile?query=' + encodeURIComponent(searchVal);
+                        }
+                    }
                 });
 
                 $('#applyFiltersBtn').on('click', function() {
