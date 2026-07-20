@@ -1,4 +1,4 @@
-name: Deploy Portal to New Server
+name: Deploy Portal to Tomcat
 
 on:
   push:
@@ -8,10 +8,7 @@ on:
 
 jobs:
   build-and-deploy:
-    runs-on:
-      - self-hosted
-      - Linux
-      - int-din-new
+    runs-on: self-hosted
 
     steps:
       - name: Checkout Code
@@ -28,16 +25,28 @@ jobs:
           chmod +x mvnw
           ./mvnw clean package -DskipTests
 
-      - name: Stop Tomcat
+      - name: Deploy to Tomcat
         run: |
-          systemctl stop tomcat-deviceportal
+          cp target/portal.war /opt/tomcat10/webapps/
 
-      - name: Deploy WAR
+      - name: Start/Reload App in Tomcat
         run: |
-          rm -rf /var/www/tomcat-deviceportal/webapps/portal
-          rm -f /var/www/tomcat-deviceportal/webapps/portal.war
-          cp target/portal.war /var/www/tomcat-deviceportal/webapps/portal.war
+          # Read port from server.xml (default to 8080 if not found)
+          PORT=$(grep -oP '<Connector port="\K[0-9]+(?="[^>]*protocol="HTTP/1.1")' /opt/tomcat10/conf/server.xml | head -n 1)
+          PORT=${PORT:-8080}
 
-      - name: Start Tomcat
-        run: |
-          systemctl start tomcat-deviceportal
+          # Read username and password from tomcat-users.xml for manager-script or manager roles
+          USER=$(grep -oP 'username="\K[^"]+(?="[^>]*roles="[^"]*manager-script[^"]*")' /opt/tomcat10/conf/tomcat-users.xml | head -n 1)
+          PASS=$(grep -oP 'password="\K[^"]+(?="[^>]*roles="[^"]*manager-script[^"]*")' /opt/tomcat10/conf/tomcat-users.xml | head -n 1)
+
+          if [ -z "$USER" ] || [ -z "$PASS" ]; then
+            # Fallback pattern if roles attribute comes before username/password
+            USER=$(grep -oP 'roles="[^"]*manager-script[^"]*".*username="\K[^"]+(?=")' /opt/tomcat10/conf/tomcat-users.xml | head -n 1)
+            PASS=$(grep -oP 'roles="[^"]*manager-script[^"]*".*password="\K[^"]+(?=")' /opt/tomcat10/conf/tomcat-users.xml | head -n 1)
+          fi
+
+          echo "Deploying to Tomcat on port $PORT..."
+          curl -s -u "$USER:$PASS" "http://localhost:$PORT/manager/text/start?path=/portal" || \
+          curl -s -u "$USER:$PASS" "http://localhost:$PORT/manager/text/reload?path=/portal"
+
+
