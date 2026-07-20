@@ -32,9 +32,10 @@ jobs:
         run: sudo systemctl stop tomcat-deviceportal
 
       - name: Deploy WAR
-        run: |
-          rm -rf /var/www/tomcat-deviceportal/webapps/portal
-          cp target/portal.war /var/www/tomcat-deviceportal/webapps/
+  run: |
+    sudo rm -rf /var/www/tomcat-deviceportal/webapps/portal
+    sudo rm -f /var/www/tomcat-deviceportal/webapps/portal.war
+    sudo cp target/portal.war /var/www/tomcat-deviceportal/webapps/portal.war
 
       - name: Start Tomcat
         run: sudo systemctl start tomcat-deviceportal
