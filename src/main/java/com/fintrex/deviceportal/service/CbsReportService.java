@@ -1168,6 +1168,14 @@ public class CbsReportService {
             LEFT JOIN loan.mobileloan lm2 ON lm2.finance_no = l.legacy_account_no
             WHERE 1=1 
               AND l.maturity_date < CURDATE()
+              AND COALESCE(p1.exposure, p2.exposure) > 0 
+              AND COALESCE(p1.exposure, p2.exposure) < 1000""";
+
+        if (rawFilter instanceof Map) {
+            Map<?, ?> filter = (Map<?, ?>) rawFilter;
+            String asAt = (String) filter.get("asAt");
+            if (asAt != null && !asAt.trim().isEmpty()) {
+                subQuery += " AND l.disbursed_date <= :asAt";
                 params.put("asAt", asAt.trim());
             }
         }
