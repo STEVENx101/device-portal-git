@@ -14,14 +14,6 @@ jobs:
       - int-din-new
 
     steps:
-
-      - name: Debug Runner User
-        run: |
-          whoami
-          id
-          pwd
-          sudo -l
-
       - name: Checkout Code
         uses: actions/checkout@v4
 
@@ -38,14 +30,14 @@ jobs:
 
       - name: Stop Tomcat
         run: |
-          sudo systemctl stop tomcat-deviceportal
+          systemctl stop tomcat-deviceportal
 
       - name: Deploy WAR
         run: |
-          sudo rm -rf /var/www/tomcat-deviceportal/webapps/portal
-          sudo rm -f /var/www/tomcat-deviceportal/webapps/portal.war
-          sudo cp target/portal.war /var/www/tomcat-deviceportal/webapps/portal.war
+          rm -rf /var/www/tomcat-deviceportal/webapps/portal
+          rm -f /var/www/tomcat-deviceportal/webapps/portal.war
+          cp target/portal.war /var/www/tomcat-deviceportal/webapps/portal.war
 
       - name: Start Tomcat
         run: |
-          sudo systemctl start tomcat-deviceportal
+          systemctl start tomcat-deviceportal
