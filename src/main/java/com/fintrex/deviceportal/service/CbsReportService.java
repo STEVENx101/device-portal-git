@@ -179,7 +179,25 @@ public class CbsReportService {
         return jdbc.queryForList(sql, params);
     }
 
+    private void addLatestPortfolioParams(Map<String, Object> params) {
+        String sql = """
+            SELECT MAX(portfolio_date) AS max_date, MAX(sync_time) AS max_sync 
+            FROM cbs.portfolio 
+            WHERE portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio)
+        """;
+        List<Map<String, Object>> list = jdbc.queryForList(sql, new HashMap<>());
+        if (!list.isEmpty()) {
+            Map<String, Object> row = list.get(0);
+            params.put("latestPortfolioDate", row.get("max_date"));
+            params.put("latestSyncTime", row.get("max_sync"));
+        } else {
+            params.put("latestPortfolioDate", null);
+            params.put("latestSyncTime", null);
+        }
+    }
+
     private String buildReport1Query(Object rawFilter, Map<String, Object> params) {
+        addLatestPortfolioParams(params);
         String subQuery = """
             SELECT 
                 DATE_FORMAT(COALESCE(p1.portfolio_date, p2.portfolio_date), '%Y-%m-%d') AS portfolio_date, 
@@ -208,13 +226,13 @@ public class CbsReportService {
             LEFT JOIN cbs.portfolio p1 
                 ON p1.account_no = l.account_no 
                 AND p1.series = l.account_series 
-                AND p1.portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio) 
-                AND p1.sync_time = (SELECT MAX(sync_time) FROM cbs.portfolio WHERE portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio))
+                AND p1.portfolio_date = :latestPortfolioDate 
+                AND p1.sync_time = :latestSyncTime
             LEFT JOIN cbs.portfolio p2 
                 ON p2.account_no = l.legacy_account_no 
                 AND p2.series = l.account_series 
-                AND p2.portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio) 
-                AND p2.sync_time = (SELECT MAX(sync_time) FROM cbs.portfolio WHERE portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio))
+                AND p2.portfolio_date = :latestPortfolioDate 
+                AND p2.sync_time = :latestSyncTime
             LEFT JOIN cbs.branch br ON CAST(l.branch AS UNSIGNED) = br.branch_code 
             LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val 
             LEFT JOIN cbs.device_loan dl1 ON dl1.account_no = l.account_no
@@ -728,6 +746,7 @@ public class CbsReportService {
     }
 
     private String buildArrearsReportQuery(Object rawFilter, Map<String, Object> params) {
+        addLatestPortfolioParams(params);
         String subQuery = """
             SELECT 
                 l.account_no, 
@@ -752,13 +771,13 @@ public class CbsReportService {
             LEFT JOIN cbs.portfolio p1 
                 ON p1.account_no = l.account_no 
                 AND p1.series = l.account_series 
-                AND p1.portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio) 
-                AND p1.sync_time = (SELECT MAX(sync_time) FROM cbs.portfolio WHERE portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio))
+                AND p1.portfolio_date = :latestPortfolioDate 
+                AND p1.sync_time = :latestSyncTime
             LEFT JOIN cbs.portfolio p2 
                 ON p2.account_no = l.legacy_account_no 
                 AND p2.series = l.account_series 
-                AND p2.portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio) 
-                AND p2.sync_time = (SELECT MAX(sync_time) FROM cbs.portfolio WHERE portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio))
+                AND p2.portfolio_date = :latestPortfolioDate 
+                AND p2.sync_time = :latestSyncTime
             LEFT JOIN cbs.client c ON l.client = c.client_code
             WHERE 1=1 AND (p1.dpd > 0 OR p2.dpd > 0)""";
 
@@ -801,6 +820,7 @@ public class CbsReportService {
     }
 
     private String buildNpaReportQuery(Object rawFilter, Map<String, Object> params) {
+        addLatestPortfolioParams(params);
         String subQuery = """
             SELECT 
                 l.account_no, 
@@ -825,13 +845,13 @@ public class CbsReportService {
             LEFT JOIN cbs.portfolio p1 
                 ON p1.account_no = l.account_no 
                 AND p1.series = l.account_series 
-                AND p1.portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio) 
-                AND p1.sync_time = (SELECT MAX(sync_time) FROM cbs.portfolio WHERE portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio))
+                AND p1.portfolio_date = :latestPortfolioDate 
+                AND p1.sync_time = :latestSyncTime
             LEFT JOIN cbs.portfolio p2 
                 ON p2.account_no = l.legacy_account_no 
                 AND p2.series = l.account_series 
-                AND p2.portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio) 
-                AND p2.sync_time = (SELECT MAX(sync_time) FROM cbs.portfolio WHERE portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio))
+                AND p2.portfolio_date = :latestPortfolioDate 
+                AND p2.sync_time = :latestSyncTime
             LEFT JOIN cbs.client c ON l.client = c.client_code
             WHERE 1=1 AND (p1.performing_status = 'Non-Performing' OR p2.performing_status = 'Non-Performing')""";
 
@@ -874,6 +894,7 @@ public class CbsReportService {
     }
 
     private String buildNearingNpaReportQuery(Object rawFilter, Map<String, Object> params) {
+        addLatestPortfolioParams(params);
         String subQuery = """
             SELECT 
                 l.account_no, 
@@ -898,13 +919,13 @@ public class CbsReportService {
             LEFT JOIN cbs.portfolio p1 
                 ON p1.account_no = l.account_no 
                 AND p1.series = l.account_series 
-                AND p1.portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio) 
-                AND p1.sync_time = (SELECT MAX(sync_time) FROM cbs.portfolio WHERE portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio))
+                AND p1.portfolio_date = :latestPortfolioDate 
+                AND p1.sync_time = :latestSyncTime
             LEFT JOIN cbs.portfolio p2 
                 ON p2.account_no = l.legacy_account_no 
                 AND p2.series = l.account_series 
-                AND p2.portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio) 
-                AND p2.sync_time = (SELECT MAX(sync_time) FROM cbs.portfolio WHERE portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio))
+                AND p2.portfolio_date = :latestPortfolioDate 
+                AND p2.sync_time = :latestSyncTime
             LEFT JOIN cbs.client c ON l.client = c.client_code
             WHERE 1=1 AND ((p1.dpd >= 60 AND p1.dpd <= 90) OR (p2.dpd >= 60 AND p2.dpd <= 90))""";
 
@@ -975,6 +996,7 @@ public class CbsReportService {
     }
 
     private String buildUnlockArrearsReportQuery(Object rawFilter, Map<String, Object> params) {
+        addLatestPortfolioParams(params);
         String subQuery = """
             SELECT 
                 l.account_no, 
@@ -998,13 +1020,13 @@ public class CbsReportService {
             LEFT JOIN cbs.portfolio p1 
                 ON p1.account_no = l.account_no 
                 AND p1.series = l.account_series 
-                AND p1.portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio) 
-                AND p1.sync_time = (SELECT MAX(sync_time) FROM cbs.portfolio WHERE portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio))
+                AND p1.portfolio_date = :latestPortfolioDate 
+                AND p1.sync_time = :latestSyncTime
             LEFT JOIN cbs.portfolio p2 
                 ON p2.account_no = l.legacy_account_no 
                 AND p2.series = l.account_series 
-                AND p2.portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio) 
-                AND p2.sync_time = (SELECT MAX(sync_time) FROM cbs.portfolio WHERE portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio))
+                AND p2.portfolio_date = :latestPortfolioDate 
+                AND p2.sync_time = :latestSyncTime
             LEFT JOIN cbs.client c ON l.client = c.client_code
             LEFT JOIN loan.mobileloan lm1 ON lm1.finance_no = l.account_no
             LEFT JOIN loan.mobileloan lm2 ON lm2.finance_no = l.legacy_account_no
@@ -1039,6 +1061,7 @@ public class CbsReportService {
     }
 
     private String buildLockNoArrearsReportQuery(Object rawFilter, Map<String, Object> params) {
+        addLatestPortfolioParams(params);
         String subQuery = """
             SELECT 
                 l.account_no, 
@@ -1062,13 +1085,13 @@ public class CbsReportService {
             LEFT JOIN cbs.portfolio p1 
                 ON p1.account_no = l.account_no 
                 AND p1.series = l.account_series 
-                AND p1.portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio) 
-                AND p1.sync_time = (SELECT MAX(sync_time) FROM cbs.portfolio WHERE portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio))
+                AND p1.portfolio_date = :latestPortfolioDate 
+                AND p1.sync_time = :latestSyncTime
             LEFT JOIN cbs.portfolio p2 
                 ON p2.account_no = l.legacy_account_no 
                 AND p2.series = l.account_series 
-                AND p2.portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio) 
-                AND p2.sync_time = (SELECT MAX(sync_time) FROM cbs.portfolio WHERE portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio))
+                AND p2.portfolio_date = :latestPortfolioDate 
+                AND p2.sync_time = :latestSyncTime
             LEFT JOIN cbs.client c ON l.client = c.client_code
             LEFT JOIN loan.mobileloan lm1 ON lm1.finance_no = l.account_no
             LEFT JOIN loan.mobileloan lm2 ON lm2.finance_no = l.legacy_account_no
@@ -1131,6 +1154,7 @@ public class CbsReportService {
     }
 
     private String buildOneRentalReportQuery(Object rawFilter, Map<String, Object> params) {
+        addLatestPortfolioParams(params);
         String subQuery = """
             SELECT 
                 l.account_no, 
@@ -1154,13 +1178,13 @@ public class CbsReportService {
             LEFT JOIN cbs.portfolio p1 
                 ON p1.account_no = l.account_no 
                 AND p1.series = l.account_series 
-                AND p1.portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio) 
-                AND p1.sync_time = (SELECT MAX(sync_time) FROM cbs.portfolio WHERE portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio))
+                AND p1.portfolio_date = :latestPortfolioDate 
+                AND p1.sync_time = :latestSyncTime
             LEFT JOIN cbs.portfolio p2 
                 ON p2.account_no = l.legacy_account_no 
                 AND p2.series = l.account_series 
-                AND p2.portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio) 
-                AND p2.sync_time = (SELECT MAX(sync_time) FROM cbs.portfolio WHERE portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio))
+                AND p2.portfolio_date = :latestPortfolioDate 
+                AND p2.sync_time = :latestSyncTime
             LEFT JOIN cbs.client c ON l.client = c.client_code
             LEFT JOIN loan.mobileloan lm1 ON lm1.finance_no = l.account_no
             LEFT JOIN loan.mobileloan lm2 ON lm2.finance_no = l.legacy_account_no
@@ -1197,6 +1221,7 @@ public class CbsReportService {
     }
 
     private String buildMaturedLowBalanceReportQuery(Object rawFilter, Map<String, Object> params) {
+        addLatestPortfolioParams(params);
         String subQuery = """
             SELECT 
                 l.account_no, 
@@ -1220,13 +1245,13 @@ public class CbsReportService {
             LEFT JOIN cbs.portfolio p1 
                 ON p1.account_no = l.account_no 
                 AND p1.series = l.account_series 
-                AND p1.portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio) 
-                AND p1.sync_time = (SELECT MAX(sync_time) FROM cbs.portfolio WHERE portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio))
+                AND p1.portfolio_date = :latestPortfolioDate 
+                AND p1.sync_time = :latestSyncTime
             LEFT JOIN cbs.portfolio p2 
                 ON p2.account_no = l.legacy_account_no 
                 AND p2.series = l.account_series 
-                AND p2.portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio) 
-                AND p2.sync_time = (SELECT MAX(sync_time) FROM cbs.portfolio WHERE portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio))
+                AND p2.portfolio_date = :latestPortfolioDate 
+                AND p2.sync_time = :latestSyncTime
             LEFT JOIN cbs.client c ON l.client = c.client_code
             LEFT JOIN loan.mobileloan lm1 ON lm1.finance_no = l.account_no
             LEFT JOIN loan.mobileloan lm2 ON lm2.finance_no = l.legacy_account_no
