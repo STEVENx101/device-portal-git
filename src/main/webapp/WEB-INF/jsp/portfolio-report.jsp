@@ -171,7 +171,6 @@
                                 <table class="table table-hover table-striped align-middle mb-0 fs--1 w-100" id="tableReport1">
                                     <thead class="bg-200 text-900">
                                         <tr>
-                                            <th>Portfolio Date</th>
                                             <th>Account No</th>
                                             <th>Series</th>
                                             <th>Legacy Account</th>
@@ -218,10 +217,9 @@
             let hasLoaded = false;
 
             function getFilters() {
-                const products = productChoices ? productChoices.getValue(true) : [];
                 return {
                     branch: $('#selectBranch').val(),
-                    products: products,
+                    products: productChoices.getValue(true),
                     asAt: $('#asAtDate').val()
                 };
             }
@@ -235,16 +233,8 @@
             $(document).ready(function() {
                 productChoices = new Choices('#selectProducts', {
                     removeItemButton: true,
-                    placeholder: true,
-                    placeholderValue: 'Select Products',
-                    shouldSort: false
-                });
-
-                // Auto refresh table when selections change
-                $('#selectProducts').on('change', function() {
-                    if (hasLoaded && dtReport) {
-                        dtReport.draw();
-                    }
+                    placeholderValue: 'Select products',
+                    searchPlaceholderValue: 'Search products...'
                 });
 
                 // Load Metadata
@@ -281,7 +271,6 @@
                         });
                     },
                     columns: [
-                        { data: 'portfolio_date' },
                         { data: 'account_no' },
                         { data: 'series' },
                         { data: 'legacy_account_no', defaultContent: '-' },

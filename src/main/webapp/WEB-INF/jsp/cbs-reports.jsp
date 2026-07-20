@@ -199,7 +199,6 @@
                                         <table class="table table-hover table-striped align-middle mb-0 fs--1 w-100" id="tableReport1">
                                             <thead class="bg-200 text-900">
                                                 <tr>
-                                                    <th>Portfolio Date</th>
                                                     <th>Account No</th>
                                                     <th>Series</th>
                                                     <th>Legacy Account</th>
@@ -348,7 +347,6 @@
                         }
                     },
                     columns: [
-                        { data: 'portfolio_date' },
                         { data: 'account_no' },
                         { data: 'series' },
                         { data: 'legacy_account_no', defaultContent: '-' },

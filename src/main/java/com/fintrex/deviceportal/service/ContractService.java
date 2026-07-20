@@ -42,28 +42,28 @@ public class ContractService {
         System.out.println("FIN_NO: " + finNo);
 
         String innerQuery = """
-            SELECT 
-                t.tran_id AS receipt_no, 
-                DATE(t.date) AS receipt_date, 
-                t.narration AS receipt_mode, 
-                t.narration AS narration, 
-                t.amount AS amount 
-            FROM cbs.transaction t 
-            JOIN cbs.loan l ON t.account_no = l.account_no
-            WHERE l.account_no = '""" + finNo + """
-            ' OR l.legacy_account_no = '""" + finNo + """
-            ' 
-            ORDER BY t.date DESC 
-            LIMIT 5""";
+                SELECT
+                    t.tran_id AS receipt_no,
+                    DATE(t.date) AS receipt_date,
+                    t.narration AS receipt_mode,
+                    t.narration AS narration,
+                    t.amount AS amount
+                FROM cbs.transaction t
+
+                WHERE t.account_no = '""" + finNo + """
+                ' OR t.legacy_account_no = '""" + finNo + """
+                '
+                ORDER BY t.date DESC
+                LIMIT 5""";
 
         String finalQuery = """
-            SELECT 
-                t.receipt_no, 
-                t.receipt_date, 
-                t.receipt_mode, 
-                t.narration, 
-                t.amount 
-            FROM (""" + innerQuery + ") t WHERE TRUE";
+                SELECT
+                    t.receipt_no,
+                    t.receipt_date,
+                    t.receipt_mode,
+                    t.narration,
+                    t.amount
+                FROM (""" + innerQuery + ") t WHERE TRUE";
 
         return datatable.dataTable(req, finalQuery);
     }
@@ -75,26 +75,25 @@ public class ContractService {
         System.out.println("FIN_NO for SMS: " + finNo);
 
         String innerQuery = """
-            SELECT 
-                s.mobile, 
-                s.msg, 
-                s.date, 
-                s.status 
-            FROM sms_portal.sms_log s 
-            JOIN cbs.loan l ON s.finance_no = l.account_no
-            WHERE l.account_no = '""" + finNo + """
-            ' OR l.legacy_account_no = '""" + finNo + """
-            ' 
-            ORDER BY s.date DESC 
-            LIMIT 5""";
+                SELECT
+                    s.mobile,
+                    s.msg,
+                    s.date,
+                    s.status
+                FROM sms_portal.sms_log s
+
+                WHERE s.finance_no = '""" + finNo + """
+                '
+                ORDER BY s.date DESC
+                LIMIT 5""";
 
         String finalQuery = """
-            SELECT 
-                t.mobile, 
-                t.msg, 
-                t.date, 
-                t.status 
-            FROM (""" + innerQuery + ") t WHERE TRUE";
+                SELECT
+                    t.mobile,
+                    t.msg,
+                    t.date,
+                    t.status
+                FROM (""" + innerQuery + ") t WHERE TRUE";
 
         return datatable.dataTable(req, finalQuery);
     }
@@ -104,29 +103,28 @@ public class ContractService {
         System.out.println("FIN_NO for Lock Log: " + finNo);
 
         String innerQuery = """
-            SELECT 
-                l.status, 
-                l.date, 
-                l.changed_by, 
-                l.reason 
-            FROM loan.lock_log l 
-            JOIN cbs.loan cl ON l.finance_no = cl.account_no
-            WHERE cl.account_no = '""" + finNo + """
-            ' OR cl.legacy_account_no = '""" + finNo + """
-            ' 
-            ORDER BY l.date DESC""";
+                SELECT
+                    l.status,
+                    l.date,
+                    l.changed_by,
+                    l.reason
+                FROM loan.lock_log l
+                JOIN cbs.loan cl ON l.finance_no = cl.account_no
+                WHERE cl.account_no = '""" + finNo + """
+                ' OR cl.legacy_account_no = '""" + finNo + """
+                '
+                ORDER BY l.date DESC""";
 
         String finalQuery = """
-            SELECT 
-                t.status, 
-                t.date, 
-                t.changed_by, 
-                t.reason 
-            FROM (""" + innerQuery + ") t WHERE TRUE";
+                SELECT
+                    t.status,
+                    t.date,
+                    t.changed_by,
+                    t.reason
+                FROM (""" + innerQuery + ") t WHERE TRUE";
 
         return datatable.dataTable(req, finalQuery);
     }
-
 
     public List<java.util.Map<String, Object>> getRemarks(String financeNo) {
         if (financeNo == null || financeNo.trim().isEmpty()) {

@@ -137,7 +137,7 @@
                 async function redirectToLoginSSO() {
                     const target = getRedirectTarget();
                     // Route directly to the whitelisted device-portal/login endpoint
-                    const clientRedirectUrl = window.location.origin + CTX + '/login';
+                    const clientRedirectUrl = window.location.origin + CTX + '/login?sso=true';
                     window.location.href = AUTH_SERVER + '/auth/login?client_redirect_uri=' + encodeURIComponent(clientRedirectUrl) + '&redirect=' + encodeURIComponent(target);
                 }
 
@@ -157,10 +157,10 @@
 
                             // Establish local session
                             const localRes = await fetch(CTX + '/api/login-callback', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                credentials: 'same-origin',
-                                body: JSON.stringify(ssoUser)
+                                  method: 'POST',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  credentials: 'same-origin',
+                                  body: JSON.stringify(ssoUser)
                             });
 
                             if (localRes.ok) {
@@ -177,6 +177,12 @@
                 }
 
                 document.getElementById('ssoLoginBtn').addEventListener('click', handleSSOClick);
+
+                // Auto-trigger callback if returning from SSO server
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.get('sso') === 'true') {
+                    handleSSOClick();
+                }
             </script>
         </body>
 
