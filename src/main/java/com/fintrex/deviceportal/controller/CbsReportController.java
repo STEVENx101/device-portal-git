@@ -386,6 +386,86 @@ public class CbsReportController {
         writeDuplicateLoansCsv(response, "duplicate_loans_report.csv", data);
     }
 
+    @PostMapping("/unlock-arrears")
+    public DataTableResponse getUnlockArrears(@RequestBody DataTableRequest request, HttpSession session) {
+        com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");
+        String username = currentUser != null ? currentUser.getUsername() : "system";
+        String filtersStr = request.getData() != null ? request.getData().toString() : "none";
+        cbsReportService.logReportActivity(username, "Unlock with Arrears Exception Report", "VIEW", filtersStr);
+        return cbsReportService.fetchUnlockArrearsReport(request);
+    }
+
+    @GetMapping("/unlock-arrears/download")
+    public void downloadUnlockArrears(
+            @RequestParam(value = "asAt", required = false) String asAt,
+            @RequestParam(value = "downloadToken", required = false) String downloadToken,
+            HttpSession session,
+            HttpServletResponse response) throws Exception {
+        verifyDownloadPermission(session, response);
+        com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");
+        String username = currentUser != null ? currentUser.getUsername() : "system";
+        String filtersStr = String.format("asAt=%s", asAt);
+        cbsReportService.logReportActivity(username, "Unlock with Arrears Exception Report", "DOWNLOAD", filtersStr);
+
+        setDownloadTokenCookie(response, downloadToken);
+        List<Map<String, Object>> data = cbsReportService.getUnlockArrearsReportData(asAt);
+        writeExceptionLockCsv(response, "unlock_with_arrears_report.csv", data);
+    }
+
+    @PostMapping("/lock-no-arrears")
+    public DataTableResponse getLockNoArrears(@RequestBody DataTableRequest request, HttpSession session) {
+        com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");
+        String username = currentUser != null ? currentUser.getUsername() : "system";
+        String filtersStr = request.getData() != null ? request.getData().toString() : "none";
+        cbsReportService.logReportActivity(username, "Lock with No Arrears Exception Report", "VIEW", filtersStr);
+        return cbsReportService.fetchLockNoArrearsReport(request);
+    }
+
+    @GetMapping("/lock-no-arrears/download")
+    public void downloadLockNoArrears(
+            @RequestParam(value = "asAt", required = false) String asAt,
+            @RequestParam(value = "downloadToken", required = false) String downloadToken,
+            HttpSession session,
+            HttpServletResponse response) throws Exception {
+        verifyDownloadPermission(session, response);
+        com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");
+        String username = currentUser != null ? currentUser.getUsername() : "system";
+        String filtersStr = String.format("asAt=%s", asAt);
+        cbsReportService.logReportActivity(username, "Lock with No Arrears Exception Report", "DOWNLOAD", filtersStr);
+
+        setDownloadTokenCookie(response, downloadToken);
+        List<Map<String, Object>> data = cbsReportService.getLockNoArrearsReportData(asAt);
+        writeExceptionLockCsv(response, "lock_with_no_arrears_report.csv", data);
+    }
+
+    private void writeExceptionLockCsv(HttpServletResponse response, String filename, List<Map<String, Object>> data) throws Exception {
+        response.setContentType("text/csv");
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
+
+        PrintWriter writer = response.getWriter();
+        writer.println("Account No,Series,Legacy Account No,Customer Name,NIC/ID No,Mobile No,Address,Loan Amount,Rental,Total Due,Exposure,DPD,Locked Status,Recovery Officer");
+
+        for (Map<String, Object> row : data) {
+            writer.println(String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
+                    cleanCsv(row.get("account_no")),
+                    cleanCsv(row.get("series")),
+                    cleanCsv(row.get("legacy_account_no")),
+                    cleanCsv(row.get("client_name")),
+                    cleanCsv(row.get("client_nic")),
+                    cleanCsv(row.get("client_mobile")),
+                    cleanCsv(row.get("client_address")),
+                    cleanCsv(row.get("loan_amount")),
+                    cleanCsv(row.get("rental")),
+                    cleanCsv(row.get("total_due")),
+                    cleanCsv(row.get("exposure")),
+                    cleanCsv(row.get("dpd")),
+                    cleanCsv(row.get("lock_status")),
+                    cleanCsv(row.get("recovery_officer"))
+            ));
+        }
+        writer.flush();
+    }
+
     private void verifyDownloadPermission(HttpSession session, HttpServletResponse response) throws Exception {
         List<com.fintrex.deviceportal.dto.Screen> permittedScreens = (List<com.fintrex.deviceportal.dto.Screen>) session.getAttribute("permittedScreens");
         boolean canDownload = permittedScreens != null && permittedScreens.stream()

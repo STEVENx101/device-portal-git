@@ -562,6 +562,40 @@ public class CbsReportService {
                     WHERE uts.user_type_id = ut.id AND uts.screen_id = s.id
                 )
             """);
+
+            // Unlock with Arrears Report
+            jdbc.getJdbcTemplate().execute("""
+                INSERT INTO device_portal.screen (name, path, icon, group_name)
+                SELECT 'Unlock with Arrears', '/unlock-arrears-report', 'fas fa-lock-open', 'Reports'
+                WHERE NOT EXISTS (SELECT 1 FROM device_portal.screen WHERE path = '/unlock-arrears-report')
+            """);
+            jdbc.getJdbcTemplate().execute("""
+                INSERT INTO device_portal.user_type_screen (user_type_id, screen_id)
+                SELECT ut.id, s.id
+                FROM device_portal.user_type ut, device_portal.screen s
+                WHERE s.path = '/unlock-arrears-report'
+                AND NOT EXISTS (
+                    SELECT 1 FROM device_portal.user_type_screen uts 
+                    WHERE uts.user_type_id = ut.id AND uts.screen_id = s.id
+                )
+            """);
+
+            // Lock with No Arrears Report
+            jdbc.getJdbcTemplate().execute("""
+                INSERT INTO device_portal.screen (name, path, icon, group_name)
+                SELECT 'Lock with No Arrears', '/lock-no-arrears-report', 'fas fa-lock', 'Reports'
+                WHERE NOT EXISTS (SELECT 1 FROM device_portal.screen WHERE path = '/lock-no-arrears-report')
+            """);
+            jdbc.getJdbcTemplate().execute("""
+                INSERT INTO device_portal.user_type_screen (user_type_id, screen_id)
+                SELECT ut.id, s.id
+                FROM device_portal.user_type ut, device_portal.screen s
+                WHERE s.path = '/lock-no-arrears-report'
+                AND NOT EXISTS (
+                    SELECT 1 FROM device_portal.user_type_screen uts 
+                    WHERE uts.user_type_id = ut.id AND uts.screen_id = s.id
+                )
+            """);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -732,6 +766,97 @@ public class CbsReportService {
                 t.recovery_officer,
                 t.last_payment_date,
                 t.last_payment_amount
+            FROM (""" + subQuery + ") t WHERE TRUE";
+    }
+
+    public DataTableResponse fetchUnlockArrearsReport(DataTableRequest request) {
+        Map<String, Object> params = new HashMap<>();
+        String sql = buildExceptionLockReportQuery(request.getData(), params, "unlock-arrears");
+        return datatableRepo.dataTable(request, sql, params);
+    }
+
+    public List<Map<String, Object>> getUnlockArrearsReportData(String asAt) {
+        Map<String, Object> filterMap = new HashMap<>();
+        filterMap.put("asAt", asAt);
+        Map<String, Object> params = new HashMap<>();
+        String sql = buildExceptionLockReportQuery(filterMap, params, "unlock-arrears");
+        return jdbc.queryForList(sql, params);
+    }
+
+    public DataTableResponse fetchLockNoArrearsReport(DataTableRequest request) {
+        Map<String, Object> params = new HashMap<>();
+        String sql = buildExceptionLockReportQuery(request.getData(), params, "lock-no-arrears");
+        return datatableRepo.dataTable(request, sql, params);
+    }
+
+    public List<Map<String, Object>> getLockNoArrearsReportData(String asAt) {
+        Map<String, Object> filterMap = new HashMap<>();
+        filterMap.put("asAt", asAt);
+        Map<String, Object> params = new HashMap<>();
+        String sql = buildExceptionLockReportQuery(filterMap, params, "lock-no-arrears");
+        return jdbc.queryForList(sql, params);
+    }
+
+    private String buildExceptionLockReportQuery(Object rawFilter, Map<String, Object> params, String type) {
+        String filterClause = "";
+        if ("unlock-arrears".equals(type)) {
+            filterClause = " AND COALESCE(lm1.locked, lm2.locked) = 0 AND COALESCE(p1.dpd, p2.dpd) > 0";
+        } else if ("lock-no-arrears".equals(type)) {
+            filterClause = " AND COALESCE(lm1.locked, lm2.locked) = 1 AND (COALESCE(p1.dpd, p2.dpd) <= 0 OR COALESCE(p1.dpd, p2.dpd) IS NULL)";
+        }
+
+        String subQuery = """
+            SELECT 
+                l.account_no, 
+                l.account_series AS `series`, 
+                l.legacy_account_no, 
+                c.full_name AS `client_name`,
+                c.id_no AS `client_nic`,
+                c.mobile AS `client_mobile`,
+                c.address AS `client_address`,
+                l.loan_amount, 
+                l.rental, 
+                COALESCE(p1.total_due, p2.total_due) AS `total_due`, 
+                COALESCE(p1.exposure, p2.exposure) AS `exposure`, 
+                COALESCE(p1.dpd, p2.dpd) AS `dpd`, 
+                CASE 
+                    WHEN COALESCE(lm1.locked, lm2.locked) = 1 THEN 'Locked'
+                    ELSE 'Unlocked'
+                END AS `lock_status`,
+                COALESCE(p1.recovery_officer, p2.recovery_officer) AS `recovery_officer`
+            FROM cbs.loan l
+            LEFT JOIN cbs.portfolio p1 ON p1.account_no = l.account_no AND p1.series = l.account_series 
+            LEFT JOIN cbs.portfolio p2 ON p2.account_no = l.legacy_account_no AND p2.series = l.account_series 
+            LEFT JOIN cbs.client c ON l.client = c.client_code
+            LEFT JOIN loan.mobileloan lm1 ON lm1.finance_no = l.account_no
+            LEFT JOIN loan.mobileloan lm2 ON lm2.finance_no = l.legacy_account_no
+            WHERE 1=1""" + filterClause;
+
+        if (rawFilter instanceof Map) {
+            Map<?, ?> filter = (Map<?, ?>) rawFilter;
+            String asAt = (String) filter.get("asAt");
+            if (asAt != null && !asAt.trim().isEmpty()) {
+                subQuery += " AND l.disbursed_date <= :asAt";
+                params.put("asAt", asAt.trim());
+            }
+        }
+
+        return """
+            SELECT 
+                t.account_no, 
+                t.series, 
+                t.legacy_account_no, 
+                t.client_name, 
+                t.client_nic, 
+                t.client_mobile, 
+                t.client_address, 
+                t.loan_amount, 
+                t.rental, 
+                t.total_due, 
+                t.exposure, 
+                t.dpd, 
+                t.lock_status,
+                t.recovery_officer
             FROM (""" + subQuery + ") t WHERE TRUE";
     }
 }

@@ -16,6 +16,8 @@
     boolean hasNpaReport = false;
     boolean hasNearingNpaReport = false;
     boolean hasDuplicateLoansReport = false;
+    boolean hasUnlockArrearsReport = false;
+    boolean hasLockNoArrearsReport = false;
     boolean canDownloadReports = false;
     if (userScreens != null) {
         for (Screen s : userScreens) {
@@ -31,6 +33,8 @@
             if (s.getPath().equalsIgnoreCase("/npa-report")) hasNpaReport = true;
             if (s.getPath().equalsIgnoreCase("/nearing-npa-report")) hasNearingNpaReport = true;
             if (s.getPath().equalsIgnoreCase("/duplicate-loans-report")) hasDuplicateLoansReport = true;
+            if (s.getPath().equalsIgnoreCase("/unlock-arrears-report")) hasUnlockArrearsReport = true;
+            if (s.getPath().equalsIgnoreCase("/lock-no-arrears-report")) hasLockNoArrearsReport = true;
             if (s.getPath().equalsIgnoreCase("/download-reports")) canDownloadReports = true;
         }
     }
@@ -617,6 +621,16 @@ body {
                             <span class="fas fa-copy me-2"></span>Duplicate Loans
                         </a>
                         <% } %>
+                        <% if (hasUnlockArrearsReport) { %>
+                        <a href="<%= request.getContextPath() %>/unlock-arrears-report" class="dropdown-item-custom" id="nav-report-unlock-arrears">
+                            <span class="fas fa-lock-open me-2"></span>Unlock with Arrears
+                        </a>
+                        <% } %>
+                        <% if (hasLockNoArrearsReport) { %>
+                        <a href="<%= request.getContextPath() %>/lock-no-arrears-report" class="dropdown-item-custom" id="nav-report-lock-no-arrears">
+                            <span class="fas fa-lock me-2"></span>Lock with No Arrears
+                        </a>
+                        <% } %>
                     </div>
                 </div>
             <% } %>
@@ -660,7 +674,7 @@ body {
         } else if (path.includes("user-management")) {
             const el = document.getElementById("nav-users");
             if (el) el.classList.add("active");
-        } else if (path.includes("portfolio") || path.includes("client") || path.includes("transaction") || path.includes("agreement") || path.includes("report-logs") || path.includes("arrears-report") || path.includes("npa-report") || path.includes("nearing-npa-report") || path.includes("duplicate-loans-report")) {
+        } else if (path.includes("portfolio") || path.includes("client") || path.includes("transaction") || path.includes("agreement") || path.includes("report-logs") || path.includes("arrears-report") || path.includes("npa-report") || path.includes("nearing-npa-report") || path.includes("duplicate-loans-report") || path.includes("unlock-arrears-report") || path.includes("lock-no-arrears-report")) {
             const group = document.getElementById("nav-reports-group");
             if (group) group.classList.add("open");
             
@@ -690,6 +704,12 @@ body {
                 if (item) item.classList.add("active");
             } else if (path.includes("duplicate-loans-report")) {
                 const item = document.getElementById("nav-report-duplicate-loans");
+                if (item) item.classList.add("active");
+            } else if (path.includes("unlock-arrears-report")) {
+                const item = document.getElementById("nav-report-unlock-arrears");
+                if (item) item.classList.add("active");
+            } else if (path.includes("lock-no-arrears-report")) {
+                const item = document.getElementById("nav-report-lock-no-arrears");
                 if (item) item.classList.add("active");
             }
         }

@@ -84,4 +84,14 @@ public class PageController {
         return "duplicate-loans-report";
     }
 
+    @GetMapping("/unlock-arrears-report")
+    public String unlockArrearsReport() {
+        return "unlock-arrears-report";
+    }
+
+    @GetMapping("/lock-no-arrears-report")
+    public String lockNoArrearsReport() {
+        return "lock-no-arrears-report";
+    }
+
 }
