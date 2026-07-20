@@ -14,6 +14,14 @@ jobs:
       - int-din-new
 
     steps:
+
+      - name: Debug Runner User
+        run: |
+          whoami
+          id
+          pwd
+          sudo -l
+
       - name: Checkout Code
         uses: actions/checkout@v4
 
