@@ -205,8 +205,16 @@ public class CbsReportService {
                 COALESCE(dl1.external_id, dl2.external_id) AS `external_id`,
                 COALESCE(dl1.platform, dl2.platform) AS `platform`
             FROM cbs.loan l
-            LEFT JOIN cbs.portfolio p1 ON p1.account_no = l.account_no AND p1.series = l.account_series 
-            LEFT JOIN cbs.portfolio p2 ON p2.account_no = l.legacy_account_no AND p2.series = l.account_series 
+            LEFT JOIN cbs.portfolio p1 
+                ON p1.account_no = l.account_no 
+                AND p1.series = l.account_series 
+                AND p1.portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio) 
+                AND p1.sync_time = (SELECT MAX(sync_time) FROM cbs.portfolio WHERE portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio))
+            LEFT JOIN cbs.portfolio p2 
+                ON p2.account_no = l.legacy_account_no 
+                AND p2.series = l.account_series 
+                AND p2.portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio) 
+                AND p2.sync_time = (SELECT MAX(sync_time) FROM cbs.portfolio WHERE portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio))
             LEFT JOIN cbs.branch br ON CAST(l.branch AS UNSIGNED) = br.branch_code 
             LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val 
             LEFT JOIN cbs.device_loan dl1 ON dl1.account_no = l.account_no
@@ -741,8 +749,16 @@ public class CbsReportService {
                 DATE_FORMAT(COALESCE(p1.last_payment_date, p2.last_payment_date), '%Y-%m-%d') AS `last_payment_date`,
                 COALESCE(p1.last_payment_amount, p2.last_payment_amount) AS `last_payment_amount`
             FROM cbs.loan l
-            LEFT JOIN cbs.portfolio p1 ON p1.account_no = l.account_no AND p1.series = l.account_series 
-            LEFT JOIN cbs.portfolio p2 ON p2.account_no = l.legacy_account_no AND p2.series = l.account_series 
+            LEFT JOIN cbs.portfolio p1 
+                ON p1.account_no = l.account_no 
+                AND p1.series = l.account_series 
+                AND p1.portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio) 
+                AND p1.sync_time = (SELECT MAX(sync_time) FROM cbs.portfolio WHERE portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio))
+            LEFT JOIN cbs.portfolio p2 
+                ON p2.account_no = l.legacy_account_no 
+                AND p2.series = l.account_series 
+                AND p2.portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio) 
+                AND p2.sync_time = (SELECT MAX(sync_time) FROM cbs.portfolio WHERE portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio))
             LEFT JOIN cbs.client c ON l.client = c.client_code
             WHERE 1=1 AND (p1.dpd > 0 OR p2.dpd > 0)""";
 
@@ -806,8 +822,16 @@ public class CbsReportService {
                 DATE_FORMAT(COALESCE(p1.last_payment_date, p2.last_payment_date), '%Y-%m-%d') AS `last_payment_date`,
                 COALESCE(p1.last_payment_amount, p2.last_payment_amount) AS `last_payment_amount`
             FROM cbs.loan l
-            LEFT JOIN cbs.portfolio p1 ON p1.account_no = l.account_no AND p1.series = l.account_series 
-            LEFT JOIN cbs.portfolio p2 ON p2.account_no = l.legacy_account_no AND p2.series = l.account_series 
+            LEFT JOIN cbs.portfolio p1 
+                ON p1.account_no = l.account_no 
+                AND p1.series = l.account_series 
+                AND p1.portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio) 
+                AND p1.sync_time = (SELECT MAX(sync_time) FROM cbs.portfolio WHERE portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio))
+            LEFT JOIN cbs.portfolio p2 
+                ON p2.account_no = l.legacy_account_no 
+                AND p2.series = l.account_series 
+                AND p2.portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio) 
+                AND p2.sync_time = (SELECT MAX(sync_time) FROM cbs.portfolio WHERE portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio))
             LEFT JOIN cbs.client c ON l.client = c.client_code
             WHERE 1=1 AND (p1.performing_status = 'Non-Performing' OR p2.performing_status = 'Non-Performing')""";
 
@@ -871,8 +895,16 @@ public class CbsReportService {
                 DATE_FORMAT(COALESCE(p1.last_payment_date, p2.last_payment_date), '%Y-%m-%d') AS `last_payment_date`,
                 COALESCE(p1.last_payment_amount, p2.last_payment_amount) AS `last_payment_amount`
             FROM cbs.loan l
-            LEFT JOIN cbs.portfolio p1 ON p1.account_no = l.account_no AND p1.series = l.account_series 
-            LEFT JOIN cbs.portfolio p2 ON p2.account_no = l.legacy_account_no AND p2.series = l.account_series 
+            LEFT JOIN cbs.portfolio p1 
+                ON p1.account_no = l.account_no 
+                AND p1.series = l.account_series 
+                AND p1.portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio) 
+                AND p1.sync_time = (SELECT MAX(sync_time) FROM cbs.portfolio WHERE portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio))
+            LEFT JOIN cbs.portfolio p2 
+                ON p2.account_no = l.legacy_account_no 
+                AND p2.series = l.account_series 
+                AND p2.portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio) 
+                AND p2.sync_time = (SELECT MAX(sync_time) FROM cbs.portfolio WHERE portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio))
             LEFT JOIN cbs.client c ON l.client = c.client_code
             WHERE 1=1 AND ((p1.dpd >= 60 AND p1.dpd <= 90) OR (p2.dpd >= 60 AND p2.dpd <= 90))""";
 
@@ -963,8 +995,16 @@ public class CbsReportService {
                 END AS `lock_status`,
                 COALESCE(p1.recovery_officer, p2.recovery_officer) AS `recovery_officer`
             FROM cbs.loan l
-            LEFT JOIN cbs.portfolio p1 ON p1.account_no = l.account_no AND p1.series = l.account_series 
-            LEFT JOIN cbs.portfolio p2 ON p2.account_no = l.legacy_account_no AND p2.series = l.account_series 
+            LEFT JOIN cbs.portfolio p1 
+                ON p1.account_no = l.account_no 
+                AND p1.series = l.account_series 
+                AND p1.portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio) 
+                AND p1.sync_time = (SELECT MAX(sync_time) FROM cbs.portfolio WHERE portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio))
+            LEFT JOIN cbs.portfolio p2 
+                ON p2.account_no = l.legacy_account_no 
+                AND p2.series = l.account_series 
+                AND p2.portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio) 
+                AND p2.sync_time = (SELECT MAX(sync_time) FROM cbs.portfolio WHERE portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio))
             LEFT JOIN cbs.client c ON l.client = c.client_code
             LEFT JOIN loan.mobileloan lm1 ON lm1.finance_no = l.account_no
             LEFT JOIN loan.mobileloan lm2 ON lm2.finance_no = l.legacy_account_no
@@ -1019,8 +1059,16 @@ public class CbsReportService {
                 END AS `lock_status`,
                 COALESCE(p1.recovery_officer, p2.recovery_officer) AS `recovery_officer`
             FROM cbs.loan l
-            LEFT JOIN cbs.portfolio p1 ON p1.account_no = l.account_no AND p1.series = l.account_series 
-            LEFT JOIN cbs.portfolio p2 ON p2.account_no = l.legacy_account_no AND p2.series = l.account_series 
+            LEFT JOIN cbs.portfolio p1 
+                ON p1.account_no = l.account_no 
+                AND p1.series = l.account_series 
+                AND p1.portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio) 
+                AND p1.sync_time = (SELECT MAX(sync_time) FROM cbs.portfolio WHERE portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio))
+            LEFT JOIN cbs.portfolio p2 
+                ON p2.account_no = l.legacy_account_no 
+                AND p2.series = l.account_series 
+                AND p2.portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio) 
+                AND p2.sync_time = (SELECT MAX(sync_time) FROM cbs.portfolio WHERE portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio))
             LEFT JOIN cbs.client c ON l.client = c.client_code
             LEFT JOIN loan.mobileloan lm1 ON lm1.finance_no = l.account_no
             LEFT JOIN loan.mobileloan lm2 ON lm2.finance_no = l.legacy_account_no
@@ -1103,8 +1151,16 @@ public class CbsReportService {
                 END AS `lock_status`,
                 COALESCE(p1.recovery_officer, p2.recovery_officer) AS `recovery_officer`
             FROM cbs.loan l
-            LEFT JOIN cbs.portfolio p1 ON p1.account_no = l.account_no AND p1.series = l.account_series 
-            LEFT JOIN cbs.portfolio p2 ON p2.account_no = l.legacy_account_no AND p2.series = l.account_series 
+            LEFT JOIN cbs.portfolio p1 
+                ON p1.account_no = l.account_no 
+                AND p1.series = l.account_series 
+                AND p1.portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio) 
+                AND p1.sync_time = (SELECT MAX(sync_time) FROM cbs.portfolio WHERE portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio))
+            LEFT JOIN cbs.portfolio p2 
+                ON p2.account_no = l.legacy_account_no 
+                AND p2.series = l.account_series 
+                AND p2.portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio) 
+                AND p2.sync_time = (SELECT MAX(sync_time) FROM cbs.portfolio WHERE portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio))
             LEFT JOIN cbs.client c ON l.client = c.client_code
             LEFT JOIN loan.mobileloan lm1 ON lm1.finance_no = l.account_no
             LEFT JOIN loan.mobileloan lm2 ON lm2.finance_no = l.legacy_account_no
@@ -1161,8 +1217,16 @@ public class CbsReportService {
                 END AS `lock_status`,
                 COALESCE(p1.recovery_officer, p2.recovery_officer) AS `recovery_officer`
             FROM cbs.loan l
-            LEFT JOIN cbs.portfolio p1 ON p1.account_no = l.account_no AND p1.series = l.account_series 
-            LEFT JOIN cbs.portfolio p2 ON p2.account_no = l.legacy_account_no AND p2.series = l.account_series 
+            LEFT JOIN cbs.portfolio p1 
+                ON p1.account_no = l.account_no 
+                AND p1.series = l.account_series 
+                AND p1.portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio) 
+                AND p1.sync_time = (SELECT MAX(sync_time) FROM cbs.portfolio WHERE portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio))
+            LEFT JOIN cbs.portfolio p2 
+                ON p2.account_no = l.legacy_account_no 
+                AND p2.series = l.account_series 
+                AND p2.portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio) 
+                AND p2.sync_time = (SELECT MAX(sync_time) FROM cbs.portfolio WHERE portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio))
             LEFT JOIN cbs.client c ON l.client = c.client_code
             LEFT JOIN loan.mobileloan lm1 ON lm1.finance_no = l.account_no
             LEFT JOIN loan.mobileloan lm2 ON lm2.finance_no = l.legacy_account_no
