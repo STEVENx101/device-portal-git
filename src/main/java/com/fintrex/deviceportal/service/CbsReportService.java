@@ -3,6 +3,9 @@ package com.fintrex.deviceportal.service;
 import com.fintrex.deviceportal.config.DataTableRequest;
 import com.fintrex.deviceportal.config.DataTableResponse;
 import com.fintrex.deviceportal.config.DataTableRepo;
+import jakarta.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
 
@@ -11,21 +14,39 @@ import java.util.*;
 @Service
 public class CbsReportService {
 
+    private static final Logger log = LoggerFactory.getLogger(CbsReportService.class);
+    private static final long PORTFOLIO_CACHE_TTL_MS = 60_000L;
+    private static final long METADATA_CACHE_TTL_MS = 300_000L;
+
     private final NamedParameterJdbcTemplate jdbc;
     private final DataTableRepo datatableRepo;
+
+    private final Object portfolioCacheLock = new Object();
+    private final Object metadataCacheLock = new Object();
+
+    private volatile Map<String, Object> latestPortfolioCache = Collections.emptyMap();
+    private volatile long latestPortfolioCacheLoadedAt;
+
+    private volatile Map<String, Object> metadataCache = Collections.emptyMap();
+    private volatile long metadataCacheLoadedAt;
 
     public CbsReportService(NamedParameterJdbcTemplate jdbc, DataTableRepo datatableRepo) {
         this.jdbc = jdbc;
         this.datatableRepo = datatableRepo;
+    }
+
+    @PostConstruct
+    public void initializeReportConfiguration() {
         initReportLogTable();
         initDownloadScreen();
         initAgreementScreen();
         initRecoveryScreens();
+
         try {
             jdbc.getJdbcTemplate()
                     .execute("UPDATE device_portal.screen SET name = 'Facility Information' WHERE path = '/mobile'");
         } catch (Exception e) {
-            e.printStackTrace();
+            log.warn("Unable to update the Facility Information screen name", e);
         }
     }
 
@@ -62,7 +83,7 @@ public class CbsReportService {
                         )
                     """);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Report configuration database operation failed", e);
         }
     }
 
@@ -78,13 +99,21 @@ public class CbsReportService {
                             created_date DATETIME NOT NULL
                         )
                     """);
+
+            Integer filtersColumnCount = jdbc.queryForObject("""
+                        SELECT COUNT(*)
+                        FROM information_schema.columns
+                        WHERE table_schema = 'device_portal'
+                          AND table_name = 'report_log'
+                          AND column_name = 'filters'
+                    """, Map.of(), Integer.class);
+
+            if (filtersColumnCount != null && filtersColumnCount == 0) {
+                jdbc.getJdbcTemplate().execute(
+                        "ALTER TABLE device_portal.report_log ADD COLUMN filters TEXT");
+            }
         } catch (Exception e) {
-            e.printStackTrace();
-        }
-        try {
-            jdbc.getJdbcTemplate().execute("ALTER TABLE device_portal.report_log ADD COLUMN filters TEXT");
-        } catch (Exception e) {
-            // Ignore if column already exists
+            log.error("Unable to initialize device_portal.report_log", e);
         }
     }
 
@@ -96,7 +125,7 @@ public class CbsReportService {
                         WHERE NOT EXISTS (SELECT 1 FROM device_portal.screen WHERE path = '/download-reports')
                     """);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Report configuration database operation failed", e);
         }
     }
 
@@ -106,29 +135,74 @@ public class CbsReportService {
                     "INSERT INTO device_portal.report_log (username, report_name, action_type, filters, created_date) VALUES (?, ?, ?, ?, NOW())",
                     username, reportName, actionType, filters);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Unable to write report activity log for report {}", reportName, e);
         }
     }
 
     public Map<String, Object> getMetadata() {
-        Map<String, Object> metadata = new HashMap<>();
+        long now = System.currentTimeMillis();
+        Map<String, Object> current = metadataCache;
 
-        List<Map<String, Object>> branches = jdbc.queryForList(
-                "SELECT legacy_branch_code, branch_code, branch_name FROM cbs.branch ORDER BY branch_name ASC",
-                Map.of());
-        List<Map<String, Object>> products = jdbc.queryForList(
-                "SELECT product_name, product_code, code_val FROM cbs.product ORDER BY product_name ASC",
-                Map.of());
+        if (metadataCacheLoadedAt > 0L && now - metadataCacheLoadedAt < METADATA_CACHE_TTL_MS) {
+            return new HashMap<>(current);
+        }
 
-        metadata.put("branches", branches);
-        metadata.put("products", products);
-        return metadata;
+        synchronized (metadataCacheLock) {
+            now = System.currentTimeMillis();
+            current = metadataCache;
+
+            if (metadataCacheLoadedAt > 0L && now - metadataCacheLoadedAt < METADATA_CACHE_TTL_MS) {
+                return new HashMap<>(current);
+            }
+
+            List<Map<String, Object>> branches = jdbc.queryForList(
+                    "SELECT legacy_branch_code, branch_code, branch_name " +
+                            "FROM cbs.branch ORDER BY branch_name ASC",
+                    Map.of());
+            List<Map<String, Object>> products = jdbc.queryForList(
+                    "SELECT product_name, product_code, code_val " +
+                            "FROM cbs.product ORDER BY product_name ASC",
+                    Map.of());
+
+            Map<String, Object> loaded = new HashMap<>();
+            loaded.put("branches", List.copyOf(branches));
+            loaded.put("products", List.copyOf(products));
+
+            metadataCache = Collections.unmodifiableMap(loaded);
+            metadataCacheLoadedAt = now;
+            return new HashMap<>(metadataCache);
+        }
+    }
+
+    public void clearReportCaches() {
+        synchronized (portfolioCacheLock) {
+            latestPortfolioCache = Collections.emptyMap();
+            latestPortfolioCacheLoadedAt = 0L;
+        }
+
+        synchronized (metadataCacheLock) {
+            metadataCache = Collections.emptyMap();
+            metadataCacheLoadedAt = 0L;
+        }
+    }
+
+    private DataTableResponse executePagedReport(
+            DataTableRequest request,
+            String sql,
+            Map<String, Object> params) {
+        return datatableRepo.dataTable(request, sql, params);
+    }
+
+    private List<Map<String, Object>> executeDownloadReport(
+            String sql,
+            Map<String, Object> params) {
+        return jdbc.queryForList(sql, params);
     }
 
     public DataTableResponse fetchReport1(DataTableRequest request) {
         Map<String, Object> params = new HashMap<>();
         String sql = buildReport1Query(request.getData(), params);
-        return datatableRepo.dataTable(request, sql, params);
+        return executePagedReport(request, sql, params);
     }
 
     public List<Map<String, Object>> getReport1Data(String branch, List<String> products, String asAt) {
@@ -139,13 +213,13 @@ public class CbsReportService {
 
         Map<String, Object> params = new HashMap<>();
         String sql = buildReport1Query(filterMap, params);
-        return jdbc.queryForList(sql, params);
+        return executeDownloadReport(sql, params);
     }
 
     public DataTableResponse fetchReport2(DataTableRequest request) {
         Map<String, Object> params = new HashMap<>();
         String sql = buildReport2Query(request.getData(), params);
-        return datatableRepo.dataTable(request, sql, params);
+        return executePagedReport(request, sql, params);
     }
 
     public List<Map<String, Object>> getReport2Data(String branch, String fromDate, String toDate) {
@@ -156,13 +230,13 @@ public class CbsReportService {
 
         Map<String, Object> params = new HashMap<>();
         String sql = buildReport2Query(filterMap, params);
-        return jdbc.queryForList(sql, params);
+        return executeDownloadReport(sql, params);
     }
 
     public DataTableResponse fetchReport3(DataTableRequest request) {
         Map<String, Object> params = new HashMap<>();
         String sql = buildReport3Query(request.getData(), params);
-        return datatableRepo.dataTable(request, sql, params);
+        return executePagedReport(request, sql, params);
     }
 
     public List<Map<String, Object>> getReport3Data(String branch, List<String> products, String fromDate,
@@ -175,23 +249,59 @@ public class CbsReportService {
 
         Map<String, Object> params = new HashMap<>();
         String sql = buildReport3Query(filterMap, params);
-        return jdbc.queryForList(sql, params);
+        return executeDownloadReport(sql, params);
     }
 
     private void addLatestPortfolioParams(Map<String, Object> params) {
-        String sql = """
-                    SELECT MAX(portfolio_date) AS max_date, MAX(sync_time) AS max_sync
-                    FROM cbs.portfolio
-                    WHERE portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio)
-                """;
-        List<Map<String, Object>> list = jdbc.queryForList(sql, new HashMap<>());
-        if (!list.isEmpty()) {
-            Map<String, Object> row = list.get(0);
-            params.put("latestPortfolioDate", row.get("max_date"));
-            params.put("latestSyncTime", row.get("max_sync"));
-        } else {
-            params.put("latestPortfolioDate", null);
-            params.put("latestSyncTime", null);
+        Map<String, Object> latest = getLatestPortfolioBatch();
+        params.put("latestPortfolioDate", latest.get("latestPortfolioDate"));
+        params.put("latestSyncTime", latest.get("latestSyncTime"));
+    }
+
+    private Map<String, Object> getLatestPortfolioBatch() {
+        long now = System.currentTimeMillis();
+        Map<String, Object> current = latestPortfolioCache;
+
+        if (latestPortfolioCacheLoadedAt > 0L && now - latestPortfolioCacheLoadedAt < PORTFOLIO_CACHE_TTL_MS) {
+            return current;
+        }
+
+        synchronized (portfolioCacheLock) {
+            now = System.currentTimeMillis();
+            current = latestPortfolioCache;
+
+            if (latestPortfolioCacheLoadedAt > 0L && now - latestPortfolioCacheLoadedAt < PORTFOLIO_CACHE_TTL_MS) {
+                return current;
+            }
+
+            String sql = """
+                        SELECT portfolio_date, sync_time
+                        FROM cbs.portfolio
+                        WHERE portfolio_date IS NOT NULL
+                          AND sync_time IS NOT NULL
+                        ORDER BY portfolio_date DESC, sync_time DESC
+                        LIMIT 1
+                    """;
+
+            Map<String, Object> loaded = jdbc.query(sql, Map.of(), resultSet -> {
+                if (!resultSet.next()) {
+                    return Collections.emptyMap();
+                }
+
+                Map<String, Object> row = new HashMap<>();
+                row.put("latestPortfolioDate", resultSet.getObject("portfolio_date"));
+                row.put("latestSyncTime", resultSet.getObject("sync_time"));
+                return Collections.unmodifiableMap(row);
+            });
+
+            latestPortfolioCache = loaded;
+            latestPortfolioCacheLoadedAt = now;
+
+            if (loaded.isEmpty()) {
+                log.warn("No portfolio batch was found in cbs.portfolio");
+            }
+
+            return loaded;
         }
     }
 
@@ -257,7 +367,7 @@ public class CbsReportService {
 
             String asAt = (String) filter.get("asAt");
             if (asAt != null && !asAt.trim().isEmpty()) {
-                subQuery += " AND l.disbursed_date <= :asAt";
+                subQuery += " AND l.disbursed_date < DATE_ADD(:asAt, INTERVAL 1 DAY)";
                 params.put("asAt", asAt.trim());
             }
         }
@@ -317,11 +427,11 @@ public class CbsReportService {
             String fromDate = (String) filter.get("fromDate");
             String toDate = (String) filter.get("toDate");
             if (fromDate != null && !fromDate.trim().isEmpty()) {
-                subQuery += " AND DATE(c.entered_date) >= :fromDate";
+                subQuery += " AND c.entered_date >= :fromDate";
                 params.put("fromDate", fromDate.trim());
             }
             if (toDate != null && !toDate.trim().isEmpty()) {
-                subQuery += " AND DATE(c.entered_date) <= :toDate";
+                subQuery += " AND c.entered_date < DATE_ADD(:toDate, INTERVAL 1 DAY)";
                 params.put("toDate", toDate.trim());
             }
         }
@@ -379,11 +489,11 @@ public class CbsReportService {
             String fromDate = (String) filter.get("fromDate");
             String toDate = (String) filter.get("toDate");
             if (fromDate != null && !fromDate.trim().isEmpty()) {
-                subQuery += " AND DATE(t.date) >= :fromDate";
+                subQuery += " AND t.date >= :fromDate";
                 params.put("fromDate", fromDate.trim());
             }
             if (toDate != null && !toDate.trim().isEmpty()) {
-                subQuery += " AND DATE(t.date) <= :toDate";
+                subQuery += " AND t.date < DATE_ADD(:toDate, INTERVAL 1 DAY)";
                 params.put("toDate", toDate.trim());
             }
         }
@@ -405,7 +515,7 @@ public class CbsReportService {
     public DataTableResponse fetchReport4(DataTableRequest request) {
         Map<String, Object> params = new HashMap<>();
         String sql = buildReport4Query(request.getData(), params);
-        return datatableRepo.dataTable(request, sql, params);
+        return executePagedReport(request, sql, params);
     }
 
     public List<Map<String, Object>> getReport4Data(String branch, List<String> products, String fromDate,
@@ -418,7 +528,7 @@ public class CbsReportService {
 
         Map<String, Object> params = new HashMap<>();
         String sql = buildReport4Query(filterMap, params);
-        return jdbc.queryForList(sql, params);
+        return executeDownloadReport(sql, params);
     }
 
     private String buildReport4Query(Object rawFilter, Map<String, Object> params) {
@@ -464,11 +574,11 @@ public class CbsReportService {
             String fromDate = (String) filter.get("fromDate");
             String toDate = (String) filter.get("toDate");
             if (fromDate != null && !fromDate.trim().isEmpty()) {
-                subQuery += " AND DATE(l.disbursed_date) >= :fromDate";
+                subQuery += " AND l.disbursed_date >= :fromDate";
                 params.put("fromDate", fromDate.trim());
             }
             if (toDate != null && !toDate.trim().isEmpty()) {
-                subQuery += " AND DATE(l.disbursed_date) <= :toDate";
+                subQuery += " AND l.disbursed_date < DATE_ADD(:toDate, INTERVAL 1 DAY)";
                 params.put("toDate", toDate.trim());
             }
         }
@@ -495,7 +605,7 @@ public class CbsReportService {
     public DataTableResponse fetchReportLogs(DataTableRequest request) {
         Map<String, Object> params = new HashMap<>();
         String sql = buildReportLogsQuery(request.getData(), params);
-        return datatableRepo.dataTable(request, sql, params);
+        return executePagedReport(request, sql, params);
     }
 
     private String buildReportLogsQuery(Object rawFilter, Map<String, Object> params) {
@@ -659,14 +769,14 @@ public class CbsReportService {
                         )
                     """);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Report configuration database operation failed", e);
         }
     }
 
     public DataTableResponse fetchArrearsReport(DataTableRequest request) {
         Map<String, Object> params = new HashMap<>();
         String sql = buildArrearsReportQuery(request.getData(), params);
-        return datatableRepo.dataTable(request, sql, params);
+        return executePagedReport(request, sql, params);
     }
 
     public List<Map<String, Object>> getArrearsReportData(String asAt) {
@@ -674,13 +784,13 @@ public class CbsReportService {
         filterMap.put("asAt", asAt);
         Map<String, Object> params = new HashMap<>();
         String sql = buildArrearsReportQuery(filterMap, params);
-        return jdbc.queryForList(sql, params);
+        return executeDownloadReport(sql, params);
     }
 
     public DataTableResponse fetchNpaReport(DataTableRequest request) {
         Map<String, Object> params = new HashMap<>();
         String sql = buildNpaReportQuery(request.getData(), params);
-        return datatableRepo.dataTable(request, sql, params);
+        return executePagedReport(request, sql, params);
     }
 
     public List<Map<String, Object>> getNpaReportData(String asAt) {
@@ -688,13 +798,13 @@ public class CbsReportService {
         filterMap.put("asAt", asAt);
         Map<String, Object> params = new HashMap<>();
         String sql = buildNpaReportQuery(filterMap, params);
-        return jdbc.queryForList(sql, params);
+        return executeDownloadReport(sql, params);
     }
 
     public DataTableResponse fetchNearingNpaReport(DataTableRequest request) {
         Map<String, Object> params = new HashMap<>();
         String sql = buildNearingNpaReportQuery(request.getData(), params);
-        return datatableRepo.dataTable(request, sql, params);
+        return executePagedReport(request, sql, params);
     }
 
     public List<Map<String, Object>> getNearingNpaReportData(String asAt) {
@@ -702,19 +812,19 @@ public class CbsReportService {
         filterMap.put("asAt", asAt);
         Map<String, Object> params = new HashMap<>();
         String sql = buildNearingNpaReportQuery(filterMap, params);
-        return jdbc.queryForList(sql, params);
+        return executeDownloadReport(sql, params);
     }
 
     public DataTableResponse fetchDuplicateLoansReport(DataTableRequest request) {
         Map<String, Object> params = new HashMap<>();
         String sql = buildDuplicateLoansQuery(params);
-        return datatableRepo.dataTable(request, sql, params);
+        return executePagedReport(request, sql, params);
     }
 
     public List<Map<String, Object>> getDuplicateLoansReportData() {
         Map<String, Object> params = new HashMap<>();
         String sql = buildDuplicateLoansQuery(params);
-        return jdbc.queryForList(sql, params);
+        return executeDownloadReport(sql, params);
     }
 
     private String buildDuplicateLoansQuery(Map<String, Object> params) {
@@ -729,19 +839,20 @@ public class CbsReportService {
                         COALESCE(l1.loan_amount, l2.loan_amount) AS loan_amount,
                         COALESCE(v1.name, v2.name) AS vendor_name
                     FROM cbs.device_loan dl
+                    INNER JOIN (
+                        SELECT device_id
+                        FROM cbs.device_loan
+                        WHERE device_id IS NOT NULL
+                          AND device_id != ''
+                        GROUP BY device_id
+                        HAVING COUNT(*) > 1
+                    ) duplicates ON duplicates.device_id = dl.device_id
                     LEFT JOIN cbs.loan l1 ON dl.account_no = l1.account_no
                     LEFT JOIN cbs.loan l2 ON dl.account_no = l2.legacy_account_no
                     LEFT JOIN cbs.client c1 ON l1.client = c1.client_code
                     LEFT JOIN cbs.client c2 ON l2.client = c2.client_code
                     LEFT JOIN cbs.vendor v1 ON l1.vendor = v1.code
                     LEFT JOIN cbs.vendor v2 ON l2.vendor = v2.code
-                    WHERE dl.device_id IN (
-                        SELECT device_id
-                        FROM cbs.device_loan
-                        WHERE device_id IS NOT NULL AND device_id != ''
-                        GROUP BY device_id
-                        HAVING COUNT(*) > 1
-                    )
                 """;
     }
 
@@ -779,13 +890,13 @@ public class CbsReportService {
                     AND p2.portfolio_date = :latestPortfolioDate
                     AND p2.sync_time = :latestSyncTime
                 LEFT JOIN cbs.client c ON l.client = c.client_code
-                WHERE 1=1 AND (p1.dpd > 0 OR p2.dpd > 0)""";
+                WHERE 1=1 AND COALESCE(p1.dpd, p2.dpd) > 0""";
 
         if (rawFilter instanceof Map) {
             Map<?, ?> filter = (Map<?, ?>) rawFilter;
             String asAt = (String) filter.get("asAt");
             if (asAt != null && !asAt.trim().isEmpty()) {
-                subQuery += " AND l.disbursed_date <= :asAt";
+                subQuery += " AND l.disbursed_date < DATE_ADD(:asAt, INTERVAL 1 DAY)";
                 params.put("asAt", asAt.trim());
             }
         }
@@ -853,13 +964,13 @@ public class CbsReportService {
                     AND p2.portfolio_date = :latestPortfolioDate
                     AND p2.sync_time = :latestSyncTime
                 LEFT JOIN cbs.client c ON l.client = c.client_code
-                WHERE 1=1 AND (p1.performing_status = 'Non-Performing' OR p2.performing_status = 'Non-Performing')""";
+                WHERE 1=1 AND COALESCE(p1.performing_status, p2.performing_status) = 'Non-Performing'""";
 
         if (rawFilter instanceof Map) {
             Map<?, ?> filter = (Map<?, ?>) rawFilter;
             String asAt = (String) filter.get("asAt");
             if (asAt != null && !asAt.trim().isEmpty()) {
-                subQuery += " AND l.disbursed_date <= :asAt";
+                subQuery += " AND l.disbursed_date < DATE_ADD(:asAt, INTERVAL 1 DAY)";
                 params.put("asAt", asAt.trim());
             }
         }
@@ -927,13 +1038,13 @@ public class CbsReportService {
                     AND p2.portfolio_date = :latestPortfolioDate
                     AND p2.sync_time = :latestSyncTime
                 LEFT JOIN cbs.client c ON l.client = c.client_code
-                WHERE 1=1 AND ((p1.dpd >= 60 AND p1.dpd <= 90) OR (p2.dpd >= 60 AND p2.dpd <= 90))""";
+                WHERE 1=1 AND COALESCE(p1.dpd, p2.dpd) BETWEEN 60 AND 90""";
 
         if (rawFilter instanceof Map) {
             Map<?, ?> filter = (Map<?, ?>) rawFilter;
             String asAt = (String) filter.get("asAt");
             if (asAt != null && !asAt.trim().isEmpty()) {
-                subQuery += " AND l.disbursed_date <= :asAt";
+                subQuery += " AND l.disbursed_date < DATE_ADD(:asAt, INTERVAL 1 DAY)";
                 params.put("asAt", asAt.trim());
             }
         }
@@ -970,7 +1081,7 @@ public class CbsReportService {
     public DataTableResponse fetchUnlockArrearsReport(DataTableRequest request) {
         Map<String, Object> params = new HashMap<>();
         String sql = buildUnlockArrearsReportQuery(request.getData(), params);
-        return datatableRepo.dataTable(request, sql, params);
+        return executePagedReport(request, sql, params);
     }
 
     public List<Map<String, Object>> getUnlockArrearsReportData(String asAt) {
@@ -978,13 +1089,13 @@ public class CbsReportService {
         filterMap.put("asAt", asAt);
         Map<String, Object> params = new HashMap<>();
         String sql = buildUnlockArrearsReportQuery(filterMap, params);
-        return jdbc.queryForList(sql, params);
+        return executeDownloadReport(sql, params);
     }
 
     public DataTableResponse fetchLockNoArrearsReport(DataTableRequest request) {
         Map<String, Object> params = new HashMap<>();
         String sql = buildLockNoArrearsReportQuery(request.getData(), params);
-        return datatableRepo.dataTable(request, sql, params);
+        return executePagedReport(request, sql, params);
     }
 
     public List<Map<String, Object>> getLockNoArrearsReportData(String asAt) {
@@ -992,7 +1103,7 @@ public class CbsReportService {
         filterMap.put("asAt", asAt);
         Map<String, Object> params = new HashMap<>();
         String sql = buildLockNoArrearsReportQuery(filterMap, params);
-        return jdbc.queryForList(sql, params);
+        return executeDownloadReport(sql, params);
     }
 
     private String buildUnlockArrearsReportQuery(Object rawFilter, Map<String, Object> params) {
@@ -1030,13 +1141,13 @@ public class CbsReportService {
                 LEFT JOIN cbs.client c ON l.client = c.client_code
                 LEFT JOIN loan.mobileloan lm1 ON lm1.finance_no = l.account_no
                 LEFT JOIN loan.mobileloan lm2 ON lm2.finance_no = l.legacy_account_no
-                WHERE 1=1 AND COALESCE(lm1.locked, lm2.locked) = 0 AND (p1.dpd > 0 OR p2.dpd > 0)""";
+                WHERE 1=1 AND COALESCE(lm1.locked, lm2.locked) = 0 AND COALESCE(p1.dpd, p2.dpd) > 0""";
 
         if (rawFilter instanceof Map) {
             Map<?, ?> filter = (Map<?, ?>) rawFilter;
             String asAt = (String) filter.get("asAt");
             if (asAt != null && !asAt.trim().isEmpty()) {
-                subQuery += " AND l.disbursed_date <= :asAt";
+                subQuery += " AND l.disbursed_date < DATE_ADD(:asAt, INTERVAL 1 DAY)";
                 params.put("asAt", asAt.trim());
             }
         }
@@ -1101,7 +1212,7 @@ public class CbsReportService {
             Map<?, ?> filter = (Map<?, ?>) rawFilter;
             String asAt = (String) filter.get("asAt");
             if (asAt != null && !asAt.trim().isEmpty()) {
-                subQuery += " AND l.disbursed_date <= :asAt";
+                subQuery += " AND l.disbursed_date < DATE_ADD(:asAt, INTERVAL 1 DAY)";
                 params.put("asAt", asAt.trim());
             }
         }
@@ -1128,7 +1239,7 @@ public class CbsReportService {
     public DataTableResponse fetchOneRentalReport(DataTableRequest request) {
         Map<String, Object> params = new HashMap<>();
         String sql = buildOneRentalReportQuery(request.getData(), params);
-        return datatableRepo.dataTable(request, sql, params);
+        return executePagedReport(request, sql, params);
     }
 
     public List<Map<String, Object>> getOneRentalReportData(String asAt) {
@@ -1136,13 +1247,13 @@ public class CbsReportService {
         filterMap.put("asAt", asAt);
         Map<String, Object> params = new HashMap<>();
         String sql = buildOneRentalReportQuery(filterMap, params);
-        return jdbc.queryForList(sql, params);
+        return executeDownloadReport(sql, params);
     }
 
     public DataTableResponse fetchMaturedLowBalanceReport(DataTableRequest request) {
         Map<String, Object> params = new HashMap<>();
         String sql = buildMaturedLowBalanceReportQuery(request.getData(), params);
-        return datatableRepo.dataTable(request, sql, params);
+        return executePagedReport(request, sql, params);
     }
 
     public List<Map<String, Object>> getMaturedLowBalanceReportData(String asAt) {
@@ -1150,7 +1261,7 @@ public class CbsReportService {
         filterMap.put("asAt", asAt);
         Map<String, Object> params = new HashMap<>();
         String sql = buildMaturedLowBalanceReportQuery(filterMap, params);
-        return jdbc.queryForList(sql, params);
+        return executeDownloadReport(sql, params);
     }
 
     private String buildOneRentalReportQuery(Object rawFilter, Map<String, Object> params) {
@@ -1196,7 +1307,7 @@ public class CbsReportService {
             Map<?, ?> filter = (Map<?, ?>) rawFilter;
             String asAt = (String) filter.get("asAt");
             if (asAt != null && !asAt.trim().isEmpty()) {
-                subQuery += " AND l.disbursed_date <= :asAt";
+                subQuery += " AND l.disbursed_date < DATE_ADD(:asAt, INTERVAL 1 DAY)";
                 params.put("asAt", asAt.trim());
             }
         }
@@ -1264,7 +1375,7 @@ public class CbsReportService {
             Map<?, ?> filter = (Map<?, ?>) rawFilter;
             String asAt = (String) filter.get("asAt");
             if (asAt != null && !asAt.trim().isEmpty()) {
-                subQuery += " AND l.disbursed_date <= :asAt";
+                subQuery += " AND l.disbursed_date < DATE_ADD(:asAt, INTERVAL 1 DAY)";
                 params.put("asAt", asAt.trim());
             }
         }
