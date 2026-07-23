@@ -457,14 +457,14 @@
                             dealerStatsTbody.append('<tr><td colspan="4" class="text-center text-500">No dealer data available</td></tr>');
                         } else {
                             dealerList.forEach(d => {
-                                dealerStatsTbody.append(`
-                                    <tr>
-                                        <td class="fw-bold">${d.dealer_name}</td>
-                                        <td class="text-end">${d.current_count}</td>
-                                        <td class="text-end">${d.portfolio_count}</td>
-                                        <td class="text-end text-success font-monospace fw-bold">LKR ${formatNumber(d.collections)}</td>
-                                    </tr>
-                                `);
+                                dealerStatsTbody.append(
+                                    '<tr>' +
+                                        '<td class="fw-bold">' + (d.dealer_name || '') + '</td>' +
+                                        '<td class="text-end">' + (d.current_count || 0) + '</td>' +
+                                        '<td class="text-end">' + (d.portfolio_count || 0) + '</td>' +
+                                        '<td class="text-end text-success font-monospace fw-bold">LKR ' + formatNumber(d.collections) + '</td>' +
+                                    '</tr>'
+                                );
                             });
                         }
                     },
@@ -485,7 +485,7 @@
                         nplModelsList.empty();
                         if (data.highestNplModels && data.highestNplModels.length > 0) {
                             data.highestNplModels.slice(0, 3).forEach((m, idx) => {
-                                nplModelsList.append(`<li class="list-group-item d-flex justify-content-between align-items-center py-1"><span><span class="badge bg-soft-danger text-danger me-2">${idx + 1}</span>${m.model_name}</span><span class="badge bg-danger">${m.npl_count} NPLs</span></li>`);
+                                nplModelsList.append('<li class="list-group-item d-flex justify-content-between align-items-center py-1"><span><span class="badge bg-soft-danger text-danger me-2">' + (idx + 1) + '</span>' + (m.model_name || '') + '</span><span class="badge bg-danger">' + (m.npl_count || 0) + ' NPLs</span></li>');
                             });
                         } else {
                             nplModelsList.append('<li class="list-group-item text-center text-500 py-1">No NPL model data</li>');
@@ -495,7 +495,7 @@
                         nplDealersList.empty();
                         if (data.highestNplDealers && data.highestNplDealers.length > 0) {
                             data.highestNplDealers.slice(0, 3).forEach((d, idx) => {
-                                nplDealersList.append(`<li class="list-group-item d-flex justify-content-between align-items-center py-1"><span><span class="badge bg-soft-danger text-danger me-2">${idx + 1}</span>${d.dealer_name}</span><span class="badge bg-danger">${d.npl_count} NPLs</span></li>`);
+                                nplDealersList.append('<li class="list-group-item d-flex justify-content-between align-items-center py-1"><span><span class="badge bg-soft-danger text-danger me-2">' + (idx + 1) + '</span>' + (d.dealer_name || '') + '</span><span class="badge bg-danger">' + (d.npl_count || 0) + ' NPLs</span></li>');
                             });
                         } else {
                             nplDealersList.append('<li class="list-group-item text-center text-500 py-1">No NPL dealer data</li>');
