@@ -109,5 +109,15 @@ public class PageController {
         return "dpd-bucket-report";
     }
 
+    @GetMapping("/vendor-payments")
+    public String vendorPaymentsReport() {
+        return "vendor-payments";
+    }
+
+    @GetMapping("/vendor-payments-exception")
+    public String vendorPaymentsExceptionReport() {
+        return "vendor-payments-exception";
+    }
+
 }
 

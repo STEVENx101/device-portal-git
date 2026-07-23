@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
 
@@ -729,6 +730,103 @@ public class CbsReportController {
             ));
         }
 
+        writer.flush();
+    }
+
+    @PostMapping("/api/cbs/vendor-payments")
+    @ResponseBody
+    public Map<String, Object> getVendorPaymentsReport(@RequestBody Map<String, Object> filters) {
+        return cbsReportService.fetchVendorPaymentsReport(filters, false);
+    }
+
+    @GetMapping("/api/cbs/vendor-payments/download")
+    public void downloadVendorPaymentsReport(
+            @RequestParam(required = false) String dateMode,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String year,
+            @RequestParam(required = false) String month,
+            @RequestParam(required = false) String fromDate,
+            @RequestParam(required = false) String toDate,
+            @RequestParam(required = false) String search,
+            HttpServletResponse response) throws IOException {
+
+        Map<String, Object> filters = new HashMap<>();
+        filters.put("dateMode", dateMode);
+        filters.put("status", status);
+        filters.put("year", year);
+        filters.put("month", month);
+        filters.put("fromDate", fromDate);
+        filters.put("toDate", toDate);
+        filters.put("search", search);
+
+        Map<String, Object> reportData = cbsReportService.fetchVendorPaymentsReport(filters, false);
+
+        response.setContentType("text/csv");
+        response.setHeader("Content-Disposition", "attachment; filename=\"vendor_payments_report.csv\"");
+
+        writeVendorPaymentsCsv(response.getWriter(), reportData);
+    }
+
+    @PostMapping("/api/cbs/vendor-payments-exception")
+    @ResponseBody
+    public Map<String, Object> getVendorPaymentsExceptionReport(@RequestBody Map<String, Object> filters) {
+        return cbsReportService.fetchVendorPaymentsReport(filters, true);
+    }
+
+    @GetMapping("/api/cbs/vendor-payments-exception/download")
+    public void downloadVendorPaymentsExceptionReport(
+            @RequestParam(required = false) String dateMode,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String year,
+            @RequestParam(required = false) String month,
+            @RequestParam(required = false) String fromDate,
+            @RequestParam(required = false) String toDate,
+            @RequestParam(required = false) String search,
+            HttpServletResponse response) throws IOException {
+
+        Map<String, Object> filters = new HashMap<>();
+        filters.put("dateMode", dateMode);
+        filters.put("status", status);
+        filters.put("year", year);
+        filters.put("month", month);
+        filters.put("fromDate", fromDate);
+        filters.put("toDate", toDate);
+        filters.put("search", search);
+
+        Map<String, Object> reportData = cbsReportService.fetchVendorPaymentsReport(filters, true);
+
+        response.setContentType("text/csv");
+        response.setHeader("Content-Disposition", "attachment; filename=\"vendor_payments_exception_report.csv\"");
+
+        writeVendorPaymentsCsv(response.getWriter(), reportData);
+    }
+
+    private void writeVendorPaymentsCsv(PrintWriter writer, Map<String, Object> reportData) {
+        writer.println("CEFT ID,Consumer Tran ID,Account ID,Vendor Code,Vendor Name,Destination Account,Destination Account Name,Bank Code,Bank Name,Branch Code,Amount,Trx Date,Ref,SP Number,Status");
+
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> rows = (List<Map<String, Object>>) reportData.get("rows");
+        if (rows != null) {
+            for (Map<String, Object> row : rows) {
+                writer.println(String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
+                        cleanCsv(row.get("ceft_id")),
+                        cleanCsv(row.get("consumer_tran_id")),
+                        cleanCsv(row.get("account_id")),
+                        cleanCsv(row.get("vendor_code")),
+                        cleanCsv(row.get("vendor_name")),
+                        cleanCsv(row.get("destination_account")),
+                        cleanCsv(row.get("destination_account_name")),
+                        cleanCsv(row.get("bank_code")),
+                        cleanCsv(row.get("bank_name")),
+                        cleanCsv(row.get("branch_code")),
+                        cleanCsv(row.get("amount")),
+                        cleanCsv(row.get("trx_date")),
+                        cleanCsv(row.get("ref")),
+                        cleanCsv(row.get("sp_number")),
+                        cleanCsv(row.get("status"))
+                ));
+            }
+        }
         writer.flush();
     }
 }

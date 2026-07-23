@@ -1633,6 +1633,126 @@ public class CbsReportService {
         return result;
     }
 
+    public Map<String, Object> fetchVendorPaymentsReport(Map<String, Object> filters, boolean isExceptionMode) {
+        Map<String, Object> params = new HashMap<>();
+        StringBuilder whereClause = new StringBuilder(" WHERE 1=1 ");
+
+        if (isExceptionMode) {
+            whereClause.append(" AND status IN ('Pending', 'Failed') ");
+        }
+
+        if (filters != null) {
+            String status = (String) filters.get("status");
+            if (status != null && !status.trim().isEmpty() && !"ALL".equalsIgnoreCase(status.trim())) {
+                whereClause.append(" AND status = :status ");
+                params.put("status", status.trim());
+            }
+
+            String search = (String) filters.get("search");
+            if (search != null && !search.trim().isEmpty()) {
+                whereClause.append(" AND (vendor_name LIKE :search OR vendor_code LIKE :search OR account_id LIKE :search OR consumer_tran_id LIKE :search OR ref LIKE :search) ");
+                params.put("search", "%" + search.trim() + "%");
+            }
+
+            String dateMode = (String) filters.get("dateMode");
+            if ("today".equalsIgnoreCase(dateMode)) {
+                whereClause.append(" AND trx_date >= CURRENT_DATE() AND trx_date < DATE_ADD(CURRENT_DATE(), INTERVAL 1 DAY) ");
+            } else if ("monthly".equalsIgnoreCase(dateMode)) {
+                Object yearObj = filters.get("year");
+                Object monthObj = filters.get("month");
+                if (yearObj != null && monthObj != null && !yearObj.toString().isEmpty() && !monthObj.toString().isEmpty()) {
+                    String startStr = String.format("%s-%02d-01", yearObj.toString().trim(), Integer.parseInt(monthObj.toString().trim()));
+                    whereClause.append(" AND trx_date >= STR_TO_DATE(:monthStart, '%Y-%m-%d') AND trx_date < DATE_ADD(STR_TO_DATE(:monthStart, '%Y-%m-%d'), INTERVAL 1 MONTH) ");
+                    params.put("monthStart", startStr);
+                }
+            } else if ("accumulating".equalsIgnoreCase(dateMode)) {
+                String fromDate = (String) filters.get("fromDate");
+                String toDate = (String) filters.get("toDate");
+                if (fromDate != null && !fromDate.trim().isEmpty()) {
+                    whereClause.append(" AND trx_date >= :fromDate ");
+                    params.put("fromDate", fromDate.trim());
+                }
+                if (toDate != null && !toDate.trim().isEmpty()) {
+                    whereClause.append(" AND trx_date < DATE_ADD(:toDate, INTERVAL 1 DAY) ");
+                    params.put("toDate", toDate.trim());
+                }
+            } else if ("last3years".equalsIgnoreCase(dateMode)) {
+                Object selectedYearObj = filters.get("year");
+                if (selectedYearObj != null && !selectedYearObj.toString().trim().isEmpty() && !"ALL".equalsIgnoreCase(selectedYearObj.toString().trim())) {
+                    whereClause.append(" AND YEAR(trx_date) = :selectedYear ");
+                    params.put("selectedYear", Integer.parseInt(selectedYearObj.toString().trim()));
+                } else {
+                    whereClause.append(" AND trx_date >= DATE_SUB(CURRENT_DATE(), INTERVAL 3 YEAR) ");
+                }
+            }
+        }
+
+        String sql = String.format("""
+            SELECT 
+                COALESCE(ceft_id, '') AS ceft_id,
+                COALESCE(consumer_tran_id, '') AS consumer_tran_id,
+                COALESCE(account_id, '') AS account_id,
+                COALESCE(vendor_code, '') AS vendor_code,
+                COALESCE(vendor_name, '') AS vendor_name,
+                COALESCE(destination_account, '') AS destination_account,
+                COALESCE(destination_account_name, '') AS destination_account_name,
+                COALESCE(bank_code, '') AS bank_code,
+                COALESCE(bank_name, '') AS bank_name,
+                COALESCE(branch_code, '') AS branch_code,
+                COALESCE(amount, 0.0) AS amount,
+                DATE_FORMAT(trx_date, '%%Y-%%m-%%d %%H:%%i:%%s') AS trx_date,
+                COALESCE(ref, '') AS ref,
+                COALESCE(sp_number, '') AS sp_number,
+                COALESCE(status, '') AS status
+            FROM cbs.vendor_payments
+            %s
+            ORDER BY trx_date DESC
+            LIMIT 3000
+        """, whereClause.toString());
+
+        List<Map<String, Object>> rows = jdbc.queryForList(sql, params);
+
+        long totalCount = rows.size();
+        double totalAmount = 0.0;
+        long completedCount = 0;
+        double completedAmount = 0.0;
+        long pendingCount = 0;
+        double pendingAmount = 0.0;
+        long failedCount = 0;
+        double failedAmount = 0.0;
+
+        for (Map<String, Object> r : rows) {
+            double amt = r.get("amount") != null ? ((Number) r.get("amount")).doubleValue() : 0.0;
+            String st = r.get("status") != null ? r.get("status").toString() : "";
+            totalAmount += amt;
+            if ("Completed".equalsIgnoreCase(st)) {
+                completedCount++;
+                completedAmount += amt;
+            } else if ("Pending".equalsIgnoreCase(st)) {
+                pendingCount++;
+                pendingAmount += amt;
+            } else if ("Failed".equalsIgnoreCase(st)) {
+                failedCount++;
+                failedAmount += amt;
+            }
+        }
+
+        Map<String, Object> totals = new HashMap<>();
+        totals.put("totalCount", totalCount);
+        totals.put("totalAmount", round(totalAmount, 2));
+        totals.put("completedCount", completedCount);
+        totals.put("completedAmount", round(completedAmount, 2));
+        totals.put("pendingCount", pendingCount);
+        totals.put("pendingAmount", round(pendingAmount, 2));
+        totals.put("failedCount", failedCount);
+        totals.put("failedAmount", round(failedAmount, 2));
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("rows", rows);
+        result.put("totals", totals);
+        return result;
+    }
+
     private double round(double val, int places) {
         if (places < 0) return val;
         long factor = (long) Math.pow(10, places);

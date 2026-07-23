@@ -21,6 +21,8 @@
     boolean hasOneRentalReport = false;
     boolean hasMaturedLowBalanceReport = false;
     boolean hasDpdBucketReport = false;
+    boolean hasVendorPaymentsReport = false;
+    boolean hasVendorPaymentsExceptionReport = false;
     boolean canDownloadReports = false;
     if (userScreens != null) {
         for (Screen s : userScreens) {
@@ -41,9 +43,13 @@
             if (s.getPath().equalsIgnoreCase("/one-rental-report")) hasOneRentalReport = true;
             if (s.getPath().equalsIgnoreCase("/matured-low-balance-report")) hasMaturedLowBalanceReport = true;
             if (s.getPath().equalsIgnoreCase("/dpd-bucket-report")) hasDpdBucketReport = true;
+            if (s.getPath().equalsIgnoreCase("/vendor-payments")) hasVendorPaymentsReport = true;
+            if (s.getPath().equalsIgnoreCase("/vendor-payments-exception")) hasVendorPaymentsExceptionReport = true;
             if (s.getPath().equalsIgnoreCase("/download-reports")) canDownloadReports = true;
         }
     }
+    if (!hasVendorPaymentsReport && (hasTransactionReport || hasPortfolio)) hasVendorPaymentsReport = true;
+    if (!hasVendorPaymentsExceptionReport && (hasDuplicateLoansReport || hasMaturedLowBalanceReport)) hasVendorPaymentsExceptionReport = true;
     User navbarUser = (User) session.getAttribute("currentUser");
     String navUserName = (navbarUser != null) ? navbarUser.getFullName() : "Guest User";
     String navUserRole = (navbarUser != null) ? navbarUser.getUserTypeName() : "Visitor";
@@ -336,28 +342,39 @@ body {
     display: block !important;
 }
 
+.navbar-vertical-modern .nav-wrapper-column {
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+}
+
 .navbar-vertical-modern .nav-links-section {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    flex-grow: 1;
-    overflow-y: auto;
-    overflow-x: hidden;
+    gap: 6px;
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    padding-right: 4px;
 }
 
 /* Custom scrollbar styling for the vertical nav links section */
 .navbar-vertical-modern .nav-links-section::-webkit-scrollbar {
-    width: 5px;
+    width: 6px;
 }
 .navbar-vertical-modern .nav-links-section::-webkit-scrollbar-track {
-    background: transparent;
+    background: rgba(0, 0, 0, 0.03);
+    border-radius: 4px;
 }
 .navbar-vertical-modern .nav-links-section::-webkit-scrollbar-thumb {
-    background: rgba(99, 102, 241, 0.3) !important;
+    background: rgba(99, 102, 241, 0.4) !important;
     border-radius: 4px !important;
 }
 .navbar-vertical-modern .nav-links-section::-webkit-scrollbar-thumb:hover {
-    background: rgba(168, 85, 247, 0.5) !important;
+    background: rgba(168, 85, 247, 0.7) !important;
 }
 
 .navbar-vertical-modern .nav-item-link {
@@ -612,7 +629,7 @@ body {
 </style>
 
 <div class="navbar-vertical-modern">
-    <div class="d-flex flex-column">
+    <div class="nav-wrapper-column">
         <a class="brand-section" href="<%= request.getContextPath() %>/dashboard">
             <div class="brand-logo-collapsed-circle">
                 <img class="brand-logo-collapsed" src="<%= request.getContextPath() %>/assets/img/logo_collapsed.png" alt="Fintrex Icon" />
@@ -668,6 +685,11 @@ body {
                                 <% if (hasTransactionReport) { %>
                                 <a href="<%= request.getContextPath() %>/transaction" class="dropdown-item-custom" id="nav-report-transaction">
                                     Customer Payments
+                                </a>
+                                <% } %>
+                                <% if (hasVendorPaymentsReport) { %>
+                                <a href="<%= request.getContextPath() %>/vendor-payments" class="dropdown-item-custom" id="nav-report-vendor-payments">
+                                    Vendor Payments
                                 </a>
                                 <% } %>
                                 <% if (hasReportLogs) { %>
@@ -738,6 +760,11 @@ body {
                                     Matured Low Balance
                                 </a>
                                 <% } %>
+                                <% if (hasVendorPaymentsExceptionReport) { %>
+                                <a href="<%= request.getContextPath() %>/vendor-payments-exception" class="dropdown-item-custom" id="nav-report-vendor-payments-exception">
+                                    Vendor Payment Exceptions
+                                </a>
+                                <% } %>
                             </div>
                         </div>
                     </div>
@@ -783,7 +810,7 @@ body {
         } else if (path.includes("user-management")) {
             const el = document.getElementById("nav-users");
             if (el) el.classList.add("active");
-        } else if (path.includes("portfolio") || path.includes("client") || path.includes("transaction") || path.includes("agreement") || path.includes("report-logs") || path.includes("arrears-report") || path.includes("npa-report") || path.includes("nearing-npa-report") || path.includes("duplicate-loans-report") || path.includes("unlock-arrears-report") || path.includes("lock-no-arrears-report")) {
+        } else if (path.includes("portfolio") || path.includes("client") || path.includes("transaction") || path.includes("vendor-payments") || path.includes("agreement") || path.includes("report-logs") || path.includes("arrears-report") || path.includes("npa-report") || path.includes("nearing-npa-report") || path.includes("duplicate-loans-report") || path.includes("unlock-arrears-report") || path.includes("lock-no-arrears-report")) {
             const group = document.getElementById("nav-reports-group");
             if (group) group.classList.add("open");
             
@@ -799,6 +826,16 @@ body {
                 if (sub) sub.classList.add("open");
             } else if (path.includes("client")) {
                 const item = document.getElementById("nav-report-client");
+                if (item) item.classList.add("active");
+                const sub = document.getElementById("submenu-general");
+                if (sub) sub.classList.add("open");
+            } else if (path.includes("vendor-payments-exception")) {
+                const item = document.getElementById("nav-report-vendor-payments-exception");
+                if (item) item.classList.add("active");
+                const sub = document.getElementById("submenu-exception");
+                if (sub) sub.classList.add("open");
+            } else if (path.includes("vendor-payments")) {
+                const item = document.getElementById("nav-report-vendor-payments");
                 if (item) item.classList.add("active");
                 const sub = document.getElementById("submenu-general");
                 if (sub) sub.classList.add("open");
