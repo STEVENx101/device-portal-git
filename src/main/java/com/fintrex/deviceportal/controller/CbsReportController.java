@@ -594,4 +594,105 @@ public class CbsReportController {
         }
         return s;
     }
+
+    @PostMapping("/dpd-bucket")
+    public ResponseEntity<Map<String, Object>> getDpdBucketReport(@RequestBody(required = false) Map<String, Object> filters, HttpSession session) {
+        com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");
+        String username = currentUser != null ? currentUser.getUsername() : "system";
+        String filtersStr = filters != null ? filters.toString() : "none";
+        cbsReportService.logReportActivity(username, "DPD Bucket Report", "VIEW", filtersStr);
+        return ResponseEntity.ok(cbsReportService.fetchDpdBucketReport(filters));
+    }
+
+    @GetMapping("/dpd-bucket/download")
+    public void downloadDpdBucketReport(
+            @RequestParam(value = "dimension", required = false, defaultValue = "dealer") String dimension,
+            @RequestParam(value = "branch", required = false) String branch,
+            @RequestParam(value = "products", required = false) List<String> products,
+            @RequestParam(value = "asAt", required = false) String asAt,
+            @RequestParam(value = "downloadToken", required = false) String downloadToken,
+            HttpSession session,
+            HttpServletResponse response) throws Exception {
+
+        List<com.fintrex.deviceportal.dto.Screen> permittedScreens = (List<com.fintrex.deviceportal.dto.Screen>) session.getAttribute("permittedScreens");
+        boolean canDownload = permittedScreens != null && permittedScreens.stream()
+                .anyMatch(s -> s.getPath().equalsIgnoreCase("/download-reports"));
+        if (!canDownload) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "You do not have permission to download reports.");
+            return;
+        }
+
+        com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");
+        String username = currentUser != null ? currentUser.getUsername() : "system";
+        String filtersStr = String.format("dimension=%s, branch=%s, products=%s, asAt=%s", dimension, branch, products, asAt);
+        cbsReportService.logReportActivity(username, "DPD Bucket Report", "DOWNLOAD", filtersStr);
+
+        if (downloadToken != null) {
+            response.setHeader("Set-Cookie", "downloadToken=" + downloadToken + "; Path=/");
+        }
+
+        Map<String, Object> filters = new HashMap<>();
+        filters.put("dimension", dimension);
+        filters.put("branch", branch);
+        filters.put("products", products);
+        filters.put("asAt", asAt);
+
+        Map<String, Object> reportData = cbsReportService.fetchDpdBucketReport(filters);
+
+        response.setContentType("text/csv");
+        response.setHeader("Content-Disposition", "attachment; filename=\"dpd_bucket_report_" + dimension + ".csv\"");
+
+        PrintWriter writer = response.getWriter();
+        writer.println("Category,DPD 0 No,DPD 0 Val (Mn),DPD 0 %,DPD 1-30 No,DPD 1-30 Val (Mn),DPD 1-30 %,DPD 31-60 No,DPD 31-60 Val (Mn),DPD 31-60 %,DPD 61-90 No,DPD 61-90 Val (Mn),DPD 61-90 %,Total No,Total Val (Mn),Total %");
+
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> rows = (List<Map<String, Object>>) reportData.get("rows");
+        if (rows != null) {
+            for (Map<String, Object> row : rows) {
+                writer.println(String.format("%s,%s,%s,%s%%,%s,%s,%s%%,%s,%s,%s%%,%s,%s,%s%%,%s,%s,%s%%",
+                        cleanCsv(row.get("category")),
+                        cleanCsv(row.get("dpd0Count")),
+                        cleanCsv(row.get("dpd0ValMn")),
+                        cleanCsv(row.get("dpd0Pct")),
+                        cleanCsv(row.get("dpd1_30Count")),
+                        cleanCsv(row.get("dpd1_30ValMn")),
+                        cleanCsv(row.get("dpd1_30Pct")),
+                        cleanCsv(row.get("dpd31_60Count")),
+                        cleanCsv(row.get("dpd31_60ValMn")),
+                        cleanCsv(row.get("dpd31_60Pct")),
+                        cleanCsv(row.get("dpd61_90Count")),
+                        cleanCsv(row.get("dpd61_90ValMn")),
+                        cleanCsv(row.get("dpd61_90Pct")),
+                        cleanCsv(row.get("totalCount")),
+                        cleanCsv(row.get("totalValMn")),
+                        cleanCsv(row.get("totalPct"))
+                ));
+            }
+        }
+
+        @SuppressWarnings("unchecked")
+        Map<String, Object> totals = (Map<String, Object>) reportData.get("totals");
+        if (totals != null) {
+            writer.println(String.format("%s,%s,%s,%s%%,%s,%s,%s%%,%s,%s,%s%%,%s,%s,%s%%,%s,%s,%s%%",
+                    cleanCsv(totals.get("category")),
+                    cleanCsv(totals.get("dpd0Count")),
+                    cleanCsv(totals.get("dpd0ValMn")),
+                    cleanCsv(totals.get("dpd0Pct")),
+                    cleanCsv(totals.get("dpd1_30Count")),
+                    cleanCsv(totals.get("dpd1_30ValMn")),
+                    cleanCsv(totals.get("dpd1_30Pct")),
+                    cleanCsv(totals.get("dpd31_60Count")),
+                    cleanCsv(totals.get("dpd31_60ValMn")),
+                    cleanCsv(totals.get("dpd31_60Pct")),
+                    cleanCsv(totals.get("dpd61_90Count")),
+                    cleanCsv(totals.get("dpd61_90ValMn")),
+                    cleanCsv(totals.get("dpd61_90Pct")),
+                    cleanCsv(totals.get("totalCount")),
+                    cleanCsv(totals.get("totalValMn")),
+                    cleanCsv(totals.get("totalPct"))
+            ));
+        }
+
+        writer.flush();
+    }
 }

@@ -20,6 +20,7 @@
     boolean hasLockNoArrearsReport = false;
     boolean hasOneRentalReport = false;
     boolean hasMaturedLowBalanceReport = false;
+    boolean hasDpdBucketReport = false;
     boolean canDownloadReports = false;
     if (userScreens != null) {
         for (Screen s : userScreens) {
@@ -39,6 +40,7 @@
             if (s.getPath().equalsIgnoreCase("/lock-no-arrears-report")) hasLockNoArrearsReport = true;
             if (s.getPath().equalsIgnoreCase("/one-rental-report")) hasOneRentalReport = true;
             if (s.getPath().equalsIgnoreCase("/matured-low-balance-report")) hasMaturedLowBalanceReport = true;
+            if (s.getPath().equalsIgnoreCase("/dpd-bucket-report")) hasDpdBucketReport = true;
             if (s.getPath().equalsIgnoreCase("/download-reports")) canDownloadReports = true;
         }
     }
@@ -634,7 +636,7 @@ body {
                 </a>
             <% } %>
             
-            <% if (hasPortfolio || hasClientReport || hasTransactionReport || hasAgreementReport || hasReportLogs || hasArrearsReport || hasNpaReport || hasNearingNpaReport) { %>
+            <% if (hasPortfolio || hasClientReport || hasTransactionReport || hasAgreementReport || hasReportLogs || hasArrearsReport || hasNpaReport || hasNearingNpaReport || hasDpdBucketReport) { %>
                 <div class="nav-item-dropdown-custom" id="nav-reports-group">
                     <a class="nav-item-link dropdown-trigger" href="javascript:void(0)" id="nav-reports-trigger">
                         <span class="fas fa-file-invoice-dollar"></span>
@@ -695,6 +697,11 @@ body {
                                 <% if (hasNearingNpaReport) { %>
                                 <a href="<%= request.getContextPath() %>/nearing-npa-report" class="dropdown-item-custom" id="nav-report-nearing-npa">
                                     Nearing NPA Report
+                                </a>
+                                <% } %>
+                                <% if (hasDpdBucketReport) { %>
+                                <a href="<%= request.getContextPath() %>/dpd-bucket-report" class="dropdown-item-custom" id="nav-report-dpd-bucket">
+                                    DPD Bucket Report
                                 </a>
                                 <% } %>
                             </div>

@@ -104,4 +104,10 @@ public class PageController {
         return "matured-low-balance-report";
     }
 
+    @GetMapping("/dpd-bucket-report")
+    public String dpdBucketReport() {
+        return "dpd-bucket-report";
+    }
+
 }
+

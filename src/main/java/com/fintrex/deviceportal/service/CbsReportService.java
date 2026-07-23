@@ -768,6 +768,23 @@ public class CbsReportService {
                             WHERE uts.user_type_id = ut.id AND uts.screen_id = s.id
                         )
                     """);
+
+            // DPD Bucket Report
+            jdbc.getJdbcTemplate().execute("""
+                        INSERT INTO device_portal.screen (name, path, icon, group_name)
+                        SELECT 'DPD Bucket Report', '/dpd-bucket-report', 'fas fa-chart-bar', 'Reports'
+                        WHERE NOT EXISTS (SELECT 1 FROM device_portal.screen WHERE path = '/dpd-bucket-report')
+                    """);
+            jdbc.getJdbcTemplate().execute("""
+                        INSERT INTO device_portal.user_type_screen (user_type_id, screen_id)
+                        SELECT ut.id, s.id
+                        FROM device_portal.user_type ut, device_portal.screen s
+                        WHERE s.path = '/dpd-bucket-report'
+                        AND NOT EXISTS (
+                            SELECT 1 FROM device_portal.user_type_screen uts
+                            WHERE uts.user_type_id = ut.id AND uts.screen_id = s.id
+                        )
+                    """);
         } catch (Exception e) {
             log.error("Report configuration database operation failed", e);
         }
@@ -1398,4 +1415,199 @@ public class CbsReportService {
                     t.recovery_officer
                 FROM (""" + subQuery + ") t WHERE TRUE";
     }
+
+    public Map<String, Object> fetchDpdBucketReport(Map<String, Object> filters) {
+        Map<String, Object> params = new HashMap<>();
+        addLatestPortfolioParams(params);
+
+        String dimension = filters != null && filters.get("dimension") != null
+                ? filters.get("dimension").toString().toLowerCase()
+                : "dealer";
+
+        String categoryExpr;
+        String dimensionJoin = "";
+
+        if ("security".equals(dimension)) {
+            categoryExpr = """
+                CASE 
+                    WHEN pr.product_code IN ('LF', 'laptop') THEN 'ABSOLUTE' 
+                    WHEN pr.product_code = 'MF' AND COALESCE(lm1.knox_compatibility, lm2.knox_compatibility) = 'yes' THEN 'KNOX' 
+                    WHEN pr.product_code = 'MF' AND (COALESCE(lm1.knox_compatibility, lm2.knox_compatibility) = 'no' OR COALESCE(lm1.knox_compatibility, lm2.knox_compatibility) IS NULL) THEN 'DATACULTR' 
+                    ELSE 'OTHER' 
+                END
+            """;
+            dimensionJoin = """
+                LEFT JOIN loan.mobileloan lm1 ON lm1.finance_no = l.account_no
+                LEFT JOIN loan.mobileloan lm2 ON lm2.finance_no = l.legacy_account_no
+            """;
+        } else if ("model".equals(dimension)) {
+            categoryExpr = "COALESCE(lmm.name, 'Unknown Model')";
+            dimensionJoin = """
+                LEFT JOIN loan.mobileloan lm1 ON lm1.finance_no = l.account_no
+                LEFT JOIN loan.mobileloan lm2 ON lm2.finance_no = l.legacy_account_no
+                LEFT JOIN loan.device_loan dl2_1 ON dl2_1.finance_no = l.account_no
+                LEFT JOIN loan.device_loan dl2_2 ON dl2_2.finance_no = l.legacy_account_no
+                LEFT JOIN loan.mobileloan_model lmm ON lmm.id = COALESCE(lm1.model, lm2.model, dl2_1.model, dl2_2.model)
+            """;
+        } else {
+            categoryExpr = "COALESCE(v.name, 'Unknown Dealer')";
+            dimensionJoin = "LEFT JOIN cbs.vendor v ON l.vendor = v.code";
+        }
+
+        StringBuilder whereClause = new StringBuilder(" WHERE 1=1 AND COALESCE(p1.dpd, p2.dpd, 0) <= 90 ");
+
+        if (filters != null) {
+            String branch = (String) filters.get("branch");
+            if (branch != null && !branch.trim().isEmpty()) {
+                whereClause.append(" AND (l.branch = :branch OR br.branch_name = :branch)");
+                params.put("branch", branch.trim());
+            }
+
+            Object productsObj = filters.get("products");
+            if (productsObj instanceof List && !((List<?>) productsObj).isEmpty()) {
+                whereClause.append(" AND (l.product IN (:products) OR pr.product_code IN (:products) OR pr.product_name IN (:products))");
+                params.put("products", productsObj);
+            } else if (productsObj instanceof String && !((String) productsObj).trim().isEmpty()) {
+                whereClause.append(" AND (l.product = :product OR pr.product_code = :product OR pr.product_name = :product)");
+                params.put("product", ((String) productsObj).trim());
+            }
+
+            String asAt = (String) filters.get("asAt");
+            if (asAt != null && !asAt.trim().isEmpty()) {
+                whereClause.append(" AND l.disbursed_date < DATE_ADD(:asAt, INTERVAL 1 DAY)");
+                params.put("asAt", asAt.trim());
+            }
+        }
+
+        String sql = """
+            SELECT
+                """ + categoryExpr + """ AS category_name,
+                COUNT(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) = 0 THEN 1 END) AS dpd0_count,
+                SUM(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) = 0 THEN COALESCE(p1.exposure, p2.exposure, l.loan_amount, 0) ELSE 0 END) AS dpd0_val,
+                COUNT(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) BETWEEN 1 AND 30 THEN 1 END) AS dpd1_30_count,
+                SUM(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) BETWEEN 1 AND 30 THEN COALESCE(p1.exposure, p2.exposure, l.loan_amount, 0) ELSE 0 END) AS dpd1_30_val,
+                COUNT(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) BETWEEN 31 AND 60 THEN 1 END) AS dpd31_60_count,
+                SUM(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) BETWEEN 31 AND 60 THEN COALESCE(p1.exposure, p2.exposure, l.loan_amount, 0) ELSE 0 END) AS dpd31_60_val,
+                COUNT(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) BETWEEN 61 AND 90 THEN 1 END) AS dpd61_90_count,
+                SUM(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) BETWEEN 61 AND 90 THEN COALESCE(p1.exposure, p2.exposure, l.loan_amount, 0) ELSE 0 END) AS dpd61_90_val,
+                COUNT(*) AS total_count,
+                SUM(COALESCE(p1.exposure, p2.exposure, l.loan_amount, 0)) AS total_val
+            FROM cbs.loan l
+            LEFT JOIN cbs.portfolio p1
+                ON p1.account_no = l.account_no
+                AND p1.series = l.account_series
+                AND p1.portfolio_date = :latestPortfolioDate
+                AND p1.sync_time = :latestSyncTime
+            LEFT JOIN cbs.portfolio p2
+                ON p2.account_no = l.legacy_account_no
+                AND p2.series = l.account_series
+                AND p2.portfolio_date = :latestPortfolioDate
+                AND p2.sync_time = :latestSyncTime
+            LEFT JOIN cbs.branch br ON CAST(l.branch AS UNSIGNED) = br.branch_code
+            LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
+            """ + dimensionJoin + """
+            """ + whereClause.toString() + """
+            GROUP BY category_name
+            ORDER BY total_val DESC
+        """;
+
+        List<Map<String, Object>> rawRows = jdbc.queryForList(sql, params);
+
+        double grandTotalVal = 0.0;
+        for (Map<String, Object> row : rawRows) {
+            Number totalVal = (Number) row.get("total_val");
+            if (totalVal != null) {
+                grandTotalVal += totalVal.doubleValue();
+            }
+        }
+
+        List<Map<String, Object>> formattedRows = new ArrayList<>();
+        long gDpd0Count = 0, gDpd1_30Count = 0, gDpd31_60Count = 0, gDpd61_90Count = 0, gTotalCount = 0;
+        double gDpd0Val = 0.0, gDpd1_30Val = 0.0, gDpd31_60Val = 0.0, gDpd61_90Val = 0.0;
+
+        for (Map<String, Object> raw : rawRows) {
+            String category = raw.get("category_name") != null ? raw.get("category_name").toString() : "Unknown";
+            long dpd0Count = raw.get("dpd0_count") != null ? ((Number) raw.get("dpd0_count")).longValue() : 0L;
+            double dpd0Val = raw.get("dpd0_val") != null ? ((Number) raw.get("dpd0_val")).doubleValue() : 0.0;
+
+            long dpd1_30Count = raw.get("dpd1_30_count") != null ? ((Number) raw.get("dpd1_30_count")).longValue() : 0L;
+            double dpd1_30Val = raw.get("dpd1_30_val") != null ? ((Number) raw.get("dpd1_30_val")).doubleValue() : 0.0;
+
+            long dpd31_60Count = raw.get("dpd31_60_count") != null ? ((Number) raw.get("dpd31_60_count")).longValue() : 0L;
+            double dpd31_60Val = raw.get("dpd31_60_val") != null ? ((Number) raw.get("dpd31_60_val")).doubleValue() : 0.0;
+
+            long dpd61_90Count = raw.get("dpd61_90_count") != null ? ((Number) raw.get("dpd61_90_count")).longValue() : 0L;
+            double dpd61_90Val = raw.get("dpd61_90_val") != null ? ((Number) raw.get("dpd61_90_val")).doubleValue() : 0.0;
+
+            long totalCount = raw.get("total_count") != null ? ((Number) raw.get("total_count")).longValue() : 0L;
+            double totalVal = raw.get("total_val") != null ? ((Number) raw.get("total_val")).doubleValue() : 0.0;
+
+            gDpd0Count += dpd0Count; gDpd0Val += dpd0Val;
+            gDpd1_30Count += dpd1_30Count; gDpd1_30Val += dpd1_30Val;
+            gDpd31_60Count += dpd31_60Count; gDpd31_60Val += dpd31_60Val;
+            gDpd61_90Count += dpd61_90Count; gDpd61_90Val += dpd61_90Val;
+            gTotalCount += totalCount;
+
+            Map<String, Object> item = new HashMap<>();
+            item.put("category", category);
+            item.put("dpd0Count", dpd0Count);
+            item.put("dpd0ValMn", round(dpd0Val / 1_000_000.0, 2));
+            item.put("dpd0Pct", grandTotalVal > 0 ? round((dpd0Val / grandTotalVal) * 100.0, 2) : 0.0);
+
+            item.put("dpd1_30Count", dpd1_30Count);
+            item.put("dpd1_30ValMn", round(dpd1_30Val / 1_000_000.0, 2));
+            item.put("dpd1_30Pct", grandTotalVal > 0 ? round((dpd1_30Val / grandTotalVal) * 100.0, 2) : 0.0);
+
+            item.put("dpd31_60Count", dpd31_60Count);
+            item.put("dpd31_60ValMn", round(dpd31_60Val / 1_000_000.0, 2));
+            item.put("dpd31_60Pct", grandTotalVal > 0 ? round((dpd31_60Val / grandTotalVal) * 100.0, 2) : 0.0);
+
+            item.put("dpd61_90Count", dpd61_90Count);
+            item.put("dpd61_90ValMn", round(dpd61_90Val / 1_000_000.0, 2));
+            item.put("dpd61_90Pct", grandTotalVal > 0 ? round((dpd61_90Val / grandTotalVal) * 100.0, 2) : 0.0);
+
+            item.put("totalCount", totalCount);
+            item.put("totalValMn", round(totalVal / 1_000_000.0, 2));
+            item.put("totalPct", grandTotalVal > 0 ? round((totalVal / grandTotalVal) * 100.0, 2) : 0.0);
+
+            formattedRows.add(item);
+        }
+
+        Map<String, Object> totals = new HashMap<>();
+        totals.put("category", "Total");
+        totals.put("dpd0Count", gDpd0Count);
+        totals.put("dpd0ValMn", round(gDpd0Val / 1_000_000.0, 2));
+        totals.put("dpd0Pct", grandTotalVal > 0 ? round((gDpd0Val / grandTotalVal) * 100.0, 2) : 0.0);
+
+        totals.put("dpd1_30Count", gDpd1_30Count);
+        totals.put("dpd1_30ValMn", round(gDpd1_30Val / 1_000_000.0, 2));
+        totals.put("dpd1_30Pct", grandTotalVal > 0 ? round((gDpd1_30Val / grandTotalVal) * 100.0, 2) : 0.0);
+
+        totals.put("dpd31_60Count", gDpd31_60Count);
+        totals.put("dpd31_60ValMn", round(gDpd31_60Val / 1_000_000.0, 2));
+        totals.put("dpd31_60Pct", grandTotalVal > 0 ? round((gDpd31_60Val / grandTotalVal) * 100.0, 2) : 0.0);
+
+        totals.put("dpd61_90Count", gDpd61_90Count);
+        totals.put("dpd61_90ValMn", round(gDpd61_90Val / 1_000_000.0, 2));
+        totals.put("dpd61_90Pct", grandTotalVal > 0 ? round((gDpd61_90Val / grandTotalVal) * 100.0, 2) : 0.0);
+
+        totals.put("totalCount", gTotalCount);
+        totals.put("totalValMn", round(grandTotalVal / 1_000_000.0, 2));
+        totals.put("totalPct", grandTotalVal > 0 ? 100.0 : 0.0);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("rows", formattedRows);
+        result.put("totals", totals);
+        result.put("dimension", dimension);
+        return result;
+    }
+
+    private double round(double val, int places) {
+        if (places < 0) return val;
+        long factor = (long) Math.pow(10, places);
+        val = val * factor;
+        long tmp = Math.round(val);
+        return (double) tmp / factor;
+    }
 }
+
