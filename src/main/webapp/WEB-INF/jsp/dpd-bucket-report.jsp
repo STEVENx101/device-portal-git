@@ -159,8 +159,15 @@
                         </div>
                     </div>
 
-                    <!-- Summary KPI Cards categorized by DPD Buckets -->
-                    <div class="row row-cols-1 row-cols-md-5 g-3 mb-3">
+                    <!-- Summary KPI Cards -->
+                    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xl-6 g-3 mb-3">
+                        <div class="col">
+                            <div class="kpi-card border-start border-4 border-primary">
+                                <div class="kpi-title"><i class="fas fa-wallet me-1 text-primary"></i>Total Portfolio</div>
+                                <div class="kpi-value text-primary" id="kpiTotalExposure">-</div>
+                                <div class="small text-muted mt-1" id="kpiTotalSub">-</div>
+                            </div>
+                        </div>
                         <div class="col">
                             <div class="kpi-card border-start border-4 border-success">
                                 <div class="kpi-title"><i class="fas fa-check-circle me-1 text-success"></i>DPD 0</div>
@@ -359,23 +366,27 @@
                 $('#colCategoryHeader').text(catLabel);
 
                 // Update KPI Cards
-                // Card 1: DPD 0
+                // Card 1: Total Portfolio
+                $('#kpiTotalExposure').text(formatNumber(totals.totalValMn || 0) + ' Mn');
+                $('#kpiTotalSub').text(formatInt(totals.totalCount || 0) + ' Contracts');
+
+                // Card 2: DPD 0
                 $('#kpiDpd0Exposure').text(formatNumber(totals.dpd0ValMn || 0) + ' Mn');
                 $('#kpiDpd0Sub').text(formatInt(totals.dpd0Count || 0) + ' Contracts (' + formatNumber(totals.dpd0Pct || 0) + '%)');
 
-                // Card 2: DPD 1 - 30
+                // Card 3: DPD 1 - 30
                 $('#kpiDpd1_30Exposure').text(formatNumber(totals.dpd1_30ValMn || 0) + ' Mn');
                 $('#kpiDpd1_30Sub').text(formatInt(totals.dpd1_30Count || 0) + ' Contracts (' + formatNumber(totals.dpd1_30Pct || 0) + '%)');
 
-                // Card 3: DPD 31 - 60
+                // Card 4: DPD 31 - 60
                 $('#kpiDpd31_60Exposure').text(formatNumber(totals.dpd31_60ValMn || 0) + ' Mn');
                 $('#kpiDpd31_60Sub').text(formatInt(totals.dpd31_60Count || 0) + ' Contracts (' + formatNumber(totals.dpd31_60Pct || 0) + '%)');
 
-                // Card 4: DPD 61 - 90
+                // Card 5: DPD 61 - 90
                 $('#kpiDpd61_90Exposure').text(formatNumber(totals.dpd61_90ValMn || 0) + ' Mn');
                 $('#kpiDpd61_90Sub').text(formatInt(totals.dpd61_90Count || 0) + ' Contracts (' + formatNumber(totals.dpd61_90Pct || 0) + '%)');
 
-                // Card 5: Over 90 DPD
+                // Card 6: Over 90 DPD
                 $('#kpiAbove90Exposure').text(formatNumber(totals.above90ValMn || 0) + ' Mn');
                 $('#kpiAbove90Sub').text(formatInt(totals.above90Count || 0) + ' Contracts (' + formatNumber(totals.above90Pct || 0) + '%)');
 
