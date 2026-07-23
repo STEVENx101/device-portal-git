@@ -113,6 +113,23 @@
             .bucket-header-1 { background-color: rgba(245, 158, 11, 0.1) !important; color: #b45309 !important; }
             .bucket-header-2 { background-color: rgba(249, 115, 22, 0.1) !important; color: #c2410c !important; }
             .bucket-header-3 { background-color: rgba(239, 68, 68, 0.1) !important; color: #b91c1c !important; }
+            .table-bucket th, .table-bucket td {
+                padding: 0.35rem 0.5rem !important;
+                font-size: 0.76rem !important;
+            }
+            .table-bucket th {
+                text-align: center;
+                vertical-align: middle;
+                border-bottom-width: 1px;
+            }
+            .table-bucket td {
+                vertical-align: middle;
+            }
+            .bucket-header-0 { background-color: rgba(16, 185, 129, 0.1) !important; color: #047857 !important; }
+            .bucket-header-1 { background-color: rgba(245, 158, 11, 0.1) !important; color: #b45309 !important; }
+            .bucket-header-2 { background-color: rgba(249, 115, 22, 0.1) !important; color: #c2410c !important; }
+            .bucket-header-3 { background-color: rgba(239, 68, 68, 0.1) !important; color: #b91c1c !important; }
+            .bucket-header-above90 { background-color: rgba(30, 41, 59, 0.1) !important; color: #1e293b !important; }
             .bucket-header-tot { background-color: rgba(99, 102, 241, 0.1) !important; color: #4338ca !important; }
             .totals-row {
                 font-weight: 700;
@@ -174,7 +191,7 @@
                         </div>
                         <div class="col">
                             <div class="kpi-card border-start border-4 border-dark">
-                                <div class="kpi-title"><i class="fas fa-ban me-1 text-dark"></i>Above 90 Arrears</div>
+                                <div class="kpi-title"><i class="fas fa-ban me-1 text-dark"></i>Over 90 DPD</div>
                                 <div class="kpi-value text-dark" id="kpiAbove90Exposure">-</div>
                                 <div class="small text-muted mt-1" id="kpiAbove90Sub">-</div>
                             </div>
@@ -239,7 +256,8 @@
                                             <th colspan="3" class="bucket-header-1">DPD 1 - 30</th>
                                             <th colspan="3" class="bucket-header-2">DPD 31 - 60</th>
                                             <th colspan="3" class="bucket-header-3">DPD 61 - 90</th>
-                                            <th colspan="3" class="bucket-header-tot">Total (0 - 90 DPD)</th>
+                                            <th colspan="3" class="bucket-header-above90">Over 90 DPD</th>
+                                            <th colspan="3" class="bucket-header-tot">Total</th>
                                         </tr>
                                         <tr>
                                             <th class="bucket-header-0">No</th>
@@ -258,6 +276,10 @@
                                             <th class="bucket-header-3">Value (Mn)</th>
                                             <th class="bucket-header-3">%</th>
 
+                                            <th class="bucket-header-above90">No</th>
+                                            <th class="bucket-header-above90">Value (Mn)</th>
+                                            <th class="bucket-header-above90">%</th>
+
                                             <th class="bucket-header-tot">No</th>
                                             <th class="bucket-header-tot">Value (Mn)</th>
                                             <th class="bucket-header-tot">%</th>
@@ -265,7 +287,7 @@
                                     </thead>
                                     <tbody id="tableBody">
                                         <tr>
-                                            <td colspan="16" class="text-center py-4 text-muted">Click "Load Report" to view DPD Bucket Analysis</td>
+                                            <td colspan="19" class="text-center py-4 text-muted">Click "Load Report" to view DPD Bucket Analysis</td>
                                         </tr>
                                     </tbody>
                                     <tfoot id="tableFoot"></tfoot>
@@ -309,7 +331,7 @@
                     asAt: $('#asAtDate').val()
                 };
 
-                $('#tableBody').html('<tr><td colspan="16" class="text-center py-4"><div class="spinner-border spinner-border-sm text-primary me-2"></div>Loading data...</td></tr>');
+                $('#tableBody').html('<tr><td colspan="19" class="text-center py-4"><div class="spinner-border spinner-border-sm text-primary me-2"></div>Loading data...</td></tr>');
                 $('#tableFoot').empty();
 
                 $.ajax({
@@ -321,7 +343,7 @@
                         renderTable(res);
                     },
                     error: function(err) {
-                        $('#tableBody').html('<tr><td colspan="16" class="text-center py-4 text-danger"><i class="fas fa-exclamation-triangle me-2"></i>Failed to load report data</td></tr>');
+                        $('#tableBody').html('<tr><td colspan="19" class="text-center py-4 text-danger"><i class="fas fa-exclamation-triangle me-2"></i>Failed to load report data</td></tr>');
                     }
                 });
             }
@@ -353,12 +375,12 @@
                 $('#kpiDpd61_90Exposure').text(formatNumber(totals.dpd61_90ValMn || 0) + ' Mn');
                 $('#kpiDpd61_90Sub').text(formatInt(totals.dpd61_90Count || 0) + ' Contracts (' + formatNumber(totals.dpd61_90Pct || 0) + '%)');
 
-                // Card 5: Above 90 Arrears (NPA)
+                // Card 5: Over 90 DPD
                 $('#kpiAbove90Exposure').text(formatNumber(totals.above90ValMn || 0) + ' Mn');
                 $('#kpiAbove90Sub').text(formatInt(totals.above90Count || 0) + ' Contracts (' + formatNumber(totals.above90Pct || 0) + '%)');
 
                 if (rows.length === 0) {
-                    $('#tableBody').html('<tr><td colspan="16" class="text-center py-4 text-muted">No records found for the selected criteria</td></tr>');
+                    $('#tableBody').html('<tr><td colspan="19" class="text-center py-4 text-muted">No records found for the selected criteria</td></tr>');
                     return;
                 }
 
@@ -378,6 +400,9 @@
                         '<td class="text-end">' + formatInt(r.dpd61_90Count) + '</td>' +
                         '<td class="text-end fw-semi-bold">' + formatNumber(r.dpd61_90ValMn) + '</td>' +
                         '<td class="text-end text-muted">' + formatNumber(r.dpd61_90Pct) + '%</td>' +
+                        '<td class="text-end">' + formatInt(r.dpdAbove90Count) + '</td>' +
+                        '<td class="text-end fw-semi-bold">' + formatNumber(r.dpdAbove90ValMn) + '</td>' +
+                        '<td class="text-end text-muted">' + formatNumber(r.dpdAbove90Pct) + '%</td>' +
                         '<td class="text-end fw-bold text-primary">' + formatInt(r.totalCount) + '</td>' +
                         '<td class="text-end fw-bold text-primary">' + formatNumber(r.totalValMn) + '</td>' +
                         '<td class="text-end fw-bold text-primary">' + formatNumber(r.totalPct) + '%</td>' +
@@ -400,6 +425,9 @@
                         '<td class="text-end">' + formatInt(totals.dpd61_90Count) + '</td>' +
                         '<td class="text-end">' + formatNumber(totals.dpd61_90ValMn) + '</td>' +
                         '<td class="text-end">' + formatNumber(totals.dpd61_90Pct) + '%</td>' +
+                        '<td class="text-end">' + formatInt(totals.above90Count) + '</td>' +
+                        '<td class="text-end">' + formatNumber(totals.above90ValMn) + '</td>' +
+                        '<td class="text-end">' + formatNumber(totals.above90Pct) + '%</td>' +
                         '<td class="text-end text-primary">' + formatInt(totals.totalCount) + '</td>' +
                         '<td class="text-end text-primary">' + formatNumber(totals.totalValMn) + '</td>' +
                         '<td class="text-end text-primary">' + formatNumber(totals.totalPct) + '%</td>' +

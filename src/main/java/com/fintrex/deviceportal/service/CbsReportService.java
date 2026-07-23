@@ -1471,7 +1471,7 @@ public class CbsReportService {
             dimensionJoin = "LEFT JOIN cbs.vendor v ON l.vendor = v.code";
         }
 
-        StringBuilder whereClause = new StringBuilder(" WHERE 1=1 AND COALESCE(p1.dpd, p2.dpd, 0) <= 90 ");
+        StringBuilder whereClause = new StringBuilder(" WHERE 1=1 ");
 
         if (filters != null) {
             String branch = (String) filters.get("branch");
@@ -1507,6 +1507,8 @@ public class CbsReportService {
                 SUM(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) BETWEEN 31 AND 60 THEN COALESCE(p1.exposure, p2.exposure, l.loan_amount, 0) ELSE 0 END) AS dpd31_60_val,
                 COUNT(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) BETWEEN 61 AND 90 THEN 1 END) AS dpd61_90_count,
                 SUM(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) BETWEEN 61 AND 90 THEN COALESCE(p1.exposure, p2.exposure, l.loan_amount, 0) ELSE 0 END) AS dpd61_90_val,
+                COUNT(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) > 90 OR COALESCE(p1.loan_status, p2.loan_status) = 'N' THEN 1 END) AS dpdAbove90_count,
+                SUM(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) > 90 OR COALESCE(p1.loan_status, p2.loan_status) = 'N' THEN COALESCE(p1.exposure, p2.exposure, l.loan_amount, 0) ELSE 0 END) AS dpdAbove90_val,
                 COUNT(*) AS total_count,
                 SUM(COALESCE(p1.exposure, p2.exposure, l.loan_amount, 0)) AS total_val
             FROM cbs.loan l
@@ -1539,8 +1541,8 @@ public class CbsReportService {
         }
 
         List<Map<String, Object>> formattedRows = new ArrayList<>();
-        long gDpd0Count = 0, gDpd1_30Count = 0, gDpd31_60Count = 0, gDpd61_90Count = 0, gTotalCount = 0;
-        double gDpd0Val = 0.0, gDpd1_30Val = 0.0, gDpd31_60Val = 0.0, gDpd61_90Val = 0.0;
+        long gDpd0Count = 0, gDpd1_30Count = 0, gDpd31_60Count = 0, gDpd61_90Count = 0, gDpdAbove90Count = 0, gTotalCount = 0;
+        double gDpd0Val = 0.0, gDpd1_30Val = 0.0, gDpd31_60Val = 0.0, gDpd61_90Val = 0.0, gDpdAbove90Val = 0.0;
 
         for (Map<String, Object> raw : rawRows) {
             String category = raw.get("category_name") != null ? raw.get("category_name").toString() : "Unknown";
@@ -1556,6 +1558,9 @@ public class CbsReportService {
             long dpd61_90Count = raw.get("dpd61_90_count") != null ? ((Number) raw.get("dpd61_90_count")).longValue() : 0L;
             double dpd61_90Val = raw.get("dpd61_90_val") != null ? ((Number) raw.get("dpd61_90_val")).doubleValue() : 0.0;
 
+            long dpdAbove90Count = raw.get("dpdAbove90_count") != null ? ((Number) raw.get("dpdAbove90_count")).longValue() : 0L;
+            double dpdAbove90Val = raw.get("dpdAbove90_val") != null ? ((Number) raw.get("dpdAbove90_val")).doubleValue() : 0.0;
+
             long totalCount = raw.get("total_count") != null ? ((Number) raw.get("total_count")).longValue() : 0L;
             double totalVal = raw.get("total_val") != null ? ((Number) raw.get("total_val")).doubleValue() : 0.0;
 
@@ -1563,6 +1568,7 @@ public class CbsReportService {
             gDpd1_30Count += dpd1_30Count; gDpd1_30Val += dpd1_30Val;
             gDpd31_60Count += dpd31_60Count; gDpd31_60Val += dpd31_60Val;
             gDpd61_90Count += dpd61_90Count; gDpd61_90Val += dpd61_90Val;
+            gDpdAbove90Count += dpdAbove90Count; gDpdAbove90Val += dpdAbove90Val;
             gTotalCount += totalCount;
 
             Map<String, Object> item = new HashMap<>();
@@ -1582,6 +1588,10 @@ public class CbsReportService {
             item.put("dpd61_90Count", dpd61_90Count);
             item.put("dpd61_90ValMn", round(dpd61_90Val / 1_000_000.0, 2));
             item.put("dpd61_90Pct", grandTotalVal > 0 ? round((dpd61_90Val / grandTotalVal) * 100.0, 2) : 0.0);
+
+            item.put("dpdAbove90Count", dpdAbove90Count);
+            item.put("dpdAbove90ValMn", round(dpdAbove90Val / 1_000_000.0, 2));
+            item.put("dpdAbove90Pct", grandTotalVal > 0 ? round((dpdAbove90Val / grandTotalVal) * 100.0, 2) : 0.0);
 
             item.put("totalCount", totalCount);
             item.put("totalValMn", round(totalVal / 1_000_000.0, 2));
@@ -1608,64 +1618,13 @@ public class CbsReportService {
         totals.put("dpd61_90ValMn", round(gDpd61_90Val / 1_000_000.0, 2));
         totals.put("dpd61_90Pct", grandTotalVal > 0 ? round((gDpd61_90Val / grandTotalVal) * 100.0, 2) : 0.0);
 
+        totals.put("above90Count", gDpdAbove90Count);
+        totals.put("above90ValMn", round(gDpdAbove90Val / 1_000_000.0, 2));
+        totals.put("above90Pct", grandTotalVal > 0 ? round((gDpdAbove90Val / grandTotalVal) * 100.0, 2) : 0.0);
+
         totals.put("totalCount", gTotalCount);
         totals.put("totalValMn", round(grandTotalVal / 1_000_000.0, 2));
         totals.put("totalPct", grandTotalVal > 0 ? 100.0 : 0.0);
-
-        // Above 90 DPD (NPA) metrics
-        long above90Count = 0;
-        double above90Val = 0.0;
-        try {
-            StringBuilder above90Where = new StringBuilder(" WHERE 1=1 AND (COALESCE(p1.dpd, p2.dpd, 0) > 90 OR COALESCE(p1.loan_status, p2.loan_status) = 'N') ");
-            if (filters != null) {
-                String branch = (String) filters.get("branch");
-                if (branch != null && !branch.trim().isEmpty()) {
-                    above90Where.append(" AND (l.branch = :branch OR br.branch_name = :branch)");
-                }
-                Object productsObj = filters.get("products");
-                if (productsObj instanceof List && !((List<?>) productsObj).isEmpty()) {
-                    above90Where.append(" AND (l.product IN (:products) OR pr.product_code IN (:products) OR pr.product_name IN (:products))");
-                } else if (productsObj instanceof String && !((String) productsObj).trim().isEmpty()) {
-                    above90Where.append(" AND (l.product = :product OR pr.product_code = :product OR pr.product_name = :product)");
-                }
-                String asAt = (String) filters.get("asAt");
-                if (asAt != null && !asAt.trim().isEmpty()) {
-                    above90Where.append(" AND l.disbursed_date < DATE_ADD(:asAt, INTERVAL 1 DAY)");
-                }
-            }
-
-            String above90Sql = String.format("""
-                SELECT 
-                    COUNT(*) AS cnt,
-                    SUM(COALESCE(p1.exposure, p2.exposure, l.loan_amount, 0)) AS val
-                FROM cbs.loan l
-                LEFT JOIN cbs.portfolio p1
-                    ON p1.account_no = l.account_no
-                    AND p1.series = l.account_series
-                    AND p1.portfolio_date = :latestPortfolioDate
-                    AND p1.sync_time = :latestSyncTime
-                LEFT JOIN cbs.portfolio p2
-                    ON p2.account_no = l.legacy_account_no
-                    AND p2.series = l.account_series
-                    AND p2.portfolio_date = :latestPortfolioDate
-                    AND p2.sync_time = :latestSyncTime
-                LEFT JOIN cbs.branch br ON CAST(l.branch AS UNSIGNED) = br.branch_code
-                LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
-                %s
-            """, above90Where.toString());
-
-            Map<String, Object> above90Row = jdbc.queryForMap(above90Sql, params);
-            if (above90Row != null) {
-                above90Count = above90Row.get("cnt") != null ? ((Number) above90Row.get("cnt")).longValue() : 0L;
-                above90Val = above90Row.get("val") != null ? ((Number) above90Row.get("val")).doubleValue() : 0.0;
-            }
-        } catch (Exception e) {
-            log.warn("Unable to fetch above 90 DPD totals", e);
-        }
-
-        totals.put("above90Count", above90Count);
-        totals.put("above90ValMn", round(above90Val / 1_000_000.0, 2));
-        totals.put("above90Pct", grandTotalVal > 0 ? round((above90Val / grandTotalVal) * 100.0, 2) : 0.0);
 
         Map<String, Object> result = new HashMap<>();
         result.put("rows", formattedRows);
