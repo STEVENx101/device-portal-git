@@ -733,13 +733,13 @@ public class CbsReportController {
         writer.flush();
     }
 
-    @PostMapping("/api/cbs/vendor-payments")
+    @PostMapping("/vendor-payments")
     @ResponseBody
     public Map<String, Object> getVendorPaymentsReport(@RequestBody Map<String, Object> filters) {
         return cbsReportService.fetchVendorPaymentsReport(filters, false);
     }
 
-    @GetMapping("/api/cbs/vendor-payments/download")
+    @GetMapping("/vendor-payments/download")
     public void downloadVendorPaymentsReport(
             @RequestParam(required = false) String dateMode,
             @RequestParam(required = false) String status,
@@ -767,13 +767,13 @@ public class CbsReportController {
         writeVendorPaymentsCsv(response.getWriter(), reportData);
     }
 
-    @PostMapping("/api/cbs/vendor-payments-exception")
+    @PostMapping("/vendor-payments-exception")
     @ResponseBody
     public Map<String, Object> getVendorPaymentsExceptionReport(@RequestBody Map<String, Object> filters) {
         return cbsReportService.fetchVendorPaymentsReport(filters, true);
     }
 
-    @GetMapping("/api/cbs/vendor-payments-exception/download")
+    @GetMapping("/vendor-payments-exception/download")
     public void downloadVendorPaymentsExceptionReport(
             @RequestParam(required = false) String dateMode,
             @RequestParam(required = false) String status,
