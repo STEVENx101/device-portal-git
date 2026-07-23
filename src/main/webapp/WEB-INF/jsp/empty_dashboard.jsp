@@ -101,13 +101,25 @@
                 height: 280px;
                 width: 100%;
             }
+            .content {
+                overflow-y: auto !important;
+                height: calc(100vh - 20px) !important;
+                padding-right: 15px !important;
+            }
         </style>
     </head>
 
     <body>
 
         <main class="main" id="top">
-            <div class="container" data-layout="container">
+            <div class="container-fluid" data-layout="container">
+                <script>
+                    var container = document.querySelector('[data-layout]');
+                    if (container) {
+                        container.classList.remove('container');
+                        container.classList.add('container-fluid');
+                    }
+                </script>
                 <%@include file="../jspf/navbar.jspf" %>
 
                 <div class="content">
@@ -276,34 +288,142 @@
                 return parseFloat(num).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             }
 
-            function initDashboard() {
-                console.log("initDashboard called. AJAX request starting...");
+            // 1. Load Summary KPI Cards
+            function loadSummaryKpis() {
                 $.ajax({
-                    url: '${pageContext.request.contextPath}/api/dashboard/stats',
+                    url: '${pageContext.request.contextPath}/api/dashboard/summary-kpis',
                     type: 'GET',
                     success: function(data) {
-                        console.log("AJAX request succeeded. Data received:", data);
-                        try {
-                            // 1. New Loans (disbursed current month)
-                            $('#kpi-current-month-loans').text(data.currentMonthLoans);
+                        $('#kpi-current-month-loans').text(data.currentMonthLoans != null ? data.currentMonthLoans : 0);
+                        $('#kpi-knox-count').text(data.knoxCount != null ? data.knoxCount : 0);
+                        $('#kpi-security-details').text('Knox: ' + (data.knoxCount || 0) + ' | Datacultr: ' + (data.dataculteCount || 0));
 
-                        // 2. Knox vs Datacultr Counts
-                        $('#kpi-knox-count').text(data.knoxCount);
-                        $('#kpi-security-details').text('Knox: ' + data.knoxCount + ' | Datacultr: ' + data.dataculteCount);
+                        $('#kpi-mobiles-locked').text(data.mobileLocked != null ? data.mobileLocked : 0);
+                        $('#kpi-laptops-details').text('Mobiles Unlocked: ' + (data.mobileUnlocked || 0) + ' | Laptops: ' + (data.laptopLocked || 0) + ' Locked / ' + (data.laptopUnlocked || 0) + ' Unlocked');
 
-                        // 3. Mobile Locked Count
-                        $('#kpi-mobiles-locked').text(data.mobileLocked);
-                        $('#kpi-laptops-details').text('Mobiles Unlocked: ' + data.mobileUnlocked + ' | Laptops: ' + data.laptopLocked + ' Locked / ' + data.laptopUnlocked + ' Unlocked');
+                        $('#kpi-active-count').text(data.activeCount != null ? data.activeCount : 0);
+                        $('#kpi-npl-arrears-details').text('Active: ' + (data.activeCount || 0) + ' | NPA: ' + (data.nplCount || 0) + ' | Arrears: ' + (data.arrearsCount || 0));
+                    },
+                    error: function(err) {
+                        console.error("Error loading KPI cards:", err);
+                    }
+                });
+            }
 
-                        // 4. Portfolio stats
-                        $('#kpi-active-count').text(data.activeCount);
-                        $('#kpi-npl-arrears-details').text('Active: ' + data.activeCount + ' | NPA: ' + data.nplCount + ' | Arrears: ' + data.arrearsCount);
+            // 2. Load Arrears Chart
+            function loadArrearsChart() {
+                $.ajax({
+                    url: '${pageContext.request.contextPath}/api/dashboard/arrears-analysis',
+                    type: 'GET',
+                    success: function(data) {
+                        const arrearsLabels = [];
+                        const arrearsVal = [];
+                        const exposureVal = [];
+                        if (data && Array.isArray(data)) {
+                            data.forEach(item => {
+                                arrearsLabels.push(item.label);
+                                arrearsVal.push(item.arrears);
+                                exposureVal.push(item.exposure);
+                            });
+                        }
 
-                        // 5. Dealer Performance & Collections lists merging
+                        const arrearsCtx = document.getElementById('arrearsChart').getContext('2d');
+                        if (arrearsChart) arrearsChart.destroy();
+                        arrearsChart = new Chart(arrearsCtx, {
+                            type: 'bar',
+                            data: {
+                                labels: arrearsLabels,
+                                datasets: [
+                                    {
+                                        label: 'Arrears Amount',
+                                        data: arrearsVal,
+                                        backgroundColor: 'rgba(99, 102, 241, 0.75)',
+                                        borderColor: '#6366f1',
+                                        borderWidth: 1
+                                    },
+                                    {
+                                        label: 'Total Exposure',
+                                        data: exposureVal,
+                                        backgroundColor: 'rgba(168, 85, 247, 0.75)',
+                                        borderColor: '#a855f7',
+                                        borderWidth: 1
+                                    }
+                                ]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: {
+                                    legend: { position: 'bottom' }
+                                }
+                            }
+                        });
+                    },
+                    error: function(err) {
+                        console.error("Error loading Arrears chart:", err);
+                    }
+                });
+            }
+
+            // 3. Load DPD Analysis Chart
+            function loadDpdChart() {
+                $.ajax({
+                    url: '${pageContext.request.contextPath}/api/dashboard/dpd-analysis',
+                    type: 'GET',
+                    success: function(data) {
+                        const dpdLabels = [];
+                        const dpdCounts = [];
+                        if (data && Array.isArray(data)) {
+                            data.forEach(item => {
+                                dpdLabels.push(item.bucket);
+                                dpdCounts.push(item.count);
+                            });
+                        }
+
+                        const dpdCtx = document.getElementById('dpdChart').getContext('2d');
+                        if (dpdChart) dpdChart.destroy();
+                        dpdChart = new Chart(dpdCtx, {
+                            type: 'pie',
+                            data: {
+                                labels: dpdLabels,
+                                datasets: [{
+                                    data: dpdCounts,
+                                    backgroundColor: [
+                                        '#10b981', // 0
+                                        '#6366f1', // 1-30
+                                        '#8b5cf6', // 31-60
+                                        '#f59e0b', // 61-90
+                                        '#ef4444', // 91-180
+                                        '#b91c1c', // 181-270
+                                        '#7f1d1d', // 271-360
+                                        '#374151'  // Loss
+                                    ]
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: {
+                                    legend: { position: 'right' }
+                                }
+                            }
+                        });
+                    },
+                    error: function(err) {
+                        console.error("Error loading DPD chart:", err);
+                    }
+                });
+            }
+
+            // 4. Load Dealer Performance Table
+            function loadDealerPerformance() {
+                $.ajax({
+                    url: '${pageContext.request.contextPath}/api/dashboard/dealer-performance',
+                    type: 'GET',
+                    success: function(data) {
                         const dealerStatsTbody = $('#dealer-stats-tbody');
                         dealerStatsTbody.empty();
-                        
-                        // Merge currentMonthDealers, portfolioDealers and collectionsDealerWise
+
                         const dealerMap = {};
                         if (data.portfolioDealers) {
                             data.portfolioDealers.forEach(item => {
@@ -339,21 +459,33 @@
                             dealerList.forEach(d => {
                                 dealerStatsTbody.append(`
                                     <tr>
-                                        <td class="fw-bold">\${d.dealer_name}</td>
-                                        <td class="text-end">\${d.current_count}</td>
-                                        <td class="text-end">\${d.portfolio_count}</td>
-                                        <td class="text-end text-success font-monospace fw-bold">LKR \${formatNumber(d.collections)}</td>
+                                        <td class="fw-bold">${d.dealer_name}</td>
+                                        <td class="text-end">${d.current_count}</td>
+                                        <td class="text-end">${d.portfolio_count}</td>
+                                        <td class="text-end text-success font-monospace fw-bold">LKR ${formatNumber(d.collections)}</td>
                                     </tr>
                                 `);
                             });
                         }
+                    },
+                    error: function(err) {
+                        console.error("Error loading Dealer Performance:", err);
+                        $('#dealer-stats-tbody').html('<tr><td colspan="4" class="text-center text-danger">Failed to load dealer data</td></tr>');
+                    }
+                });
+            }
 
-                        // 6. Highest NPL ranks
+            // 5. Load Top NPL Concentrations
+            function loadTopNpl() {
+                $.ajax({
+                    url: '${pageContext.request.contextPath}/api/dashboard/top-npl',
+                    type: 'GET',
+                    success: function(data) {
                         const nplModelsList = $('#highest-npl-models-list');
                         nplModelsList.empty();
                         if (data.highestNplModels && data.highestNplModels.length > 0) {
                             data.highestNplModels.slice(0, 3).forEach((m, idx) => {
-                                nplModelsList.append(`<li class="list-group-item d-flex justify-content-between align-items-center py-1"><span><span class="badge bg-soft-danger text-danger me-2">\${idx + 1}</span>\${m.model_name}</span><span class="badge bg-danger">\${m.npl_count} NPLs</span></li>`);
+                                nplModelsList.append(`<li class="list-group-item d-flex justify-content-between align-items-center py-1"><span><span class="badge bg-soft-danger text-danger me-2">${idx + 1}</span>${m.model_name}</span><span class="badge bg-danger">${m.npl_count} NPLs</span></li>`);
                             });
                         } else {
                             nplModelsList.append('<li class="list-group-item text-center text-500 py-1">No NPL model data</li>');
@@ -363,128 +495,24 @@
                         nplDealersList.empty();
                         if (data.highestNplDealers && data.highestNplDealers.length > 0) {
                             data.highestNplDealers.slice(0, 3).forEach((d, idx) => {
-                                nplDealersList.append(`<li class="list-group-item d-flex justify-content-between align-items-center py-1"><span><span class="badge bg-soft-danger text-danger me-2">\${idx + 1}</span>\${d.dealer_name}</span><span class="badge bg-danger">\${d.npl_count} NPLs</span></li>`);
+                                nplDealersList.append(`<li class="list-group-item d-flex justify-content-between align-items-center py-1"><span><span class="badge bg-soft-danger text-danger me-2">${idx + 1}</span>${d.dealer_name}</span><span class="badge bg-danger">${d.npl_count} NPLs</span></li>`);
                             });
                         } else {
                             nplDealersList.append('<li class="list-group-item text-center text-500 py-1">No NPL dealer data</li>');
                         }
-
-                        // 7. Arrears Analysis Chart (Arrears vs Exposure)
-                        const arrearsLabels = [];
-                        const arrearsVal = [];
-                        const exposureVal = [];
-                        if (data.arrearsAnalysis) {
-                            data.arrearsAnalysis.forEach(item => {
-                                arrearsLabels.push(item.label);
-                                arrearsVal.push(item.arrears);
-                                exposureVal.push(item.exposure);
-                            });
-                        }
-
-                        const arrearsCtx = document.getElementById('arrearsChart').getContext('2d');
-                        arrearsChart = new Chart(arrearsCtx, {
-                            type: 'bar',
-                            data: {
-                                labels: arrearsLabels,
-                                datasets: [
-                                    {
-                                        label: 'Arrears Amount',
-                                        data: arrearsVal,
-                                        backgroundColor: 'rgba(99, 102, 241, 0.75)',
-                                        borderColor: '#6366f1',
-                                        borderWidth: 1
-                                    },
-                                    {
-                                        label: 'Total Exposure',
-                                        data: exposureVal,
-                                        backgroundColor: 'rgba(168, 85, 247, 0.75)',
-                                        borderColor: '#a855f7',
-                                        borderWidth: 1
-                                    }
-                                ]
-                            },
-                            options: {
-                                responsive: true,
-                                maintainAspectRatio: false,
-                                plugins: {
-                                    legend: { position: 'bottom' }
-                                }
-                            }
-                        });
-
-                        // 8. DPD Analysis Chart
-                        const dpdLabels = [];
-                        const dpdCounts = [];
-                        if (data.dpdAnalysis) {
-                            // Ensure sorted order or display exact returned buckets
-                            data.dpdAnalysis.forEach(item => {
-                                dpdLabels.push(item.bucket);
-                                dpdCounts.push(item.count);
-                            });
-                        }
-
-                        const dpdCtx = document.getElementById('dpdChart').getContext('2d');
-                        dpdChart = new Chart(dpdCtx, {
-                            type: 'pie',
-                            data: {
-                                labels: dpdLabels,
-                                datasets: [{
-                                    data: dpdCounts,
-                                    backgroundColor: [
-                                        '#10b981', // 0
-                                        '#6366f1', // 1-30
-                                        '#8b5cf6', // 31-60
-                                        '#f59e0b', // 61-90
-                                        '#ef4444', // 91-180
-                                        '#b91c1c', // 181-270
-                                        '#7f1d1d', // 271-360
-                                        '#374151'  // Loss
-                                    ]
-                                }]
-                            },
-                            options: {
-                                responsive: true,
-                                maintainAspectRatio: false,
-                                plugins: {
-                                    legend: { position: 'right' }
-                                }
-                            }
-                        });
-
-                        } catch (e) {
-                            console.error("Error inside AJAX success callback:", e);
-                            var errorDiv = document.createElement('div');
-                            errorDiv.style.position = 'fixed';
-                            errorDiv.style.bottom = '0';
-                            errorDiv.style.left = '0';
-                            errorDiv.style.width = '100%';
-                            errorDiv.style.backgroundColor = '#f8d7da';
-                            errorDiv.style.color = '#721c24';
-                            errorDiv.style.padding = '10px';
-                            errorDiv.style.zIndex = '9999';
-                            errorDiv.style.fontFamily = 'monospace';
-                            errorDiv.style.borderTop = '2px solid #f5c6cb';
-                            errorDiv.innerText = "CALLBACK ERROR: " + e.message + "\nStack: " + e.stack;
-                            document.body.appendChild(errorDiv);
-                        }
                     },
                     error: function(err) {
-                        console.error("Error loading dashboard metrics:", err);
-                        var errorDiv = document.createElement('div');
-                        errorDiv.style.position = 'fixed';
-                        errorDiv.style.bottom = '0';
-                        errorDiv.style.left = '0';
-                        errorDiv.style.width = '100%';
-                        errorDiv.style.backgroundColor = '#f8d7da';
-                        errorDiv.style.color = '#721c24';
-                        errorDiv.style.padding = '10px';
-                        errorDiv.style.zIndex = '9999';
-                        errorDiv.style.fontFamily = 'monospace';
-                        errorDiv.style.borderTop = '2px solid #f5c6cb';
-                        errorDiv.innerText = "AJAX HTTP ERROR: Status " + err.status + " (" + err.statusText + ")";
-                        document.body.appendChild(errorDiv);
+                        console.error("Error loading Top NPL concentrations:", err);
                     }
                 });
+            }
+
+            function initDashboard() {
+                loadSummaryKpis();
+                loadArrearsChart();
+                loadDpdChart();
+                loadDealerPerformance();
+                loadTopNpl();
             }
 
             if (document.readyState === "complete" || document.readyState === "interactive") {
