@@ -1612,6 +1612,32 @@ public class CbsReportService {
         totals.put("totalValMn", round(grandTotalVal / 1_000_000.0, 2));
         totals.put("totalPct", grandTotalVal > 0 ? 100.0 : 0.0);
 
+        // Above 90 DPD (NPA) metrics
+        long above90Count = 0;
+        double above90Val = 0.0;
+        try {
+            String above90Sql = """
+                SELECT 
+                    COUNT(*) AS cnt,
+                    SUM(COALESCE(exposure, loan_amount, 0)) AS val
+                FROM cbs.portfolio
+                WHERE portfolio_date = :latestPortfolioDate
+                  AND sync_time = :latestSyncTime
+                  AND (dpd > 90 OR loan_status = 'N')
+            """;
+            Map<String, Object> above90Row = jdbc.queryForMap(above90Sql, params);
+            if (above90Row != null) {
+                above90Count = above90Row.get("cnt") != null ? ((Number) above90Row.get("cnt")).longValue() : 0L;
+                above90Val = above90Row.get("val") != null ? ((Number) above90Row.get("val")).doubleValue() : 0.0;
+            }
+        } catch (Exception e) {
+            log.warn("Unable to fetch above 90 DPD totals: {}", e.getMessage());
+        }
+
+        totals.put("above90Count", above90Count);
+        totals.put("above90ValMn", round(above90Val / 1_000_000.0, 2));
+        totals.put("above90Pct", grandTotalVal > 0 ? round((above90Val / grandTotalVal) * 100.0, 2) : 0.0);
+
         Map<String, Object> result = new HashMap<>();
         result.put("rows", formattedRows);
         result.put("totals", totals);

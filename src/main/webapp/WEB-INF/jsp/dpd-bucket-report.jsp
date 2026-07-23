@@ -142,30 +142,41 @@
                         </div>
                     </div>
 
-                    <!-- Summary KPI Cards -->
-                    <div class="row g-3 mb-3">
-                        <div class="col-md-3">
-                            <div class="kpi-card">
-                                <div class="kpi-title"><i class="fas fa-file-contract me-1 text-primary"></i>Total Contracts</div>
-                                <div class="kpi-value" id="kpiTotalContracts">-</div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="kpi-card">
-                                <div class="kpi-title"><i class="fas fa-coins me-1 text-success"></i>Total Exposure (Mn)</div>
-                                <div class="kpi-value" id="kpiTotalExposure">-</div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="kpi-card">
-                                <div class="kpi-title"><i class="fas fa-check-circle me-1 text-info"></i>DPD 0 Exposure (Mn)</div>
+                    <!-- Summary KPI Cards categorized by DPD Buckets -->
+                    <div class="row row-cols-1 row-cols-md-5 g-3 mb-3">
+                        <div class="col">
+                            <div class="kpi-card border-start border-4 border-success">
+                                <div class="kpi-title"><i class="fas fa-check-circle me-1 text-success"></i>DPD 0</div>
                                 <div class="kpi-value text-success" id="kpiDpd0Exposure">-</div>
+                                <div class="small text-muted mt-1" id="kpiDpd0Sub">-</div>
                             </div>
                         </div>
-                        <div class="col-md-3">
-                            <div class="kpi-card">
-                                <div class="kpi-title"><i class="fas fa-exclamation-circle me-1 text-danger"></i>Arrears 1-90 DPD (Mn)</div>
-                                <div class="kpi-value text-danger" id="kpiArrearsExposure">-</div>
+                        <div class="col">
+                            <div class="kpi-card border-start border-4 border-warning">
+                                <div class="kpi-title"><i class="fas fa-exclamation-circle me-1 text-warning"></i>DPD 1 - 30</div>
+                                <div class="kpi-value text-warning" id="kpiDpd1_30Exposure">-</div>
+                                <div class="small text-muted mt-1" id="kpiDpd1_30Sub">-</div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="kpi-card border-start border-4 border-danger">
+                                <div class="kpi-title"><i class="fas fa-exclamation-triangle me-1 text-danger"></i>DPD 31 - 60</div>
+                                <div class="kpi-value text-danger" id="kpiDpd31_60Exposure">-</div>
+                                <div class="small text-muted mt-1" id="kpiDpd31_60Sub">-</div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="kpi-card border-start border-4 border-danger">
+                                <div class="kpi-title"><i class="fas fa-times-circle me-1 text-danger"></i>DPD 61 - 90</div>
+                                <div class="kpi-value text-danger" id="kpiDpd61_90Exposure">-</div>
+                                <div class="small text-muted mt-1" id="kpiDpd61_90Sub">-</div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="kpi-card border-start border-4 border-dark">
+                                <div class="kpi-title"><i class="fas fa-ban me-1 text-dark"></i>Above 90 Arrears</div>
+                                <div class="kpi-value text-dark" id="kpiAbove90Exposure">-</div>
+                                <div class="small text-muted mt-1" id="kpiAbove90Sub">-</div>
                             </div>
                         </div>
                     </div>
@@ -326,12 +337,25 @@
                 $('#colCategoryHeader').text(catLabel);
 
                 // Update KPI Cards
-                $('#kpiTotalContracts').text(formatInt(totals.totalCount || 0));
-                $('#kpiTotalExposure').text(formatNumber(totals.totalValMn || 0) + ' Mn');
+                // Card 1: DPD 0
                 $('#kpiDpd0Exposure').text(formatNumber(totals.dpd0ValMn || 0) + ' Mn');
-                
-                const arrearsMn = (totals.dpd1_30ValMn || 0) + (totals.dpd31_60ValMn || 0) + (totals.dpd61_90ValMn || 0);
-                $('#kpiArrearsExposure').text(formatNumber(arrearsMn) + ' Mn');
+                $('#kpiDpd0Sub').text(formatInt(totals.dpd0Count || 0) + ' Contracts (' + formatNumber(totals.dpd0Pct || 0) + '%)');
+
+                // Card 2: DPD 1 - 30
+                $('#kpiDpd1_30Exposure').text(formatNumber(totals.dpd1_30ValMn || 0) + ' Mn');
+                $('#kpiDpd1_30Sub').text(formatInt(totals.dpd1_30Count || 0) + ' Contracts (' + formatNumber(totals.dpd1_30Pct || 0) + '%)');
+
+                // Card 3: DPD 31 - 60
+                $('#kpiDpd31_60Exposure').text(formatNumber(totals.dpd31_60ValMn || 0) + ' Mn');
+                $('#kpiDpd31_60Sub').text(formatInt(totals.dpd31_60Count || 0) + ' Contracts (' + formatNumber(totals.dpd31_60Pct || 0) + '%)');
+
+                // Card 4: DPD 61 - 90
+                $('#kpiDpd61_90Exposure').text(formatNumber(totals.dpd61_90ValMn || 0) + ' Mn');
+                $('#kpiDpd61_90Sub').text(formatInt(totals.dpd61_90Count || 0) + ' Contracts (' + formatNumber(totals.dpd61_90Pct || 0) + '%)');
+
+                // Card 5: Above 90 Arrears (NPA)
+                $('#kpiAbove90Exposure').text(formatNumber(totals.above90ValMn || 0) + ' Mn');
+                $('#kpiAbove90Sub').text(formatInt(totals.above90Count || 0) + ' Contracts (' + formatNumber(totals.above90Pct || 0) + '%)');
 
                 if (rows.length === 0) {
                     $('#tableBody').html('<tr><td colspan="16" class="text-center py-4 text-muted">No records found for the selected criteria</td></tr>');
