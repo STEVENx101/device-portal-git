@@ -7,7 +7,7 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>Fintrex | Transaction Report</title>
+        <title>Fintrex | Customer Payments</title>
 
         <link rel="apple-touch-icon" sizes="180x180" href="${pageContext.request.contextPath}/assets/img/favicons/apple-touch-icon.png">
         <link rel="icon" type="image/png" sizes="32x32" href="${pageContext.request.contextPath}/assets/img/favicons/favicon-32x32.png">
@@ -121,7 +121,7 @@
 
                     <div class="d-flex mb-2 align-items-center justify-content-between mt-2">
                         <div>
-                            <h4 class="mb-0 text-primary"><i class="fas fa-file-invoice-dollar me-2"></i>Device Finance Reports - Transaction</h4>
+                            <h4 class="mb-0 text-primary"><i class="fas fa-file-invoice-dollar me-2"></i>Device Finance Reports - Customer Payments</h4>
                         </div>
                     </div>
 
@@ -182,6 +182,7 @@
                                             <th>Amount</th>
                                             <th>Date</th>
                                             <th>User</th>
+                                            <th>Channel</th>
                                             <th>Narration</th>
                                         </tr>
                                     </thead>
@@ -283,6 +284,7 @@
                         { data: 'amount', render: $.fn.dataTable.render.number(',', '.', 2) },
                         { data: 'date' },
                         { data: 'user' },
+                        { data: 'channel', defaultContent: '-' },
                         { data: 'narration' }
                     ]
                 });

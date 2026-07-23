@@ -99,20 +99,24 @@
                         <div class="card-body">
                             <form id="filterForm">
                                 <div class="row g-3 align-items-end">
-                                    <div class="col-md-3">
-                                        <label class="form-label text-700 fw-semi-bold" for="asAtDate">As at Portfolio Date</label>
-                                        <input class="form-control" type="date" id="asAtDate" value="">
-                                    </div>
-                                    <div class="col-md-9 d-flex align-items-end justify-content-end gap-2">
-                                        <button class="btn btn-primary btn-sm" type="button" id="applyFiltersBtn">
-                                            <span class="fas fa-search me-1"></span> Load Data
-                                        </button>
-                                        <% if (canDownloadReports) { %>
-                                        <button class="btn btn-success btn-sm" type="button" id="downloadExcelBtn">
-                                            <span class="fas fa-file-excel me-1"></span> Download CSV
-                                        </button>
-                                        <% } %>
-                                    </div>
+                                     <div class="col-md-3">
+                                         <label class="form-label text-700 fw-semi-bold" for="asAtDate">As at Portfolio Date</label>
+                                         <input class="form-control" type="date" id="asAtDate" value="">
+                                     </div>
+                                     <div class="col-md-3">
+                                         <label class="form-label text-700 fw-semi-bold" for="lowAmount">Max Balance (Low Amount)</label>
+                                         <input class="form-control" type="number" id="lowAmount" value="1000" placeholder="1000">
+                                     </div>
+                                     <div class="col-md-6 d-flex align-items-end justify-content-end gap-2">
+                                         <button class="btn btn-primary btn-sm" type="button" id="applyFiltersBtn">
+                                             <span class="fas fa-search me-1"></span> Load Data
+                                         </button>
+                                         <% if (canDownloadReports) { %>
+                                         <button class="btn btn-success btn-sm" type="button" id="downloadExcelBtn">
+                                             <span class="fas fa-file-excel me-1"></span> Download CSV
+                                         </button>
+                                         <% } %>
+                                     </div>
                                 </div>
                             </form>
                         </div>
@@ -130,7 +134,7 @@
                                             <th>Legacy Account</th>
                                             <th>NIC/ID No</th>
                                             <th>Mobile No</th>
-                                            <th>Address</th>
+                                            <th>Mature Date</th>
                                             <th>Loan Amount</th>
                                             <th>Rental</th>
                                             <th>Total Due</th>
@@ -176,7 +180,8 @@
 
             function getFilters() {
                 return {
-                    asAt: $('#asAtDate').val()
+                    asAt: $('#asAtDate').val(),
+                    lowAmount: $('#lowAmount').val()
                 };
             }
 
@@ -211,7 +216,7 @@
                         { data: 'legacy_account_no', defaultContent: '-' },
                         { data: 'client_nic', defaultContent: '-' },
                         { data: 'client_mobile', defaultContent: '-' },
-                        { data: 'client_address', defaultContent: '-' },
+                        { data: 'mature_date', defaultContent: '-' },
                         { data: 'loan_amount', render: $.fn.dataTable.render.number(',', '.', 2) },
                         { data: 'rental', render: $.fn.dataTable.render.number(',', '.', 2) },
                         { data: 'total_due', render: $.fn.dataTable.render.number(',', '.', 2) },
@@ -247,6 +252,9 @@
 
                         const queryParams = new URLSearchParams();
                         queryParams.append('asAt', filters.asAt);
+                        if (filters.lowAmount) {
+                            queryParams.append('lowAmount', filters.lowAmount);
+                        }
 
                         const token = new Date().getTime();
                         queryParams.append('downloadToken', token);

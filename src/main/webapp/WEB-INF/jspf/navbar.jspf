@@ -667,7 +667,7 @@ body {
                                 <% } %>
                                 <% if (hasTransactionReport) { %>
                                 <a href="<%= request.getContextPath() %>/transaction" class="dropdown-item-custom" id="nav-report-transaction">
-                                    Transaction Report
+                                    Customer Payments
                                 </a>
                                 <% } %>
                                 <% if (hasReportLogs) { %>

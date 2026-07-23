@@ -460,6 +460,7 @@ public class CbsReportService {
                     DATE_FORMAT(t.date, '%Y-%m-%d') AS `date`,
                     t.user,
                     t.narration,
+                    t.channel,
                     COALESCE(br.branch_name, l1.branch, l2.branch) AS `branch_name`,
                     COALESCE(pr.product_name, l1.product, l2.product) AS `product_name`
                 FROM cbs.transaction t
@@ -507,6 +508,7 @@ public class CbsReportService {
                     t.date,
                     t.user,
                     t.narration,
+                    t.channel,
                     t.branch_name AS `branch_name`,
                     t.product_name AS `product_name`
                 FROM (""" + subQuery + ") t WHERE TRUE";
@@ -1273,9 +1275,12 @@ public class CbsReportService {
         return executePagedReport(request, sql, params);
     }
 
-    public List<Map<String, Object>> getMaturedLowBalanceReportData(String asAt) {
+    public List<Map<String, Object>> getMaturedLowBalanceReportData(String asAt, Double lowAmount) {
         Map<String, Object> filterMap = new HashMap<>();
         filterMap.put("asAt", asAt);
+        if (lowAmount != null) {
+            filterMap.put("lowAmount", lowAmount);
+        }
         Map<String, Object> params = new HashMap<>();
         String sql = buildMaturedLowBalanceReportQuery(filterMap, params);
         return executeDownloadReport(sql, params);
@@ -1350,6 +1355,18 @@ public class CbsReportService {
 
     private String buildMaturedLowBalanceReportQuery(Object rawFilter, Map<String, Object> params) {
         addLatestPortfolioParams(params);
+        double lowAmount = 1000.0;
+        if (rawFilter instanceof Map) {
+            Map<?, ?> filter = (Map<?, ?>) rawFilter;
+            Object lowAmtObj = filter.get("lowAmount");
+            if (lowAmtObj != null) {
+                try {
+                    lowAmount = Double.parseDouble(lowAmtObj.toString().trim());
+                } catch (NumberFormatException ignored) {}
+            }
+        }
+        params.put("lowAmountThreshold", lowAmount);
+
         String subQuery = """
                 SELECT
                     l.account_no,
@@ -1358,7 +1375,7 @@ public class CbsReportService {
                     c.full_name AS `client_name`,
                     c.id_no AS `client_nic`,
                     c.mobile AS `client_mobile`,
-                    c.address AS `client_address`,
+                    DATE_FORMAT(l.maturity_date, '%Y-%m-%d') AS `mature_date`,
                     l.loan_amount,
                     l.rental,
                     COALESCE(p1.total_due, p2.total_due) AS `total_due`,
@@ -1386,7 +1403,7 @@ public class CbsReportService {
                 WHERE 1=1
                   AND l.maturity_date < CURDATE()
                   AND COALESCE(p1.exposure, p2.exposure) > 0
-                  AND COALESCE(p1.exposure, p2.exposure) < 1000""";
+                  AND COALESCE(p1.exposure, p2.exposure) < :lowAmountThreshold""";
 
         if (rawFilter instanceof Map) {
             Map<?, ?> filter = (Map<?, ?>) rawFilter;
@@ -1405,7 +1422,7 @@ public class CbsReportService {
                     t.client_name,
                     t.client_nic,
                     t.client_mobile,
-                    t.client_address,
+                    t.mature_date,
                     t.loan_amount,
                     t.rental,
                     t.total_due,
@@ -1479,9 +1496,9 @@ public class CbsReportService {
             }
         }
 
-        String sql = """
+        String sql = String.format("""
             SELECT
-                """ + categoryExpr + """ AS category_name,
+                %s AS category_name,
                 COUNT(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) = 0 THEN 1 END) AS dpd0_count,
                 SUM(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) = 0 THEN COALESCE(p1.exposure, p2.exposure, l.loan_amount, 0) ELSE 0 END) AS dpd0_val,
                 COUNT(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) BETWEEN 1 AND 30 THEN 1 END) AS dpd1_30_count,
@@ -1505,11 +1522,11 @@ public class CbsReportService {
                 AND p2.sync_time = :latestSyncTime
             LEFT JOIN cbs.branch br ON CAST(l.branch AS UNSIGNED) = br.branch_code
             LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
-            """ + dimensionJoin + """
-            """ + whereClause.toString() + """
+            %s
+            %s
             GROUP BY category_name
             ORDER BY total_val DESC
-        """;
+        """, categoryExpr, dimensionJoin, whereClause.toString());
 
         List<Map<String, Object>> rawRows = jdbc.queryForList(sql, params);
 

@@ -186,7 +186,7 @@
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link" id="tab-report3" data-bs-toggle="tab" href="#report3-pane" role="tab" aria-controls="report3-pane" aria-selected="false">
-                                        <span class="fas fa-receipt me-2"></span>Transaction Report
+                                        <span class="fas fa-receipt me-2"></span>Customer Payments
                                     </a>
                                 </li>
                             </ul>
@@ -260,6 +260,7 @@
                                                     <th>Amount</th>
                                                     <th>Date</th>
                                                     <th>User</th>
+                                                    <th>Channel</th>
                                                     <th>Narration</th>
                                                 </tr>
                                             </thead>
@@ -414,6 +415,7 @@
                         { data: 'amount', render: $.fn.dataTable.render.number(',', '.', 2) },
                         { data: 'date' },
                         { data: 'user' },
+                        { data: 'channel', defaultContent: '-' },
                         { data: 'narration' }
                     ]
                 });
