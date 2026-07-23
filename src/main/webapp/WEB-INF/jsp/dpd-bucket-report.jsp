@@ -1,18 +1,4 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%@page import="com.fintrex.deviceportal.dto.Screen"%>
-<%@page import="java.util.List"%>
-<%
-    List<Screen> userScreens = (List<Screen>) session.getAttribute("permittedScreens");
-    boolean canDownloadReports = false;
-    if (userScreens != null) {
-        for (Screen s : userScreens) {
-            if (s.getPath().equalsIgnoreCase("/download-reports")) {
-                canDownloadReports = true;
-                break;
-            }
-        }
-    }
-%>
 <!DOCTYPE html>
 <html lang="en-US" dir="ltr">
 
