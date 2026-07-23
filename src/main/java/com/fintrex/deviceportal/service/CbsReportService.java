@@ -1616,22 +1616,51 @@ public class CbsReportService {
         long above90Count = 0;
         double above90Val = 0.0;
         try {
-            String above90Sql = """
+            StringBuilder above90Where = new StringBuilder(" WHERE 1=1 AND (COALESCE(p1.dpd, p2.dpd, 0) > 90 OR COALESCE(p1.loan_status, p2.loan_status) = 'N') ");
+            if (filters != null) {
+                String branch = (String) filters.get("branch");
+                if (branch != null && !branch.trim().isEmpty()) {
+                    above90Where.append(" AND (l.branch = :branch OR br.branch_name = :branch)");
+                }
+                Object productsObj = filters.get("products");
+                if (productsObj instanceof List && !((List<?>) productsObj).isEmpty()) {
+                    above90Where.append(" AND (l.product IN (:products) OR pr.product_code IN (:products) OR pr.product_name IN (:products))");
+                } else if (productsObj instanceof String && !((String) productsObj).trim().isEmpty()) {
+                    above90Where.append(" AND (l.product = :product OR pr.product_code = :product OR pr.product_name = :product)");
+                }
+                String asAt = (String) filters.get("asAt");
+                if (asAt != null && !asAt.trim().isEmpty()) {
+                    above90Where.append(" AND l.disbursed_date < DATE_ADD(:asAt, INTERVAL 1 DAY)");
+                }
+            }
+
+            String above90Sql = String.format("""
                 SELECT 
                     COUNT(*) AS cnt,
-                    SUM(COALESCE(exposure, loan_amount, 0)) AS val
-                FROM cbs.portfolio
-                WHERE portfolio_date = :latestPortfolioDate
-                  AND sync_time = :latestSyncTime
-                  AND (dpd > 90 OR loan_status = 'N')
-            """;
+                    SUM(COALESCE(p1.exposure, p2.exposure, l.loan_amount, 0)) AS val
+                FROM cbs.loan l
+                LEFT JOIN cbs.portfolio p1
+                    ON p1.account_no = l.account_no
+                    AND p1.series = l.account_series
+                    AND p1.portfolio_date = :latestPortfolioDate
+                    AND p1.sync_time = :latestSyncTime
+                LEFT JOIN cbs.portfolio p2
+                    ON p2.account_no = l.legacy_account_no
+                    AND p2.series = l.account_series
+                    AND p2.portfolio_date = :latestPortfolioDate
+                    AND p2.sync_time = :latestSyncTime
+                LEFT JOIN cbs.branch br ON CAST(l.branch AS UNSIGNED) = br.branch_code
+                LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
+                %s
+            """, above90Where.toString());
+
             Map<String, Object> above90Row = jdbc.queryForMap(above90Sql, params);
             if (above90Row != null) {
                 above90Count = above90Row.get("cnt") != null ? ((Number) above90Row.get("cnt")).longValue() : 0L;
                 above90Val = above90Row.get("val") != null ? ((Number) above90Row.get("val")).doubleValue() : 0.0;
             }
         } catch (Exception e) {
-            log.warn("Unable to fetch above 90 DPD totals: {}", e.getMessage());
+            log.warn("Unable to fetch above 90 DPD totals", e);
         }
 
         totals.put("above90Count", above90Count);
