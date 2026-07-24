@@ -131,16 +131,267 @@
                         </div>
                     </div>
 
-                    <!-- Blank Dashboard Placeholder -->
-                    <div class="card glass-card mb-4" style="min-height: 400px;">
-                        <div class="card-body d-flex align-items-center justify-content-center text-muted">
-                            <div class="text-center py-5">
-                                <i class="fas fa-chart-line fa-3x mb-3 text-300"></i>
-                                <h5 class="text-700 fw-semi-bold">Dashboard View</h5>
-                                <p class="fs--1 text-500 mb-0">Dashboard content is currently blank.</p>
+                    <!-- N-Status (NPA/NPL) Metrics Section -->
+                    <div class="mb-3">
+                        <h5 class="text-700 fw-bold mb-2"><i class="fas fa-exclamation-circle me-2 text-warning"></i>N-Status Account Metrics (Status = N)</h5>
+                    </div>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-3">
+                            <div class="card kpi-card gradient-1 shadow-sm h-100">
+                                <div class="card-body p-3">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <span class="card-title-sub">Current Month Business</span>
+                                            <div class="card-value" id="n-month-amount">LKR 0.00</div>
+                                            <div class="card-detail-text" id="n-month-count">0 Accounts</div>
+                                        </div>
+                                        <div class="bg-white bg-opacity-20 rounded p-2 text-white">
+                                            <i class="fas fa-calendar-day fa-lg"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card kpi-card gradient-2 shadow-sm h-100">
+                                <div class="card-body p-3">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <span class="card-title-sub">Year to Date (YTD)</span>
+                                            <div class="card-value" id="n-ytd-amount">LKR 0.00</div>
+                                            <div class="card-detail-text" id="n-ytd-count">0 Accounts</div>
+                                        </div>
+                                        <div class="bg-white bg-opacity-20 rounded p-2 text-white">
+                                            <i class="fas fa-calendar-alt fa-lg"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card kpi-card gradient-3 shadow-sm h-100">
+                                <div class="card-body p-3">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <span class="card-title-sub">Total Portfolio</span>
+                                            <div class="card-value" id="n-portfolio-amount">LKR 0.00</div>
+                                            <div class="card-detail-text" id="n-portfolio-count">0 Accounts</div>
+                                        </div>
+                                        <div class="bg-white bg-opacity-20 rounded p-2 text-white">
+                                            <i class="fas fa-briefcase fa-lg"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card kpi-card gradient-4 shadow-sm h-100">
+                                <div class="card-body p-3">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <span class="card-title-sub">NPL Exposure</span>
+                                            <div class="card-value" id="n-npl-exposure">LKR 0.00</div>
+                                            <div class="card-detail-text" id="n-npl-count">0 Accounts (Arrears: LKR 0)</div>
+                                        </div>
+                                        <div class="bg-white bg-opacity-20 rounded p-2 text-white">
+                                            <i class="fas fa-exclamation-triangle fa-lg"></i>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
+
+                    <!-- General Dashboard KPIs Section -->
+                    <div class="mb-3">
+                        <h5 class="text-700 fw-bold mb-2"><i class="fas fa-chart-pie me-2 text-primary"></i>General Portfolio Overview</h5>
+                    </div>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-3">
+                            <div class="card border-0 shadow-sm h-100 bg-white">
+                                <div class="card-body p-3">
+                                    <span class="text-500 card-title-sub text-muted">Total Accounts</span>
+                                    <div class="fs-2 fw-bold text-dark mt-1" id="total-accounts">0</div>
+                                    <div class="fs--1 text-muted" id="current-month-loans">New current month: 0</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card border-0 shadow-sm h-100 bg-white">
+                                <div class="card-body p-3">
+                                    <span class="text-500 card-title-sub text-muted">Active Portfolio</span>
+                                    <div class="fs-2 fw-bold text-success mt-1" id="active-count">0</div>
+                                    <div class="fs--1 text-muted">Status: Active</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card border-0 shadow-sm h-100 bg-white">
+                                <div class="card-body p-3">
+                                    <span class="text-500 card-title-sub text-muted">Total NPL Accounts</span>
+                                    <div class="fs-2 fw-bold text-danger mt-1" id="total-npl-count">0</div>
+                                    <div class="fs--1 text-muted">DPD > 90 or Status N</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card border-0 shadow-sm h-100 bg-white">
+                                <div class="card-body p-3">
+                                    <span class="text-500 card-title-sub text-muted">Arrears Count</span>
+                                    <div class="fs-2 fw-bold text-warning mt-1" id="arrears-count">0</div>
+                                    <div class="fs--1 text-muted">Active loans with DPD > 0</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Charts Section -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-header bg-white border-0 py-3">
+                                    <h6 class="mb-0 text-800 fw-bold">Arrears by Product</h6>
+                                </div>
+                                <div class="card-body pt-0">
+                                    <div class="chart-container">
+                                        <canvas id="arrearsChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-header bg-white border-0 py-3">
+                                    <h6 class="mb-0 text-800 fw-bold">DPD Bucket Distribution</h6>
+                                </div>
+                                <div class="card-body pt-0">
+                                    <div class="chart-container">
+                                        <canvas id="dpdChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Fetch and Render Script -->
+                    <script>
+                        document.addEventListener("DOMContentLoaded", function() {
+                            const formatLKR = (val) => {
+                                return new Intl.NumberFormat('en-LK', {
+                                    style: 'currency',
+                                    currency: 'LKR',
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2
+                                }).format(val);
+                            };
+
+                            const formatNum = (val) => {
+                                return new Intl.NumberFormat().format(val);
+                            };
+
+                            fetch('${pageContext.request.contextPath}/api/dashboard/stats')
+                                .then(response => {
+                                    if (!response.ok) {
+                                        throw new Error("HTTP error " + response.status);
+                                    }
+                                    return response.json();
+                                })
+                                .then(data => {
+                                    console.log("Dashboard Stats:", data);
+                                    
+                                    // 1. Set N-Status Kpis
+                                    document.getElementById("n-month-amount").innerText = formatLKR(data.nMonthAmount);
+                                    document.getElementById("n-month-count").innerText = formatNum(data.nMonthCount) + " Accounts";
+                                    
+                                    document.getElementById("n-ytd-amount").innerText = formatLKR(data.nYtdAmount);
+                                    document.getElementById("n-ytd-count").innerText = formatNum(data.nYtdCount) + " Accounts";
+                                    
+                                    document.getElementById("n-portfolio-amount").innerText = formatLKR(data.nPortfolioAmount);
+                                    document.getElementById("n-portfolio-count").innerText = formatNum(data.nPortfolioCount) + " Accounts";
+                                    
+                                    document.getElementById("n-npl-exposure").innerText = formatLKR(data.nNplExposure);
+                                    document.getElementById("n-npl-count").innerText = formatNum(data.nNplCount) + " Accounts (Arrears: " + formatLKR(data.nNplArrears) + ")";
+
+                                    // 2. Set General Portfolio Overview
+                                    document.getElementById("total-accounts").innerText = formatNum(data.totalAccounts);
+                                    document.getElementById("current-month-loans").innerText = "New current month: " + formatNum(data.currentMonthLoans);
+                                    document.getElementById("active-count").innerText = formatNum(data.activeCount);
+                                    document.getElementById("total-npl-count").innerText = formatNum(data.nplCount);
+                                    document.getElementById("arrears-count").innerText = formatNum(data.arrearsCount);
+
+                                    // 3. Render Arrears Chart
+                                    if (data.arrearsAnalysis && data.arrearsAnalysis.length > 0) {
+                                        const labels = data.arrearsAnalysis.map(x => x.label || "Unknown");
+                                        const exposureData = data.arrearsAnalysis.map(x => x.exposure || 0);
+                                        const arrearsData = data.arrearsAnalysis.map(x => x.arrears || 0);
+
+                                        new Chart(document.getElementById('arrearsChart'), {
+                                            type: 'bar',
+                                            data: {
+                                                labels: labels,
+                                                datasets: [
+                                                    {
+                                                        label: 'Arrears (LKR)',
+                                                        data: arrearsData,
+                                                        backgroundColor: 'rgba(245, 158, 11, 0.75)',
+                                                        borderColor: '#f59e0b',
+                                                        borderWidth: 1
+                                                    },
+                                                    {
+                                                        label: 'Exposure (LKR)',
+                                                        data: exposureData,
+                                                        backgroundColor: 'rgba(99, 102, 241, 0.75)',
+                                                        borderColor: '#6366f1',
+                                                        borderWidth: 1
+                                                    }
+                                                ]
+                                            },
+                                            options: {
+                                                responsive: true,
+                                                maintainAspectRatio: false,
+                                                scales: {
+                                                    y: {
+                                                        beginAtZero: true
+                                                    }
+                                                }
+                                            }
+                                        });
+                                    }
+
+                                    // 4. Render DPD Chart
+                                    if (data.dpdAnalysis && data.dpdAnalysis.length > 0) {
+                                        const labels = data.dpdAnalysis.map(x => x.bucket);
+                                        const counts = data.dpdAnalysis.map(x => x.count);
+
+                                        new Chart(document.getElementById('dpdChart'), {
+                                            type: 'pie',
+                                            data: {
+                                                labels: labels,
+                                                datasets: [{
+                                                    data: counts,
+                                                    backgroundColor: [
+                                                        '#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#6b7280', '#000000'
+                                                    ]
+                                                }]
+                                            },
+                                            options: {
+                                                responsive: true,
+                                                maintainAspectRatio: false,
+                                                plugins: {
+                                                    legend: {
+                                                        position: 'right'
+                                                    }
+                                                }
+                                            }
+                                        });
+                                    }
+                                })
+                                .catch(err => {
+                                    console.error("Error fetching dashboard statistics:", err);
+                                });
+                        });
+                    </script>
+
 
                 </div>
             </div>
