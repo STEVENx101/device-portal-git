@@ -1707,7 +1707,6 @@ public class CbsReportService {
             FROM cbs.vendor_payments
             %s
             ORDER BY trx_date DESC
-            LIMIT 3000
         """, whereClause.toString());
 
         List<Map<String, Object>> rows = jdbc.queryForList(sql, params);
