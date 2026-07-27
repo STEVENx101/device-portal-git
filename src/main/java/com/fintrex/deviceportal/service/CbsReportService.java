@@ -309,14 +309,14 @@ public class CbsReportService {
         addLatestPortfolioParams(params);
         String subQuery = """
                 SELECT
-                    DATE_FORMAT(p.portfolio_date, '%Y-%m-%d') AS portfolio_date,
+                    DATE_FORMAT(COALESCE(p1.portfolio_date, p2.portfolio_date), '%Y-%m-%d') AS portfolio_date,
                     l.account_no,
                     l.account_series AS `series`,
-                    p.loan_status AS `portfolio_loan_status`,
-                    p.total_due AS total_due,
-                    p.exposure AS exposure,
-                    p.dpd AS dpd,
-                    p.performing_status AS performing_status,
+                    COALESCE(p1.loan_status, p2.loan_status) AS `portfolio_loan_status`,
+                    COALESCE(p1.total_due, p2.total_due) AS total_due,
+                    COALESCE(p1.exposure, p2.exposure) AS exposure,
+                    COALESCE(p1.dpd, p2.dpd) AS dpd,
+                    COALESCE(p1.performing_status, p2.performing_status) AS performing_status,
                     l.legacy_account_no,
                     COALESCE(pr.product_name, l.product) AS `product_name`,
                     COALESCE(br.branch_name, l.branch) AS `branch_name`,
@@ -332,11 +332,16 @@ public class CbsReportService {
                     COALESCE(dl1.external_id, dl2.external_id) AS `external_id`,
                     COALESCE(dl1.platform, dl2.platform) AS `platform`
                 FROM cbs.loan l
-                LEFT JOIN cbs.portfolio p
-                    ON IFNULL(l.legacy_account_no,l.account_no)=p.account_no
-                    AND p.series = l.account_series
-                    AND p.portfolio_date = :latestPortfolioDate
-                    AND p.sync_time = :latestSyncTime
+                LEFT JOIN cbs.portfolio p1
+                    ON p1.account_no = l.account_no
+                    AND p1.series = l.account_series
+                    AND p1.portfolio_date = :latestPortfolioDate
+                    AND p1.sync_time = :latestSyncTime
+                LEFT JOIN cbs.portfolio p2
+                    ON p2.account_no = l.legacy_account_no
+                    AND p2.series = l.account_series
+                    AND p2.portfolio_date = :latestPortfolioDate
+                    AND p2.sync_time = :latestSyncTime
                 LEFT JOIN cbs.branch br ON CAST(l.branch AS UNSIGNED) = br.branch_code
                 LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
                 LEFT JOIN cbs.device_loan dl1 ON dl1.account_no = l.account_no
