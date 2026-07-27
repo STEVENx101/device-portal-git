@@ -344,20 +344,14 @@
 
                             const loadDpdChartData = () => {
                                 const dim = document.getElementById('chartDimensionSelect').value;
-                                fetch('${pageContext.request.contextPath}/api/cbs/dpd-bucket', {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json'
-                                    },
-                                    body: JSON.stringify({ dimension: dim })
-                                })
+                                fetch('${pageContext.request.contextPath}/api/dashboard/dpd-chart-data?dimension=' + dim)
                                 .then(res => res.json())
                                 .then(resData => {
-                                    rawDpdData = resData.data || [];
+                                    rawDpdData = resData || [];
                                     const itemSelect = document.getElementById('chartItemSelect');
                                     itemSelect.innerHTML = '<option value="all">All Items</option>';
                                     rawDpdData.forEach(item => {
-                                        const cat = item.category || 'Unknown';
+                                        const cat = item.category_name || 'Unknown';
                                         const opt = document.createElement('option');
                                         opt.value = cat;
                                         opt.innerText = cat;
@@ -375,20 +369,20 @@
 
                                 if (selectedItem === 'all') {
                                     rawDpdData.forEach(item => {
-                                        values[0] += item.dpd0Val || 0;
-                                        values[1] += item.dpd1_30Val || 0;
-                                        values[2] += item.dpd31_60Val || 0;
-                                        values[3] += item.dpd61_90Val || 0;
-                                        values[4] += item.dpdAbove90Val || 0;
+                                        values[0] += item.dpd0_val || 0;
+                                        values[1] += item.dpd1_30_val || 0;
+                                        values[2] += item.dpd31_60_val || 0;
+                                        values[3] += item.dpd61_90_val || 0;
+                                        values[4] += item.dpdAbove90_val || 0;
                                     });
                                 } else {
-                                    const found = rawDpdData.find(item => item.category === selectedItem);
+                                    const found = rawDpdData.find(item => item.category_name === selectedItem);
                                     if (found) {
-                                        values[0] = found.dpd0Val || 0;
-                                        values[1] = found.dpd1_30Val || 0;
-                                        values[2] = found.dpd31_60Val || 0;
-                                        values[3] = found.dpd61_90Val || 0;
-                                        values[4] = found.dpdAbove90Val || 0;
+                                        values[0] = found.dpd0_val || 0;
+                                        values[1] = found.dpd1_30_val || 0;
+                                        values[2] = found.dpd31_60_val || 0;
+                                        values[3] = found.dpd61_90_val || 0;
+                                        values[4] = found.dpdAbove90_val || 0;
                                     }
                                 }
                                 // Convert raw values to Millions

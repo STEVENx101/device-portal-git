@@ -142,4 +142,76 @@ public class DashboardRepository {
     public Map<String, Object> getDashboardStats() {
         return getNStatusKpis();
     }
+
+    public List<Map<String, Object>> getDpdChartData(String dimension) {
+        String sqlLatest = """
+            SELECT portfolio_date, sync_time
+            FROM cbs.portfolio
+            WHERE portfolio_date IS NOT NULL
+              AND sync_time IS NOT NULL
+            ORDER BY portfolio_date DESC, sync_time DESC
+            LIMIT 1
+        """;
+        Map<String, Object> latest = jdbcTemplate.queryForMap(sqlLatest);
+        Object latestPortfolioDate = latest.get("portfolio_date");
+        Object latestSyncTime = latest.get("sync_time");
+
+        String categoryExpr;
+        String dimensionJoin = "";
+
+        if ("security".equalsIgnoreCase(dimension)) {
+            categoryExpr = """
+                CASE 
+                    WHEN pr.product_code IN ('LF', 'laptop') THEN 'ABSOLUTE' 
+                    WHEN pr.product_code = 'MF' AND COALESCE(lm1.knox_compatibility, lm2.knox_compatibility) = 'yes' THEN 'KNOX' 
+                    WHEN pr.product_code = 'MF' AND (COALESCE(lm1.knox_compatibility, lm2.knox_compatibility) = 'no' OR COALESCE(lm1.knox_compatibility, lm2.knox_compatibility) IS NULL) THEN 'DATACULTR' 
+                    ELSE 'OTHER' 
+                END
+            """;
+            dimensionJoin = """
+                LEFT JOIN loan.mobileloan lm1 ON lm1.finance_no = l.account_no
+                LEFT JOIN loan.mobileloan lm2 ON lm2.finance_no = l.legacy_account_no
+            """;
+        } else if ("model".equalsIgnoreCase(dimension)) {
+            categoryExpr = "COALESCE(lmm.name, 'Unknown Model')";
+            dimensionJoin = """
+                LEFT JOIN loan.mobileloan lm1 ON lm1.finance_no = l.account_no
+                LEFT JOIN loan.mobileloan lm2 ON lm2.finance_no = l.legacy_account_no
+                LEFT JOIN loan.device_loan dl2_1 ON dl2_1.finance_no = l.account_no
+                LEFT JOIN loan.device_loan dl2_2 ON dl2_2.finance_no = l.legacy_account_no
+                LEFT JOIN loan.mobileloan_model lmm ON lmm.id = COALESCE(lm1.model, lm2.model, dl2_1.model, dl2_2.model)
+            """;
+        } else {
+            categoryExpr = "COALESCE(v.name, 'Unknown Dealer')";
+            dimensionJoin = "LEFT JOIN cbs.vendor v ON l.vendor = v.code";
+        }
+
+        String sql = String.format("""
+            SELECT
+                %s AS category_name,
+                SUM(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) = 0 THEN COALESCE(p1.exposure, p2.exposure, l.loan_amount, 0) ELSE 0 END) AS dpd0_val,
+                SUM(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) BETWEEN 1 AND 30 THEN COALESCE(p1.exposure, p2.exposure, l.loan_amount, 0) ELSE 0 END) AS dpd1_30_val,
+                SUM(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) BETWEEN 31 AND 60 THEN COALESCE(p1.exposure, p2.exposure, l.loan_amount, 0) ELSE 0 END) AS dpd31_60_val,
+                SUM(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) BETWEEN 61 AND 90 THEN COALESCE(p1.exposure, p2.exposure, l.loan_amount, 0) ELSE 0 END) AS dpd61_90_val,
+                SUM(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) > 90 OR COALESCE(p1.loan_status, p2.loan_status) = 'N' THEN COALESCE(p1.exposure, p2.exposure, l.loan_amount, 0) ELSE 0 END) AS dpdAbove90_val
+            FROM cbs.loan l
+            LEFT JOIN cbs.portfolio p1
+                ON p1.account_no = l.account_no
+                AND p1.series = l.account_series
+                AND p1.portfolio_date = ?
+                AND p1.sync_time = ?
+            LEFT JOIN cbs.portfolio p2
+                ON p2.account_no = l.legacy_account_no
+                AND p2.series = l.account_series
+                AND p2.portfolio_date = ?
+                AND p2.sync_time = ?
+            LEFT JOIN cbs.branch br ON CAST(l.branch AS UNSIGNED) = br.branch_code
+            LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
+            %s
+            GROUP BY category_name
+            ORDER BY category_name ASC
+        """, categoryExpr, dimensionJoin);
+
+        return jdbcTemplate.queryForList(sql, latestPortfolioDate, latestSyncTime, latestPortfolioDate, latestSyncTime);
+    }
 }
