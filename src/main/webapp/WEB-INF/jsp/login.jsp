@@ -49,9 +49,7 @@
 
         <style>
             .log-bg {
-                background-image: url(assets/img/backgrounds/photo2.avif);
-                /*transition: var(1.5);*/
-                background-size: cover;
+                background-color: #f8fafc;
             }
 
             .ft-size {

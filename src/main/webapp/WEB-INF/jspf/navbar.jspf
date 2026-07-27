@@ -63,20 +63,15 @@ html, body, .main, [data-layout="container"], .container-fluid {
 }
 
 body {
-    background-image: url('${pageContext.request.contextPath}/assets/img/chatgpt_bg.png') !important;
-    background-repeat: no-repeat !important;
-    background-position: center center !important;
-    background-attachment: fixed !important;
-    background-size: cover !important;
+    background-color: #f8fafc !important;
+    background-image: none !important;
 }
 
-/* Glassmorphism theme cards */
+/* Glassmorphism theme cards to clean white cards */
 .card, .glass-card, .modal-content {
-    background: rgba(255, 255, 255, 0.75) !important;
-    backdrop-filter: blur(20px) !important;
-    -webkit-backdrop-filter: blur(20px) !important;
-    border: 1px solid rgba(255, 255, 255, 0.5) !important;
-    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.12) !important;
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05) !important;
     border-radius: 16px !important;
     color: #1e293b !important;
 }
@@ -85,8 +80,8 @@ body {
 .modal-header.bg-primary, 
 .modal-header.bg-dark, 
 .modal-header {
-    background: rgba(255, 255, 255, 0.25) !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.3) !important;
+    background: #f8fafc !important;
+    border-bottom: 1px solid #e2e8f0 !important;
     color: #1e293b !important;
 }
 
@@ -102,15 +97,15 @@ body {
 
 .modal-footer.bg-light,
 .modal-footer {
-    background: rgba(255, 255, 255, 0.25) !important;
-    border-top: 1px solid rgba(255, 255, 255, 0.3) !important;
+    background: #f8fafc !important;
+    border-top: 1px solid #e2e8f0 !important;
 }
 
 .modal-content .form-control, 
 .modal-content .form-select, 
 .modal-content textarea {
-    background: rgba(255, 255, 255, 0.6) !important;
-    border: 1px solid rgba(226, 232, 240, 0.8) !important;
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
     border-radius: 8px !important;
     color: #1e293b !important;
 }
@@ -123,12 +118,12 @@ body {
 }
 
 .modal-footer, .card-header, .bg-100 {
-    background: rgba(248, 250, 252, 0.45) !important;
-    border-color: rgba(226, 232, 240, 0.6) !important;
+    background: #f8fafc !important;
+    border-color: #e2e8f0 !important;
 }
 
 .table, td, th {
-    border-color: rgba(226, 232, 240, 0.5) !important;
+    border-color: #e2e8f0 !important;
     color: #1e293b !important;
 }
 
@@ -144,10 +139,8 @@ body {
     top: 10px !important;
     width: 70px !important;
     height: calc(100vh - 20px) !important;
-    background: rgba(255, 255, 255, 0.65) !important;
-    backdrop-filter: blur(20px) !important;
-    -webkit-backdrop-filter: blur(20px) !important;
-    border: 1px solid rgba(255, 255, 255, 0.45) !important;
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
     border-radius: 16px !important;
     box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.08) !important;
     z-index: 1000 !important;
@@ -562,8 +555,7 @@ body {
 
 /* Background image override for login */
 .log-bg {
-    background: url('${pageContext.request.contextPath}/assets/img/chatgpt_bg.png') no-repeat center center fixed !important;
-    background-size: cover !important;
+    background: #f8fafc !important;
 }
 
 /* Responsive and scroll styles */
