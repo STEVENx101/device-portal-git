@@ -308,63 +308,45 @@ public class CbsReportService {
     private String buildReport1Query(Object rawFilter, Map<String, Object> params) {
         addLatestPortfolioParams(params);
         String subQuery = """
-                                SELECT
+                SELECT
                     DATE_FORMAT(COALESCE(p1.portfolio_date, p2.portfolio_date), '%Y-%m-%d') AS portfolio_date,
                     l.account_no,
-                    l.account_series AS series,
-                    COALESCE(p1.loan_status, p2.loan_status) AS portfolio_loan_status,
+                    l.account_series AS `series`,
+                    COALESCE(p1.loan_status, p2.loan_status) AS `portfolio_loan_status`,
                     COALESCE(p1.total_due, p2.total_due) AS total_due,
                     COALESCE(p1.exposure, p2.exposure) AS exposure,
                     COALESCE(p1.dpd, p2.dpd) AS dpd,
                     COALESCE(p1.performing_status, p2.performing_status) AS performing_status,
                     l.legacy_account_no,
-
-                    COALESCE(pr.product_name, l.product) AS product_name,
-                    COALESCE(br.branch_name, l.branch) AS branch_name,
-
-                    l.client AS client_code,
+                    COALESCE(pr.product_name, l.product) AS `product_name`,
+                    COALESCE(br.branch_name, l.branch) AS `branch_name`,
+                    l.client AS `client_code`,
                     l.loan_amount,
                     l.rental,
                     l.rate,
                     l.period,
-
-                    DATE_FORMAT(l.disbursed_date, '%Y-%m-%d') AS disbursed_date,
-                    DATE_FORMAT(l.closed_date, '%Y-%m-%d') AS closed_date,
-
-                    COALESCE(dl1.device_id, dl2.device_id) AS device_id,
-                    COALESCE(dl1.device_status, dl2.device_status) AS device_status,
-                    COALESCE(dl1.external_id, dl2.external_id) AS external_id,
-                    COALESCE(dl1.platform, dl2.platform) AS platform
-
+                    DATE_FORMAT(l.disbursed_date, '%Y-%m-%d') AS `disbursed_date`,
+                    DATE_FORMAT(l.closed_date, '%Y-%m-%d') AS `closed_date`,
+                    COALESCE(dl1.device_id, dl2.device_id) AS `device_id`,
+                    COALESCE(dl1.device_status, dl2.device_status) AS `device_status`,
+                    COALESCE(dl1.external_id, dl2.external_id) AS `external_id`,
+                    COALESCE(dl1.platform, dl2.platform) AS `platform`
                 FROM cbs.loan l
-
                 LEFT JOIN cbs.portfolio p1
                     ON p1.account_no = l.account_no
-                   AND p1.series = l.account_series
-                   AND p1.portfolio_date = :latestPortfolioDate
-                   AND p1.sync_time = :latestSyncTime
-
+                    AND p1.series = l.account_series
+                    AND p1.portfolio_date = :latestPortfolioDate
+                    AND p1.sync_time = :latestSyncTime
                 LEFT JOIN cbs.portfolio p2
-                    ON p1.account_no IS NULL
-                   AND p2.account_no = l.legacy_account_no
-                   AND p2.series = l.account_series
-                   AND p2.portfolio_date = :latestPortfolioDate
-                   AND p2.sync_time = :latestSyncTime
-
-                LEFT JOIN cbs.device_loan dl1
-                    ON dl1.account_no = l.account_no
-
-                LEFT JOIN cbs.device_loan dl2
-                    ON dl1.account_no IS NULL
-                   AND dl2.account_no = l.legacy_account_no
-
-                LEFT JOIN cbs.branch br
-                    ON br.branch_code = CAST(l.branch AS UNSIGNED)
-
-                LEFT JOIN cbs.product pr
-                    ON pr.code_val = CAST(l.product AS UNSIGNED)
-
-                WHERE 1 = 1;""";
+                    ON p2.account_no = l.legacy_account_no
+                    AND p2.series = l.account_series
+                    AND p2.portfolio_date = :latestPortfolioDate
+                    AND p2.sync_time = :latestSyncTime
+                LEFT JOIN cbs.branch br ON CAST(l.branch AS UNSIGNED) = br.branch_code
+                LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
+                LEFT JOIN cbs.device_loan dl1 ON dl1.account_no = l.account_no
+                LEFT JOIN cbs.device_loan dl2 ON dl2.account_no = l.legacy_account_no
+                WHERE 1=1""";
 
         if (rawFilter instanceof Map) {
             Map<?, ?> filter = (Map<?, ?>) rawFilter;
