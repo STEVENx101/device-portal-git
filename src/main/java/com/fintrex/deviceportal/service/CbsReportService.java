@@ -332,7 +332,7 @@ public class CbsReportService {
                     COALESCE(dl1.external_id, dl2.external_id) AS `external_id`,
                     COALESCE(dl1.platform, dl2.platform) AS `platform`
                 FROM cbs.loan l
-                LEFT JOIN cbs.portfolio p
+                JOIN cbs.portfolio p
                     ON p.account_no = IFNULL(l.legacy_account_no, l.account_no)
                     AND p.series = l.account_series
                     AND p.portfolio_date = :latestPortfolioDate
