@@ -4,6 +4,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.List;
 
 @Repository
 public class DashboardRepository {
@@ -17,20 +18,38 @@ public class DashboardRepository {
     public Map<String, Object> getNStatusKpis() {
         Map<String, Object> stats = new HashMap<>();
 
-        // 1. Current Month & YTD & Portfolio count and amount (Overall)
-        String sqlLoanStats = """
+        // 1. Month stats query
+        String sqlMonth = """
             SELECT 
-                COUNT(CASE WHEN disbursed_date >= DATE_FORMAT(CURRENT_DATE(), '%Y-%m-01') AND disbursed_date < DATE_ADD(DATE_FORMAT(CURRENT_DATE(), '%Y-%m-01'), INTERVAL 1 MONTH) THEN 1 END) AS month_count,
-                COALESCE(SUM(CASE WHEN disbursed_date >= DATE_FORMAT(CURRENT_DATE(), '%Y-%m-01') AND disbursed_date < DATE_ADD(DATE_FORMAT(CURRENT_DATE(), '%Y-%m-01'), INTERVAL 1 MONTH) THEN loan_amount END), 0) AS month_amount,
-                COUNT(CASE WHEN disbursed_date >= DATE_FORMAT(CURRENT_DATE(), '%Y-01-01') AND disbursed_date < DATE_ADD(DATE_FORMAT(CURRENT_DATE(), '%Y-01-01'), INTERVAL 1 YEAR) THEN 1 END) AS ytd_count,
-                COALESCE(SUM(CASE WHEN disbursed_date >= DATE_FORMAT(CURRENT_DATE(), '%Y-01-01') AND disbursed_date < DATE_ADD(DATE_FORMAT(CURRENT_DATE(), '%Y-01-01'), INTERVAL 1 YEAR) THEN loan_amount END), 0) AS ytd_amount,
+                COUNT(*) AS month_count,
+                COALESCE(SUM(loan_amount), 0) AS month_amount
+            FROM cbs.loan
+            WHERE disbursed_date >= DATE_FORMAT(CURRENT_DATE(), '%Y-%m-01')
+              AND disbursed_date < DATE_ADD(DATE_FORMAT(CURRENT_DATE(), '%Y-%m-01'), INTERVAL 1 MONTH)
+        """;
+        Map<String, Object> monthStats = jdbcTemplate.queryForMap(sqlMonth);
+
+        // 2. YTD stats query
+        String sqlYtd = """
+            SELECT 
+                COUNT(*) AS ytd_count,
+                COALESCE(SUM(loan_amount), 0) AS ytd_amount
+            FROM cbs.loan
+            WHERE disbursed_date >= DATE_FORMAT(CURRENT_DATE(), '%Y-01-01')
+              AND disbursed_date < DATE_ADD(DATE_FORMAT(CURRENT_DATE(), '%Y-01-01'), INTERVAL 1 YEAR)
+        """;
+        Map<String, Object> ytdStats = jdbcTemplate.queryForMap(sqlYtd);
+
+        // 3. Portfolio stats query
+        String sqlPortfolio = """
+            SELECT 
                 COUNT(*) AS portfolio_count,
                 COALESCE(SUM(loan_amount), 0) AS portfolio_amount
             FROM cbs.loan
         """;
-        Map<String, Object> loanStats = jdbcTemplate.queryForMap(sqlLoanStats);
+        Map<String, Object> portfolioStats = jdbcTemplate.queryForMap(sqlPortfolio);
         
-        // 2. NPL outstanding and count where account_status = 'N'
+        // 4. NPL outstanding and count query where account_status = 'N'
         String sqlNplStats = """
             SELECT 
                 COUNT(DISTINCT p.account_no) AS npl_count,
@@ -44,16 +63,37 @@ public class DashboardRepository {
         """;
         Map<String, Object> nplStats = jdbcTemplate.queryForMap(sqlNplStats);
 
-        stats.put("nMonthCount", loanStats.get("month_count") != null ? loanStats.get("month_count") : 0);
-        stats.put("nMonthAmount", loanStats.get("month_amount") != null ? loanStats.get("month_amount") : 0);
-        stats.put("nYtdCount", loanStats.get("ytd_count") != null ? loanStats.get("ytd_count") : 0);
-        stats.put("nYtdAmount", loanStats.get("ytd_amount") != null ? loanStats.get("ytd_amount") : 0);
-        stats.put("nPortfolioCount", loanStats.get("portfolio_count") != null ? loanStats.get("portfolio_count") : 0);
-        stats.put("nPortfolioAmount", loanStats.get("portfolio_amount") != null ? loanStats.get("portfolio_amount") : 0);
+        // 5. Security-wise Locked / Unlocked count query
+        String sqlSecurityStats = """
+            SELECT 
+                CASE 
+                    WHEN pr.product_code IN ('LF', 'laptop') THEN 'ABSOLUTE' 
+                    WHEN pr.product_code = 'MF' AND COALESCE(lm1.knox_compatibility, lm2.knox_compatibility) = 'yes' THEN 'KNOX' 
+                    WHEN pr.product_code = 'MF' AND (COALESCE(lm1.knox_compatibility, lm2.knox_compatibility) = 'no' OR COALESCE(lm1.knox_compatibility, lm2.knox_compatibility) IS NULL) THEN 'DATACULTR' 
+                    ELSE 'OTHER' 
+                END AS security_type,
+                COUNT(CASE WHEN COALESCE(lm1.locked, lm2.locked) = 1 THEN 1 END) AS locked_count,
+                COUNT(CASE WHEN COALESCE(lm1.locked, lm2.locked) = 0 OR COALESCE(lm1.locked, lm2.locked) IS NULL THEN 1 END) AS unlocked_count
+            FROM cbs.loan l
+            LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
+            LEFT JOIN loan.mobileloan lm1 ON lm1.finance_no = l.account_no
+            LEFT JOIN loan.mobileloan lm2 ON lm2.finance_no = l.legacy_account_no
+            GROUP BY security_type
+        """;
+        List<Map<String, Object>> securityStats = jdbcTemplate.queryForList(sqlSecurityStats);
+
+        stats.put("nMonthCount", monthStats.get("month_count") != null ? monthStats.get("month_count") : 0);
+        stats.put("nMonthAmount", monthStats.get("month_amount") != null ? monthStats.get("month_amount") : 0);
+        stats.put("nYtdCount", ytdStats.get("ytd_count") != null ? ytdStats.get("ytd_count") : 0);
+        stats.put("nYtdAmount", ytdStats.get("ytd_amount") != null ? ytdStats.get("ytd_amount") : 0);
+        stats.put("nPortfolioCount", portfolioStats.get("portfolio_count") != null ? portfolioStats.get("portfolio_count") : 0);
+        stats.put("nPortfolioAmount", portfolioStats.get("portfolio_amount") != null ? portfolioStats.get("portfolio_amount") : 0);
         
         stats.put("nNplCount", nplStats.get("npl_count") != null ? nplStats.get("npl_count") : 0);
         stats.put("nNplExposure", nplStats.get("npl_exposure") != null ? nplStats.get("npl_exposure") : 0);
         stats.put("nNplArrears", nplStats.get("npl_arrears") != null ? nplStats.get("npl_arrears") : 0);
+        
+        stats.put("securityStats", securityStats);
 
         return stats;
     }

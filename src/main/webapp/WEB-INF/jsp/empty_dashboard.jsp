@@ -199,22 +199,65 @@
                         </div>
                     </div>
 
+                    <!-- Interactive Analytics Charts Row -->
+                    <div class="row g-3 mb-4">
+                        <!-- Chart 1: DPD Bucket Analysis (LKR Millions) -->
+                        <div class="col-lg-7">
+                            <div class="card shadow-sm h-100">
+                                <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
+                                    <h6 class="mb-0 text-primary fw-bold"><i class="fas fa-chart-bar me-2"></i>DPD Bucket Analysis (LKR Millions)</h6>
+                                    <div class="d-flex gap-2">
+                                        <select class="form-select form-select-sm py-0" id="chartDimensionSelect" style="width: auto; height: 30px; font-size: 0.75rem;">
+                                            <option value="dealer">Dealer Wise</option>
+                                            <option value="security">Security Type</option>
+                                            <option value="model">Model Wise</option>
+                                        </select>
+                                        <select class="form-select form-select-sm py-0" id="chartItemSelect" style="width: auto; min-width: 140px; height: 30px; font-size: 0.75rem;">
+                                            <option value="all">All Items</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="card-body p-3 d-flex flex-column justify-content-center">
+                                    <div class="chart-container" style="height: 320px; position: relative; width: 100%;">
+                                        <canvas id="dpdBarChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Chart 2: Security locked/unlocked stats -->
+                        <div class="col-lg-5">
+                            <div class="card shadow-sm h-100">
+                                <div class="card-header bg-light py-2">
+                                    <h6 class="mb-0 text-primary fw-bold"><i class="fas fa-lock me-2"></i>Lock Status by Security Type</h6>
+                                </div>
+                                <div class="card-body p-3 d-flex flex-column justify-content-center">
+                                    <div class="chart-container" style="height: 320px; position: relative; width: 100%;">
+                                        <canvas id="securityChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Fetch and Render Script -->
                     <script>
                         document.addEventListener("DOMContentLoaded", function() {
                             const formatLKR = (val) => {
+                                const millions = val / 1000000;
                                 return new Intl.NumberFormat('en-LK', {
                                     style: 'currency',
                                     currency: 'LKR',
                                     minimumFractionDigits: 2,
                                     maximumFractionDigits: 2
-                                }).format(val);
+                                }).format(millions) + " Mn";
                             };
 
                             const formatNum = (val) => {
                                 return new Intl.NumberFormat().format(val);
                             };
 
+                            // API statistics fetching
                             fetch('${pageContext.request.contextPath}/api/dashboard/stats')
                                 .then(response => {
                                     if (!response.ok) {
@@ -225,7 +268,7 @@
                                 .then(data => {
                                     console.log("Dashboard Stats:", data);
                                     
-                                    // Set N-Status Kpis
+                                    // Set N-Status Kpis (in Millions)
                                     document.getElementById("n-month-amount").innerText = formatLKR(data.nMonthAmount);
                                     document.getElementById("n-month-count").innerText = formatNum(data.nMonthCount) + " Accounts";
                                     
@@ -237,10 +280,182 @@
                                     
                                     document.getElementById("n-npl-exposure").innerText = formatLKR(data.nNplExposure);
                                     document.getElementById("n-npl-count").innerText = formatNum(data.nNplCount) + " Accounts (Arrears: " + formatLKR(data.nNplArrears) + ")";
+
+                                    // Render Security Lock Chart
+                                    if (data.securityStats) {
+                                        renderSecurityChart(data.securityStats);
+                                    }
                                 })
                                 .catch(err => {
                                     console.error("Error fetching dashboard statistics:", err);
                                 });
+
+                            // Chart.js: DPD Bar Chart Config & Handling
+                            let dpdChart = null;
+                            let rawDpdData = [];
+
+                            const updateDpdChart = (labels, datasetData) => {
+                                const ctx = document.getElementById('dpdBarChart').getContext('2d');
+                                if (dpdChart) {
+                                    dpdChart.destroy();
+                                }
+                                dpdChart = new Chart(ctx, {
+                                    type: 'bar',
+                                    data: {
+                                        labels: labels,
+                                        datasets: [{
+                                            label: 'Exposure (LKR Mn)',
+                                            data: datasetData,
+                                            backgroundColor: [
+                                                'rgba(16, 185, 129, 0.75)',  // DPD 0
+                                                'rgba(245, 158, 11, 0.75)',  // DPD 1-30
+                                                'rgba(249, 115, 22, 0.75)',  // DPD 31-60
+                                                'rgba(239, 68, 68, 0.75)',   // DPD 61-90
+                                                'rgba(30, 41, 59, 0.75)'     // Over 90
+                                            ],
+                                            borderColor: [
+                                                '#10b981',
+                                                '#f59e0b',
+                                                '#f97316',
+                                                '#ef4444',
+                                                '#1e293b'
+                                            ],
+                                            borderWidth: 1.5,
+                                            borderRadius: 6
+                                        }]
+                                    },
+                                    options: {
+                                        responsive: true,
+                                        maintainAspectRatio: false,
+                                        plugins: {
+                                            legend: { display: false }
+                                        },
+                                        scales: {
+                                            y: {
+                                                beginAtZero: true,
+                                                ticks: {
+                                                    callback: function(value) { return 'LKR ' + value + 'M'; }
+                                                }
+                                            }
+                                        }
+                                    }
+                                });
+                            };
+
+                            const loadDpdChartData = () => {
+                                const dim = document.getElementById('chartDimensionSelect').value;
+                                fetch('${pageContext.request.contextPath}/api/cbs/dpd-bucket', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    },
+                                    body: JSON.stringify({ dimension: dim })
+                                })
+                                .then(res => res.json())
+                                .then(resData => {
+                                    rawDpdData = resData.data || [];
+                                    const itemSelect = document.getElementById('chartItemSelect');
+                                    itemSelect.innerHTML = '<option value="all">All Items</option>';
+                                    rawDpdData.forEach(item => {
+                                        const cat = item.category || 'Unknown';
+                                        const opt = document.createElement('option');
+                                        opt.value = cat;
+                                        opt.innerText = cat;
+                                        itemSelect.appendChild(opt);
+                                    });
+                                    renderFilteredDpdData();
+                                })
+                                .catch(err => console.error("Error loading DPD data for chart:", err));
+                            };
+
+                            const renderFilteredDpdData = () => {
+                                const selectedItem = document.getElementById('chartItemSelect').value;
+                                const labels = ['DPD 0', 'DPD 1-30', 'DPD 31-60', 'DPD 61-90', 'Over 90 DPD'];
+                                let values = [0, 0, 0, 0, 0];
+
+                                if (selectedItem === 'all') {
+                                    rawDpdData.forEach(item => {
+                                        values[0] += item.dpd0Val || 0;
+                                        values[1] += item.dpd1_30Val || 0;
+                                        values[2] += item.dpd31_60Val || 0;
+                                        values[3] += item.dpd61_90Val || 0;
+                                        values[4] += item.dpdAbove90Val || 0;
+                                    });
+                                } else {
+                                    const found = rawDpdData.find(item => item.category === selectedItem);
+                                    if (found) {
+                                        values[0] = found.dpd0Val || 0;
+                                        values[1] = found.dpd1_30Val || 0;
+                                        values[2] = found.dpd31_60Val || 0;
+                                        values[3] = found.dpd61_90Val || 0;
+                                        values[4] = found.dpdAbove90Val || 0;
+                                    }
+                                }
+                                // Convert raw values to Millions
+                                values = values.map(v => Math.round((v / 1000000) * 100) / 100);
+                                updateDpdChart(labels, values);
+                            };
+
+                            document.getElementById('chartDimensionSelect').addEventListener('change', loadDpdChartData);
+                            document.getElementById('chartItemSelect').addEventListener('change', renderFilteredDpdData);
+
+                            // Initial DPD chart load
+                            loadDpdChartData();
+
+                            // Chart.js: Security Lock Chart Config & Handling
+                            let securityChart = null;
+                            const renderSecurityChart = (securityStats) => {
+                                const ctx = document.getElementById('securityChart').getContext('2d');
+                                const labels = [];
+                                const lockedData = [];
+                                const unlockedData = [];
+
+                                securityStats.forEach(item => {
+                                    labels.push(item.security_type || 'Unknown');
+                                    lockedData.push(item.locked_count || 0);
+                                    unlockedData.push(item.unlocked_count || 0);
+                                });
+
+                                if (securityChart) {
+                                    securityChart.destroy();
+                                }
+
+                                securityChart = new Chart(ctx, {
+                                    type: 'bar',
+                                    data: {
+                                        labels: labels,
+                                        datasets: [
+                                            {
+                                                label: 'Locked',
+                                                data: lockedData,
+                                                backgroundColor: 'rgba(239, 68, 68, 0.75)',
+                                                borderColor: '#ef4444',
+                                                borderWidth: 1.5,
+                                                borderRadius: 4
+                                            },
+                                            {
+                                                label: 'Unlocked',
+                                                data: unlockedData,
+                                                backgroundColor: 'rgba(16, 185, 129, 0.75)',
+                                                borderColor: '#10b981',
+                                                borderWidth: 1.5,
+                                                borderRadius: 4
+                                            }
+                                        ]
+                                    },
+                                    options: {
+                                        responsive: true,
+                                        maintainAspectRatio: false,
+                                        scales: {
+                                            x: { stacked: true },
+                                            y: { stacked: true, beginAtZero: true }
+                                        },
+                                        plugins: {
+                                            legend: { position: 'bottom' }
+                                        }
+                                    }
+                                });
+                            };
                         });
                     </script>
 
