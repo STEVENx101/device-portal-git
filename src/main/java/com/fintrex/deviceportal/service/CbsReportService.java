@@ -308,45 +308,63 @@ public class CbsReportService {
     private String buildReport1Query(Object rawFilter, Map<String, Object> params) {
         addLatestPortfolioParams(params);
         String subQuery = """
-                SELECT
+                                SELECT
                     DATE_FORMAT(COALESCE(p1.portfolio_date, p2.portfolio_date), '%Y-%m-%d') AS portfolio_date,
                     l.account_no,
-                    l.account_series AS `series`,
-                    COALESCE(p1.loan_status, p2.loan_status) AS `portfolio_loan_status`,
+                    l.account_series AS series,
+                    COALESCE(p1.loan_status, p2.loan_status) AS portfolio_loan_status,
                     COALESCE(p1.total_due, p2.total_due) AS total_due,
                     COALESCE(p1.exposure, p2.exposure) AS exposure,
                     COALESCE(p1.dpd, p2.dpd) AS dpd,
                     COALESCE(p1.performing_status, p2.performing_status) AS performing_status,
                     l.legacy_account_no,
-                    COALESCE(pr.product_name, l.product) AS `product_name`,
-                    COALESCE(br.branch_name, l.branch) AS `branch_name`,
-                    l.client AS `client_code`,
+
+                    COALESCE(pr.product_name, l.product) AS product_name,
+                    COALESCE(br.branch_name, l.branch) AS branch_name,
+
+                    l.client AS client_code,
                     l.loan_amount,
                     l.rental,
                     l.rate,
                     l.period,
-                    DATE_FORMAT(l.disbursed_date, '%Y-%m-%d') AS `disbursed_date`,
-                    DATE_FORMAT(l.closed_date, '%Y-%m-%d') AS `closed_date`,
-                    COALESCE(dl1.device_id, dl2.device_id) AS `device_id`,
-                    COALESCE(dl1.device_status, dl2.device_status) AS `device_status`,
-                    COALESCE(dl1.external_id, dl2.external_id) AS `external_id`,
-                    COALESCE(dl1.platform, dl2.platform) AS `platform`
+
+                    DATE_FORMAT(l.disbursed_date, '%Y-%m-%d') AS disbursed_date,
+                    DATE_FORMAT(l.closed_date, '%Y-%m-%d') AS closed_date,
+
+                    COALESCE(dl1.device_id, dl2.device_id) AS device_id,
+                    COALESCE(dl1.device_status, dl2.device_status) AS device_status,
+                    COALESCE(dl1.external_id, dl2.external_id) AS external_id,
+                    COALESCE(dl1.platform, dl2.platform) AS platform
+
                 FROM cbs.loan l
+
                 LEFT JOIN cbs.portfolio p1
                     ON p1.account_no = l.account_no
-                    AND p1.series = l.account_series
-                    AND p1.portfolio_date = :latestPortfolioDate
-                    AND p1.sync_time = :latestSyncTime
+                   AND p1.series = l.account_series
+                   AND p1.portfolio_date = :latestPortfolioDate
+                   AND p1.sync_time = :latestSyncTime
+
                 LEFT JOIN cbs.portfolio p2
-                    ON p2.account_no = l.legacy_account_no
-                    AND p2.series = l.account_series
-                    AND p2.portfolio_date = :latestPortfolioDate
-                    AND p2.sync_time = :latestSyncTime
-                LEFT JOIN cbs.branch br ON CAST(l.branch AS UNSIGNED) = br.branch_code
-                LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
-                LEFT JOIN cbs.device_loan dl1 ON dl1.account_no = l.account_no
-                LEFT JOIN cbs.device_loan dl2 ON dl2.account_no = l.legacy_account_no
-                WHERE 1=1""";
+                    ON p1.account_no IS NULL
+                   AND p2.account_no = l.legacy_account_no
+                   AND p2.series = l.account_series
+                   AND p2.portfolio_date = :latestPortfolioDate
+                   AND p2.sync_time = :latestSyncTime
+
+                LEFT JOIN cbs.device_loan dl1
+                    ON dl1.account_no = l.account_no
+
+                LEFT JOIN cbs.device_loan dl2
+                    ON dl1.account_no IS NULL
+                   AND dl2.account_no = l.legacy_account_no
+
+                LEFT JOIN cbs.branch br
+                    ON br.branch_code = CAST(l.branch AS UNSIGNED)
+
+                LEFT JOIN cbs.product pr
+                    ON pr.code_val = CAST(l.product AS UNSIGNED)
+
+                WHERE 1 = 1;""";
 
         if (rawFilter instanceof Map) {
             Map<?, ?> filter = (Map<?, ?>) rawFilter;
@@ -1362,7 +1380,8 @@ public class CbsReportService {
             if (lowAmtObj != null) {
                 try {
                     lowAmount = Double.parseDouble(lowAmtObj.toString().trim());
-                } catch (NumberFormatException ignored) {}
+                } catch (NumberFormatException ignored) {
+                }
             }
         }
         params.put("lowAmountThreshold", lowAmount);
@@ -1446,26 +1465,26 @@ public class CbsReportService {
 
         if ("security".equals(dimension)) {
             categoryExpr = """
-                CASE 
-                    WHEN pr.product_code IN ('LF', 'laptop') THEN 'ABSOLUTE' 
-                    WHEN pr.product_code = 'MF' AND COALESCE(lm1.knox_compatibility, lm2.knox_compatibility) = 'yes' THEN 'KNOX' 
-                    WHEN pr.product_code = 'MF' AND (COALESCE(lm1.knox_compatibility, lm2.knox_compatibility) = 'no' OR COALESCE(lm1.knox_compatibility, lm2.knox_compatibility) IS NULL) THEN 'DATACULTR' 
-                    ELSE 'OTHER' 
-                END
-            """;
+                        CASE
+                            WHEN pr.product_code IN ('LF', 'laptop') THEN 'ABSOLUTE'
+                            WHEN pr.product_code = 'MF' AND COALESCE(lm1.knox_compatibility, lm2.knox_compatibility) = 'yes' THEN 'KNOX'
+                            WHEN pr.product_code = 'MF' AND (COALESCE(lm1.knox_compatibility, lm2.knox_compatibility) = 'no' OR COALESCE(lm1.knox_compatibility, lm2.knox_compatibility) IS NULL) THEN 'DATACULTR'
+                            ELSE 'OTHER'
+                        END
+                    """;
             dimensionJoin = """
-                LEFT JOIN loan.mobileloan lm1 ON lm1.finance_no = l.account_no
-                LEFT JOIN loan.mobileloan lm2 ON lm2.finance_no = l.legacy_account_no
-            """;
+                        LEFT JOIN loan.mobileloan lm1 ON lm1.finance_no = l.account_no
+                        LEFT JOIN loan.mobileloan lm2 ON lm2.finance_no = l.legacy_account_no
+                    """;
         } else if ("model".equals(dimension)) {
             categoryExpr = "COALESCE(lmm.name, 'Unknown Model')";
             dimensionJoin = """
-                LEFT JOIN loan.mobileloan lm1 ON lm1.finance_no = l.account_no
-                LEFT JOIN loan.mobileloan lm2 ON lm2.finance_no = l.legacy_account_no
-                LEFT JOIN loan.device_loan dl2_1 ON dl2_1.finance_no = l.account_no
-                LEFT JOIN loan.device_loan dl2_2 ON dl2_2.finance_no = l.legacy_account_no
-                LEFT JOIN loan.mobileloan_model lmm ON lmm.id = COALESCE(lm1.model, lm2.model, dl2_1.model, dl2_2.model)
-            """;
+                        LEFT JOIN loan.mobileloan lm1 ON lm1.finance_no = l.account_no
+                        LEFT JOIN loan.mobileloan lm2 ON lm2.finance_no = l.legacy_account_no
+                        LEFT JOIN loan.device_loan dl2_1 ON dl2_1.finance_no = l.account_no
+                        LEFT JOIN loan.device_loan dl2_2 ON dl2_2.finance_no = l.legacy_account_no
+                        LEFT JOIN loan.mobileloan_model lmm ON lmm.id = COALESCE(lm1.model, lm2.model, dl2_1.model, dl2_2.model)
+                    """;
         } else {
             categoryExpr = "COALESCE(v.name, 'Unknown Dealer')";
             dimensionJoin = "LEFT JOIN cbs.vendor v ON l.vendor = v.code";
@@ -1482,10 +1501,12 @@ public class CbsReportService {
 
             Object productsObj = filters.get("products");
             if (productsObj instanceof List && !((List<?>) productsObj).isEmpty()) {
-                whereClause.append(" AND (l.product IN (:products) OR pr.product_code IN (:products) OR pr.product_name IN (:products))");
+                whereClause.append(
+                        " AND (l.product IN (:products) OR pr.product_code IN (:products) OR pr.product_name IN (:products))");
                 params.put("products", productsObj);
             } else if (productsObj instanceof String && !((String) productsObj).trim().isEmpty()) {
-                whereClause.append(" AND (l.product = :product OR pr.product_code = :product OR pr.product_name = :product)");
+                whereClause.append(
+                        " AND (l.product = :product OR pr.product_code = :product OR pr.product_name = :product)");
                 params.put("product", ((String) productsObj).trim());
             }
 
@@ -1496,39 +1517,41 @@ public class CbsReportService {
             }
         }
 
-        String sql = String.format("""
-            SELECT
-                %s AS category_name,
-                COUNT(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) = 0 THEN 1 END) AS dpd0_count,
-                SUM(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) = 0 THEN COALESCE(p1.exposure, p2.exposure, l.loan_amount, 0) ELSE 0 END) AS dpd0_val,
-                COUNT(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) BETWEEN 1 AND 30 THEN 1 END) AS dpd1_30_count,
-                SUM(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) BETWEEN 1 AND 30 THEN COALESCE(p1.exposure, p2.exposure, l.loan_amount, 0) ELSE 0 END) AS dpd1_30_val,
-                COUNT(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) BETWEEN 31 AND 60 THEN 1 END) AS dpd31_60_count,
-                SUM(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) BETWEEN 31 AND 60 THEN COALESCE(p1.exposure, p2.exposure, l.loan_amount, 0) ELSE 0 END) AS dpd31_60_val,
-                COUNT(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) BETWEEN 61 AND 90 THEN 1 END) AS dpd61_90_count,
-                SUM(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) BETWEEN 61 AND 90 THEN COALESCE(p1.exposure, p2.exposure, l.loan_amount, 0) ELSE 0 END) AS dpd61_90_val,
-                COUNT(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) > 90 OR COALESCE(p1.loan_status, p2.loan_status) = 'N' THEN 1 END) AS dpdAbove90_count,
-                SUM(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) > 90 OR COALESCE(p1.loan_status, p2.loan_status) = 'N' THEN COALESCE(p1.exposure, p2.exposure, l.loan_amount, 0) ELSE 0 END) AS dpdAbove90_val,
-                COUNT(*) AS total_count,
-                SUM(COALESCE(p1.exposure, p2.exposure, l.loan_amount, 0)) AS total_val
-            FROM cbs.loan l
-            LEFT JOIN cbs.portfolio p1
-                ON p1.account_no = l.account_no
-                AND p1.series = l.account_series
-                AND p1.portfolio_date = :latestPortfolioDate
-                AND p1.sync_time = :latestSyncTime
-            LEFT JOIN cbs.portfolio p2
-                ON p2.account_no = l.legacy_account_no
-                AND p2.series = l.account_series
-                AND p2.portfolio_date = :latestPortfolioDate
-                AND p2.sync_time = :latestSyncTime
-            LEFT JOIN cbs.branch br ON CAST(l.branch AS UNSIGNED) = br.branch_code
-            LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
-            %s
-            %s
-            GROUP BY category_name
-            ORDER BY total_val DESC
-        """, categoryExpr, dimensionJoin, whereClause.toString());
+        String sql = String.format(
+                """
+                            SELECT
+                                %s AS category_name,
+                                COUNT(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) = 0 THEN 1 END) AS dpd0_count,
+                                SUM(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) = 0 THEN COALESCE(p1.exposure, p2.exposure, l.loan_amount, 0) ELSE 0 END) AS dpd0_val,
+                                COUNT(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) BETWEEN 1 AND 30 THEN 1 END) AS dpd1_30_count,
+                                SUM(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) BETWEEN 1 AND 30 THEN COALESCE(p1.exposure, p2.exposure, l.loan_amount, 0) ELSE 0 END) AS dpd1_30_val,
+                                COUNT(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) BETWEEN 31 AND 60 THEN 1 END) AS dpd31_60_count,
+                                SUM(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) BETWEEN 31 AND 60 THEN COALESCE(p1.exposure, p2.exposure, l.loan_amount, 0) ELSE 0 END) AS dpd31_60_val,
+                                COUNT(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) BETWEEN 61 AND 90 THEN 1 END) AS dpd61_90_count,
+                                SUM(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) BETWEEN 61 AND 90 THEN COALESCE(p1.exposure, p2.exposure, l.loan_amount, 0) ELSE 0 END) AS dpd61_90_val,
+                                COUNT(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) > 90 OR COALESCE(p1.loan_status, p2.loan_status) = 'N' THEN 1 END) AS dpdAbove90_count,
+                                SUM(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) > 90 OR COALESCE(p1.loan_status, p2.loan_status) = 'N' THEN COALESCE(p1.exposure, p2.exposure, l.loan_amount, 0) ELSE 0 END) AS dpdAbove90_val,
+                                COUNT(*) AS total_count,
+                                SUM(COALESCE(p1.exposure, p2.exposure, l.loan_amount, 0)) AS total_val
+                            FROM cbs.loan l
+                            LEFT JOIN cbs.portfolio p1
+                                ON p1.account_no = l.account_no
+                                AND p1.series = l.account_series
+                                AND p1.portfolio_date = :latestPortfolioDate
+                                AND p1.sync_time = :latestSyncTime
+                            LEFT JOIN cbs.portfolio p2
+                                ON p2.account_no = l.legacy_account_no
+                                AND p2.series = l.account_series
+                                AND p2.portfolio_date = :latestPortfolioDate
+                                AND p2.sync_time = :latestSyncTime
+                            LEFT JOIN cbs.branch br ON CAST(l.branch AS UNSIGNED) = br.branch_code
+                            LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
+                            %s
+                            %s
+                            GROUP BY category_name
+                            ORDER BY total_val DESC
+                        """,
+                categoryExpr, dimensionJoin, whereClause.toString());
 
         List<Map<String, Object>> rawRows = jdbc.queryForList(sql, params);
 
@@ -1541,7 +1564,8 @@ public class CbsReportService {
         }
 
         List<Map<String, Object>> formattedRows = new ArrayList<>();
-        long gDpd0Count = 0, gDpd1_30Count = 0, gDpd31_60Count = 0, gDpd61_90Count = 0, gDpdAbove90Count = 0, gTotalCount = 0;
+        long gDpd0Count = 0, gDpd1_30Count = 0, gDpd31_60Count = 0, gDpd61_90Count = 0, gDpdAbove90Count = 0,
+                gTotalCount = 0;
         double gDpd0Val = 0.0, gDpd1_30Val = 0.0, gDpd31_60Val = 0.0, gDpd61_90Val = 0.0, gDpdAbove90Val = 0.0;
 
         for (Map<String, Object> raw : rawRows) {
@@ -1552,23 +1576,36 @@ public class CbsReportService {
             long dpd1_30Count = raw.get("dpd1_30_count") != null ? ((Number) raw.get("dpd1_30_count")).longValue() : 0L;
             double dpd1_30Val = raw.get("dpd1_30_val") != null ? ((Number) raw.get("dpd1_30_val")).doubleValue() : 0.0;
 
-            long dpd31_60Count = raw.get("dpd31_60_count") != null ? ((Number) raw.get("dpd31_60_count")).longValue() : 0L;
-            double dpd31_60Val = raw.get("dpd31_60_val") != null ? ((Number) raw.get("dpd31_60_val")).doubleValue() : 0.0;
+            long dpd31_60Count = raw.get("dpd31_60_count") != null ? ((Number) raw.get("dpd31_60_count")).longValue()
+                    : 0L;
+            double dpd31_60Val = raw.get("dpd31_60_val") != null ? ((Number) raw.get("dpd31_60_val")).doubleValue()
+                    : 0.0;
 
-            long dpd61_90Count = raw.get("dpd61_90_count") != null ? ((Number) raw.get("dpd61_90_count")).longValue() : 0L;
-            double dpd61_90Val = raw.get("dpd61_90_val") != null ? ((Number) raw.get("dpd61_90_val")).doubleValue() : 0.0;
+            long dpd61_90Count = raw.get("dpd61_90_count") != null ? ((Number) raw.get("dpd61_90_count")).longValue()
+                    : 0L;
+            double dpd61_90Val = raw.get("dpd61_90_val") != null ? ((Number) raw.get("dpd61_90_val")).doubleValue()
+                    : 0.0;
 
-            long dpdAbove90Count = raw.get("dpdAbove90_count") != null ? ((Number) raw.get("dpdAbove90_count")).longValue() : 0L;
-            double dpdAbove90Val = raw.get("dpdAbove90_val") != null ? ((Number) raw.get("dpdAbove90_val")).doubleValue() : 0.0;
+            long dpdAbove90Count = raw.get("dpdAbove90_count") != null
+                    ? ((Number) raw.get("dpdAbove90_count")).longValue()
+                    : 0L;
+            double dpdAbove90Val = raw.get("dpdAbove90_val") != null
+                    ? ((Number) raw.get("dpdAbove90_val")).doubleValue()
+                    : 0.0;
 
             long totalCount = raw.get("total_count") != null ? ((Number) raw.get("total_count")).longValue() : 0L;
             double totalVal = raw.get("total_val") != null ? ((Number) raw.get("total_val")).doubleValue() : 0.0;
 
-            gDpd0Count += dpd0Count; gDpd0Val += dpd0Val;
-            gDpd1_30Count += dpd1_30Count; gDpd1_30Val += dpd1_30Val;
-            gDpd31_60Count += dpd31_60Count; gDpd31_60Val += dpd31_60Val;
-            gDpd61_90Count += dpd61_90Count; gDpd61_90Val += dpd61_90Val;
-            gDpdAbove90Count += dpdAbove90Count; gDpdAbove90Val += dpdAbove90Val;
+            gDpd0Count += dpd0Count;
+            gDpd0Val += dpd0Val;
+            gDpd1_30Count += dpd1_30Count;
+            gDpd1_30Val += dpd1_30Val;
+            gDpd31_60Count += dpd31_60Count;
+            gDpd31_60Val += dpd31_60Val;
+            gDpd61_90Count += dpd61_90Count;
+            gDpd61_90Val += dpd61_90Val;
+            gDpdAbove90Count += dpdAbove90Count;
+            gDpdAbove90Val += dpdAbove90Val;
             gTotalCount += totalCount;
 
             Map<String, Object> item = new HashMap<>();
@@ -1650,19 +1687,24 @@ public class CbsReportService {
 
             String search = (String) filters.get("search");
             if (search != null && !search.trim().isEmpty()) {
-                whereClause.append(" AND (vendor_name LIKE :search OR vendor_code LIKE :search OR account_id LIKE :search OR consumer_tran_id LIKE :search OR ref LIKE :search) ");
+                whereClause.append(
+                        " AND (vendor_name LIKE :search OR vendor_code LIKE :search OR account_id LIKE :search OR consumer_tran_id LIKE :search OR ref LIKE :search) ");
                 params.put("search", "%" + search.trim() + "%");
             }
 
             String dateMode = (String) filters.get("dateMode");
             if ("today".equalsIgnoreCase(dateMode)) {
-                whereClause.append(" AND trx_date >= CURRENT_DATE() AND trx_date < DATE_ADD(CURRENT_DATE(), INTERVAL 1 DAY) ");
+                whereClause.append(
+                        " AND trx_date >= CURRENT_DATE() AND trx_date < DATE_ADD(CURRENT_DATE(), INTERVAL 1 DAY) ");
             } else if ("monthly".equalsIgnoreCase(dateMode)) {
                 Object yearObj = filters.get("year");
                 Object monthObj = filters.get("month");
-                if (yearObj != null && monthObj != null && !yearObj.toString().isEmpty() && !monthObj.toString().isEmpty()) {
-                    String startStr = String.format("%s-%02d-01", yearObj.toString().trim(), Integer.parseInt(monthObj.toString().trim()));
-                    whereClause.append(" AND trx_date >= STR_TO_DATE(:monthStart, '%Y-%m-%d') AND trx_date < DATE_ADD(STR_TO_DATE(:monthStart, '%Y-%m-%d'), INTERVAL 1 MONTH) ");
+                if (yearObj != null && monthObj != null && !yearObj.toString().isEmpty()
+                        && !monthObj.toString().isEmpty()) {
+                    String startStr = String.format("%s-%02d-01", yearObj.toString().trim(),
+                            Integer.parseInt(monthObj.toString().trim()));
+                    whereClause.append(
+                            " AND trx_date >= STR_TO_DATE(:monthStart, '%Y-%m-%d') AND trx_date < DATE_ADD(STR_TO_DATE(:monthStart, '%Y-%m-%d'), INTERVAL 1 MONTH) ");
                     params.put("monthStart", startStr);
                 }
             } else if ("accumulating".equalsIgnoreCase(dateMode)) {
@@ -1678,7 +1720,8 @@ public class CbsReportService {
                 }
             } else if ("last3years".equalsIgnoreCase(dateMode)) {
                 Object selectedYearObj = filters.get("year");
-                if (selectedYearObj != null && !selectedYearObj.toString().trim().isEmpty() && !"ALL".equalsIgnoreCase(selectedYearObj.toString().trim())) {
+                if (selectedYearObj != null && !selectedYearObj.toString().trim().isEmpty()
+                        && !"ALL".equalsIgnoreCase(selectedYearObj.toString().trim())) {
                     whereClause.append(" AND YEAR(trx_date) = :selectedYear ");
                     params.put("selectedYear", Integer.parseInt(selectedYearObj.toString().trim()));
                 } else {
@@ -1688,26 +1731,26 @@ public class CbsReportService {
         }
 
         String sql = String.format("""
-            SELECT 
-                COALESCE(ceft_id, '') AS ceft_id,
-                COALESCE(consumer_tran_id, '') AS consumer_tran_id,
-                COALESCE(account_id, '') AS account_id,
-                COALESCE(vendor_code, '') AS vendor_code,
-                COALESCE(vendor_name, '') AS vendor_name,
-                COALESCE(destination_account, '') AS destination_account,
-                COALESCE(destination_account_name, '') AS destination_account_name,
-                COALESCE(bank_code, '') AS bank_code,
-                COALESCE(bank_name, '') AS bank_name,
-                COALESCE(branch_code, '') AS branch_code,
-                COALESCE(amount, 0.0) AS amount,
-                DATE_FORMAT(trx_date, '%%Y-%%m-%%d %%H:%%i:%%s') AS trx_date,
-                COALESCE(ref, '') AS ref,
-                COALESCE(sp_number, '') AS sp_number,
-                COALESCE(status, '') AS status
-            FROM cbs.vendor_payments
-            %s
-            ORDER BY trx_date DESC
-        """, whereClause.toString());
+                    SELECT
+                        COALESCE(ceft_id, '') AS ceft_id,
+                        COALESCE(consumer_tran_id, '') AS consumer_tran_id,
+                        COALESCE(account_id, '') AS account_id,
+                        COALESCE(vendor_code, '') AS vendor_code,
+                        COALESCE(vendor_name, '') AS vendor_name,
+                        COALESCE(destination_account, '') AS destination_account,
+                        COALESCE(destination_account_name, '') AS destination_account_name,
+                        COALESCE(bank_code, '') AS bank_code,
+                        COALESCE(bank_name, '') AS bank_name,
+                        COALESCE(branch_code, '') AS branch_code,
+                        COALESCE(amount, 0.0) AS amount,
+                        DATE_FORMAT(trx_date, '%%Y-%%m-%%d %%H:%%i:%%s') AS trx_date,
+                        COALESCE(ref, '') AS ref,
+                        COALESCE(sp_number, '') AS sp_number,
+                        COALESCE(status, '') AS status
+                    FROM cbs.vendor_payments
+                    %s
+                    ORDER BY trx_date DESC
+                """, whereClause.toString());
 
         List<Map<String, Object>> rows = jdbc.queryForList(sql, params);
 
@@ -1753,11 +1796,11 @@ public class CbsReportService {
     }
 
     private double round(double val, int places) {
-        if (places < 0) return val;
+        if (places < 0)
+            return val;
         long factor = (long) Math.pow(10, places);
         val = val * factor;
         long tmp = Math.round(val);
         return (double) tmp / factor;
     }
 }
-
