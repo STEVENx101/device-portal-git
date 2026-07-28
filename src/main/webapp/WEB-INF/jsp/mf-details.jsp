@@ -604,7 +604,7 @@
                                         url: contextPath + '/api/contracts/datacultr-logs?imei=' + encodeURIComponent(imei || ''),
                                         type: 'GET',
                                         dataSrc: function (json) {
-                                            return json || [];
+                                            return json.activity || [];
                                         },
                                         error: function (xhr, error, code) {
                                             console.error("Failed to load Datacultr lock logs", xhr, error, code);
@@ -612,10 +612,34 @@
                                     },
                                     columns: [
                                         { data: "action", defaultContent: "-" },
-                                        { data: "message", defaultContent: "-" },
+                                        { data: "notification", defaultContent: "-" },
                                         { data: "status", defaultContent: "-" },
-                                        { data: "triggeredTimestamp", defaultContent: "-", render: function(d, t, r) { return d || r.triggered_timestamp || r.triggeredTime || '-'; } },
-                                        { data: "appliedTimestamp", defaultContent: "-", render: function(d, t, r) { return d || r.applied_timestamp || r.appliedTime || '-'; } },
+                                        { 
+                                            data: "trigger_time", 
+                                            defaultContent: "-",
+                                            render: function(d) {
+                                                if (!d || d === '-') return '-';
+                                                try {
+                                                    let parts = d.split('T');
+                                                    let dateParts = parts[0].split('-');
+                                                    let timePart = (parts[1] || '').split('.')[0];
+                                                    return dateParts[2] + '-' + dateParts[1] + '-' + dateParts[0] + ' ' + timePart;
+                                                } catch(e) { return d; }
+                                            }
+                                        },
+                                        { 
+                                            data: "applied_time", 
+                                            defaultContent: "-",
+                                            render: function(d) {
+                                                if (!d || d === '-') return '-';
+                                                try {
+                                                    let parts = d.split('T');
+                                                    let dateParts = parts[0].split('-');
+                                                    let timePart = (parts[1] || '').split('.')[0];
+                                                    return dateParts[2] + '-' + dateParts[1] + '-' + dateParts[0] + ' ' + timePart;
+                                                } catch(e) { return d; }
+                                            }
+                                        },
                                         { data: "code", defaultContent: "-" }
                                     ],
                                     language: {
