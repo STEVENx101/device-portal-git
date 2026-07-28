@@ -39,6 +39,45 @@
             linkRTL.setAttribute('disabled', true);
             userLinkRTL.setAttribute('disabled', true);
         </script>
+        <style>
+            /* Floating Search Bar on Hover */
+            .search-collapsed {
+                position: fixed !important;
+                top: -120px !important;
+                left: 50% !important;
+                transform: translateX(-50%) !important;
+                width: 50% !important;
+                z-index: 1050 !important;
+                background: rgba(255, 255, 255, 0.98) !important;
+                backdrop-filter: blur(10px) !important;
+                padding: 10px 20px !important;
+                border-radius: 0 0 15px 15px !important;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;
+                transition: top 0.3s ease-in-out !important;
+                border: 1px solid rgba(0,0,0,0.1) !important;
+                border-top: none !important;
+                margin-top: 0 !important;
+                margin-bottom: 0 !important;
+            }
+            .search-collapsed.hovered {
+                top: 0 !important;
+            }
+            .search-hover-trigger {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 15px;
+                z-index: 1049;
+                background: transparent;
+                display: none;
+            }
+            .dark__bg-1000 .search-collapsed {
+                background: rgba(21, 26, 35, 0.98) !important;
+                border: 1px solid rgba(255,255,255,0.1) !important;
+                border-top: none !important;
+            }
+        </style>
     </head>
 
     <body>
@@ -76,7 +115,9 @@
                         navbarTop.remove(navbarTop);
                     </script>
 
-                    <div class="d-flex flex-column align-items-center mt-2 mb-2">
+                    <div class="search-hover-trigger" id="searchHoverTrigger"></div>
+                    
+                    <div id="searchContainer" class="d-flex flex-column align-items-center mt-2 mb-2">
                         <div class="search-box w-50" data-list='{"valueNames":["title"]}'>
                             <form class="position-relative w-100" data-bs-toggle="search" data-bs-display="static"><input class="form-control search-input fuzzy-search" type="search" placeholder="Search by Finance No, Name, or NIC..." aria-label="Search" />
                                 <span class="fas fa-search search-box-icon"></span>
@@ -92,7 +133,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="text-500 fs--2 mt-2">
+                        <div class="text-500 fs--2 mt-2" id="searchHelpText">
                             <span class="fas fa-info-circle me-1"></span>Search by <strong>Finance No</strong>, <strong>Customer Name</strong>, or <strong>NIC</strong>
                         </div>
                     </div>
@@ -381,6 +422,18 @@
                         }
                         let currentFinanceNo = '';
                         $(document).ready(function () {
+                            // Hover actions for floating search bar
+                            $('#searchHoverTrigger, #searchContainer').on('mouseenter', function() {
+                                if ($('#searchContainer').hasClass('search-collapsed')) {
+                                    $('#searchContainer').addClass('hovered');
+                                }
+                            });
+                            $('#searchContainer').on('mouseleave', function() {
+                                if ($('#searchContainer').hasClass('search-collapsed')) {
+                                    $('#searchContainer').removeClass('hovered');
+                                }
+                            });
+
                             ReceiptTable('');
                             SmsTable('');
                             LocksTable('');
@@ -994,6 +1047,12 @@
 
                                             detailsCard.style.display = 'block';
                                             if (tabsCard) tabsCard.style.display = 'block';
+
+                                            // Collapse search bar to top
+                                            $('#searchContainer').addClass('search-collapsed');
+                                            $('#searchHelpText').hide();
+                                            $('#searchHoverTrigger').show();
+
                                             ReceiptTable(data.financeNo);
                                             SmsTable(data.financeNo);
                                             LocksTable(data.financeNo, data.security, data.imeiNo);
