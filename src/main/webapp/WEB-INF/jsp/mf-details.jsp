@@ -591,8 +591,8 @@
                                     $(tableId).DataTable().destroy();
                                 }
                                 
-                                $(tableId).DataTable({
-                                    paging: true,
+                                 $(tableId).DataTable({
+                                    paging: false,
                                     lengthChange: false,
                                     info: true,
                                     searching: false,
@@ -604,8 +604,7 @@
                                         url: contextPath + '/api/contracts/datacultr-logs?imei=' + encodeURIComponent(imei || ''),
                                         type: 'GET',
                                         dataSrc: function (json) {
-                                            const list = json.activity || [];
-                                            return list.filter(item => item.action && item.action !== '-' && item.action !== '');
+                                            return json.activity || [];
                                         },
                                         error: function (xhr, error, code) {
                                             console.error("Failed to load Datacultr lock logs", xhr, error, code);

@@ -196,7 +196,7 @@
                 $('#asAtDate').val(today);
 
                 dtReport = $('#tableMaturedLowBalance').DataTable({
-                    processing: true,
+                    processing: false,
                     serverSide: true,
                     deferLoading: true,
                     ordering: false,

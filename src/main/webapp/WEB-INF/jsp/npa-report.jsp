@@ -186,7 +186,7 @@
                 $('#asAtDate').val(today);
 
                 dtReport = $('#tableNpa').DataTable({
-                    processing: true,
+                    processing: false,
                     serverSide: true,
                     deferLoading: true,
                     ordering: false,

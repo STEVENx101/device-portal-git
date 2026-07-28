@@ -191,7 +191,7 @@
                 $('#asAtDate').val(today);
 
                 dtReport = $('#tableUnlockArrears').DataTable({
-                    processing: true,
+                    processing: false,
                     serverSide: true,
                     deferLoading: true,
                     ordering: false,

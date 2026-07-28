@@ -281,7 +281,6 @@
                                 .then(data => {
                                     const labels = data.map(item => item.month_name);
                                     const amounts = data.map(item => Math.round((item.business_amount / 1000000) * 100) / 100);
-                                    const counts = data.map(item => item.business_count);
 
                                     const ctx = document.getElementById('businessChart').getContext('2d');
                                     new Chart(ctx, {
@@ -296,18 +295,7 @@
                                                     borderColor: '#6366f1',
                                                     borderWidth: 1.5,
                                                     borderRadius: 6,
-                                                    yAxisID: 'y'
-                                                },
-                                                {
-                                                    label: 'Account Count',
-                                                    data: counts,
-                                                    type: 'line',
-                                                    borderColor: '#f59e0b',
-                                                    backgroundColor: '#f59e0b',
-                                                    borderWidth: 2.5,
-                                                    pointRadius: 4,
-                                                    fill: false,
-                                                    yAxisID: 'y1'
+                                                    barThickness: 25
                                                 }
                                             ]
                                         },
@@ -321,14 +309,6 @@
                                                     position: 'left',
                                                     beginAtZero: true,
                                                     title: { display: true, text: 'LKR Millions', font: { weight: 'bold' } }
-                                                },
-                                                y1: {
-                                                    type: 'linear',
-                                                    display: true,
-                                                    position: 'right',
-                                                    beginAtZero: true,
-                                                    grid: { drawOnChartArea: false },
-                                                    title: { display: true, text: 'Accounts', font: { weight: 'bold' } }
                                                 }
                                             },
                                             plugins: {
@@ -361,35 +341,40 @@
                                                     data: dpd0,
                                                     backgroundColor: 'rgba(16, 185, 129, 0.75)',
                                                     borderColor: '#10b981',
-                                                    borderWidth: 1.5
+                                                    borderWidth: 1.5,
+                                                    barThickness: 35
                                                 },
                                                 {
                                                     label: 'DPD 1-30',
                                                     data: dpd1_30,
                                                     backgroundColor: 'rgba(245, 158, 11, 0.75)',
                                                     borderColor: '#f59e0b',
-                                                    borderWidth: 1.5
+                                                    borderWidth: 1.5,
+                                                    barThickness: 35
                                                 },
                                                 {
                                                     label: 'DPD 31-60',
                                                     data: dpd31_60,
                                                     backgroundColor: 'rgba(249, 115, 22, 0.75)',
                                                     borderColor: '#f97316',
-                                                    borderWidth: 1.5
+                                                    borderWidth: 1.5,
+                                                    barThickness: 35
                                                 },
                                                 {
                                                     label: 'DPD 61-90',
                                                     data: dpd61_90,
                                                     backgroundColor: 'rgba(239, 68, 68, 0.75)',
                                                     borderColor: '#ef4444',
-                                                    borderWidth: 1.5
+                                                    borderWidth: 1.5,
+                                                    barThickness: 35
                                                 },
                                                 {
                                                     label: 'Over 90 DPD',
                                                     data: dpdAbove90,
                                                     backgroundColor: 'rgba(30, 41, 59, 0.75)',
                                                     borderColor: '#1e293b',
-                                                    borderWidth: 1.5
+                                                    borderWidth: 1.5,
+                                                    barThickness: 35
                                                 }
                                             ]
                                         },

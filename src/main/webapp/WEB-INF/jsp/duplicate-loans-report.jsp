@@ -172,7 +172,7 @@
 
             $(document).ready(function() {
                 dtReport = $('#tableDuplicateLoans').DataTable({
-                    processing: true,
+                    processing: false,
                     serverSide: true,
                     deferLoading: true,
                     ordering: false, // Disables sorting from column headers

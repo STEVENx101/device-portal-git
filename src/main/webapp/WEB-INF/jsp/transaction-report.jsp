@@ -256,7 +256,7 @@
                     .catch(err => console.error("Error loading filter metadata:", err));
 
                 dtReport = $('#tableReport3').DataTable({
-                    processing: true,
+                    processing: false,
                     serverSide: true,
                     deferLoading: true,
                     ajax: function(data, callback, settings) {

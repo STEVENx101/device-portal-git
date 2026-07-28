@@ -191,7 +191,7 @@
                 $('#asAtDate').val(today);
 
                 dtReport = $('#tableOneRental').DataTable({
-                    processing: true,
+                    processing: false,
                     serverSide: true,
                     deferLoading: true,
                     ordering: false,
