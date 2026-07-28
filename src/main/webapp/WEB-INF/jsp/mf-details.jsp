@@ -604,7 +604,8 @@
                                         url: contextPath + '/api/contracts/datacultr-logs?imei=' + encodeURIComponent(imei || ''),
                                         type: 'GET',
                                         dataSrc: function (json) {
-                                            return json.activity || [];
+                                            const list = json.activity || [];
+                                            return list.filter(item => item.action && item.action !== '-' && item.action !== '');
                                         },
                                         error: function (xhr, error, code) {
                                             console.error("Failed to load Datacultr lock logs", xhr, error, code);
