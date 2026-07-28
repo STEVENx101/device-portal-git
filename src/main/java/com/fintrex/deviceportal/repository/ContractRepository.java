@@ -62,7 +62,7 @@ public class ContractRepository {
                 CASE 
                     WHEN pr.product_code IN ('LF', 'laptop') THEN 'ABSOLUTE' 
                     WHEN pr.product_code = 'MF' AND COALESCE(lm1.knox_compatibility, lm2.knox_compatibility) = 'yes' THEN 'KNOX' 
-                    WHEN pr.product_code = 'MF' AND (COALESCE(lm1.knox_compatibility, lm2.knox_compatibility) = 'no' OR COALESCE(lm1.knox_compatibility, lm2.knox_compatibility) IS NULL) THEN 'DATACULTE' 
+                    WHEN pr.product_code = 'MF' AND (COALESCE(lm1.knox_compatibility, lm2.knox_compatibility) = 'no' OR COALESCE(lm1.knox_compatibility, lm2.knox_compatibility) IS NULL) THEN 'DATACULTR' 
                     ELSE NULL 
                 END AS SECURITY, 
                 lmm.name AS MODEL, 

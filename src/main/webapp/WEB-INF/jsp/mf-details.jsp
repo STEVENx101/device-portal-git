@@ -580,7 +580,7 @@
 
 
                         function LocksTable(financeNo, security, imei) {
-                            const isDatacultr = security && security.toUpperCase() === 'DATACULTR';
+                            const isDatacultr = security && (security.toUpperCase() === 'DATACULTR' || security.toUpperCase() === 'DATACULTE');
                             
                             if (isDatacultr) {
                                 $('#standard_locks_wrapper').hide();

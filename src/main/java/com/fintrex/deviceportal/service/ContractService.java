@@ -41,6 +41,15 @@ public class ContractService {
 
         System.out.println("FIN_NO: " + finNo);
 
+        if (finNo == null || finNo.isEmpty() || "-".equals(finNo)) {
+            DataTableResponse resp = new DataTableResponse();
+            resp.setData(new java.util.ArrayList<>());
+            resp.setRecordsTotal(0);
+            resp.setRecordsFiltered(0);
+            resp.setDraw(req.getDraw());
+            return resp;
+        }
+
         String innerQuery = """
                 SELECT
                     t.tran_id AS receipt_no,
@@ -74,6 +83,15 @@ public class ContractService {
 
         System.out.println("FIN_NO for SMS: " + finNo);
 
+        if (finNo == null || finNo.isEmpty() || "-".equals(finNo)) {
+            DataTableResponse resp = new DataTableResponse();
+            resp.setData(new java.util.ArrayList<>());
+            resp.setRecordsTotal(0);
+            resp.setRecordsFiltered(0);
+            resp.setDraw(req.getDraw());
+            return resp;
+        }
+
         String innerQuery = """
                 SELECT
                     s.mobile,
@@ -101,6 +119,15 @@ public class ContractService {
     public DataTableResponse fetchlockdata(DataTableRequest req) throws Exception {
         String finNo = req.getData() != null ? req.getData().toString().trim() : null;
         System.out.println("FIN_NO for Lock Log: " + finNo);
+
+        if (finNo == null || finNo.isEmpty() || "-".equals(finNo)) {
+            DataTableResponse resp = new DataTableResponse();
+            resp.setData(new java.util.ArrayList<>());
+            resp.setRecordsTotal(0);
+            resp.setRecordsFiltered(0);
+            resp.setDraw(req.getDraw());
+            return resp;
+        }
 
         String innerQuery = """
                 SELECT
