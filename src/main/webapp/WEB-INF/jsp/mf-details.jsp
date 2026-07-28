@@ -291,7 +291,7 @@
                                 </div>
                                 <!-- Lock/Unlock logs pane -->
                                 <div class="tab-pane fade" id="locks-pane" role="tabpanel" aria-labelledby="tab-locks">
-                                    <div class="table-responsive">
+                                    <div class="table-responsive" id="standard_locks_wrapper">
                                         <table id="locks_table" class="table table-hover table-striped mb-0 fs--1 w-100">
                                             <thead>
                                                 <tr>
@@ -299,6 +299,21 @@
                                                     <th>Status</th>
                                                     <th>Changed By</th>
                                                     <th>Reason</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                        </table>
+                                    </div>
+                                    <div class="table-responsive" id="datacultr_locks_wrapper" style="display: none;">
+                                        <table id="datacultr_locks_table" class="table table-hover table-striped mb-0 fs--1 w-100">
+                                            <thead>
+                                                <tr>
+                                                    <th>Action</th>
+                                                    <th>Message</th>
+                                                    <th>Status</th>
+                                                    <th>Triggered Timestamp</th>
+                                                    <th>Applied Timestamp</th>
+                                                    <th>Code</th>
                                                 </tr>
                                             </thead>
                                             <tbody></tbody>
@@ -564,57 +579,105 @@
                         }
 
 
-                        function LocksTable(financeNo) {
-                            const tableId = '#locks_table';
-                            if ($.fn.DataTable.isDataTable(tableId)) {
-                                $(tableId).DataTable().destroy();
-                            }
-                            $(tableId).DataTable({
-                                paging: false,
-                                lengthChange: false,
-                                info: true,
-                                searching: false,
-                                ordering: false,
-                                autoWidth: false,
-                                processing: true,
-                                serverSide: true,
-                                ajax: {
-                                    url: contextPath + '/api/contracts/fetchlockdata',
-                                    type: 'POST',
-                                    contentType: 'application/json',
-                                    data: function (d) {
-                                        d.data = financeNo || '';
-                                        return JSON.stringify(d);
-                                    },
-                                    dataSrc: function (json) {
-                                        return json.data || [];
-                                    },
-                                    error: function (xhr, error, code) {
-                                        console.error("Failed to load lock logs", xhr, error, code);
-                                    }
-                                },
-                                columns: [
-                                    { data: "date", defaultContent: "-" },
-                                    { 
-                                        data: "status", 
-                                        defaultContent: "-",
-                                        render: function (data) {
-                                            if (data === "LOCKED") {
-                                                return '<span class="badge badge-soft-danger">LOCKED</span>';
-                                            } else if (data === "UNLOCKED") {
-                                                return '<span class="badge badge-soft-success">UNLOCKED</span>';
-                                            }
-                                            return data;
+                        function LocksTable(financeNo, security, imei) {
+                            const isDatacultr = security && security.toUpperCase() === 'DATACULTR';
+                            
+                            if (isDatacultr) {
+                                $('#standard_locks_wrapper').hide();
+                                $('#datacultr_locks_wrapper').show();
+                                
+                                const tableId = '#datacultr_locks_table';
+                                if ($.fn.DataTable.isDataTable(tableId)) {
+                                    $(tableId).DataTable().destroy();
+                                }
+                                
+                                $(tableId).DataTable({
+                                    paging: true,
+                                    lengthChange: false,
+                                    info: true,
+                                    searching: false,
+                                    ordering: false,
+                                    autoWidth: false,
+                                    processing: true,
+                                    serverSide: false,
+                                    ajax: {
+                                        url: contextPath + '/api/contracts/datacultr-logs?imei=' + encodeURIComponent(imei || ''),
+                                        type: 'GET',
+                                        dataSrc: function (json) {
+                                            return json || [];
+                                        },
+                                        error: function (xhr, error, code) {
+                                            console.error("Failed to load Datacultr lock logs", xhr, error, code);
                                         }
                                     },
-                                    { data: "changed_by", defaultContent: "-" },
-                                    { data: "reason", defaultContent: "-" }
-                                ],
-                                language: {
-                                    processing: 'Loading...',
-                                    emptyTable: "No lock logs available."
+                                    columns: [
+                                        { data: "action", defaultContent: "-" },
+                                        { data: "message", defaultContent: "-" },
+                                        { data: "status", defaultContent: "-" },
+                                        { data: "triggeredTimestamp", defaultContent: "-", render: function(d, t, r) { return d || r.triggered_timestamp || r.triggeredTime || '-'; } },
+                                        { data: "appliedTimestamp", defaultContent: "-", render: function(d, t, r) { return d || r.applied_timestamp || r.appliedTime || '-'; } },
+                                        { data: "code", defaultContent: "-" }
+                                    ],
+                                    language: {
+                                        processing: 'Loading...',
+                                        emptyTable: "No lock logs available."
+                                    }
+                                });
+                            } else {
+                                $('#datacultr_locks_wrapper').hide();
+                                $('#standard_locks_wrapper').show();
+                                
+                                const tableId = '#locks_table';
+                                if ($.fn.DataTable.isDataTable(tableId)) {
+                                    $(tableId).DataTable().destroy();
                                 }
-                            });
+                                $(tableId).DataTable({
+                                    paging: false,
+                                    lengthChange: false,
+                                    info: true,
+                                    searching: false,
+                                    ordering: false,
+                                    autoWidth: false,
+                                    processing: true,
+                                    serverSide: true,
+                                    ajax: {
+                                        url: contextPath + '/api/contracts/fetchlockdata',
+                                        type: 'POST',
+                                        contentType: 'application/json',
+                                        data: function (d) {
+                                            d.data = financeNo || '';
+                                            return JSON.stringify(d);
+                                        },
+                                        dataSrc: function (json) {
+                                            return json.data || [];
+                                        },
+                                        error: function (xhr, error, code) {
+                                            console.error("Failed to load lock logs", xhr, error, code);
+                                        }
+                                    },
+                                    columns: [
+                                        { data: "date", defaultContent: "-" },
+                                        { 
+                                            data: "status", 
+                                            defaultContent: "-",
+                                            render: function (data) {
+                                                if (data === "LOCKED") {
+                                                    return '<span class="badge badge-soft-danger">LOCKED</span>';
+                                                } else if (data === "UNLOCKED") {
+                                                    return '<span class="badge badge-soft-success">UNLOCKED</span>';
+                                                }
+                                                return data;
+                                            }
+                                        },
+                                        { data: "changed_by", defaultContent: "-" },
+                                        { data: "reason", defaultContent: "-" }
+                                    ],
+                                    language: {
+                                        processing: 'Loading...',
+                                        emptyTable: "No lock logs available."
+                                    }
+                                });
+                            }
                         }
 
                         function RemarksTable(financeNo) {
@@ -896,7 +959,7 @@
                                             if (tabsCard) tabsCard.style.display = 'block';
                                             ReceiptTable(data.financeNo);
                                             SmsTable(data.financeNo);
-                                            LocksTable(data.financeNo);
+                                            LocksTable(data.financeNo, data.security, data.imeiNo);
                                             RemarksTable(data.financeNo);
                                             if (loader) loader.style.display = 'none';
                                         })

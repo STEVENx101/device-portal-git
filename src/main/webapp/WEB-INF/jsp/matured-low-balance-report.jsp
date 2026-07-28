@@ -113,7 +113,7 @@
                                          </button>
                                          <% if (canDownloadReports) { %>
                                          <button class="btn btn-success btn-sm" type="button" id="downloadExcelBtn">
-                                             <span class="fas fa-file-excel me-1"></span> Download CSV
+                                             <span class="fas fa-file-excel me-1"></span> Download Excel
                                          </button>
                                          <% } %>
                                      </div>
@@ -160,7 +160,7 @@
             <div class="spinner-border text-primary mb-2" role="status">
                 <span class="visually-hidden">Loading...</span>
             </div>
-            <div id="loaderText" class="fw-bold text-primary">Generating CSV download, please wait...</div>
+            <div id="loaderText" class="fw-bold text-primary">Generating Excel download, please wait...</div>
         </div>
 
         <!-- Scripts -->
@@ -201,13 +201,18 @@
                     deferLoading: true,
                     ordering: false,
                     ajax: function(data, callback, settings) {
+                        $('#loaderText').text('Loading data, please wait...');
+                        $('#cbsLoader').css('display', 'flex');
                         data.data = getFilters();
                         $.ajax({
                             url: '${pageContext.request.contextPath}/api/cbs/matured-low-balance',
                             type: 'POST',
                             contentType: 'application/json',
                             data: JSON.stringify(data),
-                            success: function(res) { callback(res); }
+                            success: function(res) { callback(res); },
+                            complete: function() {
+                                $('#cbsLoader').hide();
+                            }
                         });
                     },
                     columns: [
@@ -259,7 +264,7 @@
                         const token = new Date().getTime();
                         queryParams.append('downloadToken', token);
 
-                        $('#loaderText').text('Generating CSV download, please wait... ');
+                        $('#loaderText').text('Generating Excel download, please wait... ');
                         $('#cbsLoader').css('display', 'flex');
 
                         window.location.href = downloadUrl + '?' + queryParams.toString();

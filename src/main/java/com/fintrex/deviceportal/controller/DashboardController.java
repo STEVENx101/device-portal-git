@@ -28,5 +28,15 @@ public class DashboardController {
     public ResponseEntity<List<Map<String, Object>>> getDpdChartData(@RequestParam(value = "dimension", defaultValue = "dealer") String dimension) {
         return ResponseEntity.ok(dashboardService.getDpdChartData(dimension));
     }
+
+    @GetMapping("/business-chart")
+    public ResponseEntity<List<Map<String, Object>>> getMonthWiseBusiness() {
+        return ResponseEntity.ok(dashboardService.getMonthWiseBusiness());
+    }
+
+    @GetMapping("/dpd-comparison-chart")
+    public ResponseEntity<List<Map<String, Object>>> getMonthWiseDpdComparison() {
+        return ResponseEntity.ok(dashboardService.getMonthWiseDpdComparison());
+    }
 }
 

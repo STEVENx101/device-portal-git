@@ -1,5 +1,9 @@
 package com.fintrex.deviceportal.controller;
 
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Cell;
 import com.fintrex.deviceportal.config.DataTableRequest;
 import com.fintrex.deviceportal.config.DataTableResponse;
 import com.fintrex.deviceportal.service.CbsReportService;
@@ -64,35 +68,9 @@ public class CbsReportController {
 
         List<Map<String, Object>> data = cbsReportService.getReport1Data(branch, products, asAt);
 
-        response.setContentType("text/csv");
-        response.setHeader("Content-Disposition", "attachment; filename=\"portfolio_loan_report.csv\"");
-
-        PrintWriter writer = response.getWriter();
-        writer.println("Portfolio Date,Account No,Series,Legacy Account No,Product Name,Loan Amount,Rental,Total Due,Exposure,DPD,Performing Status,Loan Status,Disbursed Date,Closed Date,IMEI No,Device Status,Workhub SP No,Platform");
-
-        for (Map<String, Object> row : data) {
-            writer.println(String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
-                    cleanCsv(row.get("portfolio_date")),
-                    cleanCsv(row.get("account_no")),
-                    cleanCsv(row.get("series")),
-                    cleanCsv(row.get("legacy_account_no")),
-                    cleanCsv(row.get("product_name")),
-                    cleanCsv(row.get("loan_amount")),
-                    cleanCsv(row.get("rental")),
-                    cleanCsv(row.get("total_due")),
-                    cleanCsv(row.get("exposure")),
-                    cleanCsv(row.get("dpd")),
-                    cleanCsv(row.get("performing_status")),
-                    cleanCsv(row.get("portfolio_loan_status")),
-                    cleanCsv(row.get("disbursed_date")),
-                    cleanCsv(row.get("closed_date")),
-                    cleanCsv(row.get("device_id")),
-                    cleanCsv(row.get("device_status")),
-                    cleanCsv(row.get("external_id")),
-                    cleanCsv(row.get("platform"))
-            ));
-        }
-        writer.flush();
+        String[] headers = {"Portfolio Date","Account No","Series","Legacy Account No","Product Name","Loan Amount","Rental","Total Due","Exposure","DPD","Performing Status","Loan Status","Disbursed Date","Closed Date","IMEI No","Device Status","Workhub SP No","Platform"};
+        String[] keys = {"portfolio_date","account_no","series","legacy_account_no","product_name","loan_amount","rental","total_due","exposure","dpd","performing_status","portfolio_loan_status","disbursed_date","closed_date","device_id","device_status","external_id","platform"};
+        writeExcel(response, "portfolio_loan_report.xlsx", headers, keys, data);
     }
 
     @PostMapping("/report2")
@@ -132,25 +110,9 @@ public class CbsReportController {
 
         List<Map<String, Object>> data = cbsReportService.getReport2Data(branch, fromDate, toDate);
 
-        response.setContentType("text/csv");
-        response.setHeader("Content-Disposition", "attachment; filename=\"client_report.csv\"");
-
-        PrintWriter writer = response.getWriter();
-        writer.println("Client Code,Client Type,Title,NIC No,Mobile,Address,Entered Date,Full Name");
-
-        for (Map<String, Object> row : data) {
-            writer.println(String.format("%s,%s,%s,%s,%s,%s,%s,%s",
-                     cleanCsv(row.get("client_code")),
-                     cleanCsv(row.get("client_type")),
-                     cleanCsv(row.get("title")),
-                     cleanCsv(row.get("id_no")),
-                     cleanCsv(row.get("mobile")),
-                     cleanCsv(row.get("address")),
-                     cleanCsv(row.get("entered_date")),
-                     cleanCsv(row.get("full_name"))
-            ));
-        }
-        writer.flush();
+        String[] headers = {"Client Code","Client Type","Title","NIC No","Mobile","Address","Entered Date","Full Name"};
+        String[] keys = {"client_code","client_type","title","id_no","mobile","address","entered_date","full_name"};
+        writeExcel(response, "client_report.xlsx", headers, keys, data);
     }
 
     @PostMapping("/report3")
@@ -191,26 +153,9 @@ public class CbsReportController {
 
         List<Map<String, Object>> data = cbsReportService.getReport3Data(branch, products, fromDate, toDate);
 
-        response.setContentType("text/csv");
-        response.setHeader("Content-Disposition", "attachment; filename=\"customer_payments_report.csv\"");
-
-        PrintWriter writer = response.getWriter();
-        writer.println("Transaction ID,Account No,Legacy Account No,Amount,Date,User,Channel,Narration,Product Name");
-
-        for (Map<String, Object> row : data) {
-            writer.println(String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s",
-                    cleanCsv(row.get("tran_id")),
-                    cleanCsv(row.get("account_no")),
-                    cleanCsv(row.get("legacy_account_no")),
-                    cleanCsv(row.get("amount")),
-                    cleanCsv(row.get("date")),
-                    cleanCsv(row.get("user")),
-                    cleanCsv(row.get("channel")),
-                    cleanCsv(row.get("narration")),
-                    cleanCsv(row.get("product_name"))
-            ));
-        }
-        writer.flush();
+        String[] headers = {"Transaction ID","Account No","Legacy Account No","Amount","Date","User","Channel","Narration","Product Name"};
+        String[] keys = {"tran_id","account_no","legacy_account_no","amount","date","user","channel","narration","product_name"};
+        writeExcel(response, "customer_payments_report.xlsx", headers, keys, data);
     }
 
     @PostMapping("/report4")
@@ -251,30 +196,9 @@ public class CbsReportController {
 
         List<Map<String, Object>> data = cbsReportService.getReport4Data(branch, products, fromDate, toDate);
 
-        response.setContentType("text/csv");
-        response.setHeader("Content-Disposition", "attachment; filename=\"agreement_report.csv\"");
-
-        PrintWriter writer = response.getWriter();
-        writer.println("Account No,Series,Legacy Account No,Client Code,NIC No,Product Name,Loan Amount,Period,Rental,Rate,Disbursed Date,Closed Date,Client Name");
-
-        for (Map<String, Object> row : data) {
-            writer.println(String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
-                    cleanCsv(row.get("account_no")),
-                    cleanCsv(row.get("series")),
-                    cleanCsv(row.get("legacy_account_no")),
-                    cleanCsv(row.get("client_code")),
-                    cleanCsv(row.get("id_no")),
-                    cleanCsv(row.get("product_name")),
-                    cleanCsv(row.get("loan_amount")),
-                    cleanCsv(row.get("period")),
-                    cleanCsv(row.get("rental")),
-                    cleanCsv(row.get("rate")),
-                    cleanCsv(row.get("disbursed_date")),
-                    cleanCsv(row.get("closed_date")),
-                    cleanCsv(row.get("client_name"))
-            ));
-        }
-        writer.flush();
+        String[] headers = {"Account No","Series","Legacy Account No","Client Code","NIC No","Product Name","Loan Amount","Period","Rental","Rate","Disbursed Date","Closed Date","Client Name"};
+        String[] keys = {"account_no","series","legacy_account_no","client_code","id_no","product_name","loan_amount","period","rental","rate","disbursed_date","closed_date","client_name"};
+        writeExcel(response, "agreement_report.xlsx", headers, keys, data);
     }
 
     @PostMapping("/report-logs")
@@ -490,59 +414,17 @@ public class CbsReportController {
     }
 
     private void writeExceptionLockCsv(HttpServletResponse response, String filename, List<Map<String, Object>> data) throws Exception {
-        response.setContentType("text/csv");
-        response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
-
-        PrintWriter writer = response.getWriter();
-        writer.println("Account No,Series,Legacy Account No,NIC/ID No,Mobile No,Address,Loan Amount,Rental,Total Due,Exposure,DPD,Locked Status,Recovery Officer,Customer Name");
-
-        for (Map<String, Object> row : data) {
-            writer.println(String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
-                    cleanCsv(row.get("account_no")),
-                    cleanCsv(row.get("series")),
-                    cleanCsv(row.get("legacy_account_no")),
-                    cleanCsv(row.get("client_nic")),
-                    cleanCsv(row.get("client_mobile")),
-                    cleanCsv(row.get("client_address")),
-                    cleanCsv(row.get("loan_amount")),
-                    cleanCsv(row.get("rental")),
-                    cleanCsv(row.get("total_due")),
-                    cleanCsv(row.get("exposure")),
-                    cleanCsv(row.get("dpd")),
-                    cleanCsv(row.get("lock_status")),
-                    cleanCsv(row.get("recovery_officer")),
-                    cleanCsv(row.get("client_name"))
-            ));
-        }
-        writer.flush();
+        String xlsxFilename = filename.replace(".csv", ".xlsx");
+        String[] headers = {"Account No","Series","Legacy Account No","NIC/ID No","Mobile No","Address","Loan Amount","Rental","Total Due","Exposure","DPD","Locked Status","Recovery Officer","Customer Name"};
+        String[] keys = {"account_no","series","legacy_account_no","client_nic","client_mobile","client_address","loan_amount","rental","total_due","exposure","dpd","lock_status","recovery_officer","client_name"};
+        writeExcel(response, xlsxFilename, headers, keys, data);
     }
 
     private void writeMaturedLowBalanceCsv(HttpServletResponse response, String filename, List<Map<String, Object>> data) throws Exception {
-        response.setContentType("text/csv");
-        response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
-
-        PrintWriter writer = response.getWriter();
-        writer.println("Account No,Series,Legacy Account No,NIC/ID No,Mobile No,Mature Date,Loan Amount,Rental,Total Due,Exposure,DPD,Locked Status,Recovery Officer,Customer Name");
-
-        for (Map<String, Object> row : data) {
-            writer.println(String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
-                    cleanCsv(row.get("account_no")),
-                    cleanCsv(row.get("series")),
-                    cleanCsv(row.get("legacy_account_no")),
-                    cleanCsv(row.get("client_nic")),
-                    cleanCsv(row.get("client_mobile")),
-                    cleanCsv(row.get("mature_date")),
-                    cleanCsv(row.get("loan_amount")),
-                    cleanCsv(row.get("rental")),
-                    cleanCsv(row.get("total_due")),
-                    cleanCsv(row.get("exposure")),
-                    cleanCsv(row.get("dpd")),
-                    cleanCsv(row.get("lock_status")),
-                    cleanCsv(row.get("recovery_officer")),
-                    cleanCsv(row.get("client_name"))
-            ));
-        }
-        writer.flush();
+        String xlsxFilename = filename.replace(".csv", ".xlsx");
+        String[] headers = {"Account No","Series","Legacy Account No","NIC/ID No","Mobile No","Mature Date","Loan Amount","Rental","Total Due","Exposure","DPD","Locked Status","Recovery Officer","Customer Name"};
+        String[] keys = {"account_no","series","legacy_account_no","client_nic","client_mobile","mature_date","loan_amount","rental","total_due","exposure","dpd","lock_status","recovery_officer","client_name"};
+        writeExcel(response, xlsxFilename, headers, keys, data);
     }
 
     private void verifyDownloadPermission(HttpSession session, HttpServletResponse response) throws Exception {
@@ -562,57 +444,53 @@ public class CbsReportController {
     }
 
     private void writeRecoveryCsv(HttpServletResponse response, String filename, List<Map<String, Object>> data) throws Exception {
-        response.setContentType("text/csv");
-        response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
-
-        PrintWriter writer = response.getWriter();
-        writer.println("Account No,Series,Legacy Account No,NIC/ID No,Mobile No,Address,Loan Amount,Rental,Total Due,Exposure,DPD,Status,Performing Status,NPL Status,Recovery Officer,Last Payment Date,Last Payment Amount,Customer Name");
-
-        for (Map<String, Object> row : data) {
-            writer.println(String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
-                    cleanCsv(row.get("account_no")),
-                    cleanCsv(row.get("series")),
-                    cleanCsv(row.get("legacy_account_no")),
-                    cleanCsv(row.get("client_nic")),
-                    cleanCsv(row.get("client_mobile")),
-                    cleanCsv(row.get("client_address")),
-                    cleanCsv(row.get("loan_amount")),
-                    cleanCsv(row.get("rental")),
-                    cleanCsv(row.get("total_due")),
-                    cleanCsv(row.get("exposure")),
-                    cleanCsv(row.get("dpd")),
-                    cleanCsv(row.get("loan_status")),
-                    cleanCsv(row.get("performing_status")),
-                    cleanCsv(row.get("npl_status")),
-                    cleanCsv(row.get("recovery_officer")),
-                    cleanCsv(row.get("last_payment_date")),
-                    cleanCsv(row.get("last_payment_amount")),
-                    cleanCsv(row.get("client_name"))
-            ));
-        }
-        writer.flush();
+        String xlsxFilename = filename.replace(".csv", ".xlsx");
+        String[] headers = {"Account No","Series","Legacy Account No","NIC/ID No","Mobile No","Address","Loan Amount","Rental","Total Due","Exposure","DPD","Status","Performing Status","NPL Status","Recovery Officer","Last Payment Date","Last Payment Amount","Customer Name"};
+        String[] keys = {"account_no","series","legacy_account_no","client_nic","client_mobile","client_address","loan_amount","rental","total_due","exposure","dpd","loan_status","performing_status","npl_status","recovery_officer","last_payment_date","last_payment_amount","client_name"};
+        writeExcel(response, xlsxFilename, headers, keys, data);
     }
 
     private void writeDuplicateLoansCsv(HttpServletResponse response, String filename, List<Map<String, Object>> data) throws Exception {
-        response.setContentType("text/csv");
+        String xlsxFilename = filename.replace(".csv", ".xlsx");
+        String[] headers = {"IMEI No","Account No","Series","Legacy Account No","NIC/ID No","Loan Amount","Vendor Name","Customer Name"};
+        String[] keys = {"imei_no","account_no","series","legacy_account_no","client_nic","loan_amount","vendor_name","client_name"};
+        writeExcel(response, xlsxFilename, headers, keys, data);
+    }
+
+
+    private void writeExcel(HttpServletResponse response, String filename, String[] headers, String[] keys, List<Map<String, Object>> data) throws Exception {
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
-
-        PrintWriter writer = response.getWriter();
-        writer.println("IMEI No,Account No,Series,Legacy Account No,NIC/ID No,Loan Amount,Vendor Name,Customer Name");
-
-        for (Map<String, Object> row : data) {
-            writer.println(String.format("%s,%s,%s,%s,%s,%s,%s,%s",
-                    cleanCsv(row.get("imei_no")),
-                    cleanCsv(row.get("account_no")),
-                    cleanCsv(row.get("series")),
-                    cleanCsv(row.get("legacy_account_no")),
-                    cleanCsv(row.get("client_nic")),
-                    cleanCsv(row.get("loan_amount")),
-                    cleanCsv(row.get("vendor_name")),
-                    cleanCsv(row.get("client_name"))
-            ));
+        
+        try (SXSSFWorkbook workbook = new SXSSFWorkbook(100)) {
+            Sheet sheet = workbook.createSheet("Report Data");
+            
+            // Header row
+            Row headerRow = sheet.createRow(0);
+            for (int i = 0; i < headers.length; i++) {
+                Cell cell = headerRow.createCell(i);
+                cell.setCellValue(headers[i]);
+            }
+            
+            // Data rows
+            for (int r = 0; r < data.size(); r++) {
+                Map<String, Object> rowMap = data.get(r);
+                Row row = sheet.createRow(r + 1);
+                for (int c = 0; c < keys.length; c++) {
+                    Object val = rowMap.get(keys[c]);
+                    Cell cell = row.createCell(c);
+                    if (val != null) {
+                        if (val instanceof Number) {
+                            cell.setCellValue(((Number) val).doubleValue());
+                        } else {
+                            cell.setCellValue(val.toString());
+                        }
+                    }
+                }
+            }
+            
+            workbook.write(response.getOutputStream());
         }
-        writer.flush();
     }
 
     private String cleanCsv(Object val) {
@@ -670,67 +548,59 @@ public class CbsReportController {
 
         Map<String, Object> reportData = cbsReportService.fetchDpdBucketReport(filters);
 
-        response.setContentType("text/csv");
-        response.setHeader("Content-Disposition", "attachment; filename=\"dpd_bucket_report_" + dimension + ".csv\"");
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setHeader("Content-Disposition", "attachment; filename=\"dpd_bucket_report_" + dimension + ".xlsx\"");
 
-        PrintWriter writer = response.getWriter();
-        writer.println("Category,DPD 0 No,DPD 0 Val (Mn),DPD 0 %,DPD 1-30 No,DPD 1-30 Val (Mn),DPD 1-30 %,DPD 31-60 No,DPD 31-60 Val (Mn),DPD 31-60 %,DPD 61-90 No,DPD 61-90 Val (Mn),DPD 61-90 %,Over 90 DPD No,Over 90 DPD Val (Mn),Over 90 DPD %,Total No,Total Val (Mn),Total %");
-
-        @SuppressWarnings("unchecked")
-        List<Map<String, Object>> rows = (List<Map<String, Object>>) reportData.get("rows");
-        if (rows != null) {
-            for (Map<String, Object> row : rows) {
-                writer.println(String.format("%s,%s,%s,%s%%,%s,%s,%s%%,%s,%s,%s%%,%s,%s,%s%%,%s,%s,%s%%,%s,%s,%s%%",
-                        cleanCsv(row.get("category")),
-                        cleanCsv(row.get("dpd0Count")),
-                        cleanCsv(row.get("dpd0ValMn")),
-                        cleanCsv(row.get("dpd0Pct")),
-                        cleanCsv(row.get("dpd1_30Count")),
-                        cleanCsv(row.get("dpd1_30ValMn")),
-                        cleanCsv(row.get("dpd1_30Pct")),
-                        cleanCsv(row.get("dpd31_60Count")),
-                        cleanCsv(row.get("dpd31_60ValMn")),
-                        cleanCsv(row.get("dpd31_60Pct")),
-                        cleanCsv(row.get("dpd61_90Count")),
-                        cleanCsv(row.get("dpd61_90ValMn")),
-                        cleanCsv(row.get("dpd61_90Pct")),
-                        cleanCsv(row.get("dpdAbove90Count")),
-                        cleanCsv(row.get("dpdAbove90ValMn")),
-                        cleanCsv(row.get("dpdAbove90Pct")),
-                        cleanCsv(row.get("totalCount")),
-                        cleanCsv(row.get("totalValMn")),
-                        cleanCsv(row.get("totalPct"))
-                ));
+        try (SXSSFWorkbook workbook = new SXSSFWorkbook(100)) {
+            Sheet sheet = workbook.createSheet("DPD Bucket Report");
+            String[] headers = {"Category","DPD 0 No","DPD 0 Val (Mn)","DPD 0 %","DPD 1-30 No","DPD 1-30 Val (Mn)","DPD 1-30 %","DPD 31-60 No","DPD 31-60 Val (Mn)","DPD 31-60 %","DPD 61-90 No","DPD 61-90 Val (Mn)","DPD 61-90 %","Over 90 DPD No","Over 90 DPD Val (Mn)","Over 90 DPD %","Total No","Total Val (Mn)","Total %"};
+            
+            Row headerRow = sheet.createRow(0);
+            for (int i = 0; i < headers.length; i++) {
+                headerRow.createCell(i).setCellValue(headers[i]);
             }
-        }
 
-        @SuppressWarnings("unchecked")
-        Map<String, Object> totals = (Map<String, Object>) reportData.get("totals");
-        if (totals != null) {
-            writer.println(String.format("%s,%s,%s,%s%%,%s,%s,%s%%,%s,%s,%s%%,%s,%s,%s%%,%s,%s,%s%%,%s,%s,%s%%",
-                    cleanCsv(totals.get("category")),
-                    cleanCsv(totals.get("dpd0Count")),
-                    cleanCsv(totals.get("dpd0ValMn")),
-                    cleanCsv(totals.get("dpd0Pct")),
-                    cleanCsv(totals.get("dpd1_30Count")),
-                    cleanCsv(totals.get("dpd1_30ValMn")),
-                    cleanCsv(totals.get("dpd1_30Pct")),
-                    cleanCsv(totals.get("dpd31_60Count")),
-                    cleanCsv(totals.get("dpd31_60ValMn")),
-                    cleanCsv(totals.get("dpd31_60Pct")),
-                    cleanCsv(totals.get("dpd61_90Count")),
-                    cleanCsv(totals.get("dpd61_90ValMn")),
-                    cleanCsv(totals.get("dpd61_90Pct")),
-                    cleanCsv(totals.get("above90Count")),
-                    cleanCsv(totals.get("above90ValMn")),
-                    cleanCsv(totals.get("above90Pct")),
-                    cleanCsv(totals.get("totalCount")),
-                    cleanCsv(totals.get("totalValMn")),
-                    cleanCsv(totals.get("totalPct"))
-            ));
-        }
+            @SuppressWarnings("unchecked")
+            List<Map<String, Object>> rows = (List<Map<String, Object>>) reportData.get("rows");
+            int rowIndex = 1;
+            String[] keys = {"category","dpd0Count","dpd0ValMn","dpd0Pct","dpd1_30Count","dpd1_30ValMn","dpd1_30Pct","dpd31_60Count","dpd31_60ValMn","dpd31_60Pct","dpd61_90Count","dpd61_90ValMn","dpd61_90Pct","dpdAbove90Count","dpdAbove90ValMn","dpdAbove90Pct","totalCount","totalValMn","totalPct"};
+            if (rows != null) {
+                for (Map<String, Object> row : rows) {
+                    Row rRow = sheet.createRow(rowIndex++);
+                    for (int c = 0; c < keys.length; c++) {
+                        Object val = row.get(keys[c]);
+                        Cell cell = rRow.createCell(c);
+                        if (val != null) {
+                            if (val instanceof Number) {
+                                cell.setCellValue(((Number) val).doubleValue());
+                            } else {
+                                cell.setCellValue(val.toString());
+                            }
+                        }
+                    }
+                }
+            }
 
-        writer.flush();
+            @SuppressWarnings("unchecked")
+            Map<String, Object> totals = (Map<String, Object>) reportData.get("totals");
+            if (totals != null) {
+                Row tRow = sheet.createRow(rowIndex);
+                String[] totalKeys = {"category","dpd0Count","dpd0ValMn","dpd0Pct","dpd1_30Count","dpd1_30ValMn","dpd1_30Pct","dpd31_60Count","dpd31_60ValMn","dpd31_60Pct","dpd61_90Count","dpd61_90ValMn","dpd61_90Pct","above90Count","above90ValMn","above90Pct","totalCount","totalValMn","totalPct"};
+                for (int c = 0; c < totalKeys.length; c++) {
+                    Object val = totals.get(totalKeys[c]);
+                    Cell cell = tRow.createCell(c);
+                    if (val != null) {
+                        if (val instanceof Number) {
+                            cell.setCellValue(((Number) val).doubleValue());
+                        } else {
+                            cell.setCellValue(val.toString());
+                        }
+                    }
+                }
+            }
+
+            workbook.write(response.getOutputStream());
+        }
     }
 
     @PostMapping("/vendor-payments")
@@ -748,7 +618,7 @@ public class CbsReportController {
             @RequestParam(required = false) String fromDate,
             @RequestParam(required = false) String toDate,
             @RequestParam(required = false) String search,
-            HttpServletResponse response) throws IOException {
+            HttpServletResponse response) throws Exception {
 
         Map<String, Object> filters = new HashMap<>();
         filters.put("dateMode", dateMode);
@@ -761,10 +631,7 @@ public class CbsReportController {
 
         Map<String, Object> reportData = cbsReportService.fetchVendorPaymentsReport(filters, false);
 
-        response.setContentType("text/csv");
-        response.setHeader("Content-Disposition", "attachment; filename=\"vendor_payments_report.csv\"");
-
-        writeVendorPaymentsCsv(response.getWriter(), reportData);
+        writeVendorPaymentsExcel(response, "vendor_payments_report.xlsx", reportData);
     }
 
     @PostMapping("/vendor-payments-exception")
@@ -782,7 +649,7 @@ public class CbsReportController {
             @RequestParam(required = false) String fromDate,
             @RequestParam(required = false) String toDate,
             @RequestParam(required = false) String search,
-            HttpServletResponse response) throws IOException {
+            HttpServletResponse response) throws Exception {
 
         Map<String, Object> filters = new HashMap<>();
         filters.put("dateMode", dateMode);
@@ -795,38 +662,18 @@ public class CbsReportController {
 
         Map<String, Object> reportData = cbsReportService.fetchVendorPaymentsReport(filters, true);
 
-        response.setContentType("text/csv");
-        response.setHeader("Content-Disposition", "attachment; filename=\"vendor_payments_exception_report.csv\"");
-
-        writeVendorPaymentsCsv(response.getWriter(), reportData);
+        writeVendorPaymentsExcel(response, "vendor_payments_exception_report.xlsx", reportData);
     }
 
-    private void writeVendorPaymentsCsv(PrintWriter writer, Map<String, Object> reportData) {
-        writer.println("CEFT ID,Consumer Tran ID,Account ID,Vendor Code,Vendor Name,Destination Account,Destination Account Name,Bank Code,Bank Name,Branch Code,Amount,Trx Date,Ref,SP Number,Status");
-
+    private void writeVendorPaymentsExcel(HttpServletResponse response, String filename, Map<String, Object> reportData) throws Exception {
+        String[] headers = {"CEFT ID","Consumer Tran ID","Account ID","Vendor Code","Vendor Name","Destination Account","Destination Account Name","Bank Code","Bank Name","Branch Code","Amount","Trx Date","Ref","SP Number","Status"};
+        String[] keys = {"ceft_id","consumer_tran_id","account_id","vendor_code","vendor_name","destination_account","destination_account_name","bank_code","bank_name","branch_code","amount","trx_date","ref","sp_number","status"};
+        
         @SuppressWarnings("unchecked")
         List<Map<String, Object>> rows = (List<Map<String, Object>>) reportData.get("rows");
-        if (rows != null) {
-            for (Map<String, Object> row : rows) {
-                writer.println(String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
-                        cleanCsv(row.get("ceft_id")),
-                        cleanCsv(row.get("consumer_tran_id")),
-                        cleanCsv(row.get("account_id")),
-                        cleanCsv(row.get("vendor_code")),
-                        cleanCsv(row.get("vendor_name")),
-                        cleanCsv(row.get("destination_account")),
-                        cleanCsv(row.get("destination_account_name")),
-                        cleanCsv(row.get("bank_code")),
-                        cleanCsv(row.get("bank_name")),
-                        cleanCsv(row.get("branch_code")),
-                        cleanCsv(row.get("amount")),
-                        cleanCsv(row.get("trx_date")),
-                        cleanCsv(row.get("ref")),
-                        cleanCsv(row.get("sp_number")),
-                        cleanCsv(row.get("status"))
-                ));
-            }
+        if (rows == null) {
+            rows = new ArrayList<>();
         }
-        writer.flush();
+        writeExcel(response, filename, headers, keys, rows);
     }
 }

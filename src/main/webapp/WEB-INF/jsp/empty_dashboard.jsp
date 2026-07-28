@@ -80,21 +80,21 @@
                 color: #ffffff !important;
             }
             .card-title-sub {
-                font-size: 0.8rem;
+                font-size: 0.7rem;
                 opacity: 0.85;
                 font-weight: 600;
                 text-transform: uppercase;
                 letter-spacing: 0.05em;
             }
             .card-value {
-                font-size: 2rem;
+                font-size: 1.4rem;
                 font-weight: 800;
-                margin-top: 0.5rem;
+                margin-top: 0.3rem;
             }
             .card-detail-text {
-                font-size: 0.78rem;
+                font-size: 0.68rem;
                 opacity: 0.9;
-                margin-top: 0.25rem;
+                margin-top: 0.2rem;
             }
             .chart-container {
                 position: relative;
@@ -132,10 +132,10 @@
                     </div>
 
                     <!-- N-Status Metrics Card Row -->
-                    <div class="row g-3 mb-4">
+                    <div class="row g-2 mb-3">
                         <div class="col-md-3">
                             <div class="card kpi-card gradient-1 shadow-sm h-100">
-                                <div class="card-body p-3">
+                                <div class="card-body p-2">
                                     <div class="d-flex justify-content-between align-items-start">
                                         <div>
                                             <span class="card-title-sub">Current Month Business</span>
@@ -151,10 +151,10 @@
                         </div>
                         <div class="col-md-3">
                             <div class="card kpi-card gradient-2 shadow-sm h-100">
-                                <div class="card-body p-3">
+                                <div class="card-body p-2">
                                     <div class="d-flex justify-content-between align-items-start">
                                         <div>
-                                            <span class="card-title-sub">Year to Date (YTD)</span>
+                                            <span class="card-title-sub">YTD (Financial Year)</span>
                                             <div class="card-value" id="n-ytd-amount">LKR 0.00</div>
                                             <div class="card-detail-text" id="n-ytd-count">0 Accounts</div>
                                         </div>
@@ -167,7 +167,7 @@
                         </div>
                         <div class="col-md-3">
                             <div class="card kpi-card gradient-3 shadow-sm h-100">
-                                <div class="card-body p-3">
+                                <div class="card-body p-2">
                                     <div class="d-flex justify-content-between align-items-start">
                                         <div>
                                             <span class="card-title-sub">Portfolio</span>
@@ -183,7 +183,7 @@
                         </div>
                         <div class="col-md-3">
                             <div class="card kpi-card gradient-4 shadow-sm h-100">
-                                <div class="card-body p-3">
+                                <div class="card-body p-2">
                                     <div class="d-flex justify-content-between align-items-start">
                                         <div>
                                             <span class="card-title-sub">NPL</span>
@@ -201,39 +201,29 @@
 
                     <!-- Interactive Analytics Charts Row -->
                     <div class="row g-3 mb-4">
-                        <!-- Chart 1: DPD Bucket Analysis (LKR Millions) -->
-                        <div class="col-lg-7">
+                        <!-- Chart 1: Month-wise Business -->
+                        <div class="col-lg-6">
                             <div class="card shadow-sm h-100">
                                 <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
-                                    <h6 class="mb-0 text-primary fw-bold"><i class="fas fa-chart-bar me-2"></i>DPD Bucket Analysis (LKR Millions)</h6>
-                                    <div class="d-flex gap-2">
-                                        <select class="form-select form-select-sm py-0" id="chartDimensionSelect" style="width: auto; height: 30px; font-size: 0.75rem;">
-                                            <option value="dealer">Dealer Wise</option>
-                                            <option value="security">Security Type</option>
-                                            <option value="model">Model Wise</option>
-                                        </select>
-                                        <select class="form-select form-select-sm py-0" id="chartItemSelect" style="width: auto; min-width: 140px; height: 30px; font-size: 0.75rem;">
-                                            <option value="all">All Items</option>
-                                        </select>
-                                    </div>
+                                    <h6 class="mb-0 text-primary fw-bold"><i class="fas fa-chart-line me-2"></i>Month Wise Business (Financial Year)</h6>
                                 </div>
                                 <div class="card-body p-3 d-flex flex-column justify-content-center">
                                     <div class="chart-container" style="height: 320px; position: relative; width: 100%;">
-                                        <canvas id="dpdBarChart"></canvas>
+                                        <canvas id="businessChart"></canvas>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Chart 2: Security locked/unlocked stats -->
-                        <div class="col-lg-5">
+                        <!-- Chart 2: DPD Comparison Chart Month-wise -->
+                        <div class="col-lg-6">
                             <div class="card shadow-sm h-100">
-                                <div class="card-header bg-light py-2">
-                                    <h6 class="mb-0 text-primary fw-bold"><i class="fas fa-lock me-2"></i>Lock Status by Security Type</h6>
+                                <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
+                                    <h6 class="mb-0 text-primary fw-bold"><i class="fas fa-chart-bar me-2"></i>DPD Comparison Month Wise (Financial Year)</h6>
                                 </div>
                                 <div class="card-body p-3 d-flex flex-column justify-content-center">
                                     <div class="chart-container" style="height: 320px; position: relative; width: 100%;">
-                                        <canvas id="securityChart"></canvas>
+                                        <canvas id="dpdComparisonChart"></canvas>
                                     </div>
                                 </div>
                             </div>
@@ -264,7 +254,7 @@
                                         throw new Error("HTTP error " + response.status);
                                     }
                                     return response.json();
-                                })
+                                    })
                                 .then(data => {
                                     console.log("Dashboard Stats:", data);
                                     
@@ -280,176 +270,147 @@
                                     
                                     document.getElementById("n-npl-exposure").innerText = formatLKR(data.nNplExposure);
                                     document.getElementById("n-npl-count").innerText = formatNum(data.nNplCount) + " Accounts (Arrears: " + formatLKR(data.nNplArrears) + ")";
-
-                                    // Render Security Lock Chart
-                                    if (data.securityStats) {
-                                        renderSecurityChart(data.securityStats);
-                                    }
                                 })
                                 .catch(err => {
                                     console.error("Error fetching dashboard statistics:", err);
                                 });
 
-                            // Chart.js: DPD Bar Chart Config & Handling
-                            let dpdChart = null;
-                            let rawDpdData = [];
-
-                            const updateDpdChart = (labels, datasetData) => {
-                                const ctx = document.getElementById('dpdBarChart').getContext('2d');
-                                if (dpdChart) {
-                                    dpdChart.destroy();
-                                }
-                                dpdChart = new Chart(ctx, {
-                                    type: 'bar',
-                                    data: {
-                                        labels: labels,
-                                        datasets: [{
-                                            label: 'Exposure (LKR Mn)',
-                                            data: datasetData,
-                                            backgroundColor: [
-                                                'rgba(16, 185, 129, 0.75)',  // DPD 0
-                                                'rgba(245, 158, 11, 0.75)',  // DPD 1-30
-                                                'rgba(249, 115, 22, 0.75)',  // DPD 31-60
-                                                'rgba(239, 68, 68, 0.75)',   // DPD 61-90
-                                                'rgba(30, 41, 59, 0.75)'     // Over 90
-                                            ],
-                                            borderColor: [
-                                                '#10b981',
-                                                '#f59e0b',
-                                                '#f97316',
-                                                '#ef4444',
-                                                '#1e293b'
-                                            ],
-                                            borderWidth: 1.5,
-                                            borderRadius: 6
-                                        }]
-                                    },
-                                    options: {
-                                        responsive: true,
-                                        maintainAspectRatio: false,
-                                        plugins: {
-                                            legend: { display: false }
-                                        },
-                                        scales: {
-                                            y: {
-                                                beginAtZero: true,
-                                                ticks: {
-                                                    callback: function(value) { return 'LKR ' + value + 'M'; }
-                                                }
-                                            }
-                                        }
-                                    }
-                                });
-                            };
-
-                            const loadDpdChartData = () => {
-                                const dim = document.getElementById('chartDimensionSelect').value;
-                                fetch('${pageContext.request.contextPath}/api/dashboard/dpd-chart-data?dimension=' + dim)
+                            // Chart 1: Month Wise Business
+                            fetch('${pageContext.request.contextPath}/api/dashboard/business-chart')
                                 .then(res => res.json())
-                                .then(resData => {
-                                    rawDpdData = resData || [];
-                                    const itemSelect = document.getElementById('chartItemSelect');
-                                    itemSelect.innerHTML = '<option value="all">All Items</option>';
-                                    rawDpdData.forEach(item => {
-                                        const cat = item.category_name || 'Unknown';
-                                        const opt = document.createElement('option');
-                                        opt.value = cat;
-                                        opt.innerText = cat;
-                                        itemSelect.appendChild(opt);
-                                    });
-                                    renderFilteredDpdData();
-                                })
-                                .catch(err => console.error("Error loading DPD data for chart:", err));
-                            };
+                                .then(data => {
+                                    const labels = data.map(item => item.month_name);
+                                    const amounts = data.map(item => Math.round((item.business_amount / 1000000) * 100) / 100);
+                                    const counts = data.map(item => item.business_count);
 
-                            const renderFilteredDpdData = () => {
-                                const selectedItem = document.getElementById('chartItemSelect').value;
-                                const labels = ['DPD 0', 'DPD 1-30', 'DPD 31-60', 'DPD 61-90', 'Over 90 DPD'];
-                                let values = [0, 0, 0, 0, 0];
-
-                                if (selectedItem === 'all') {
-                                    rawDpdData.forEach(item => {
-                                        values[0] += item.dpd0_val || 0;
-                                        values[1] += item.dpd1_30_val || 0;
-                                        values[2] += item.dpd31_60_val || 0;
-                                        values[3] += item.dpd61_90_val || 0;
-                                        values[4] += item.dpdAbove90_val || 0;
-                                    });
-                                } else {
-                                    const found = rawDpdData.find(item => item.category_name === selectedItem);
-                                    if (found) {
-                                        values[0] = found.dpd0_val || 0;
-                                        values[1] = found.dpd1_30_val || 0;
-                                        values[2] = found.dpd31_60_val || 0;
-                                        values[3] = found.dpd61_90_val || 0;
-                                        values[4] = found.dpdAbove90_val || 0;
-                                    }
-                                }
-                                // Convert raw values to Millions
-                                values = values.map(v => Math.round((v / 1000000) * 100) / 100);
-                                updateDpdChart(labels, values);
-                            };
-
-                            document.getElementById('chartDimensionSelect').addEventListener('change', loadDpdChartData);
-                            document.getElementById('chartItemSelect').addEventListener('change', renderFilteredDpdData);
-
-                            // Initial DPD chart load
-                            loadDpdChartData();
-
-                            // Chart.js: Security Lock Chart Config & Handling
-                            let securityChart = null;
-                            const renderSecurityChart = (securityStats) => {
-                                const ctx = document.getElementById('securityChart').getContext('2d');
-                                const labels = [];
-                                const lockedData = [];
-                                const unlockedData = [];
-
-                                securityStats.forEach(item => {
-                                    labels.push(item.security_type || 'Unknown');
-                                    lockedData.push(item.locked_count || 0);
-                                    unlockedData.push(item.unlocked_count || 0);
-                                });
-
-                                if (securityChart) {
-                                    securityChart.destroy();
-                                }
-
-                                securityChart = new Chart(ctx, {
-                                    type: 'bar',
-                                    data: {
-                                        labels: labels,
-                                        datasets: [
-                                            {
-                                                label: 'Locked',
-                                                data: lockedData,
-                                                backgroundColor: 'rgba(239, 68, 68, 0.75)',
-                                                borderColor: '#ef4444',
-                                                borderWidth: 1.5,
-                                                borderRadius: 4
-                                            },
-                                            {
-                                                label: 'Unlocked',
-                                                data: unlockedData,
-                                                backgroundColor: 'rgba(16, 185, 129, 0.75)',
-                                                borderColor: '#10b981',
-                                                borderWidth: 1.5,
-                                                borderRadius: 4
-                                            }
-                                        ]
-                                    },
-                                    options: {
-                                        responsive: true,
-                                        maintainAspectRatio: false,
-                                        scales: {
-                                            x: { stacked: true },
-                                            y: { stacked: true, beginAtZero: true }
+                                    const ctx = document.getElementById('businessChart').getContext('2d');
+                                    new Chart(ctx, {
+                                        type: 'bar',
+                                        data: {
+                                            labels: labels,
+                                            datasets: [
+                                                {
+                                                    label: 'Disbursed Amount (LKR Mn)',
+                                                    data: amounts,
+                                                    backgroundColor: 'rgba(99, 102, 241, 0.75)',
+                                                    borderColor: '#6366f1',
+                                                    borderWidth: 1.5,
+                                                    borderRadius: 6,
+                                                    yAxisID: 'y'
+                                                },
+                                                {
+                                                    label: 'Account Count',
+                                                    data: counts,
+                                                    type: 'line',
+                                                    borderColor: '#f59e0b',
+                                                    backgroundColor: '#f59e0b',
+                                                    borderWidth: 2.5,
+                                                    pointRadius: 4,
+                                                    fill: false,
+                                                    yAxisID: 'y1'
+                                                }
+                                            ]
                                         },
-                                        plugins: {
-                                            legend: { position: 'bottom' }
+                                        options: {
+                                            responsive: true,
+                                            maintainAspectRatio: false,
+                                            scales: {
+                                                y: {
+                                                    type: 'linear',
+                                                    display: true,
+                                                    position: 'left',
+                                                    beginAtZero: true,
+                                                    title: { display: true, text: 'LKR Millions', font: { weight: 'bold' } }
+                                                },
+                                                y1: {
+                                                    type: 'linear',
+                                                    display: true,
+                                                    position: 'right',
+                                                    beginAtZero: true,
+                                                    grid: { drawOnChartArea: false },
+                                                    title: { display: true, text: 'Accounts', font: { weight: 'bold' } }
+                                                }
+                                            },
+                                            plugins: {
+                                                legend: { position: 'bottom' }
+                                            }
                                         }
-                                    }
-                                });
-                            };
+                                    });
+                                })
+                                .catch(err => console.error("Error loading business chart:", err));
+
+                            // Chart 2: DPD Comparison Month Wise
+                            fetch('${pageContext.request.contextPath}/api/dashboard/dpd-comparison-chart')
+                                .then(res => res.json())
+                                .then(data => {
+                                    const labels = data.map(item => item.month_name);
+                                    const dpd0 = data.map(item => Math.round((item.dpd0_val / 1000000) * 100) / 100);
+                                    const dpd1_30 = data.map(item => Math.round((item.dpd1_30_val / 1000000) * 100) / 100);
+                                    const dpd31_60 = data.map(item => Math.round((item.dpd31_60_val / 1000000) * 100) / 100);
+                                    const dpd61_90 = data.map(item => Math.round((item.dpd61_90_val / 1000000) * 100) / 100);
+                                    const dpdAbove90 = data.map(item => Math.round((item.dpdAbove90_val / 1000000) * 100) / 100);
+
+                                    const ctx = document.getElementById('dpdComparisonChart').getContext('2d');
+                                    new Chart(ctx, {
+                                        type: 'bar',
+                                        data: {
+                                            labels: labels,
+                                            datasets: [
+                                                {
+                                                    label: 'DPD 0',
+                                                    data: dpd0,
+                                                    backgroundColor: 'rgba(16, 185, 129, 0.75)',
+                                                    borderColor: '#10b981',
+                                                    borderWidth: 1.5
+                                                },
+                                                {
+                                                    label: 'DPD 1-30',
+                                                    data: dpd1_30,
+                                                    backgroundColor: 'rgba(245, 158, 11, 0.75)',
+                                                    borderColor: '#f59e0b',
+                                                    borderWidth: 1.5
+                                                },
+                                                {
+                                                    label: 'DPD 31-60',
+                                                    data: dpd31_60,
+                                                    backgroundColor: 'rgba(249, 115, 22, 0.75)',
+                                                    borderColor: '#f97316',
+                                                    borderWidth: 1.5
+                                                },
+                                                {
+                                                    label: 'DPD 61-90',
+                                                    data: dpd61_90,
+                                                    backgroundColor: 'rgba(239, 68, 68, 0.75)',
+                                                    borderColor: '#ef4444',
+                                                    borderWidth: 1.5
+                                                },
+                                                {
+                                                    label: 'Over 90 DPD',
+                                                    data: dpdAbove90,
+                                                    backgroundColor: 'rgba(30, 41, 59, 0.75)',
+                                                    borderColor: '#1e293b',
+                                                    borderWidth: 1.5
+                                                }
+                                            ]
+                                        },
+                                        options: {
+                                            responsive: true,
+                                            maintainAspectRatio: false,
+                                            scales: {
+                                                x: { stacked: true },
+                                                y: {
+                                                    stacked: true,
+                                                    beginAtZero: true,
+                                                    title: { display: true, text: 'LKR Millions', font: { weight: 'bold' } }
+                                                }
+                                            },
+                                            plugins: {
+                                                legend: { position: 'bottom' }
+                                            }
+                                        }
+                                    });
+                                })
+                                .catch(err => console.error("Error loading DPD comparison chart:", err));
                         });
                     </script>
 

@@ -35,8 +35,8 @@ public class DashboardRepository {
                         COUNT(*) AS ytd_count,
                         COALESCE(SUM(loan_amount), 0) AS ytd_amount
                     FROM cbs.loan
-                    WHERE disbursed_date >= DATE_FORMAT(CURRENT_DATE(), '%Y-01-01')
-                      AND disbursed_date < DATE_ADD(DATE_FORMAT(CURRENT_DATE(), '%Y-01-01'), INTERVAL 1 YEAR)
+                    WHERE disbursed_date >= CASE WHEN MONTH(CURRENT_DATE()) >= 4 THEN DATE_FORMAT(CURRENT_DATE(), '%Y-04-01') ELSE DATE_FORMAT(DATE_SUB(CURRENT_DATE(), INTERVAL 1 YEAR), '%Y-04-01') END
+                      AND disbursed_date < CASE WHEN MONTH(CURRENT_DATE()) >= 4 THEN DATE_FORMAT(DATE_ADD(CURRENT_DATE(), INTERVAL 1 YEAR), '%Y-04-01') ELSE DATE_FORMAT(CURRENT_DATE(), '%Y-04-01') END
                 """;
         Map<String, Object> ytdStats = jdbcTemplate.queryForMap(sqlYtd);
 
@@ -213,5 +213,54 @@ public class DashboardRepository {
         """, categoryExpr, dimensionJoin);
 
         return jdbcTemplate.queryForList(sql, latestPortfolioDate, latestSyncTime, latestPortfolioDate, latestSyncTime);
+    }
+
+    public List<Map<String, Object>> getMonthWiseBusiness() {
+        String sql = """
+            SELECT 
+                DATE_FORMAT(disbursed_date, '%b %Y') AS month_name,
+                DATE_FORMAT(disbursed_date, '%Y-%m') AS month_key,
+                COUNT(*) AS business_count,
+                COALESCE(SUM(loan_amount), 0) AS business_amount
+            FROM cbs.loan
+            WHERE disbursed_date >= CASE WHEN MONTH(CURRENT_DATE()) >= 4 THEN DATE_FORMAT(CURRENT_DATE(), '%Y-04-01') ELSE DATE_FORMAT(DATE_SUB(CURRENT_DATE(), INTERVAL 1 YEAR), '%Y-04-01') END
+              AND disbursed_date < CASE WHEN MONTH(CURRENT_DATE()) >= 4 THEN DATE_FORMAT(DATE_ADD(CURRENT_DATE(), INTERVAL 1 YEAR), '%Y-04-01') ELSE DATE_FORMAT(CURRENT_DATE(), '%Y-04-01') END
+            GROUP BY DATE_FORMAT(disbursed_date, '%b %Y'), DATE_FORMAT(disbursed_date, '%Y-%m')
+            ORDER BY month_key ASC
+        """;
+        return jdbcTemplate.queryForList(sql);
+    }
+
+    public List<Map<String, Object>> getMonthWiseDpdComparison() {
+        String sql = """
+            SELECT 
+                DATE_FORMAT(p.portfolio_date, '%b %Y') AS month_name,
+                DATE_FORMAT(p.portfolio_date, '%Y-%m') AS month_key,
+                SUM(CASE WHEN COALESCE(p.dpd, 0) = 0 THEN p.exposure ELSE 0 END) AS dpd0_val,
+                SUM(CASE WHEN COALESCE(p.dpd, 0) BETWEEN 1 AND 30 THEN p.exposure ELSE 0 END) AS dpd1_30_val,
+                SUM(CASE WHEN COALESCE(p.dpd, 0) BETWEEN 31 AND 60 THEN p.exposure ELSE 0 END) AS dpd31_60_val,
+                SUM(CASE WHEN COALESCE(p.dpd, 0) BETWEEN 61 AND 90 THEN p.exposure ELSE 0 END) AS dpd61_90_val,
+                SUM(CASE WHEN COALESCE(p.dpd, 0) > 90 OR p.loan_status = 'N' THEN p.exposure ELSE 0 END) AS dpdAbove90_val
+            FROM cbs.portfolio p
+            INNER JOIN (
+                SELECT 
+                    p2.portfolio_date,
+                    MAX(p2.sync_time) AS max_sync_time
+                FROM cbs.portfolio p2
+                INNER JOIN (
+                    SELECT 
+                        DATE_FORMAT(portfolio_date, '%Y-%m') AS month_key,
+                        MAX(portfolio_date) AS max_date
+                    FROM cbs.portfolio
+                    WHERE portfolio_date >= CASE WHEN MONTH(CURRENT_DATE()) >= 4 THEN DATE_FORMAT(CURRENT_DATE(), '%Y-04-01') ELSE DATE_FORMAT(DATE_SUB(CURRENT_DATE(), INTERVAL 1 YEAR), '%Y-04-01') END
+                      AND portfolio_date < CASE WHEN MONTH(CURRENT_DATE()) >= 4 THEN DATE_FORMAT(DATE_ADD(CURRENT_DATE(), INTERVAL 1 YEAR), '%Y-04-01') ELSE DATE_FORMAT(CURRENT_DATE(), '%Y-04-01') END
+                    GROUP BY DATE_FORMAT(portfolio_date, '%Y-%m')
+                ) m ON p2.portfolio_date = m.max_date
+                GROUP BY p2.portfolio_date
+            ) s ON p.portfolio_date = s.portfolio_date AND p.sync_time = s.max_sync_time
+            GROUP BY p.portfolio_date, DATE_FORMAT(p.portfolio_date, '%b %Y'), DATE_FORMAT(p.portfolio_date, '%Y-%m')
+            ORDER BY month_key ASC
+        """;
+        return jdbcTemplate.queryForList(sql);
     }
 }

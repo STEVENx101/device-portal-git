@@ -242,7 +242,7 @@
                                         </button>
                                         <% if (canDownloadReports) { %>
                                         <button class="btn btn-success btn-sm" type="button" id="downloadCsvBtn">
-                                            <span class="fas fa-file-excel me-1"></span> Download CSV
+                                            <span class="fas fa-file-excel me-1"></span> Download Excel
                                         </button>
                                         <% } %>
                                     </div>
@@ -338,7 +338,8 @@
                     asAt: $('#asAtDate').val()
                 };
 
-                $('#tableBody').html('<tr><td colspan="19" class="text-center py-4"><div class="spinner-border spinner-border-sm text-primary me-2"></div>Loading data...</td></tr>');
+                $('#loaderText').text('Loading data, please wait...');
+                $('#cbsLoader').css('display', 'flex');
                 $('#tableFoot').empty();
 
                 $.ajax({
@@ -351,6 +352,9 @@
                     },
                     error: function(err) {
                         $('#tableBody').html('<tr><td colspan="19" class="text-center py-4 text-danger"><i class="fas fa-exclamation-triangle me-2"></i>Failed to load report data</td></tr>');
+                    },
+                    complete: function() {
+                        $('#cbsLoader').hide();
                     }
                 });
             }
@@ -447,6 +451,12 @@
                 }
             }
 
+            function getCookie(name) {
+                const value = `; ${document.cookie}`;
+                const parts = value.split(`; ${name}=`);
+                if (parts.length === 2) return parts.pop().split(';').shift();
+            }
+
             $(document).ready(function() {
                 // Default today's date
                 const today = new Date().toISOString().split('T')[0];
@@ -457,7 +467,7 @@
                     $('#dimensionTabs .nav-link').removeClass('active');
                     $(this).addClass('active');
                     activeDimension = $(this).data('dimension');
-                    loadReportData();
+                    // Removed autoload on tab switcher click as requested
                 });
 
                 $('#applyFiltersBtn').on('click', function() {
@@ -466,13 +476,34 @@
 
                 $('#downloadCsvBtn').on('click', function() {
                     const asAt = $('#asAtDate').val() || '';
-                    const url = '${pageContext.request.contextPath}/api/cbs/dpd-bucket/download?dimension=' + encodeURIComponent(activeDimension) + '&asAt=' + encodeURIComponent(asAt);
+                    const token = new Date().getTime();
+                    const url = '${pageContext.request.contextPath}/api/cbs/dpd-bucket/download?dimension=' + encodeURIComponent(activeDimension) + '&asAt=' + encodeURIComponent(asAt) + '&downloadToken=' + token;
+                    
+                    $('#loaderText').text('Generating Excel download, please wait...');
+                    $('#cbsLoader').css('display', 'flex');
+                    
                     window.location.href = url;
-                });
 
-                // Initial load
-                loadReportData();
+                    const fallbackTimer = setTimeout(function() {
+                        $('#cbsLoader').hide();
+                        clearInterval(checkTimer);
+                    }, 4000);
+
+                    const checkTimer = setInterval(function() {
+                        const cookieValue = getCookie("downloadToken");
+                        if (cookieValue == token) {
+                            $('#cbsLoader').hide();
+                            document.cookie = "downloadToken=; Max-Age=-99999999; path=/";
+                            clearTimeout(fallbackTimer);
+                            clearInterval(checkTimer);
+                        }
+                    }, 500);
+                });
             });
         </script>
+        <div id="cbsLoader" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.7); z-index: 9999; justify-content: center; align-items: center; flex-direction: column;">
+            <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"></div>
+            <span class="mt-2 fw-semi-bold" id="loaderText">Generating Excel download, please wait...</span>
+        </div>
     </body>
 </html>

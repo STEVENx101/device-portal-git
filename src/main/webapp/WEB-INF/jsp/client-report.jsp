@@ -120,7 +120,7 @@
                                          </button>
                                          <% if (canDownloadReports) { %>
                                          <button class="btn btn-success btn-sm" type="button" id="downloadExcelBtn">
-                                             <span class="fas fa-file-excel me-1"></span> Download CSV
+                                             <span class="fas fa-file-excel me-1"></span> Download Excel
                                          </button>
                                          <% } %>
                                          <% if (hasReportLogs) { %>
@@ -208,13 +208,18 @@
                     serverSide: true,
                     deferLoading: true,
                     ajax: function(data, callback, settings) {
+                        $('#loaderText').text('Loading data, please wait...');
+                        $('#cbsLoader').css('display', 'flex');
                         data.data = getFilters();
                         $.ajax({
                             url: '${pageContext.request.contextPath}/api/cbs/report2',
                             type: 'POST',
                             contentType: 'application/json',
                             data: JSON.stringify(data),
-                            success: function(res) { callback(res); }
+                            success: function(res) { callback(res); },
+                            complete: function() {
+                                $('#cbsLoader').hide();
+                            }
                         });
                     },
                     columns: [
@@ -259,7 +264,7 @@
                         const token = new Date().getTime();
                         queryParams.append('downloadToken', token);
 
-                        $('#loaderText').text('Generating CSV download, please wait... ');
+                        $('#loaderText').text('Generating Excel download, please wait... ');
                         $('#cbsLoader').css('display', 'flex');
 
                         window.location.href = downloadUrl + '?' + queryParams.toString();
@@ -285,7 +290,7 @@
 
         <div id="cbsLoader" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.7); z-index: 9999; justify-content: center; align-items: center; flex-direction: column;">
             <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"></div>
-            <span class="mt-2 fw-semi-bold" id="loaderText">Generating CSV download, please wait...</span>
+            <span class="mt-2 fw-semi-bold" id="loaderText">Generating Excel download, please wait...</span>
         </div>
     </body>
 </html>

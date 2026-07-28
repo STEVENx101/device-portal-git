@@ -21,5 +21,13 @@ public class DashboardService {
     public List<Map<String, Object>> getDpdChartData(String dimension) {
         return dashboardRepository.getDpdChartData(dimension);
     }
+
+    public List<Map<String, Object>> getMonthWiseBusiness() {
+        return dashboardRepository.getMonthWiseBusiness();
+    }
+
+    public List<Map<String, Object>> getMonthWiseDpdComparison() {
+        return dashboardRepository.getMonthWiseDpdComparison();
+    }
 }
 
