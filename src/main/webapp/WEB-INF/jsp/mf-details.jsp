@@ -570,23 +570,12 @@
                                                  return data;
                                              }
                                              const truncated = data.substring(0, 65);
-                                             const full = data;
-                                             const randId = 'sms_' + Math.random().toString(36).substring(2, 9);
-                                             return '<span class="sms-short-' + randId + '">' + truncated + '... </span>' +
-                                                    '<span class="sms-full-' + randId + '" style="display:none;">' + full + '</span> ' +
-                                                    '<a href="#" class="btn btn-link p-0 fs--2 fw-semi-bold sms-toggle-' + randId + '" onclick="' +
-                                                    'const s = document.querySelector(\'.sms-short-' + randId + '\'); ' +
-                                                    'const f = document.querySelector(\'.sms-full-' + randId + '\'); ' +
-                                                    'const t = document.querySelector(\'.sms-toggle-' + randId + '\'); ' +
-                                                    'if (f.style.display === \'none\') { ' +
-                                                    '  f.style.display = \'inline\'; ' +
-                                                    '  s.style.display = \'none\'; ' +
-                                                    '  t.textContent = \'Show Less\'; ' +
-                                                    '} else { ' +
-                                                    '  f.style.display = \'none\'; ' +
-                                                    '  s.style.display = \'inline\'; ' +
-                                                    '  t.textContent = \'Read More\'; ' +
-                                                    '} return false;">Read More</a>';
+                                             const escapedMsg = data.replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '\\n').replace(/\r/g, '\\r');
+                                             return '<span>' + truncated + '... </span>' +
+                                                    '<a href="#" class="btn btn-link p-0 fs--2 fw-semi-bold" onclick="' +
+                                                    'document.getElementById(\'smsModalContent\').innerText = \'' + escapedMsg + '\'; ' +
+                                                    'const modal = new bootstrap.Modal(document.getElementById(\'smsModal\')); ' +
+                                                    'modal.show(); return false;">Read More</a>';
                                          }
                                      },
                                     {
@@ -1018,8 +1007,24 @@
                                         });
                             }
                         });
-        </script>
-    </body>
-
-</html>
-<%-- Touch JSP for JSPF compile v8 --%>
+         </script>
+         
+         <!-- SMS Modal -->
+         <div class="modal fade" id="smsModal" tabindex="-1" aria-labelledby="smsModalLabel" aria-hidden="true">
+             <div class="modal-dialog modal-dialog-centered">
+                 <div class="modal-content">
+                     <div class="modal-header">
+                         <h5 class="modal-title" id="smsModalLabel"><span class="fas fa-sms me-2 text-primary"></span>Full Message Details</h5>
+                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                     </div>
+                     <div class="modal-body fs--1 text-800" style="white-space: pre-wrap;" id="smsModalContent">
+                     </div>
+                     <div class="modal-footer">
+                         <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                     </div>
+                 </div>
+             </div>
+         </div>
+     </body>
+ </html>
+ <%-- Touch JSP for JSPF compile v8 --%>
