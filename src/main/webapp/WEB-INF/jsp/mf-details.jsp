@@ -561,10 +561,34 @@
                                         data: "mobile",
                                         defaultContent: "-"
                                     },
-                                    {
-                                        data: "msg",
-                                        defaultContent: "-"
-                                    },
+                                     {
+                                         data: "msg",
+                                         defaultContent: "-",
+                                         render: function (data) {
+                                             if (!data || data === '-') return '-';
+                                             if (data.length <= 65) {
+                                                 return data;
+                                             }
+                                             const truncated = data.substring(0, 65);
+                                             const full = data;
+                                             const randId = 'sms_' + Math.random().toString(36).substring(2, 9);
+                                             return '<span class="sms-short-' + randId + '">' + truncated + '... </span>' +
+                                                    '<span class="sms-full-' + randId + '" style="display:none;">' + full + '</span> ' +
+                                                    '<a href="#" class="btn btn-link p-0 fs--2 fw-semi-bold sms-toggle-' + randId + '" onclick="' +
+                                                    'const s = document.querySelector(\'.sms-short-' + randId + '\'); ' +
+                                                    'const f = document.querySelector(\'.sms-full-' + randId + '\'); ' +
+                                                    'const t = document.querySelector(\'.sms-toggle-' + randId + '\'); ' +
+                                                    'if (f.style.display === \'none\') { ' +
+                                                    '  f.style.display = \'inline\'; ' +
+                                                    '  s.style.display = \'none\'; ' +
+                                                    '  t.textContent = \'Show Less\'; ' +
+                                                    '} else { ' +
+                                                    '  f.style.display = \'none\'; ' +
+                                                    '  s.style.display = \'inline\'; ' +
+                                                    '  t.textContent = \'Read More\'; ' +
+                                                    '} return false;">Read More</a>';
+                                         }
+                                     },
                                     {
                                         data: "status",
                                         defaultContent: "-"
