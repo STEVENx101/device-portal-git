@@ -258,71 +258,10 @@ public class DashboardRepository {
 
     public Map<String, Object> getDeviceStatusCharts() {
         Map<String, Object> result = new HashMap<>();
-
-        // Fetch latest portfolio date to optimize queries
-        String sqlLatest = "SELECT portfolio_date FROM cbs.portfolio ORDER BY portfolio_date DESC LIMIT 1";
-        Map<String, Object> latest = jdbcTemplate.queryForMap(sqlLatest);
-        Object latestDate = latest.get("portfolio_date");
-
-        // Mobile Performing vs Non-Performing
-        String mobilePerfSql = """
-            SELECT COALESCE(COALESCE(p1.performing_status, p2.performing_status), 'Performing') AS state_name, COUNT(*) AS count_val
-            FROM cbs.loan l
-            LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
-            LEFT JOIN cbs.portfolio p1 ON p1.account_no = l.account_no AND p1.series = l.account_series AND p1.portfolio_date = ?
-            LEFT JOIN cbs.portfolio p2 ON p2.account_no = l.legacy_account_no AND p2.series = l.account_series AND p2.portfolio_date = ?
-            WHERE pr.product_code = 'MF' AND l.account_status = 'A'
-            GROUP BY state_name
-        """;
-        List<Map<String, Object>> mobilePerf = jdbcTemplate.queryForList(mobilePerfSql, latestDate, latestDate);
-
-        // Mobile Active vs Locked
-        String mobileLockSql = """
-            SELECT 
-                CASE WHEN COALESCE(ml.locked, 0) = 1 THEN 'Locked' ELSE 'Active' END AS state_name,
-                COUNT(*) AS count_val
-            FROM cbs.loan l
-            LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
-            LEFT JOIN cbs.portfolio p1 ON p1.account_no = l.account_no AND p1.series = l.account_series AND p1.portfolio_date = ?
-            LEFT JOIN cbs.portfolio p2 ON p2.account_no = l.legacy_account_no AND p2.series = l.account_series AND p2.portfolio_date = ?
-            LEFT JOIN loan.mobileloan ml ON (ml.finance_no = l.account_no OR ml.finance_no = l.legacy_account_no)
-            WHERE pr.product_code = 'MF' AND l.account_status = 'A'
-            GROUP BY state_name
-        """;
-        List<Map<String, Object>> mobileLock = jdbcTemplate.queryForList(mobileLockSql, latestDate, latestDate);
-
-        // Laptop Performing vs Non-Performing
-        String laptopPerfSql = """
-            SELECT COALESCE(COALESCE(p1.performing_status, p2.performing_status), 'Performing') AS state_name, COUNT(*) AS count_val
-            FROM cbs.loan l
-            LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
-            LEFT JOIN cbs.portfolio p1 ON p1.account_no = l.account_no AND p1.series = l.account_series AND p1.portfolio_date = ?
-            LEFT JOIN cbs.portfolio p2 ON p2.account_no = l.legacy_account_no AND p2.series = l.account_series AND p2.portfolio_date = ?
-            WHERE pr.product_code IN ('LF', 'laptop') AND l.account_status = 'A'
-            GROUP BY state_name
-        """;
-        List<Map<String, Object>> laptopPerf = jdbcTemplate.queryForList(laptopPerfSql, latestDate, latestDate);
-
-        // Laptop Active vs Locked
-        String laptopLockSql = """
-            SELECT 
-                CASE WHEN COALESCE(dl.locked, 0) = 1 THEN 'Locked' ELSE 'Active' END AS state_name,
-                COUNT(*) AS count_val
-            FROM cbs.loan l
-            LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
-            LEFT JOIN cbs.portfolio p1 ON p1.account_no = l.account_no AND p1.series = l.account_series AND p1.portfolio_date = ?
-            LEFT JOIN cbs.portfolio p2 ON p2.account_no = l.legacy_account_no AND p2.series = l.account_series AND p2.portfolio_date = ?
-            LEFT JOIN loan.device_loan dl ON (dl.finance_no = l.account_no OR dl.finance_no = l.legacy_account_no)
-            WHERE pr.product_code IN ('LF', 'laptop') AND l.account_status = 'A'
-            GROUP BY state_name
-        """;
-        List<Map<String, Object>> laptopLock = jdbcTemplate.queryForList(laptopLockSql, latestDate, latestDate);
-
-        result.put("mobilePerforming", mobilePerf);
-        result.put("mobileLock", mobileLock);
-        result.put("laptopPerforming", laptopPerf);
-        result.put("laptopLock", laptopLock);
-
+        result.put("mobilePerforming", java.util.Collections.emptyList());
+        result.put("mobileLock", java.util.Collections.emptyList());
+        result.put("laptopPerforming", java.util.Collections.emptyList());
+        result.put("laptopLock", java.util.Collections.emptyList());
         return result;
     }
 }
