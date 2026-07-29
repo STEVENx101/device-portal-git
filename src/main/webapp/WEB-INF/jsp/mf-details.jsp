@@ -336,7 +336,7 @@
                                 </div>
                                 <!-- Lock/Unlock logs pane -->
                                 <div class="tab-pane fade" id="locks-pane" role="tabpanel" aria-labelledby="tab-locks">
-                                    <div class="table-responsive" id="standard_locks_wrapper">
+                                    <div class="table-responsive" id="standard_locks_wrapper" style="max-height: 350px; overflow-y: auto;">
                                         <table id="locks_table" class="table table-hover table-striped mb-0 fs--1 w-100">
                                             <thead>
                                                 <tr>
@@ -349,7 +349,7 @@
                                             <tbody></tbody>
                                         </table>
                                     </div>
-                                    <div class="table-responsive" id="datacultr_locks_wrapper" style="display: none;">
+                                    <div class="table-responsive" id="datacultr_locks_wrapper" style="display: none; max-height: 350px; overflow-y: auto;">
                                         <table id="datacultr_locks_table" class="table table-hover table-striped mb-0 fs--1 w-100">
                                             <thead>
                                                 <tr>

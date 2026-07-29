@@ -45,7 +45,7 @@ public class ContractService {
                 SELECT
                     t.tran_id AS receipt_no,
                     DATE(t.date) AS receipt_date,
-                    t.narration AS receipt_mode,
+                    t.channel AS receipt_mode,
                     t.narration AS narration,
                     t.amount AS amount
                 FROM cbs.transaction t

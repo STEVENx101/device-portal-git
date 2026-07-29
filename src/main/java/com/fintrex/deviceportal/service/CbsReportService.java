@@ -1564,6 +1564,18 @@ public class CbsReportService {
                 whereClause.append(" AND l.disbursed_date < DATE_ADD(:asAt, INTERVAL 1 DAY)");
                 params.put("asAt", asAt.trim());
             }
+
+            String dealer = (String) filters.get("dealer");
+            if (dealer != null && !dealer.trim().isEmpty() && !"ALL".equalsIgnoreCase(dealer.trim())) {
+                whereClause.append(" AND l.vendor = :dealer ");
+                params.put("dealer", dealer.trim());
+            }
+
+            Object modelObj = filters.get("model");
+            if ("model".equals(dimension) && modelObj != null && !modelObj.toString().trim().isEmpty() && !"ALL".equalsIgnoreCase(modelObj.toString().trim())) {
+                whereClause.append(" AND COALESCE(lm1.model, lm2.model, dl2_1.model, dl2_2.model) = :model ");
+                params.put("model", modelObj.toString().trim());
+            }
         }
 
         String sql = String.format(
