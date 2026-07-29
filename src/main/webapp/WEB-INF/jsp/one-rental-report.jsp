@@ -7,7 +7,7 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>Fintrex | One Rental Left</title>
+        <title>Fintrex | Last Rental Remaining</title>
 
         <link rel="apple-touch-icon" sizes="180x180" href="${pageContext.request.contextPath}/assets/img/favicons/apple-touch-icon.png">
         <link rel="icon" type="image/png" sizes="32x32" href="${pageContext.request.contextPath}/assets/img/favicons/favicon-32x32.png">
@@ -90,7 +90,7 @@
 
                     <div class="d-flex mb-2 align-items-center justify-content-between mt-2">
                         <div>
-                            <h4 class="mb-0 text-primary"><i class="fas fa-calculator me-2"></i>Exception Reports - One Rental Left</h4>
+                            <h4 class="mb-0 text-primary"><i class="fas fa-calculator me-2"></i>Exception Reports - Last Rental Remaining</h4>
                         </div>
                     </div>
 
@@ -103,7 +103,15 @@
                                         <label class="form-label text-700 fw-semi-bold" for="asAtDate">As at Portfolio Date</label>
                                         <input class="form-control" type="date" id="asAtDate" value="">
                                     </div>
-                                    <div class="col-md-9 d-flex align-items-end justify-content-end gap-2">
+                                    <div class="col-md-3">
+                                        <label class="form-label text-700 fw-semi-bold" for="arrearsFilter">Arrears Status</label>
+                                        <select class="form-select" id="arrearsFilter">
+                                            <option value="ALL">All Accounts</option>
+                                            <option value="WITH_ARREARS">With Arrears</option>
+                                            <option value="WITHOUT_ARREARS">Without Arrears</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 d-flex align-items-end justify-content-end gap-2">
                                         <button class="btn btn-primary btn-sm" type="button" id="applyFiltersBtn">
                                             <span class="fas fa-search me-1"></span> Load Data
                                         </button>
@@ -176,7 +184,8 @@
 
             function getFilters() {
                 return {
-                    asAt: $('#asAtDate').val()
+                    asAt: $('#asAtDate').val(),
+                    arrearsFilter: $('#arrearsFilter').val()
                 };
             }
 
@@ -252,6 +261,7 @@
 
                         const queryParams = new URLSearchParams();
                         queryParams.append('asAt', filters.asAt);
+                        queryParams.append('arrearsFilter', filters.arrearsFilter);
 
                         const token = new Date().getTime();
                         queryParams.append('downloadToken', token);

@@ -737,11 +737,16 @@ public class CbsReportService {
                         )
                     """);
 
-            // One Rental Left Report
+            // Last Rental Remaining Report
             jdbc.getJdbcTemplate().execute("""
                         INSERT INTO device_portal.screen (name, path, icon, group_name)
-                        SELECT 'One Rental Left', '/one-rental-report', 'fas fa-calculator', 'Reports'
+                        SELECT 'Last Rental Remaining', '/one-rental-report', 'fas fa-calculator', 'Reports'
                         WHERE NOT EXISTS (SELECT 1 FROM device_portal.screen WHERE path = '/one-rental-report')
+                    """);
+            jdbc.getJdbcTemplate().execute("""
+                        UPDATE device_portal.screen
+                        SET name = 'Last Rental Remaining'
+                        WHERE path = '/one-rental-report' AND name = 'One Rental Left'
                     """);
             jdbc.getJdbcTemplate().execute("""
                         INSERT INTO device_portal.user_type_screen (user_type_id, screen_id)
@@ -1261,9 +1266,10 @@ public class CbsReportService {
         return executePagedReport(request, sql, params);
     }
 
-    public List<Map<String, Object>> getOneRentalReportData(String asAt) {
+    public List<Map<String, Object>> getOneRentalReportData(String asAt, String arrearsFilter) {
         Map<String, Object> filterMap = new HashMap<>();
         filterMap.put("asAt", asAt);
+        filterMap.put("arrearsFilter", arrearsFilter);
         Map<String, Object> params = new HashMap<>();
         String sql = buildOneRentalReportQuery(filterMap, params);
         return executeDownloadReport(sql, params);
@@ -1331,6 +1337,15 @@ public class CbsReportService {
             if (asAt != null && !asAt.trim().isEmpty()) {
                 subQuery += " AND l.disbursed_date < DATE_ADD(:asAt, INTERVAL 1 DAY)";
                 params.put("asAt", asAt.trim());
+            }
+
+            String arrearsFilter = (String) filter.get("arrearsFilter");
+            if (arrearsFilter != null && !arrearsFilter.trim().isEmpty()) {
+                if ("WITH_ARREARS".equalsIgnoreCase(arrearsFilter.trim())) {
+                    subQuery += " AND COALESCE(p1.dpd, p2.dpd) > 0";
+                } else if ("WITHOUT_ARREARS".equalsIgnoreCase(arrearsFilter.trim())) {
+                    subQuery += " AND (COALESCE(p1.dpd, p2.dpd) <= 0 OR COALESCE(p1.dpd, p2.dpd) IS NULL)";
+                }
             }
         }
 

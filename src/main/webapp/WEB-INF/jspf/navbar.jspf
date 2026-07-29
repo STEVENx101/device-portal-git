@@ -744,7 +744,7 @@ body {
                                 <% } %>
                                 <% if (hasOneRentalReport) { %>
                                 <a href="<%= request.getContextPath() %>/one-rental-report" class="dropdown-item-custom" id="nav-report-one-rental">
-                                    One Rental Left
+                                    Last Rental Remaining
                                 </a>
                                 <% } %>
                                 <% if (hasMaturedLowBalanceReport) { %>
