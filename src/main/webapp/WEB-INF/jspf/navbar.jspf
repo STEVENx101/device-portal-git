@@ -172,19 +172,100 @@ h1, h2, h3, h4, h5, h6, .brand-logo-text {
     border-radius: 10px !important;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
-.btn-primary {
+/* High-specificity overrides to override local page JSP styles */
+html body .btn-primary {
     background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%) !important;
     border: none !important;
     color: #ffffff !important;
     box-shadow: 0 4px 10px rgba(79, 70, 229, 0.15) !important;
 }
-.btn-primary:hover {
-    transform: translateY(-1px);
+html body .btn-primary:hover,
+html body .btn-primary:focus,
+html body .btn-primary:active {
+    background: linear-gradient(135deg, #4338ca 0%, #4f46e5 100%) !important;
     box-shadow: 0 6px 16px rgba(79, 70, 229, 0.25) !important;
-    filter: brightness(1.05);
+    color: #ffffff !important;
+    transform: translateY(-1px);
 }
-.btn-primary:active {
-    transform: translateY(0);
+html body .btn-success {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+    border: none !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 10px rgba(16, 185, 129, 0.15) !important;
+}
+html body .btn-success:hover,
+html body .btn-success:focus,
+html body .btn-success:active {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+    box-shadow: 0 6px 16px rgba(16, 185, 129, 0.25) !important;
+    color: #ffffff !important;
+    transform: translateY(-1px);
+}
+html body .text-primary {
+    color: #4f46e5 !important;
+}
+html body .bg-soft-primary {
+    background-color: rgba(79, 70, 229, 0.08) !important;
+    color: #4f46e5 !important;
+}
+html body .bg-primary {
+    background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%) !important;
+}
+
+/* Choices.js Select Inputs styling override globally */
+html body .choices__inner {
+    background: #ffffff !important;
+    border: 1.5px solid #cbd5e1 !important;
+    border-radius: 10px !important;
+    min-height: 42px !important;
+    padding: 0.35rem 0.75rem !important;
+    transition: all 0.2s ease-in-out !important;
+}
+html body .choices__inner:focus-within {
+    border-color: #6366f1 !important;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.12) !important;
+}
+html body .choices__list--multiple .choices__item {
+    background-color: #4f46e5 !important;
+    border: 1px solid #4f46e5 !important;
+    border-radius: 6px !important;
+    font-weight: 600 !important;
+    font-size: 0.75rem !important;
+    color: #ffffff !important;
+    padding: 2px 8px !important;
+}
+html body .choices__list--dropdown {
+    background: #ffffff !important;
+    border-radius: 10px !important;
+    border: 1px solid #cbd5e1 !important;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Datatable Filters & Pagination styling override globally */
+html body .dataTables_wrapper .dataTables_paginate .paginate_button {
+    border-radius: 8px !important;
+    border: 1px solid #e2e8f0 !important;
+    background: #ffffff !important;
+    color: #475569 !important;
+    padding: 0.4rem 0.8rem !important;
+    margin: 0 2px !important;
+    transition: all 0.2s ease-in-out !important;
+}
+html body .dataTables_wrapper .dataTables_paginate .paginate_button.current,
+html body .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+    background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%) !important;
+    color: #ffffff !important;
+    border-color: #4f46e5 !important;
+}
+html body .dataTables_wrapper .dataTables_filter input {
+    margin-left: 0.5em !important;
+    display: inline-block !important;
+    width: auto !important;
+    padding: 0.4rem 0.8rem !important;
+    border-radius: 8px !important;
+    border: 1.5px solid #cbd5e1 !important;
+    background-color: #ffffff !important;
+    color: #1e293b !important;
 }
 
 /* Modern Status Badges & Alerts */

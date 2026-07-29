@@ -47,6 +47,30 @@
         
         <!-- Chart.js for premium analytics rendering -->
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+            // Set premium global defaults for Chart.js in Light Theme
+            Chart.defaults.font.family = "'Plus Jakarta Sans', 'Inter', sans-serif";
+            Chart.defaults.font.weight = '500';
+            Chart.defaults.color = "#64748b"; // slate-500
+            
+            // Tooltip styling
+            Chart.defaults.plugins.tooltip.backgroundColor = "rgba(255, 255, 255, 0.96)";
+            Chart.defaults.plugins.tooltip.titleColor = "#1e293b";
+            Chart.defaults.plugins.tooltip.titleFont = { size: 13, weight: 'bold' };
+            Chart.defaults.plugins.tooltip.bodyColor = "#475569";
+            Chart.defaults.plugins.tooltip.bodyFont = { size: 12 };
+            Chart.defaults.plugins.tooltip.borderColor = "#e2e8f0";
+            Chart.defaults.plugins.tooltip.borderWidth = 1;
+            Chart.defaults.plugins.tooltip.cornerRadius = 10;
+            Chart.defaults.plugins.tooltip.padding = 12;
+            Chart.defaults.plugins.tooltip.boxPadding = 6;
+            Chart.defaults.plugins.tooltip.usePointStyle = true;
+            
+            // Legend styling
+            Chart.defaults.plugins.legend.labels.usePointStyle = true;
+            Chart.defaults.plugins.legend.labels.padding = 15;
+            Chart.defaults.plugins.legend.labels.font = { size: 12, weight: '600' };
+        </script>
 
         <script>
             var linkRTL = document.getElementById('style-rtl');
@@ -303,11 +327,15 @@
                                             responsive: true,
                                             maintainAspectRatio: false,
                                             scales: {
+                                                x: {
+                                                    grid: { color: 'rgba(226, 232, 240, 0.6)' }
+                                                },
                                                 y: {
                                                     type: 'linear',
                                                     display: true,
                                                     position: 'left',
                                                     beginAtZero: true,
+                                                    grid: { color: 'rgba(226, 232, 240, 0.6)' },
                                                     title: { display: true, text: 'LKR Millions', font: { weight: 'bold' } }
                                                 }
                                             },
@@ -382,10 +410,14 @@
                                             responsive: true,
                                             maintainAspectRatio: false,
                                             scales: {
-                                                x: { stacked: true },
+                                                x: {
+                                                    stacked: true,
+                                                    grid: { color: 'rgba(226, 232, 240, 0.6)' }
+                                                },
                                                 y: {
                                                     stacked: true,
                                                     beginAtZero: true,
+                                                    grid: { color: 'rgba(226, 232, 240, 0.6)' },
                                                     title: { display: true, text: 'LKR Millions', font: { weight: 'bold' } }
                                                 }
                                             },
