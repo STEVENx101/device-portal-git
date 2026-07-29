@@ -99,25 +99,53 @@ public class DataTableRepo {
 
         if (searchval != null
                 && searchval.getValue() != null
-                && !searchval.getValue().isEmpty()) {
+                && !searchval.getValue().trim().isEmpty()) {
 
-            String searchCondition =
-                    " CONCAT_WS(''," +
-                            removeAsPattern.matcher(cols).replaceAll("") +
-                            ") REGEXP '" + searchval.getValue() + "'";
-
-            String lowerBase = baseQuery.toLowerCase();
-
-            if (lowerBase.contains("group by")) {
-                search = " HAVING " + searchCondition;
-            } else if (lowerBase.contains("where")) {
-                search = " AND " + searchCondition;
-            } else {
-                search = " WHERE " + searchCondition;
+            java.util.List<String> colNames = new java.util.ArrayList<>();
+            StringBuilder sb = new StringBuilder();
+            int depth = 0;
+            for (int i = 0; i < cols.length(); i++) {
+                char c = cols.charAt(i);
+                if (c == '(') {
+                    depth++;
+                } else if (c == ')') {
+                    depth--;
+                }
+                if (c == ',' && depth == 0) {
+                    colNames.add(sb.toString().trim());
+                    sb = new StringBuilder();
+                } else {
+                    sb.append(c);
+                }
             }
+            if (sb.length() > 0) {
+                colNames.add(sb.toString().trim());
+            }
+
+            StringJoiner sj = new StringJoiner(",");
+            for (String col : colNames) {
+                String upper = col.toUpperCase();
+                int asIndex = upper.lastIndexOf(" AS ");
+                String alias = "";
+                if (asIndex != -1) {
+                    alias = col.substring(asIndex + 4).trim();
+                } else {
+                    int dotIndex = col.lastIndexOf('.');
+                    if (dotIndex != -1) {
+                        alias = col.substring(dotIndex + 1).trim();
+                    } else {
+                        alias = col.trim();
+                    }
+                }
+                alias = alias.replaceAll("[`'\\s]", "");
+                if (!alias.isEmpty()) {
+                    sj.add("COALESCE(t.`" + alias + "`, '')");
+                }
+            }
+            search = " AND CONCAT_WS('', " + sj.toString() + ") REGEXP '" + searchval.getValue().trim() + "'";
         }
 
-        // FINAL PAGINATED QUERY  ✅ (THIS WAS NOT USED BEFORE)
+        // FINAL PAGINATED QUERY
         String finalQuery =
                 "SELECT * FROM (" + innerQuery + ") t WHERE 1=1 "
                         + search
