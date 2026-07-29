@@ -792,6 +792,23 @@ public class CbsReportService {
                             WHERE uts.user_type_id = ut.id AND uts.screen_id = s.id
                         )
                     """);
+
+            // Settled & Early Settled Report
+            jdbc.getJdbcTemplate().execute("""
+                        INSERT INTO device_portal.screen (name, path, icon, group_name)
+                        SELECT 'Settled & Early Settled', '/settled-report', 'fas fa-check-circle', 'Reports'
+                        WHERE NOT EXISTS (SELECT 1 FROM device_portal.screen WHERE path = '/settled-report')
+                    """);
+            jdbc.getJdbcTemplate().execute("""
+                        INSERT INTO device_portal.user_type_screen (user_type_id, screen_id)
+                        SELECT ut.id, s.id
+                        FROM device_portal.user_type ut, device_portal.screen s
+                        WHERE s.path = '/settled-report'
+                        AND NOT EXISTS (
+                            SELECT 1 FROM device_portal.user_type_screen uts
+                            WHERE uts.user_type_id = ut.id AND uts.screen_id = s.id
+                        )
+                    """);
         } catch (Exception e) {
             log.error("Report configuration database operation failed", e);
         }
@@ -1275,6 +1292,20 @@ public class CbsReportService {
         return executeDownloadReport(sql, params);
     }
 
+    public DataTableResponse fetchSettledReport(DataTableRequest request) {
+        Map<String, Object> params = new HashMap<>();
+        String sql = buildSettledReportQuery(request.getData(), params);
+        return executePagedReport(request, sql, params);
+    }
+
+    public List<Map<String, Object>> getSettledReportData(String asAt) {
+        Map<String, Object> filterMap = new HashMap<>();
+        filterMap.put("asAt", asAt);
+        Map<String, Object> params = new HashMap<>();
+        String sql = buildSettledReportQuery(filterMap, params);
+        return executeDownloadReport(sql, params);
+    }
+
     public DataTableResponse fetchMaturedLowBalanceReport(DataTableRequest request) {
         Map<String, Object> params = new HashMap<>();
         String sql = buildMaturedLowBalanceReportQuery(request.getData(), params);
@@ -1365,6 +1396,55 @@ public class CbsReportService {
                     t.dpd,
                     t.lock_status,
                     t.recovery_officer
+                FROM (""" + subQuery + ") t WHERE TRUE";
+    }
+
+    private String buildSettledReportQuery(Object rawFilter, Map<String, Object> params) {
+        String subQuery = """
+                SELECT
+                    l.account_no,
+                    l.account_series AS `series`,
+                    l.legacy_account_no,
+                    c.full_name AS `client_name`,
+                    c.id_no AS `client_nic`,
+                    c.mobile AS `client_mobile`,
+                    c.address AS `client_address`,
+                    l.loan_amount,
+                    l.rental,
+                    DATE_FORMAT(l.disbursed_date, '%Y-%m-%d') AS `disbursed_date`,
+                    DATE_FORMAT(l.closed_date, '%Y-%m-%d') AS `closed_date`,
+                    CASE l.account_status
+                        WHEN 'P' THEN 'Paid Off (early sett)'
+                        WHEN 'F' THEN 'Fully Paid (settled)'
+                        ELSE l.account_status
+                    END AS `account_status`
+                FROM cbs.loan l
+                LEFT JOIN cbs.client c ON l.client = c.client_code
+                WHERE l.account_status IN ('P', 'F')""";
+
+        if (rawFilter instanceof Map) {
+            Map<?, ?> filter = (Map<?, ?>) rawFilter;
+            String asAt = (String) filter.get("asAt");
+            if (asAt != null && !asAt.trim().isEmpty()) {
+                subQuery += " AND l.closed_date < DATE_ADD(:asAt, INTERVAL 1 DAY)";
+                params.put("asAt", asAt.trim());
+            }
+        }
+
+        return """
+                SELECT
+                    t.account_no,
+                    t.series,
+                    t.legacy_account_no,
+                    t.client_name,
+                    t.client_nic,
+                    t.client_mobile,
+                    t.client_address,
+                    t.loan_amount,
+                    t.rental,
+                    t.disbursed_date,
+                    t.closed_date,
+                    t.account_status
                 FROM (""" + subQuery + ") t WHERE TRUE";
     }
 

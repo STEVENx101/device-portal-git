@@ -99,6 +99,11 @@ public class PageController {
         return "one-rental-report";
     }
 
+    @GetMapping("/settled-report")
+    public String settledReport() {
+        return "settled-report";
+    }
+
     @GetMapping("/matured-low-balance-report")
     public String maturedLowBalanceReport() {
         return "matured-low-balance-report";

@@ -387,6 +387,32 @@ public class CbsReportController {
         writeExceptionLockCsv(response, "last_rental_remaining_report.csv", data);
     }
 
+    @PostMapping("/settled-report")
+    public DataTableResponse getSettledReport(@RequestBody DataTableRequest request, HttpSession session) {
+        com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");
+        String username = currentUser != null ? currentUser.getUsername() : "system";
+        String filtersStr = request.getData() != null ? request.getData().toString() : "none";
+        cbsReportService.logReportActivity(username, "Settled & Early Settled Exception Report", "VIEW", filtersStr);
+        return cbsReportService.fetchSettledReport(request);
+    }
+
+    @GetMapping("/settled-report/download")
+    public void downloadSettledReport(
+            @RequestParam(value = "asAt", required = false) String asAt,
+            @RequestParam(value = "downloadToken", required = false) String downloadToken,
+            HttpSession session,
+            HttpServletResponse response) throws Exception {
+        verifyDownloadPermission(session, response);
+        com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");
+        String username = currentUser != null ? currentUser.getUsername() : "system";
+        String filtersStr = String.format("asAt=%s", asAt);
+        cbsReportService.logReportActivity(username, "Settled & Early Settled Exception Report", "DOWNLOAD", filtersStr);
+
+        setDownloadTokenCookie(response, downloadToken);
+        List<Map<String, Object>> data = cbsReportService.getSettledReportData(asAt);
+        writeExceptionLockCsv(response, "settled_and_early_settled_report.csv", data);
+    }
+
     @PostMapping("/matured-low-balance")
     public DataTableResponse getMaturedLowBalance(@RequestBody DataTableRequest request, HttpSession session) {
         com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");

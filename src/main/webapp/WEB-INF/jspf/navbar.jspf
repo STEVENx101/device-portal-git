@@ -19,6 +19,7 @@
     boolean hasUnlockArrearsReport = false;
     boolean hasLockNoArrearsReport = false;
     boolean hasOneRentalReport = false;
+    boolean hasSettledReport = false;
     boolean hasMaturedLowBalanceReport = false;
     boolean hasDpdBucketReport = false;
     boolean hasVendorPaymentsReport = false;
@@ -41,6 +42,7 @@
             if (s.getPath().equalsIgnoreCase("/unlock-arrears-report")) hasUnlockArrearsReport = true;
             if (s.getPath().equalsIgnoreCase("/lock-no-arrears-report")) hasLockNoArrearsReport = true;
             if (s.getPath().equalsIgnoreCase("/one-rental-report")) hasOneRentalReport = true;
+            if (s.getPath().equalsIgnoreCase("/settled-report")) hasSettledReport = true;
             if (s.getPath().equalsIgnoreCase("/matured-low-balance-report")) hasMaturedLowBalanceReport = true;
             if (s.getPath().equalsIgnoreCase("/dpd-bucket-report")) hasDpdBucketReport = true;
             if (s.getPath().equalsIgnoreCase("/vendor-payments")) hasVendorPaymentsReport = true;
@@ -747,6 +749,11 @@ body {
                                     Last Rental Remaining
                                 </a>
                                 <% } %>
+                                <% if (hasSettledReport) { %>
+                                <a href="<%= request.getContextPath() %>/settled-report" class="dropdown-item-custom" id="nav-report-settled">
+                                    Settled & Early Settled
+                                </a>
+                                <% } %>
                                 <% if (hasMaturedLowBalanceReport) { %>
                                 <a href="<%= request.getContextPath() %>/matured-low-balance-report" class="dropdown-item-custom" id="nav-report-matured-low-balance">
                                     Matured Low Balance
@@ -873,6 +880,11 @@ body {
                 if (sub) sub.classList.add("open");
             } else if (path.includes("one-rental-report")) {
                 const item = document.getElementById("nav-report-one-rental");
+                if (item) item.classList.add("active");
+                const sub = document.getElementById("submenu-exception");
+                if (sub) sub.classList.add("open");
+            } else if (path.includes("settled-report")) {
+                const item = document.getElementById("nav-report-settled");
                 if (item) item.classList.add("active");
                 const sub = document.getElementById("submenu-exception");
                 if (sub) sub.classList.add("open");
