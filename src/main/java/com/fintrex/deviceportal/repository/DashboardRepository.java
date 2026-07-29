@@ -281,7 +281,7 @@ public class DashboardRepository {
             SELECT COALESCE(p.performing_status, 'Performing') AS state_name, COUNT(*) AS count_val
             FROM cbs.portfolio p
             INNER JOIN cbs.loan l ON (l.account_no = p.account_no OR l.legacy_account_no = p.account_no) AND l.account_series = p.series
-            LEFT JOIN cbs.product pr ON l.product = CAST(pr.code_val AS CHAR)
+            LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
             WHERE p.portfolio_date = ? AND p.sync_time = ? AND pr.product_code = 'MF'
             GROUP BY state_name
         """;
@@ -290,11 +290,12 @@ public class DashboardRepository {
         // Mobile Active vs Locked
         String mobileLockSql = """
             SELECT 
-                CASE WHEN COALESCE(p.lock_status, 'Unlocked') = 'Locked' THEN 'Locked' ELSE 'Active' END AS state_name,
+                CASE WHEN COALESCE(ml.locked, 0) = 1 THEN 'Locked' ELSE 'Active' END AS state_name,
                 COUNT(*) AS count_val
             FROM cbs.portfolio p
             INNER JOIN cbs.loan l ON (l.account_no = p.account_no OR l.legacy_account_no = p.account_no) AND l.account_series = p.series
-            LEFT JOIN cbs.product pr ON l.product = CAST(pr.code_val AS CHAR)
+            LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
+            LEFT JOIN loan.mobileloan ml ON (ml.finance_no = l.account_no OR ml.finance_no = l.legacy_account_no)
             WHERE p.portfolio_date = ? AND p.sync_time = ? AND pr.product_code = 'MF'
             GROUP BY state_name
         """;
@@ -305,7 +306,7 @@ public class DashboardRepository {
             SELECT COALESCE(p.performing_status, 'Performing') AS state_name, COUNT(*) AS count_val
             FROM cbs.portfolio p
             INNER JOIN cbs.loan l ON (l.account_no = p.account_no OR l.legacy_account_no = p.account_no) AND l.account_series = p.series
-            LEFT JOIN cbs.product pr ON l.product = CAST(pr.code_val AS CHAR)
+            LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
             WHERE p.portfolio_date = ? AND p.sync_time = ? AND pr.product_code IN ('LF', 'laptop')
             GROUP BY state_name
         """;
@@ -314,12 +315,12 @@ public class DashboardRepository {
         // Laptop Active vs Locked
         String laptopLockSql = """
             SELECT 
-                CASE WHEN COALESCE(dl.device_status, 'ACTIVE') = 'LOCKED' THEN 'Locked' ELSE 'Active' END AS state_name,
+                CASE WHEN COALESCE(dl.locked, 0) = 1 THEN 'Locked' ELSE 'Active' END AS state_name,
                 COUNT(*) AS count_val
             FROM cbs.portfolio p
             INNER JOIN cbs.loan l ON (l.account_no = p.account_no OR l.legacy_account_no = p.account_no) AND l.account_series = p.series
-            LEFT JOIN cbs.product pr ON l.product = CAST(pr.code_val AS CHAR)
-            LEFT JOIN cbs.device_loan dl ON (dl.account_no = l.account_no OR dl.account_no = l.legacy_account_no)
+            LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
+            LEFT JOIN loan.device_loan dl ON (dl.account_no = l.account_no OR dl.account_no = l.legacy_account_no)
             WHERE p.portfolio_date = ? AND p.sync_time = ? AND pr.product_code IN ('LF', 'laptop')
             GROUP BY state_name
         """;
