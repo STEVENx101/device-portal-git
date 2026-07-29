@@ -1861,6 +1861,54 @@ public class CbsReportService {
         return result;
     }
 
+    public List<Map<String, Object>> fetchDistinctVendors() {
+        try {
+            return jdbc.queryForList("""
+                SELECT DISTINCT 
+                    COALESCE(vendor_code, '') AS vendor_code, 
+                    COALESCE(vendor_name, 'Unknown') AS vendor_name 
+                FROM cbs.vendor_payments 
+                WHERE vendor_code IS NOT NULL AND vendor_code <> ''
+                ORDER BY vendor_name ASC
+            """, Map.of());
+        } catch (Exception e) {
+            log.error("Failed to fetch distinct vendors", e);
+            return Collections.emptyList();
+        }
+    }
+
+    public List<Map<String, Object>> fetchDistinctDealers() {
+        try {
+            return jdbc.queryForList("""
+                SELECT 
+                    code AS code, 
+                    name AS name 
+                FROM cbs.vendor 
+                WHERE code IS NOT NULL AND code <> ''
+                ORDER BY name ASC
+            """, Map.of());
+        } catch (Exception e) {
+            log.error("Failed to fetch distinct dealers", e);
+            return Collections.emptyList();
+        }
+    }
+
+    public List<Map<String, Object>> fetchDistinctModels() {
+        try {
+            return jdbc.queryForList("""
+                SELECT 
+                    id AS id, 
+                    name AS name 
+                FROM loan.mobileloan_model 
+                WHERE id IS NOT NULL
+                ORDER BY name ASC
+            """, Map.of());
+        } catch (Exception e) {
+            log.error("Failed to fetch distinct models", e);
+            return Collections.emptyList();
+        }
+    }
+
     private double round(double val, int places) {
         if (places < 0)
             return val;
