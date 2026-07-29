@@ -283,7 +283,7 @@ public class DashboardRepository {
             LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
             LEFT JOIN cbs.portfolio p1 ON p1.account_no = l.account_no AND p1.series = l.account_series AND p1.portfolio_date = ? AND p1.sync_time = ?
             LEFT JOIN cbs.portfolio p2 ON p2.account_no = l.legacy_account_no AND p2.series = l.account_series AND p2.portfolio_date = ? AND p2.sync_time = ?
-            WHERE pr.product_code = 'MF' AND (p1.account_no IS NOT NULL OR p2.account_no IS NOT NULL)
+            WHERE pr.product_code = 'MF' AND l.account_status = 'A'
             GROUP BY state_name
         """;
         List<Map<String, Object>> mobilePerf = jdbcTemplate.queryForList(mobilePerfSql, latestDate, latestSync, latestDate, latestSync);
@@ -298,7 +298,7 @@ public class DashboardRepository {
             LEFT JOIN cbs.portfolio p1 ON p1.account_no = l.account_no AND p1.series = l.account_series AND p1.portfolio_date = ? AND p1.sync_time = ?
             LEFT JOIN cbs.portfolio p2 ON p2.account_no = l.legacy_account_no AND p2.series = l.account_series AND p2.portfolio_date = ? AND p2.sync_time = ?
             LEFT JOIN loan.mobileloan ml ON (ml.finance_no = l.account_no OR ml.finance_no = l.legacy_account_no)
-            WHERE pr.product_code = 'MF' AND (p1.account_no IS NOT NULL OR p2.account_no IS NOT NULL)
+            WHERE pr.product_code = 'MF' AND l.account_status = 'A'
             GROUP BY state_name
         """;
         List<Map<String, Object>> mobileLock = jdbcTemplate.queryForList(mobileLockSql, latestDate, latestSync, latestDate, latestSync);
@@ -310,7 +310,7 @@ public class DashboardRepository {
             LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
             LEFT JOIN cbs.portfolio p1 ON p1.account_no = l.account_no AND p1.series = l.account_series AND p1.portfolio_date = ? AND p1.sync_time = ?
             LEFT JOIN cbs.portfolio p2 ON p2.account_no = l.legacy_account_no AND p2.series = l.account_series AND p2.portfolio_date = ? AND p2.sync_time = ?
-            WHERE pr.product_code IN ('LF', 'laptop') AND (p1.account_no IS NOT NULL OR p2.account_no IS NOT NULL)
+            WHERE pr.product_code IN ('LF', 'laptop') AND l.account_status = 'A'
             GROUP BY state_name
         """;
         List<Map<String, Object>> laptopPerf = jdbcTemplate.queryForList(laptopPerfSql, latestDate, latestSync, latestDate, latestSync);
@@ -325,7 +325,7 @@ public class DashboardRepository {
             LEFT JOIN cbs.portfolio p1 ON p1.account_no = l.account_no AND p1.series = l.account_series AND p1.portfolio_date = ? AND p1.sync_time = ?
             LEFT JOIN cbs.portfolio p2 ON p2.account_no = l.legacy_account_no AND p2.series = l.account_series AND p2.portfolio_date = ? AND p2.sync_time = ?
             LEFT JOIN loan.device_loan dl ON (dl.finance_no = l.account_no OR dl.finance_no = l.legacy_account_no)
-            WHERE pr.product_code IN ('LF', 'laptop') AND (p1.account_no IS NOT NULL OR p2.account_no IS NOT NULL)
+            WHERE pr.product_code IN ('LF', 'laptop') AND l.account_status = 'A'
             GROUP BY state_name
         """;
         List<Map<String, Object>> laptopLock = jdbcTemplate.queryForList(laptopLockSql, latestDate, latestSync, latestDate, latestSync);

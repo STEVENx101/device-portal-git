@@ -496,36 +496,67 @@
                                 })
                                 .catch(err => console.error("Error loading DPD comparison chart:", err));
 
-                            // Chart 3: Vendor Payments Pie Chart
+                            // Chart 3: Vendor Payments Horizontal Bar Chart (Top 10 + Others)
                             fetch('${pageContext.request.contextPath}/api/dashboard/vendor-payments-chart')
                                 .then(res => res.json())
                                 .then(data => {
-                                    const labels = data.map(item => item.channel_name);
-                                    const amounts = data.map(item => item.total_amount);
+                                    let chartData = [];
+                                    if (data.length > 10) {
+                                        chartData = data.slice(0, 10);
+                                        const othersSum = data.slice(10).reduce((sum, item) => sum + (item.total_amount || 0), 0);
+                                        chartData.push({ channel_name: 'Others', total_amount: othersSum });
+                                    } else {
+                                        chartData = data;
+                                    }
+
+                                    // For horizontal bar chart, showing highest on top: reverse it so the highest is at the top of the chart
+                                    chartData.reverse();
+
+                                    const labels = chartData.map(item => item.channel_name);
+                                    const amounts = chartData.map(item => item.total_amount);
                                     
                                     const ctx = document.getElementById('vendorPaymentsChart').getContext('2d');
                                     new Chart(ctx, {
-                                        type: 'pie',
+                                        type: 'bar',
                                         data: {
                                             labels: labels,
                                             datasets: [{
+                                                label: 'Payment Amount (LKR)',
                                                 data: amounts,
-                                                backgroundColor: [
-                                                    'rgba(79, 70, 229, 0.75)',
-                                                    'rgba(16, 185, 129, 0.75)',
-                                                    'rgba(245, 158, 11, 0.75)',
-                                                    'rgba(239, 68, 68, 0.75)',
-                                                    'rgba(6, 182, 212, 0.75)',
-                                                    'rgba(139, 92, 246, 0.75)'
-                                                ],
-                                                borderWidth: 1
+                                                backgroundColor: 'rgba(79, 70, 229, 0.8)',
+                                                borderColor: 'rgba(79, 70, 229, 1)',
+                                                borderWidth: 1,
+                                                borderRadius: 4
                                             }]
                                         },
                                         options: {
+                                            indexAxis: 'y',
                                             responsive: true,
                                             maintainAspectRatio: false,
                                             plugins: {
-                                                legend: { position: 'bottom', labels: { boxWidth: 12, padding: 10 } }
+                                                legend: { display: false },
+                                                tooltip: {
+                                                    callbacks: {
+                                                        label: function(context) {
+                                                            return ' LKR ' + Number(context.raw).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            scales: {
+                                                x: {
+                                                    grid: { display: false },
+                                                    ticks: {
+                                                        callback: function(value) {
+                                                            if (value >= 1000000) return (value / 1000000).toFixed(1) + 'M';
+                                                            if (value >= 1000) return (value / 1000).toFixed(0) + 'K';
+                                                            return value;
+                                                        }
+                                                    }
+                                                },
+                                                y: {
+                                                    grid: { display: false }
+                                                }
                                             }
                                         }
                                     });
