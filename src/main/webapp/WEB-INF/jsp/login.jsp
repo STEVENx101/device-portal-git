@@ -52,7 +52,9 @@
 
             body {
                 font-family: 'Plus Jakarta Sans', sans-serif;
-                background: radial-gradient(circle at 10% 20%, rgba(240, 244, 255, 1) 0%, rgba(228, 235, 253, 1) 90.1%) !important;
+                background-color: #f8fafc !important;
+                background-image: radial-gradient(rgba(99, 102, 241, 0.04) 1.5px, transparent 1.5px) !important;
+                background-size: 24px 24px !important;
                 min-height: 100vh;
                 display: flex;
                 align-items: center;

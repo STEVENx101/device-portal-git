@@ -214,12 +214,12 @@
                                         <!-- Dimension Pills -->
                                         <ul class="nav nav-pills" id="dimensionTabs">
                                             <li class="nav-item">
-                                                <a class="nav-link active" href="javascript:void(0)" data-dimension="dealer">
+                                                <a class="nav-link" href="javascript:void(0)" data-dimension="dealer">
                                                     <i class="fas fa-store me-1"></i>Dealer Wise
                                                 </a>
                                             </li>
                                             <li class="nav-item">
-                                                <a class="nav-link" href="javascript:void(0)" data-dimension="security">
+                                                <a class="nav-link active" href="javascript:void(0)" data-dimension="security">
                                                     <i class="fas fa-shield-alt me-1"></i>Security Type
                                                 </a>
                                             </li>
@@ -320,7 +320,7 @@
         <script src="${pageContext.request.contextPath}/assets/js/theme.js"></script>
 
         <script>
-            let activeDimension = 'dealer';
+            let activeDimension = 'security';
 
             function formatNumber(val, decimals = 2) {
                 if (val === null || val === undefined || isNaN(val)) return '0.00';
@@ -375,7 +375,7 @@
                 $('#kpiTotalSub').text(formatInt(totals.totalCount || 0) + ' Contracts');
 
                 // Card 2: DPD 0
-                $('#kpiDpd0Exposure').text(formatNumber(totals.dpd0ValMn || 0) + ' Mn');
+                $('#kpiDpd0Exposure').text(formatNumber(totals.totalValMn ? (totals.dpd0ValMn || 0) : 0) + ' Mn');
                 $('#kpiDpd0Sub').text(formatInt(totals.dpd0Count || 0) + ' Contracts (' + formatNumber(totals.dpd0Pct || 0) + '%)');
 
                 // Card 3: DPD 1 - 30
@@ -402,7 +402,7 @@
                 let bodyHtml = '';
                 rows.forEach(function(r) {
                     bodyHtml += '<tr>' +
-                        '<td class="fw-semi-bold text-dark">' + (r.category || 'Unknown') + '</td>' +
+                        '<td class="fw-semi-bold text-dark text-truncate" style="max-width: 150px;" title="' + (r.category || 'Unknown') + '">' + (r.category || 'Unknown') + '</td>' +
                         '<td class="text-end">' + formatInt(r.dpd0Count) + '</td>' +
                         '<td class="text-end fw-semi-bold">' + formatNumber(r.dpd0ValMn) + '</td>' +
                         '<td class="text-end text-muted">' + formatNumber(r.dpd0Pct) + '%</td>' +

@@ -242,17 +242,25 @@ html body .choices__list--dropdown {
 }
 
 /* Datatable Filters & Pagination styling override globally */
-html body .dataTables_wrapper .dataTables_paginate .paginate_button {
-    border-radius: 8px !important;
+html body .dataTables_wrapper .dataTables_paginate .paginate_button,
+html body .pagination .page-item .page-link,
+html body .pagination .page-link,
+html body .page-item .page-link {
+    border-radius: 6px !important;
     border: 1px solid #e2e8f0 !important;
     background: #ffffff !important;
     color: #475569 !important;
-    padding: 0.4rem 0.8rem !important;
-    margin: 0 2px !important;
+    padding: 0.25rem 0.55rem !important;
+    margin: 0 1px !important;
+    font-size: 0.76rem !important;
     transition: all 0.2s ease-in-out !important;
+    display: inline-block !important;
 }
 html body .dataTables_wrapper .dataTables_paginate .paginate_button.current,
-html body .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+html body .dataTables_wrapper .dataTables_paginate .paginate_button:hover,
+html body .pagination .page-item.active .page-link,
+html body .pagination .page-link:hover,
+html body .page-item.active .page-link {
     background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%) !important;
     color: #ffffff !important;
     border-color: #4f46e5 !important;
