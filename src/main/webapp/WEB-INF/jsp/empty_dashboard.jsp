@@ -254,6 +254,73 @@
                         </div>
                     </div>
 
+                    <!-- Second Row: Vendor Payments & Device Status Analytics -->
+                    <div class="row g-3 mb-4">
+                        <!-- Chart 3: Vendor Payments (Channel-Wise) -->
+                        <div class="col-lg-4">
+                            <div class="card shadow-sm h-100">
+                                <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
+                                    <h6 class="mb-0 text-primary fw-bold"><i class="fas fa-money-check-alt me-2"></i>Vendor Payments (Current Month)</h6>
+                                </div>
+                                <div class="card-body p-3 d-flex flex-column justify-content-center">
+                                    <div class="chart-container" style="height: 280px; position: relative; width: 100%;">
+                                        <canvas id="vendorPaymentsChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Chart 4: Mobile Device Status -->
+                        <div class="col-lg-4">
+                            <div class="card shadow-sm h-100">
+                                <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
+                                    <h6 class="mb-0 text-primary fw-bold"><i class="fas fa-mobile-alt me-2"></i>Mobile Device Status (MF)</h6>
+                                </div>
+                                <div class="card-body p-3">
+                                    <div class="row g-2">
+                                        <div class="col-6">
+                                            <div class="text-center fw-semi-bold fs--2 text-muted mb-2">Performance</div>
+                                            <div style="height: 220px; position: relative; width: 100%;">
+                                                <canvas id="mobilePerformingChart"></canvas>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="text-center fw-semi-bold fs--2 text-muted mb-2">Lock Status</div>
+                                            <div style="height: 220px; position: relative; width: 100%;">
+                                                <canvas id="mobileLockChart"></canvas>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Chart 5: Laptop Device Status -->
+                        <div class="col-lg-4">
+                            <div class="card shadow-sm h-100">
+                                <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
+                                    <h6 class="mb-0 text-primary fw-bold"><i class="fas fa-laptop me-2"></i>Laptop Device Status (LF)</h6>
+                                </div>
+                                <div class="card-body p-3">
+                                    <div class="row g-2">
+                                        <div class="col-6">
+                                            <div class="text-center fw-semi-bold fs--2 text-muted mb-2">Performance</div>
+                                            <div style="height: 220px; position: relative; width: 100%;">
+                                                <canvas id="laptopPerformingChart"></canvas>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="text-center fw-semi-bold fs--2 text-muted mb-2">Lock Status</div>
+                                            <div style="height: 220px; position: relative; width: 100%;">
+                                                <canvas id="laptopLockChart"></canvas>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Fetch and Render Script -->
                     <script>
                         document.addEventListener("DOMContentLoaded", function() {
@@ -428,6 +495,107 @@
                                     });
                                 })
                                 .catch(err => console.error("Error loading DPD comparison chart:", err));
+
+                            // Chart 3: Vendor Payments Pie Chart
+                            fetch('${pageContext.request.contextPath}/api/dashboard/vendor-payments-chart')
+                                .then(res => res.json())
+                                .then(data => {
+                                    const labels = data.map(item => item.channel_name);
+                                    const amounts = data.map(item => item.total_amount);
+                                    
+                                    const ctx = document.getElementById('vendorPaymentsChart').getContext('2d');
+                                    new Chart(ctx, {
+                                        type: 'pie',
+                                        data: {
+                                            labels: labels,
+                                            datasets: [{
+                                                data: amounts,
+                                                backgroundColor: [
+                                                    'rgba(79, 70, 229, 0.75)',
+                                                    'rgba(16, 185, 129, 0.75)',
+                                                    'rgba(245, 158, 11, 0.75)',
+                                                    'rgba(239, 68, 68, 0.75)',
+                                                    'rgba(6, 182, 212, 0.75)',
+                                                    'rgba(139, 92, 246, 0.75)'
+                                                ],
+                                                borderWidth: 1
+                                            }]
+                                        },
+                                        options: {
+                                            responsive: true,
+                                            maintainAspectRatio: false,
+                                            plugins: {
+                                                legend: { position: 'bottom', labels: { boxWidth: 12, padding: 10 } }
+                                            }
+                                        }
+                                    });
+                                })
+                                .catch(err => console.error("Error loading vendor payments chart:", err));
+
+                            // Chart 4 & 5: Device Status charts (Mobile / Laptop)
+                            fetch('${pageContext.request.contextPath}/api/dashboard/device-status-charts')
+                                .then(res => res.json())
+                                .then(data => {
+                                    // Helper function to build status doughnut chart
+                                    function buildDoughnut(canvasId, dataset, labelsList, colorsList) {
+                                        const labels = dataset.map(item => item.state_name);
+                                        const counts = dataset.map(item => item.count_val);
+                                        
+                                        const ctx = document.getElementById(canvasId).getContext('2d');
+                                        new Chart(ctx, {
+                                            type: 'doughnut',
+                                            data: {
+                                                labels: labels.length ? labels : labelsList,
+                                                datasets: [{
+                                                    data: counts.length ? counts : [0, 0],
+                                                    backgroundColor: colorsList,
+                                                    borderWidth: 1
+                                                }]
+                                            },
+                                            options: {
+                                                responsive: true,
+                                                maintainAspectRatio: false,
+                                                cutout: '60%',
+                                                plugins: {
+                                                    legend: { position: 'bottom', labels: { boxWidth: 10, padding: 8, font: { size: 10 } } }
+                                                }
+                                            }
+                                        });
+                                    }
+
+                                    // 1. Mobile Performing
+                                    buildDoughnut(
+                                        'mobilePerformingChart',
+                                        data.mobilePerforming,
+                                        ['Performing', 'Non-Performing'],
+                                        ['rgba(16, 185, 129, 0.75)', 'rgba(239, 68, 68, 0.75)']
+                                    );
+                                    
+                                    // 2. Mobile Locked
+                                    buildDoughnut(
+                                        'mobileLockChart',
+                                        data.mobileLock,
+                                        ['Active', 'Locked'],
+                                        ['rgba(79, 70, 229, 0.75)', 'rgba(245, 158, 11, 0.75)']
+                                    );
+
+                                    // 3. Laptop Performing
+                                    buildDoughnut(
+                                        'laptopPerformingChart',
+                                        data.laptopPerforming,
+                                        ['Performing', 'Non-Performing'],
+                                        ['rgba(16, 185, 129, 0.75)', 'rgba(239, 68, 68, 0.75)']
+                                    );
+
+                                    // 4. Laptop Locked
+                                    buildDoughnut(
+                                        'laptopLockChart',
+                                        data.laptopLock,
+                                        ['Active', 'Locked'],
+                                        ['rgba(79, 70, 229, 0.75)', 'rgba(245, 158, 11, 0.75)']
+                                    );
+                                })
+                                .catch(err => console.error("Error loading device status charts:", err));
                         });
                     </script>
 

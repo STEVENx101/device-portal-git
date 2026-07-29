@@ -157,6 +157,10 @@
                                     <div class="fs--1 fw-bold val-outstanding">-</div>
                                 </div>
                                 <div class="col-6 col-sm-4 col-md-3 col-lg-2 text-center">
+                                    <div class="text-500 fs--2 font-sans-serif fw-semi-bold">PORTFOLIO EXPOSURE</div>
+                                    <div class="fs--1 fw-bold val-exposure">-</div>
+                                </div>
+                                <div class="col-6 col-sm-4 col-md-3 col-lg-2 text-center">
                                     <div class="text-500 fs--2 font-sans-serif fw-semi-bold">PERFORMING STATUS</div>
                                     <div class="fs--1 fw-bold val-performing-status">-</div>
                                 </div>
@@ -923,6 +927,7 @@
                                             document.querySelectorAll('.val-account-no').forEach(el => el.textContent = data.financeNo || '-');
                                             document.querySelectorAll('.val-account-status').forEach(el => el.textContent = data.contractStatus || '-');
                                             document.querySelectorAll('.val-outstanding').forEach(el => el.textContent = data.amtToCollected !== null ? parseFloat(data.amtToCollected).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '0.00');
+                                            document.querySelectorAll('.val-exposure').forEach(el => el.textContent = data.exposure !== null ? parseFloat(data.exposure).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '0.00');
                                             document.querySelectorAll('.val-performing-status').forEach(el => el.textContent = data.performingStatus || '-');
                                             document.querySelectorAll('.val-security').forEach(el => el.textContent = data.security || '-');
                                             document.querySelectorAll('.val-model').forEach(el => el.textContent = data.model || '-');

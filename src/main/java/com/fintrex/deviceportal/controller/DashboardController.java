@@ -38,5 +38,15 @@ public class DashboardController {
     public ResponseEntity<List<Map<String, Object>>> getMonthWiseDpdComparison() {
         return ResponseEntity.ok(dashboardService.getMonthWiseDpdComparison());
     }
+
+    @GetMapping("/vendor-payments-chart")
+    public ResponseEntity<List<Map<String, Object>>> getVendorPaymentsChannelChart() {
+        return ResponseEntity.ok(dashboardService.getVendorPaymentsChannelChart());
+    }
+
+    @GetMapping("/device-status-charts")
+    public ResponseEntity<Map<String, Object>> getDeviceStatusCharts() {
+        return ResponseEntity.ok(dashboardService.getDeviceStatusCharts());
+    }
 }
 

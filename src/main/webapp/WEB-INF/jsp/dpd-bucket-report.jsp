@@ -209,8 +209,8 @@
                     <div class="card glass-card mb-3" style="position: relative; z-index: 10;">
                         <div class="card-body py-2">
                             <form id="filterForm">
-                                <div class="row g-3 align-items-center">
-                                    <div class="col-md-5">
+                                <div class="row g-2 align-items-center">
+                                    <div class="col-md-4">
                                         <!-- Dimension Pills -->
                                         <ul class="nav nav-pills" id="dimensionTabs">
                                             <li class="nav-item">
@@ -230,19 +230,27 @@
                                             </li>
                                         </ul>
                                     </div>
-                                    <div class="col-md-3">
+                                    <div class="col-md-2">
                                         <div class="d-flex align-items-center">
-                                            <label class="form-label text-700 fw-semi-bold mb-0 me-2 text-nowrap" for="asAtDate">As At Date</label>
+                                            <label class="form-label text-700 fw-semi-bold mb-0 me-2 text-nowrap" for="asAtDate">As At</label>
                                             <input class="form-control form-control-sm" type="date" id="asAtDate">
                                         </div>
                                     </div>
-                                    <div class="col-md-4 d-flex align-items-center justify-content-end gap-2">
+                                    <div class="col-md-3" id="dynamicFilterCol" style="display: none;">
+                                        <div class="d-flex align-items-center">
+                                            <label class="form-label text-700 fw-semi-bold mb-0 me-2 text-nowrap" id="dynamicFilterLabel" for="dynamicFilterSelect">Filter</label>
+                                            <select class="form-select form-select-sm" id="dynamicFilterSelect">
+                                                <option value="ALL">All</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 d-flex align-items-center justify-content-end gap-2">
                                         <button class="btn btn-primary btn-sm" type="button" id="applyFiltersBtn">
                                             <span class="fas fa-search me-1"></span> Load Report
                                         </button>
                                         <% if (canDownloadReports) { %>
                                         <button class="btn btn-success btn-sm" type="button" id="downloadCsvBtn">
-                                            <span class="fas fa-file-excel me-1"></span> Download Excel
+                                            <span class="fas fa-file-excel me-1"></span> Excel
                                         </button>
                                         <% } %>
                                     </div>
@@ -321,6 +329,8 @@
 
         <script>
             let activeDimension = 'security';
+            let dealerOptionsHtml = '<option value="ALL" selected>All Dealers</option>';
+            let modelOptionsHtml = '<option value="ALL" selected>All Models</option>';
 
             function formatNumber(val, decimals = 2) {
                 if (val === null || val === undefined || isNaN(val)) return '0.00';
@@ -332,11 +342,36 @@
                 return Number(val).toLocaleString();
             }
 
+            function updateDynamicFilterOptions() {
+                const col = $('#dynamicFilterCol');
+                const select = $('#dynamicFilterSelect');
+                const label = $('#dynamicFilterLabel');
+
+                if (activeDimension === 'dealer') {
+                    col.show();
+                    label.text('Dealer:');
+                    select.html(dealerOptionsHtml);
+                } else if (activeDimension === 'model') {
+                    col.show();
+                    label.text('Model:');
+                    select.html(modelOptionsHtml);
+                } else {
+                    col.hide();
+                }
+            }
+
             function loadReportData() {
                 const filters = {
                     dimension: activeDimension,
                     asAt: $('#asAtDate').val()
                 };
+
+                const filterVal = $('#dynamicFilterSelect').val() || 'ALL';
+                if (activeDimension === 'dealer') {
+                    filters.dealer = filterVal;
+                } else if (activeDimension === 'model') {
+                    filters.model = filterVal;
+                }
 
                 $('#loaderText').text('Loading data, please wait...');
                 $('#cbsLoader').css('display', 'flex');
@@ -365,7 +400,7 @@
 
                 // Update Dimension Column Label
                 let catLabel = 'Dealer Name';
-                if (activeDimension === 'security') catLabel = 'Security Type (Knox / Datacultr)';
+                if (activeDimension === 'security') catLabel = 'Security Type';
                 if (activeDimension === 'model') catLabel = 'Device Model';
                 $('#colCategoryHeader').text(catLabel);
 
@@ -462,12 +497,36 @@
                 const today = new Date().toISOString().split('T')[0];
                 $('#asAtDate').val(today);
 
+                // Fetch distinct dealers
+                $.ajax({
+                    url: '${pageContext.request.contextPath}/api/cbs/dealers',
+                    type: 'GET',
+                    success: function(res) {
+                        res.forEach(function(d) {
+                            dealerOptionsHtml += '<option value="' + d.code + '">' + d.name + ' (' + d.code + ')</option>';
+                        });
+                        updateDynamicFilterOptions();
+                    }
+                });
+
+                // Fetch distinct models
+                $.ajax({
+                    url: '${pageContext.request.contextPath}/api/cbs/models',
+                    type: 'GET',
+                    success: function(res) {
+                        res.forEach(function(m) {
+                            modelOptionsHtml += '<option value="' + m.id + '">' + m.name + '</option>';
+                        });
+                        updateDynamicFilterOptions();
+                    }
+                });
+
                 // Tab Switchers
                 $('#dimensionTabs .nav-link').on('click', function() {
                     $('#dimensionTabs .nav-link').removeClass('active');
                     $(this).addClass('active');
                     activeDimension = $(this).data('dimension');
-                    // Removed autoload on tab switcher click as requested
+                    updateDynamicFilterOptions();
                 });
 
                 $('#applyFiltersBtn').on('click', function() {
@@ -477,7 +536,10 @@
                 $('#downloadCsvBtn').on('click', function() {
                     const asAt = $('#asAtDate').val() || '';
                     const token = new Date().getTime();
-                    const url = '${pageContext.request.contextPath}/api/cbs/dpd-bucket/download?dimension=' + encodeURIComponent(activeDimension) + '&asAt=' + encodeURIComponent(asAt) + '&downloadToken=' + token;
+                    const filterVal = $('#dynamicFilterSelect').val() || 'ALL';
+                    const dealerVal = activeDimension === 'dealer' ? filterVal : 'ALL';
+                    const modelVal = activeDimension === 'model' ? filterVal : 'ALL';
+                    const url = '${pageContext.request.contextPath}/api/cbs/dpd-bucket/download?dimension=' + encodeURIComponent(activeDimension) + '&asAt=' + encodeURIComponent(asAt) + '&dealer=' + encodeURIComponent(dealerVal) + '&model=' + encodeURIComponent(modelVal) + '&downloadToken=' + token;
                     
                     $('#loaderText').text('Generating Excel download, please wait...');
                     $('#cbsLoader').css('display', 'flex');

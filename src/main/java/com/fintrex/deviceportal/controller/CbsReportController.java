@@ -546,6 +546,8 @@ public class CbsReportController {
             @RequestParam(value = "branch", required = false) String branch,
             @RequestParam(value = "products", required = false) List<String> products,
             @RequestParam(value = "asAt", required = false) String asAt,
+            @RequestParam(value = "dealer", required = false) String dealer,
+            @RequestParam(value = "model", required = false) String model,
             @RequestParam(value = "downloadToken", required = false) String downloadToken,
             HttpSession session,
             HttpServletResponse response) throws Exception {
@@ -560,7 +562,7 @@ public class CbsReportController {
 
         com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");
         String username = currentUser != null ? currentUser.getUsername() : "system";
-        String filtersStr = String.format("dimension=%s, branch=%s, products=%s, asAt=%s", dimension, branch, products, asAt);
+        String filtersStr = String.format("dimension=%s, branch=%s, products=%s, asAt=%s, dealer=%s, model=%s", dimension, branch, products, asAt, dealer, model);
         cbsReportService.logReportActivity(username, "DPD Bucket Report", "DOWNLOAD", filtersStr);
 
         if (downloadToken != null) {
@@ -572,6 +574,8 @@ public class CbsReportController {
         filters.put("branch", branch);
         filters.put("products", products);
         filters.put("asAt", asAt);
+        filters.put("dealer", dealer);
+        filters.put("model", model);
 
         Map<String, Object> reportData = cbsReportService.fetchDpdBucketReport(filters);
 
@@ -630,6 +634,24 @@ public class CbsReportController {
         }
     }
 
+    @GetMapping("/vendors")
+    @ResponseBody
+    public List<Map<String, Object>> getDistinctVendors() {
+        return cbsReportService.fetchDistinctVendors();
+    }
+
+    @GetMapping("/dealers")
+    @ResponseBody
+    public List<Map<String, Object>> getDistinctDealers() {
+        return cbsReportService.fetchDistinctDealers();
+    }
+
+    @GetMapping("/models")
+    @ResponseBody
+    public List<Map<String, Object>> getDistinctModels() {
+        return cbsReportService.fetchDistinctModels();
+    }
+
     @PostMapping("/vendor-payments")
     @ResponseBody
     public Map<String, Object> getVendorPaymentsReport(@RequestBody Map<String, Object> filters) {
@@ -645,6 +667,7 @@ public class CbsReportController {
             @RequestParam(required = false) String fromDate,
             @RequestParam(required = false) String toDate,
             @RequestParam(required = false) String search,
+            @RequestParam(required = false) String vendor,
             HttpServletResponse response) throws Exception {
 
         Map<String, Object> filters = new HashMap<>();
@@ -655,6 +678,7 @@ public class CbsReportController {
         filters.put("fromDate", fromDate);
         filters.put("toDate", toDate);
         filters.put("search", search);
+        filters.put("vendor", vendor);
 
         Map<String, Object> reportData = cbsReportService.fetchVendorPaymentsReport(filters, false);
 
@@ -676,6 +700,7 @@ public class CbsReportController {
             @RequestParam(required = false) String fromDate,
             @RequestParam(required = false) String toDate,
             @RequestParam(required = false) String search,
+            @RequestParam(required = false) String vendor,
             HttpServletResponse response) throws Exception {
 
         Map<String, Object> filters = new HashMap<>();
@@ -686,6 +711,7 @@ public class CbsReportController {
         filters.put("fromDate", fromDate);
         filters.put("toDate", toDate);
         filters.put("search", search);
+        filters.put("vendor", vendor);
 
         Map<String, Object> reportData = cbsReportService.fetchVendorPaymentsReport(filters, true);
 

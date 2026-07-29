@@ -13,6 +13,7 @@ public class ContractDetails {
     private String financeNo;
     private String contractStatus;
     private BigDecimal amtToCollected;
+    private BigDecimal exposure;
     private String performingStatus;
     private String security;
     private String model;

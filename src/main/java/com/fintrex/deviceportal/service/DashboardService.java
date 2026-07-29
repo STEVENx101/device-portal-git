@@ -29,5 +29,13 @@ public class DashboardService {
     public List<Map<String, Object>> getMonthWiseDpdComparison() {
         return dashboardRepository.getMonthWiseDpdComparison();
     }
+
+    public List<Map<String, Object>> getVendorPaymentsChannelChart() {
+        return dashboardRepository.getVendorPaymentsChannelChart();
+    }
+
+    public Map<String, Object> getDeviceStatusCharts() {
+        return dashboardRepository.getDeviceStatusCharts();
+    }
 }
 

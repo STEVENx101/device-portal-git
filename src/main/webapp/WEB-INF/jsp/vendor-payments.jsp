@@ -143,7 +143,7 @@
                         <div class="card-body py-2">
                             <form id="filterForm">
                                 <div class="row g-2 align-items-center">
-                                    <div class="col-md-3">
+                                    <div class="col-md-2">
                                         <label class="form-label text-700 fw-semi-bold mb-1 fs--1">Date Preset</label>
                                         <select class="form-select form-select-sm" id="dateModeSelect">
                                             <option value="today" selected>Today</option>
@@ -154,7 +154,7 @@
                                     </div>
 
                                     <!-- Dynamic Date Mode Inputs -->
-                                    <div class="col-md-4" id="dateInputsContainer">
+                                    <div class="col-md-3" id="dateInputsContainer">
                                         <!-- Rendered dynamically -->
                                     </div>
 
@@ -169,13 +169,20 @@
                                         </select>
                                     </div>
 
-                                    <div class="col-md-3 d-flex align-items-end justify-content-end gap-2 pt-3">
+                                    <div class="col-md-3">
+                                        <label class="form-label text-700 fw-semi-bold mb-1 fs--1">Vendor</label>
+                                        <select class="form-select form-select-sm" id="vendorSelect">
+                                            <option value="ALL" selected>All Vendors</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-2 d-flex align-items-end justify-content-end gap-2 pt-3">
                                         <button class="btn btn-primary btn-sm" type="button" id="applyFiltersBtn">
                                             <span class="fas fa-search me-1"></span> Load Report
                                         </button>
                                         <% if (canDownloadReports) { %>
                                         <button class="btn btn-success btn-sm" type="button" id="downloadCsvBtn">
-                                            <span class="fas fa-file-excel me-1"></span> Download Excel
+                                            <span class="fas fa-file-excel me-1"></span> Excel
                                         </button>
                                         <% } %>
                                     </div>
@@ -282,7 +289,8 @@
                 const mode = $('#dateModeSelect').val();
                 const payload = {
                     dateMode: mode,
-                    status: $('#statusSelect').val()
+                    status: $('#statusSelect').val(),
+                    vendor: $('#vendorSelect').val()
                 };
 
                 if (mode === 'monthly') {
@@ -403,6 +411,19 @@
                 updateDateInputs();
                 $('#dateModeSelect').on('change', updateDateInputs);
                 $('#applyFiltersBtn').on('click', loadReportData);
+
+                // Fetch distinct vendors list
+                $.ajax({
+                    url: '${pageContext.request.contextPath}/api/cbs/vendors',
+                    type: 'GET',
+                    success: function(vendors) {
+                        let optHtml = '<option value="ALL" selected>All Vendors</option>';
+                        vendors.forEach(function(v) {
+                            optHtml += '<option value="' + v.vendor_code + '">' + v.vendor_name + ' (' + v.vendor_code + ')</option>';
+                        });
+                        $('#vendorSelect').html(optHtml);
+                    }
+                });
 
                 $('#downloadCsvBtn').on('click', function() {
                     const filters = buildFiltersPayload();
