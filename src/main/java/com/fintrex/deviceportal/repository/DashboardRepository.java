@@ -278,53 +278,57 @@ public class DashboardRepository {
 
         // Mobile Performing vs Non-Performing
         String mobilePerfSql = """
-            SELECT COALESCE(p.performing_status, 'Performing') AS state_name, COUNT(*) AS count_val
-            FROM cbs.portfolio p
-            INNER JOIN cbs.loan l ON (l.account_no = p.account_no OR l.legacy_account_no = p.account_no) AND l.account_series = p.series
+            SELECT COALESCE(COALESCE(p1.performing_status, p2.performing_status), 'Performing') AS state_name, COUNT(*) AS count_val
+            FROM cbs.loan l
             LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
-            WHERE p.portfolio_date = ? AND p.sync_time = ? AND pr.product_code = 'MF'
+            LEFT JOIN cbs.portfolio p1 ON p1.account_no = l.account_no AND p1.series = l.account_series AND p1.portfolio_date = ? AND p1.sync_time = ?
+            LEFT JOIN cbs.portfolio p2 ON p2.account_no = l.legacy_account_no AND p2.series = l.account_series AND p2.portfolio_date = ? AND p2.sync_time = ?
+            WHERE pr.product_code = 'MF' AND (p1.account_no IS NOT NULL OR p2.account_no IS NOT NULL)
             GROUP BY state_name
         """;
-        List<Map<String, Object>> mobilePerf = jdbcTemplate.queryForList(mobilePerfSql, latestDate, latestSync);
+        List<Map<String, Object>> mobilePerf = jdbcTemplate.queryForList(mobilePerfSql, latestDate, latestSync, latestDate, latestSync);
 
         // Mobile Active vs Locked
         String mobileLockSql = """
             SELECT 
                 CASE WHEN COALESCE(ml.locked, 0) = 1 THEN 'Locked' ELSE 'Active' END AS state_name,
                 COUNT(*) AS count_val
-            FROM cbs.portfolio p
-            INNER JOIN cbs.loan l ON (l.account_no = p.account_no OR l.legacy_account_no = p.account_no) AND l.account_series = p.series
+            FROM cbs.loan l
             LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
+            LEFT JOIN cbs.portfolio p1 ON p1.account_no = l.account_no AND p1.series = l.account_series AND p1.portfolio_date = ? AND p1.sync_time = ?
+            LEFT JOIN cbs.portfolio p2 ON p2.account_no = l.legacy_account_no AND p2.series = l.account_series AND p2.portfolio_date = ? AND p2.sync_time = ?
             LEFT JOIN loan.mobileloan ml ON (ml.finance_no = l.account_no OR ml.finance_no = l.legacy_account_no)
-            WHERE p.portfolio_date = ? AND p.sync_time = ? AND pr.product_code = 'MF'
+            WHERE pr.product_code = 'MF' AND (p1.account_no IS NOT NULL OR p2.account_no IS NOT NULL)
             GROUP BY state_name
         """;
-        List<Map<String, Object>> mobileLock = jdbcTemplate.queryForList(mobileLockSql, latestDate, latestSync);
+        List<Map<String, Object>> mobileLock = jdbcTemplate.queryForList(mobileLockSql, latestDate, latestSync, latestDate, latestSync);
 
         // Laptop Performing vs Non-Performing
         String laptopPerfSql = """
-            SELECT COALESCE(p.performing_status, 'Performing') AS state_name, COUNT(*) AS count_val
-            FROM cbs.portfolio p
-            INNER JOIN cbs.loan l ON (l.account_no = p.account_no OR l.legacy_account_no = p.account_no) AND l.account_series = p.series
+            SELECT COALESCE(COALESCE(p1.performing_status, p2.performing_status), 'Performing') AS state_name, COUNT(*) AS count_val
+            FROM cbs.loan l
             LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
-            WHERE p.portfolio_date = ? AND p.sync_time = ? AND pr.product_code IN ('LF', 'laptop')
+            LEFT JOIN cbs.portfolio p1 ON p1.account_no = l.account_no AND p1.series = l.account_series AND p1.portfolio_date = ? AND p1.sync_time = ?
+            LEFT JOIN cbs.portfolio p2 ON p2.account_no = l.legacy_account_no AND p2.series = l.account_series AND p2.portfolio_date = ? AND p2.sync_time = ?
+            WHERE pr.product_code IN ('LF', 'laptop') AND (p1.account_no IS NOT NULL OR p2.account_no IS NOT NULL)
             GROUP BY state_name
         """;
-        List<Map<String, Object>> laptopPerf = jdbcTemplate.queryForList(laptopPerfSql, latestDate, latestSync);
+        List<Map<String, Object>> laptopPerf = jdbcTemplate.queryForList(laptopPerfSql, latestDate, latestSync, latestDate, latestSync);
 
         // Laptop Active vs Locked
         String laptopLockSql = """
             SELECT 
                 CASE WHEN COALESCE(dl.locked, 0) = 1 THEN 'Locked' ELSE 'Active' END AS state_name,
                 COUNT(*) AS count_val
-            FROM cbs.portfolio p
-            INNER JOIN cbs.loan l ON (l.account_no = p.account_no OR l.legacy_account_no = p.account_no) AND l.account_series = p.series
+            FROM cbs.loan l
             LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
-            LEFT JOIN loan.device_loan dl ON (dl.account_no = l.account_no OR dl.account_no = l.legacy_account_no)
-            WHERE p.portfolio_date = ? AND p.sync_time = ? AND pr.product_code IN ('LF', 'laptop')
+            LEFT JOIN cbs.portfolio p1 ON p1.account_no = l.account_no AND p1.series = l.account_series AND p1.portfolio_date = ? AND p1.sync_time = ?
+            LEFT JOIN cbs.portfolio p2 ON p2.account_no = l.legacy_account_no AND p2.series = l.account_series AND p2.portfolio_date = ? AND p2.sync_time = ?
+            LEFT JOIN loan.device_loan dl ON (dl.finance_no = l.account_no OR dl.finance_no = l.legacy_account_no)
+            WHERE pr.product_code IN ('LF', 'laptop') AND (p1.account_no IS NOT NULL OR p2.account_no IS NOT NULL)
             GROUP BY state_name
         """;
-        List<Map<String, Object>> laptopLock = jdbcTemplate.queryForList(laptopLockSql, latestDate, latestSync);
+        List<Map<String, Object>> laptopLock = jdbcTemplate.queryForList(laptopLockSql, latestDate, latestSync, latestDate, latestSync);
 
         result.put("mobilePerforming", mobilePerf);
         result.put("mobileLock", mobileLock);
