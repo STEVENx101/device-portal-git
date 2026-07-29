@@ -48,233 +48,65 @@
         </head>
 
         <style>
-            @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
-
             body {
-                font-family: 'Plus Jakarta Sans', sans-serif;
                 background-color: #f8fafc !important;
                 background-image: radial-gradient(rgba(99, 102, 241, 0.04) 1.5px, transparent 1.5px) !important;
                 background-size: 24px 24px !important;
-                min-height: 100vh;
-                display: flex;
-                align-items: center;
-                justify-content: center;
+            }
+            .log-bg {
+                background: transparent !important;
             }
 
-            .main-login-container {
-                width: 100%;
-                max-width: 950px;
-                padding: 1.5rem;
-            }
-
-            .login-card {
-                background: rgba(255, 255, 255, 0.85) !important;
-                backdrop-filter: blur(20px) !important;
-                border: 1px solid rgba(255, 255, 255, 0.5) !important;
-                box-shadow: 0 25px 50px -12px rgba(99, 102, 241, 0.15) !important;
-                border-radius: 24px !important;
-                overflow: hidden;
-            }
-
-            .login-left-panel {
-                background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-                padding: 3rem 2.5rem;
-                display: flex;
-                flex-direction: column;
-                justify-content: space-between;
-                color: #ffffff;
-                position: relative;
-                overflow: hidden;
-            }
-
-            .login-left-panel::before {
-                content: '';
-                position: absolute;
-                top: -50%;
-                left: -50%;
-                width: 200%;
-                height: 200%;
-                background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 60%);
-                animation: rotate-bg 20s linear infinite;
-                pointer-events: none;
-            }
-
-            @keyframes rotate-bg {
-                0% { transform: rotate(0deg); }
-                100% { transform: rotate(360deg); }
-            }
-
-            .brand-badge {
-                background: rgba(255, 255, 255, 0.15);
-                backdrop-filter: blur(8px);
-                border: 1px solid rgba(255, 255, 255, 0.2);
-                padding: 0.5rem 1rem;
-                border-radius: 30px;
-                font-family: 'Outfit', sans-serif;
-                font-weight: 600;
-                font-size: 0.85rem;
-                letter-spacing: 0.05em;
-                display: inline-flex;
-                align-items: center;
-                gap: 8px;
-                width: fit-content;
-            }
-
-            .badge-dot {
-                width: 8px;
-                height: 8px;
-                background-color: #10b981;
-                border-radius: 50%;
-                box-shadow: 0 0 10px #10b981;
-            }
-
-            .left-panel-content {
-                z-index: 2;
-                margin-top: 4rem;
-                margin-bottom: 4rem;
-            }
-
-            .left-title {
-                font-family: 'Outfit', sans-serif;
-                font-weight: 800;
-                font-size: 2.2rem;
-                line-height: 1.2;
-                letter-spacing: -0.02em;
-                margin-bottom: 1rem;
-                background: linear-gradient(to right, #ffffff, #e0e7ff);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-            }
-
-            .left-desc {
-                font-size: 0.95rem;
-                color: #e0e7ff;
-                font-weight: 400;
-                line-height: 1.6;
-            }
-
-            .left-footer {
-                z-index: 2;
-                font-size: 0.75rem;
-                color: rgba(255, 255, 255, 0.7);
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                border-top: 1px solid rgba(255, 255, 255, 0.1);
-                padding-top: 1.5rem;
-            }
-
-            .login-right-panel {
-                padding: 4rem 3.5rem;
-            }
-
-            .right-title {
-                font-family: 'Outfit', sans-serif;
-                font-weight: 700;
-                color: #1e1b4b;
-                margin-bottom: 0.5rem;
-            }
-
-            .right-subtitle {
-                font-size: 0.9rem;
-                color: #64748b;
-                margin-bottom: 2.5rem;
-            }
-
-            .sso-btn {
-                background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%) !important;
-                border: none !important;
-                color: white !important;
-                padding: 0.9rem 1.5rem !important;
-                font-weight: 600 !important;
-                border-radius: 12px !important;
-                box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3) !important;
-                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 10px;
-                width: 100%;
-                cursor: pointer;
-            }
-
-            .sso-btn:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 8px 25px rgba(79, 70, 229, 0.45) !important;
-                background: linear-gradient(135deg, #4338ca 0%, #4f46e5 100%) !important;
-            }
-
-            .sso-btn:active {
-                transform: translateY(0);
-            }
-
-            .security-notice {
-                margin-top: 2rem;
-                padding: 1rem;
-                background-color: rgba(241, 245, 249, 0.5);
-                border-radius: 12px;
-                border: 1px solid #e2e8f0;
-                font-size: 0.8rem;
-                color: #475569;
-                display: flex;
-                gap: 10px;
-                align-items: flex-start;
-            }
-
-            .security-icon {
-                color: #4f46e5;
-                font-size: 1rem;
-                margin-top: 2px;
-            }
-
-            /* Responsive design */
-            @media (max-width: 768px) {
-                .login-left-panel {
-                    display: none;
-                }
-                .login-right-panel {
-                    padding: 3rem 2rem;
-                }
+            .ft-size {
+                font-size: small;
             }
         </style>
 
         <body>
             <main class="main" id="top">
-                <div class="container main-login-container">
-                    <div class="card login-card">
-                        <div class="card-body p-0">
-                            <div class="row g-0 h-100">
-                                <div class="col-md-5 login-left-panel">
-                                    <div class="brand-badge">
-                                        <div class="badge-dot"></div>
-                                        FINTREX FINANCE
-                                    </div>
-                                    <div class="left-panel-content">
-                                        <h1 class="left-title">Secure Device Finance Portal</h1>
-                                        <p class="left-desc">Access analytics, real-time locking controls, and exception reports in a single secure environment.</p>
-                                    </div>
-                                    <div class="left-footer">
-                                        <span>© 2026 Fintrex Finance</span>
-                                        <span>v2.1.0</span>
-                                    </div>
-                                </div>
-                                <div class="col-md-7 d-flex align-items-center">
-                                    <div class="login-right-panel w-100">
-                                        <h2 class="right-title">Welcome Back</h2>
-                                        <p class="right-subtitle">Please authenticate using your corporate SSO credentials.</p>
-                                        
-                                        <div id="error-message" class="alert alert-danger p-3 fs--1 mb-4" style="display: none; border-radius: 12px;"></div>
+                <div class="container-fluid log-bg">
+                    <div class="row min-vh-100 flex-center g-0">
+                        <div class="col-lg-5 col-xxl-5 py-3 position-relative">
+                            <div class="card overflow-hidden z-index-1">
+                                <div class="card-body p-0">
+                                    <div class="row g-0 h-100">
+                                        <div class="col-md-5 text-center">
+                                            <div class="position-relative p-4 pt-md-5 pb-md-7 light">
+                                                <div class="row">
+                                                    <div class="col-sm-12">
+                                                        <!--<img src="assets/img/fintrex-logo.png" width="70%">-->
+                                                    </div>
+                                                </div>
+                                                <div class="bg-holder bg-auth-card-shape">
+                                                    <img src="assets/img/login_img.png" width="100%"
+                                                        style="opacity: 0.8">
+                                                </div>
+                                                <div class="z-index-1 position-relative">
+                                                    <p class="opacity-75 text-white"></p>
+                                                </div>
+                                            </div>
+                                            <div class="mt-3 mb-4 mt-md-4 mb-md-5 light">
+                                                <p class="text-white"><br><a
+                                                        class="text-decoration-underline link-light"
+                                                        href="register.html"></a></p>
+                                                <p class="mb-0 mt-4 mt-md-5 fs--1 fw-semi-bold text-white opacity-75"><a
+                                                        class="text-decoration-underline text-white" href="#!"></a> <a
+                                                        class="text-decoration-underline text-white" href="#!"> </a></p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-7 d-flex flex-center">
+                                            <div class="p-4 p-md-5 flex-grow-1">
+                                                <div class="row flex-between-center">
+                                                    <div class="col-auto">
+                                                        <h3>LOGIN</h3>
+                                                    </div>
+                                                </div>
+                                                <div id="error-message" class="alert alert-danger p-2 fs--1"
+                                                    style="display: none;"></div>
 
-                                        <button id="ssoLoginBtn" class="btn sso-btn" type="button">
-                                            <span class="fas fa-shield-alt"></span>
-                                            <span>Sign in with SSO</span>
-                                        </button>
-
-                                        <div class="security-notice">
-                                            <span class="fas fa-info-circle security-icon"></span>
-                                            <div>
-                                                <strong>Authorized Access Only</strong>
-                                                <div class="mt-1">This portal contains confidential financial and device management metrics. All logins and activities are monitored.</div>
+                                                <button id="ssoLoginBtn" class="btn btn-outline-primary d-block w-100" type="button">
+                                                    <span class="fas fa-key me-2"></span>Login with SSO
+                                                </button>
                                             </div>
                                         </div>
                                     </div>
