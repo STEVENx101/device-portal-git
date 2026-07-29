@@ -255,7 +255,6 @@ public class CbsReportService {
     private void addLatestPortfolioParams(Map<String, Object> params) {
         Map<String, Object> latest = getLatestPortfolioBatch();
         params.put("latestPortfolioDate", latest.get("latestPortfolioDate"));
-        params.put("latestSyncTime", latest.get("latestSyncTime"));
     }
 
     private Map<String, Object> getLatestPortfolioBatch() {
@@ -275,11 +274,10 @@ public class CbsReportService {
             }
 
             String sql = """
-                        SELECT portfolio_date, sync_time
+                        SELECT portfolio_date
                         FROM cbs.portfolio
                         WHERE portfolio_date IS NOT NULL
-                          AND sync_time IS NOT NULL
-                        ORDER BY portfolio_date DESC, sync_time DESC
+                        ORDER BY portfolio_date DESC
                         LIMIT 1
                     """;
 
@@ -290,7 +288,6 @@ public class CbsReportService {
 
                 Map<String, Object> row = new HashMap<>();
                 row.put("latestPortfolioDate", resultSet.getObject("portfolio_date"));
-                row.put("latestSyncTime", resultSet.getObject("sync_time"));
                 return Collections.unmodifiableMap(row);
             });
 
@@ -336,12 +333,10 @@ public class CbsReportService {
                     ON p1.account_no = l.account_no
                     AND p1.series = l.account_series
                     AND p1.portfolio_date = :latestPortfolioDate
-                    AND p1.sync_time = :latestSyncTime
                 LEFT JOIN cbs.portfolio p2
                     ON p2.account_no = l.legacy_account_no
                     AND p2.series = l.account_series
                     AND p2.portfolio_date = :latestPortfolioDate
-                    AND p2.sync_time = :latestSyncTime
                 LEFT JOIN cbs.branch br ON CAST(l.branch AS UNSIGNED) = br.branch_code
                 LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
                 LEFT JOIN cbs.device_loan dl1 ON dl1.account_no = l.account_no
@@ -924,12 +919,10 @@ public class CbsReportService {
                     ON p1.account_no = l.account_no
                     AND p1.series = l.account_series
                     AND p1.portfolio_date = :latestPortfolioDate
-                    AND p1.sync_time = :latestSyncTime
                 LEFT JOIN cbs.portfolio p2
                     ON p2.account_no = l.legacy_account_no
                     AND p2.series = l.account_series
                     AND p2.portfolio_date = :latestPortfolioDate
-                    AND p2.sync_time = :latestSyncTime
                 LEFT JOIN cbs.client c ON l.client = c.client_code
                 WHERE 1=1 AND COALESCE(p1.dpd, p2.dpd) > 0""";
 
@@ -998,12 +991,10 @@ public class CbsReportService {
                     ON p1.account_no = l.account_no
                     AND p1.series = l.account_series
                     AND p1.portfolio_date = :latestPortfolioDate
-                    AND p1.sync_time = :latestSyncTime
                 LEFT JOIN cbs.portfolio p2
                     ON p2.account_no = l.legacy_account_no
                     AND p2.series = l.account_series
                     AND p2.portfolio_date = :latestPortfolioDate
-                    AND p2.sync_time = :latestSyncTime
                 LEFT JOIN cbs.client c ON l.client = c.client_code
                 WHERE 1=1 AND COALESCE(p1.performing_status, p2.performing_status) = 'Non-Performing'""";
 
@@ -1072,12 +1063,10 @@ public class CbsReportService {
                     ON p1.account_no = l.account_no
                     AND p1.series = l.account_series
                     AND p1.portfolio_date = :latestPortfolioDate
-                    AND p1.sync_time = :latestSyncTime
                 LEFT JOIN cbs.portfolio p2
                     ON p2.account_no = l.legacy_account_no
                     AND p2.series = l.account_series
                     AND p2.portfolio_date = :latestPortfolioDate
-                    AND p2.sync_time = :latestSyncTime
                 LEFT JOIN cbs.client c ON l.client = c.client_code
                 WHERE 1=1 AND COALESCE(p1.dpd, p2.dpd) BETWEEN 60 AND 90""";
 
@@ -1176,7 +1165,6 @@ public class CbsReportService {
                 LEFT JOIN loan.mobileloan lm1 ON lm1.finance_no = l.account_no
                 LEFT JOIN loan.mobileloan lm2 ON lm2.finance_no = l.legacy_account_no
                 WHERE p.portfolio_date = :latestPortfolioDate
-                  AND p.sync_time = :latestSyncTime
                   AND p.dpd > 0
                   AND COALESCE(lm1.locked, lm2.locked) = 0""";
 
@@ -1234,7 +1222,6 @@ public class CbsReportService {
                     ON (p.account_no = l.account_no OR p.account_no = l.legacy_account_no)
                     AND p.series = l.account_series
                     AND p.portfolio_date = :latestPortfolioDate
-                    AND p.sync_time = :latestSyncTime
                 LEFT JOIN cbs.client c ON l.client = c.client_code
                 WHERE lm.locked = 1 AND (p.dpd <= 0 OR p.dpd IS NULL)""";
 
@@ -1338,12 +1325,10 @@ public class CbsReportService {
                     ON p1.account_no = l.account_no
                     AND p1.series = l.account_series
                     AND p1.portfolio_date = :latestPortfolioDate
-                    AND p1.sync_time = :latestSyncTime
                 LEFT JOIN cbs.portfolio p2
                     ON p2.account_no = l.legacy_account_no
                     AND p2.series = l.account_series
                     AND p2.portfolio_date = :latestPortfolioDate
-                    AND p2.sync_time = :latestSyncTime
                 LEFT JOIN cbs.client c ON l.client = c.client_code
                 LEFT JOIN loan.mobileloan lm1 ON lm1.finance_no = l.account_no
                 LEFT JOIN loan.mobileloan lm2 ON lm2.finance_no = l.legacy_account_no
@@ -1476,12 +1461,10 @@ public class CbsReportService {
                     ON p1.account_no = l.account_no
                     AND p1.series = l.account_series
                     AND p1.portfolio_date = :latestPortfolioDate
-                    AND p1.sync_time = :latestSyncTime
                 LEFT JOIN cbs.portfolio p2
                     ON p2.account_no = l.legacy_account_no
                     AND p2.series = l.account_series
                     AND p2.portfolio_date = :latestPortfolioDate
-                    AND p2.sync_time = :latestSyncTime
                 LEFT JOIN cbs.client c ON l.client = c.client_code
                 LEFT JOIN loan.mobileloan lm1 ON lm1.finance_no = l.account_no
                 LEFT JOIN loan.mobileloan lm2 ON lm2.finance_no = l.legacy_account_no
@@ -1604,12 +1587,10 @@ public class CbsReportService {
                                 ON p1.account_no = l.account_no
                                 AND p1.series = l.account_series
                                 AND p1.portfolio_date = :latestPortfolioDate
-                                AND p1.sync_time = :latestSyncTime
                             LEFT JOIN cbs.portfolio p2
                                 ON p2.account_no = l.legacy_account_no
                                 AND p2.series = l.account_series
                                 AND p2.portfolio_date = :latestPortfolioDate
-                                AND p2.sync_time = :latestSyncTime
                             LEFT JOIN cbs.branch br ON CAST(l.branch AS UNSIGNED) = br.branch_code
                             LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
                             %s

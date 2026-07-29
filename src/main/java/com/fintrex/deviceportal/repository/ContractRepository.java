@@ -103,20 +103,20 @@ public class ContractRepository {
                 ) l
                 LEFT JOIN cbs.portfolio p1
                     ON p1.account_no = l.account_no
-                    AND (p1.portfolio_date, p1.sync_time) = (
-                        SELECT portfolio_date, sync_time
+                    AND p1.portfolio_date = (
+                        SELECT portfolio_date
                         FROM cbs.portfolio
                         WHERE account_no = l.account_no
-                        ORDER BY portfolio_date DESC, sync_time DESC
+                        ORDER BY portfolio_date DESC
                         LIMIT 1
                     )
                 LEFT JOIN cbs.portfolio p2
                     ON p2.account_no = l.legacy_account_no
-                    AND (p2.portfolio_date, p2.sync_time) = (
-                        SELECT portfolio_date, sync_time
+                    AND p2.portfolio_date = (
+                        SELECT portfolio_date
                         FROM cbs.portfolio
                         WHERE account_no = l.legacy_account_no
-                        ORDER BY portfolio_date DESC, sync_time DESC
+                        ORDER BY portfolio_date DESC
                         LIMIT 1
                     )
                 LEFT JOIN cbs.product pr

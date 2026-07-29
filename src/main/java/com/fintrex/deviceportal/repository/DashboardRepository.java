@@ -135,16 +135,14 @@ public class DashboardRepository {
 
     public List<Map<String, Object>> getDpdChartData(String dimension) {
         String sqlLatest = """
-            SELECT portfolio_date, sync_time
+            SELECT portfolio_date
             FROM cbs.portfolio
             WHERE portfolio_date IS NOT NULL
-              AND sync_time IS NOT NULL
-            ORDER BY portfolio_date DESC, sync_time DESC
+            ORDER BY portfolio_date DESC
             LIMIT 1
         """;
         Map<String, Object> latest = jdbcTemplate.queryForMap(sqlLatest);
         Object latestPortfolioDate = latest.get("portfolio_date");
-        Object latestSyncTime = latest.get("sync_time");
 
         String categoryExpr;
         String dimensionJoin = "";
@@ -189,12 +187,10 @@ public class DashboardRepository {
                 ON p1.account_no = l.account_no
                 AND p1.series = l.account_series
                 AND p1.portfolio_date = ?
-                AND p1.sync_time = ?
             LEFT JOIN cbs.portfolio p2
                 ON p2.account_no = l.legacy_account_no
                 AND p2.series = l.account_series
                 AND p2.portfolio_date = ?
-                AND p2.sync_time = ?
             LEFT JOIN cbs.branch br ON CAST(l.branch AS UNSIGNED) = br.branch_code
             LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
             %s
@@ -202,7 +198,7 @@ public class DashboardRepository {
             ORDER BY category_name ASC
         """, categoryExpr, dimensionJoin);
 
-        return jdbcTemplate.queryForList(sql, latestPortfolioDate, latestSyncTime, latestPortfolioDate, latestSyncTime);
+        return jdbcTemplate.queryForList(sql, latestPortfolioDate, latestPortfolioDate);
     }
 
     public List<Map<String, Object>> getMonthWiseBusiness() {
@@ -234,20 +230,13 @@ public class DashboardRepository {
             FROM cbs.portfolio p
             INNER JOIN (
                 SELECT 
-                    p2.portfolio_date,
-                    MAX(p2.sync_time) AS max_sync_time
-                FROM cbs.portfolio p2
-                INNER JOIN (
-                    SELECT 
-                        DATE_FORMAT(portfolio_date, '%Y-%m') AS month_key,
-                        MAX(portfolio_date) AS max_date
-                    FROM cbs.portfolio
-                    WHERE portfolio_date >= CASE WHEN MONTH(CURRENT_DATE()) >= 4 THEN DATE_FORMAT(CURRENT_DATE(), '%Y-04-01') ELSE DATE_FORMAT(DATE_SUB(CURRENT_DATE(), INTERVAL 1 YEAR), '%Y-04-01') END
-                      AND portfolio_date < CASE WHEN MONTH(CURRENT_DATE()) >= 4 THEN DATE_FORMAT(DATE_ADD(CURRENT_DATE(), INTERVAL 1 YEAR), '%Y-04-01') ELSE DATE_FORMAT(CURRENT_DATE(), '%Y-04-01') END
-                    GROUP BY DATE_FORMAT(portfolio_date, '%Y-%m')
-                ) m ON p2.portfolio_date = m.max_date
-                GROUP BY p2.portfolio_date
-            ) s ON p.portfolio_date = s.portfolio_date AND p.sync_time = s.max_sync_time
+                    DATE_FORMAT(portfolio_date, '%Y-%m') AS month_key,
+                    MAX(portfolio_date) AS max_date
+                FROM cbs.portfolio
+                WHERE portfolio_date >= CASE WHEN MONTH(CURRENT_DATE()) >= 4 THEN DATE_FORMAT(CURRENT_DATE(), '%Y-04-01') ELSE DATE_FORMAT(DATE_SUB(CURRENT_DATE(), INTERVAL 1 YEAR), '%Y-04-01') END
+                  AND portfolio_date < CASE WHEN MONTH(CURRENT_DATE()) >= 4 THEN DATE_FORMAT(DATE_ADD(CURRENT_DATE(), INTERVAL 1 YEAR), '%Y-04-01') ELSE DATE_FORMAT(CURRENT_DATE(), '%Y-04-01') END
+                GROUP BY DATE_FORMAT(portfolio_date, '%Y-%m')
+            ) m ON p.portfolio_date = m.max_date
             GROUP BY p.portfolio_date, DATE_FORMAT(p.portfolio_date, '%b %Y'), DATE_FORMAT(p.portfolio_date, '%Y-%m')
             ORDER BY month_key ASC
         """;
@@ -270,23 +259,22 @@ public class DashboardRepository {
     public Map<String, Object> getDeviceStatusCharts() {
         Map<String, Object> result = new HashMap<>();
 
-        // Fetch latest portfolio date & sync time to optimize queries
-        String sqlLatest = "SELECT portfolio_date, sync_time FROM cbs.portfolio ORDER BY portfolio_date DESC, sync_time DESC LIMIT 1";
+        // Fetch latest portfolio date to optimize queries
+        String sqlLatest = "SELECT portfolio_date FROM cbs.portfolio ORDER BY portfolio_date DESC LIMIT 1";
         Map<String, Object> latest = jdbcTemplate.queryForMap(sqlLatest);
         Object latestDate = latest.get("portfolio_date");
-        Object latestSync = latest.get("sync_time");
 
         // Mobile Performing vs Non-Performing
         String mobilePerfSql = """
             SELECT COALESCE(COALESCE(p1.performing_status, p2.performing_status), 'Performing') AS state_name, COUNT(*) AS count_val
             FROM cbs.loan l
             LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
-            LEFT JOIN cbs.portfolio p1 ON p1.account_no = l.account_no AND p1.series = l.account_series AND p1.portfolio_date = ? AND p1.sync_time = ?
-            LEFT JOIN cbs.portfolio p2 ON p2.account_no = l.legacy_account_no AND p2.series = l.account_series AND p2.portfolio_date = ? AND p2.sync_time = ?
+            LEFT JOIN cbs.portfolio p1 ON p1.account_no = l.account_no AND p1.series = l.account_series AND p1.portfolio_date = ?
+            LEFT JOIN cbs.portfolio p2 ON p2.account_no = l.legacy_account_no AND p2.series = l.account_series AND p2.portfolio_date = ?
             WHERE pr.product_code = 'MF' AND l.account_status = 'A'
             GROUP BY state_name
         """;
-        List<Map<String, Object>> mobilePerf = jdbcTemplate.queryForList(mobilePerfSql, latestDate, latestSync, latestDate, latestSync);
+        List<Map<String, Object>> mobilePerf = jdbcTemplate.queryForList(mobilePerfSql, latestDate, latestDate);
 
         // Mobile Active vs Locked
         String mobileLockSql = """
@@ -295,25 +283,25 @@ public class DashboardRepository {
                 COUNT(*) AS count_val
             FROM cbs.loan l
             LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
-            LEFT JOIN cbs.portfolio p1 ON p1.account_no = l.account_no AND p1.series = l.account_series AND p1.portfolio_date = ? AND p1.sync_time = ?
-            LEFT JOIN cbs.portfolio p2 ON p2.account_no = l.legacy_account_no AND p2.series = l.account_series AND p2.portfolio_date = ? AND p2.sync_time = ?
+            LEFT JOIN cbs.portfolio p1 ON p1.account_no = l.account_no AND p1.series = l.account_series AND p1.portfolio_date = ?
+            LEFT JOIN cbs.portfolio p2 ON p2.account_no = l.legacy_account_no AND p2.series = l.account_series AND p2.portfolio_date = ?
             LEFT JOIN loan.mobileloan ml ON (ml.finance_no = l.account_no OR ml.finance_no = l.legacy_account_no)
             WHERE pr.product_code = 'MF' AND l.account_status = 'A'
             GROUP BY state_name
         """;
-        List<Map<String, Object>> mobileLock = jdbcTemplate.queryForList(mobileLockSql, latestDate, latestSync, latestDate, latestSync);
+        List<Map<String, Object>> mobileLock = jdbcTemplate.queryForList(mobileLockSql, latestDate, latestDate);
 
         // Laptop Performing vs Non-Performing
         String laptopPerfSql = """
             SELECT COALESCE(COALESCE(p1.performing_status, p2.performing_status), 'Performing') AS state_name, COUNT(*) AS count_val
             FROM cbs.loan l
             LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
-            LEFT JOIN cbs.portfolio p1 ON p1.account_no = l.account_no AND p1.series = l.account_series AND p1.portfolio_date = ? AND p1.sync_time = ?
-            LEFT JOIN cbs.portfolio p2 ON p2.account_no = l.legacy_account_no AND p2.series = l.account_series AND p2.portfolio_date = ? AND p2.sync_time = ?
+            LEFT JOIN cbs.portfolio p1 ON p1.account_no = l.account_no AND p1.series = l.account_series AND p1.portfolio_date = ?
+            LEFT JOIN cbs.portfolio p2 ON p2.account_no = l.legacy_account_no AND p2.series = l.account_series AND p2.portfolio_date = ?
             WHERE pr.product_code IN ('LF', 'laptop') AND l.account_status = 'A'
             GROUP BY state_name
         """;
-        List<Map<String, Object>> laptopPerf = jdbcTemplate.queryForList(laptopPerfSql, latestDate, latestSync, latestDate, latestSync);
+        List<Map<String, Object>> laptopPerf = jdbcTemplate.queryForList(laptopPerfSql, latestDate, latestDate);
 
         // Laptop Active vs Locked
         String laptopLockSql = """
@@ -322,13 +310,13 @@ public class DashboardRepository {
                 COUNT(*) AS count_val
             FROM cbs.loan l
             LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
-            LEFT JOIN cbs.portfolio p1 ON p1.account_no = l.account_no AND p1.series = l.account_series AND p1.portfolio_date = ? AND p1.sync_time = ?
-            LEFT JOIN cbs.portfolio p2 ON p2.account_no = l.legacy_account_no AND p2.series = l.account_series AND p2.portfolio_date = ? AND p2.sync_time = ?
+            LEFT JOIN cbs.portfolio p1 ON p1.account_no = l.account_no AND p1.series = l.account_series AND p1.portfolio_date = ?
+            LEFT JOIN cbs.portfolio p2 ON p2.account_no = l.legacy_account_no AND p2.series = l.account_series AND p2.portfolio_date = ?
             LEFT JOIN loan.device_loan dl ON (dl.finance_no = l.account_no OR dl.finance_no = l.legacy_account_no)
             WHERE pr.product_code IN ('LF', 'laptop') AND l.account_status = 'A'
             GROUP BY state_name
         """;
-        List<Map<String, Object>> laptopLock = jdbcTemplate.queryForList(laptopLockSql, latestDate, latestSync, latestDate, latestSync);
+        List<Map<String, Object>> laptopLock = jdbcTemplate.queryForList(laptopLockSql, latestDate, latestDate);
 
         result.put("mobilePerforming", mobilePerf);
         result.put("mobileLock", mobileLock);
