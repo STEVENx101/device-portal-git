@@ -449,8 +449,8 @@ public class CbsReportController {
 
     private void writeMaturedLowBalanceCsv(HttpServletResponse response, String filename, List<Map<String, Object>> data) throws Exception {
         String xlsxFilename = filename.replace(".csv", ".xlsx");
-        String[] headers = {"Account No","Series","Legacy Account No","NIC/ID No","Mobile No","Mature Date","Loan Amount","Rental","Total Due","Exposure","DPD","Locked Status","Recovery Officer","Customer Name"};
-        String[] keys = {"account_no","series","legacy_account_no","client_nic","client_mobile","mature_date","loan_amount","rental","total_due","exposure","dpd","lock_status","recovery_officer","client_name"};
+        String[] headers = {"Account No","Series","Legacy Account No","NIC/ID No","Mobile No","Mature Date","Loan Amount","Rental","Total Due","Exposure","DPD","Locked Status","Recovery Officer","Customer Name","Charge Amount"};
+        String[] keys = {"account_no","series","legacy_account_no","client_nic","client_mobile","mature_date","loan_amount","rental","total_due","exposure","dpd","lock_status","recovery_officer","client_name","charge_amount"};
         writeExcel(response, xlsxFilename, headers, keys, data);
     }
 

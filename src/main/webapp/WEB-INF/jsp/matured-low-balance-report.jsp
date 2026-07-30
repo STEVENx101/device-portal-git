@@ -143,6 +143,7 @@
                                             <th>Locked Status</th>
                                             <th>Recovery Officer</th>
                                             <th>Customer Name</th>
+                                            <th>Charge Amount</th>
                                         </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -229,7 +230,8 @@
                         { data: 'dpd' },
                         { data: 'lock_status' },
                         { data: 'recovery_officer', defaultContent: '-' },
-                        { data: 'client_name' }
+                        { data: 'client_name' },
+                        { data: 'charge_amount', defaultContent: '-', render: $.fn.dataTable.render.number(',', '.', 2) }
                     ]
                 });
 

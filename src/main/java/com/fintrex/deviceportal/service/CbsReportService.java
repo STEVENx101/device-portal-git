@@ -1435,7 +1435,8 @@ public class CbsReportService {
                         WHEN COALESCE(lm1.locked, lm2.locked) = 1 THEN 'Locked'
                         ELSE 'Unlocked'
                     END AS `lock_status`,
-                    p1.recovery_officer AS `recovery_officer`
+                    p1.recovery_officer AS `recovery_officer`,
+                    COALESCE(lmc1.charge_amount, lmc2.charge_amount) AS `charge_amount`
                 FROM cbs.loan l
                 JOIN cbs.portfolio p1
                     ON p1.account_no = l.account_no
@@ -1444,6 +1445,8 @@ public class CbsReportService {
                 LEFT JOIN cbs.client c ON l.client = c.client_code
                 LEFT JOIN loan.mobileloan lm1 ON lm1.finance_no = l.account_no
                 LEFT JOIN loan.mobileloan lm2 ON lm2.finance_no = l.legacy_account_no
+                LEFT JOIN loan.mobileloan_charges lmc1 ON lmc1.mobileloan_id = lm1.id
+                LEFT JOIN loan.mobileloan_charges lmc2 ON lmc2.mobileloan_id = lm2.id
                 WHERE 1=1
                   AND l.maturity_date < CURDATE()
                   AND p1.exposure > 0
@@ -1473,7 +1476,8 @@ public class CbsReportService {
                     t.exposure,
                     t.dpd,
                     t.lock_status,
-                    t.recovery_officer
+                    t.recovery_officer,
+                    t.charge_amount
                 FROM (""" + subQuery + ") t WHERE TRUE";
     }
 
