@@ -413,32 +413,6 @@ public class CbsReportController {
         writeExceptionLockCsv(response, "settled_and_early_settled_report.csv", data);
     }
 
-    @PostMapping("/paid-off-report")
-    public DataTableResponse getPaidOffReport(@RequestBody DataTableRequest request, HttpSession session) {
-        com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");
-        String username = currentUser != null ? currentUser.getUsername() : "system";
-        String filtersStr = request.getData() != null ? request.getData().toString() : "none";
-        cbsReportService.logReportActivity(username, "Paid Off Exception Report", "VIEW", filtersStr);
-        return cbsReportService.fetchPaidOffReport(request);
-    }
-
-    @GetMapping("/paid-off-report/download")
-    public void downloadPaidOffReport(
-            @RequestParam(value = "asAt", required = false) String asAt,
-            @RequestParam(value = "downloadToken", required = false) String downloadToken,
-            HttpSession session,
-            HttpServletResponse response) throws Exception {
-        verifyDownloadPermission(session, response);
-        com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");
-        String username = currentUser != null ? currentUser.getUsername() : "system";
-        String filtersStr = String.format("asAt=%s", asAt);
-        cbsReportService.logReportActivity(username, "Paid Off Exception Report", "DOWNLOAD", filtersStr);
-
-        setDownloadTokenCookie(response, downloadToken);
-        List<Map<String, Object>> data = cbsReportService.getPaidOffReportData(asAt);
-        writeExceptionLockCsv(response, "paid_off_report.csv", data);
-    }
-
     @PostMapping("/multiple-payments-report")
     public DataTableResponse getMultiplePaymentsReport(@RequestBody DataTableRequest request, HttpSession session) {
         com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");

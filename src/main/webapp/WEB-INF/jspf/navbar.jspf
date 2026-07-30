@@ -20,7 +20,6 @@
     boolean hasLockNoArrearsReport = false;
     boolean hasOneRentalReport = false;
     boolean hasSettledReport = false;
-    boolean hasPaidOffReport = false;
     boolean hasMaturedLowBalanceReport = false;
     boolean hasMultiplePaymentsReport = false;
     boolean hasDpdBucketReport = false;
@@ -45,7 +44,6 @@
             if (s.getPath().equalsIgnoreCase("/lock-no-arrears-report")) hasLockNoArrearsReport = true;
             if (s.getPath().equalsIgnoreCase("/one-rental-report")) hasOneRentalReport = true;
             if (s.getPath().equalsIgnoreCase("/settled-report")) hasSettledReport = true;
-            if (s.getPath().equalsIgnoreCase("/paid-off-report")) hasPaidOffReport = true;
             if (s.getPath().equalsIgnoreCase("/matured-low-balance-report")) hasMaturedLowBalanceReport = true;
             if (s.getPath().equalsIgnoreCase("/multiple-payments-report")) hasMultiplePaymentsReport = true;
             if (s.getPath().equalsIgnoreCase("/dpd-bucket-report")) hasDpdBucketReport = true;
@@ -980,11 +978,6 @@ html body .dataTables_wrapper .dataTables_filter input {
                                 <% if (hasSettledReport) { %>
                                 <a href="<%= request.getContextPath() %>/settled-report" class="dropdown-item-custom" id="nav-report-settled">
                                     Settled & Early Settled
-                                </a>
-                                <% } %>
-                                <% if (hasPaidOffReport) { %>
-                                <a href="<%= request.getContextPath() %>/paid-off-report" class="dropdown-item-custom" id="nav-report-paid-off">
-                                    Paid Off Report
                                 </a>
                                 <% } %>
                                 <% if (hasMaturedLowBalanceReport) { %>
