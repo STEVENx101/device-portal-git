@@ -902,6 +902,7 @@ public class CbsReportService {
                     LEFT JOIN cbs.client c2 ON l2.client = c2.client_code
                     LEFT JOIN cbs.vendor v1 ON l1.vendor = v1.code
                     LEFT JOIN cbs.vendor v2 ON l2.vendor = v2.code
+                    ORDER BY dl.device_id ASC
                 """;
     }
 
@@ -1980,7 +1981,7 @@ public class CbsReportService {
                     t.narration,
                     t.channel,
                     t.same_amount_duplicate
-                FROM (""" + subQuery + ") t WHERE TRUE";
+                FROM (""" + subQuery + ") t WHERE TRUE ORDER BY t.account_no ASC, t.date ASC";
     }
 
     private double round(double val, int places) {
