@@ -139,12 +139,12 @@ public class DashboardRepository {
 
     public List<Map<String, Object>> getDpdChartData(String dimension) {
         String sqlLatest = """
-            SELECT portfolio_date
-            FROM cbs.portfolio
-            WHERE portfolio_date IS NOT NULL
-            ORDER BY portfolio_date DESC
-            LIMIT 1
-        """;
+                    SELECT portfolio_date
+                    FROM cbs.portfolio
+                    WHERE portfolio_date IS NOT NULL
+                    ORDER BY portfolio_date DESC
+                    LIMIT 1
+                """;
         Map<String, Object> latest = jdbcTemplate.queryForMap(sqlLatest);
         Object latestPortfolioDate = latest.get("portfolio_date");
 
@@ -153,106 +153,108 @@ public class DashboardRepository {
 
         if ("security".equalsIgnoreCase(dimension)) {
             categoryExpr = """
-                CASE 
-                    WHEN pr.product_code IN ('LF', 'laptop') THEN 'ABSOLUTE' 
-                    WHEN pr.product_code = 'MF' AND COALESCE(lm1.knox_compatibility, lm2.knox_compatibility) = 'yes' THEN 'KNOX' 
-                    WHEN pr.product_code = 'MF' AND (COALESCE(lm1.knox_compatibility, lm2.knox_compatibility) = 'no' OR COALESCE(lm1.knox_compatibility, lm2.knox_compatibility) IS NULL) THEN 'DATACULTR' 
-                    ELSE 'OTHER' 
-                END
-            """;
+                        CASE
+                            WHEN pr.product_code IN ('LF', 'laptop') THEN 'ABSOLUTE'
+                            WHEN pr.product_code = 'MF' AND COALESCE(lm1.knox_compatibility, lm2.knox_compatibility) = 'yes' THEN 'KNOX'
+                            WHEN pr.product_code = 'MF' AND (COALESCE(lm1.knox_compatibility, lm2.knox_compatibility) = 'no' OR COALESCE(lm1.knox_compatibility, lm2.knox_compatibility) IS NULL) THEN 'DATACULTR'
+                            ELSE 'OTHER'
+                        END
+                    """;
             dimensionJoin = """
-                LEFT JOIN loan.mobileloan lm1 ON lm1.finance_no = l.account_no
-                LEFT JOIN loan.mobileloan lm2 ON lm2.finance_no = l.legacy_account_no
-            """;
+                        LEFT JOIN loan.mobileloan lm1 ON lm1.finance_no = l.account_no
+                        LEFT JOIN loan.mobileloan lm2 ON lm2.finance_no = l.legacy_account_no
+                    """;
         } else if ("model".equalsIgnoreCase(dimension)) {
             categoryExpr = "COALESCE(lmm.name, 'Unknown Model')";
             dimensionJoin = """
-                LEFT JOIN loan.mobileloan lm1 ON lm1.finance_no = l.account_no
-                LEFT JOIN loan.mobileloan lm2 ON lm2.finance_no = l.legacy_account_no
-                LEFT JOIN loan.device_loan dl2_1 ON dl2_1.finance_no = l.account_no
-                LEFT JOIN loan.device_loan dl2_2 ON dl2_2.finance_no = l.legacy_account_no
-                LEFT JOIN loan.mobileloan_model lmm ON lmm.id = COALESCE(lm1.model, lm2.model, dl2_1.model, dl2_2.model)
-            """;
+                        LEFT JOIN loan.mobileloan lm1 ON lm1.finance_no = l.account_no
+                        LEFT JOIN loan.mobileloan lm2 ON lm2.finance_no = l.legacy_account_no
+                        LEFT JOIN loan.device_loan dl2_1 ON dl2_1.finance_no = l.account_no
+                        LEFT JOIN loan.device_loan dl2_2 ON dl2_2.finance_no = l.legacy_account_no
+                        LEFT JOIN loan.mobileloan_model lmm ON lmm.id = COALESCE(lm1.model, lm2.model, dl2_1.model, dl2_2.model)
+                    """;
         } else {
             categoryExpr = "COALESCE(v.name, 'Unknown Dealer')";
             dimensionJoin = "LEFT JOIN cbs.vendor v ON l.vendor = v.code";
         }
 
-        String sql = String.format("""
-            SELECT
-                %s AS category_name,
-                SUM(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) = 0 THEN COALESCE(p1.exposure, p2.exposure, l.loan_amount, 0) ELSE 0 END) AS dpd0_val,
-                SUM(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) BETWEEN 1 AND 30 THEN COALESCE(p1.exposure, p2.exposure, l.loan_amount, 0) ELSE 0 END) AS dpd1_30_val,
-                SUM(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) BETWEEN 31 AND 60 THEN COALESCE(p1.exposure, p2.exposure, l.loan_amount, 0) ELSE 0 END) AS dpd31_60_val,
-                SUM(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) BETWEEN 61 AND 90 THEN COALESCE(p1.exposure, p2.exposure, l.loan_amount, 0) ELSE 0 END) AS dpd61_90_val,
-                SUM(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) > 90 OR COALESCE(p1.loan_status, p2.loan_status) = 'N' THEN COALESCE(p1.exposure, p2.exposure, l.loan_amount, 0) ELSE 0 END) AS dpdAbove90_val
-            FROM cbs.loan l
-            LEFT JOIN cbs.portfolio p1
-                ON p1.account_no = l.account_no
-                AND p1.series = l.account_series
-                AND p1.portfolio_date = ?
-            LEFT JOIN cbs.portfolio p2
-                ON p2.account_no = l.legacy_account_no
-                AND p2.series = l.account_series
-                AND p2.portfolio_date = ?
-            LEFT JOIN cbs.branch br ON CAST(l.branch AS UNSIGNED) = br.branch_code
-            LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
-            %s
-            GROUP BY category_name
-            ORDER BY category_name ASC
-        """, categoryExpr, dimensionJoin);
+        String sql = String.format(
+                """
+                                            SELECT
+                                                %s AS category_name,
+                                                SUM(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) = 0 THEN COALESCE(p1.exposure, p2.exposure, l.loan_amount, 0) ELSE 0 END) AS dpd0_val,
+                                                SUM(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) BETWEEN 1 AND 30 THEN COALESCE(p1.exposure, p2.exposure, l.loan_amount, 0) ELSE 0 END) AS dpd1_30_val,
+                                                SUM(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) BETWEEN 31 AND 60 THEN COALESCE(p1.exposure, p2.exposure, l.loan_amount, 0) ELSE 0 END) AS dpd31_60_val,
+                                                SUM(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) BETWEEN 61 AND 90 THEN COALESCE(p1.exposure, p2.exposure, l.loan_amount, 0) ELSE 0 END) AS dpd61_90_val,
+                                                SUM(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) > 90 OR COALESCE(p1.loan_status, p2.loan_status) = 'N' THEN COALESCE(p1.exposure, p2.exposure, l.loan_amount, 0) ELSE 0 END) AS dpdAbove90_val
+                                            FROM cbs.loan l
+                                            LEFT JOIN cbs.portfolio p1
+                                                ON p1.account_no = l.account_no
+                                                AND p1.series = l.account_series
+                                                AND p1.portfolio_date = ?
+                                            LEFT JOIN cbs.portfolio p2
+                                                ON p2.account_no = l.legacy_account_no
+                                                AND p2.series = l.account_series
+                                                AND p2.portfolio_date = ?
+                                            LEFT JOIN cbs.branch br ON CAST(l.branch AS UNSIGNED) = br.branch_code
+                                            LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
+                                            %s
+                                            GROUP BY category_name
+                                            ORDER BY category_name ASC
+                        """,
+                categoryExpr, dimensionJoin);
 
         return jdbcTemplate.queryForList(sql, latestPortfolioDate, latestPortfolioDate);
     }
 
     public List<Map<String, Object>> getMonthWiseBusiness() {
         String sql = """
-            SELECT 
-                DATE_FORMAT(disbursed_date, '%b %Y') AS month_name,
-                DATE_FORMAT(disbursed_date, '%Y-%m') AS month_key,
-                COUNT(*) AS business_count,
-                COALESCE(SUM(loan_amount), 0) AS business_amount
-            FROM cbs.loan
-            WHERE disbursed_date >= CASE WHEN MONTH(CURRENT_DATE()) >= 4 THEN DATE_FORMAT(CURRENT_DATE(), '%Y-04-01') ELSE DATE_FORMAT(DATE_SUB(CURRENT_DATE(), INTERVAL 1 YEAR), '%Y-04-01') END
-              AND disbursed_date < CASE WHEN MONTH(CURRENT_DATE()) >= 4 THEN DATE_FORMAT(DATE_ADD(CURRENT_DATE(), INTERVAL 1 YEAR), '%Y-04-01') ELSE DATE_FORMAT(CURRENT_DATE(), '%Y-04-01') END
-            GROUP BY DATE_FORMAT(disbursed_date, '%b %Y'), DATE_FORMAT(disbursed_date, '%Y-%m')
-            ORDER BY month_key ASC
-        """;
+                    SELECT
+                        DATE_FORMAT(disbursed_date, '%b %Y') AS month_name,
+                        DATE_FORMAT(disbursed_date, '%Y-%m') AS month_key,
+                        COUNT(*) AS business_count,
+                        COALESCE(SUM(loan_amount), 0) AS business_amount
+                    FROM cbs.loan
+                    WHERE disbursed_date >= CASE WHEN MONTH(CURRENT_DATE()) >= 4 THEN DATE_FORMAT(CURRENT_DATE(), '%Y-04-01') ELSE DATE_FORMAT(DATE_SUB(CURRENT_DATE(), INTERVAL 1 YEAR), '%Y-04-01') END
+                      AND disbursed_date < CASE WHEN MONTH(CURRENT_DATE()) >= 4 THEN DATE_FORMAT(DATE_ADD(CURRENT_DATE(), INTERVAL 1 YEAR), '%Y-04-01') ELSE DATE_FORMAT(CURRENT_DATE(), '%Y-04-01') END
+                    GROUP BY DATE_FORMAT(disbursed_date, '%b %Y'), DATE_FORMAT(disbursed_date, '%Y-%m')
+                    ORDER BY month_key ASC
+                """;
         return jdbcTemplate.queryForList(sql);
     }
 
     public List<Map<String, Object>> getMonthWiseDpdComparison() {
         String sql = """
-            SELECT 
-                DATE_FORMAT(p.portfolio_date, '%b %Y') AS month_name,
-                DATE_FORMAT(p.portfolio_date, '%Y-%m') AS month_key,
-                SUM(CASE WHEN COALESCE(p.dpd, 0) = 0 THEN p.exposure ELSE 0 END) AS dpd0_val,
-                SUM(CASE WHEN COALESCE(p.dpd, 0) BETWEEN 1 AND 30 THEN p.exposure ELSE 0 END) AS dpd1_30_val,
-                SUM(CASE WHEN COALESCE(p.dpd, 0) BETWEEN 31 AND 60 THEN p.exposure ELSE 0 END) AS dpd31_60_val,
-                SUM(CASE WHEN COALESCE(p.dpd, 0) BETWEEN 61 AND 90 THEN p.exposure ELSE 0 END) AS dpd61_90_val,
-                SUM(CASE WHEN COALESCE(p.dpd, 0) > 90 OR p.loan_status = 'N' THEN p.exposure ELSE 0 END) AS dpdAbove90_val
-            FROM cbs.portfolio p
-            INNER JOIN (
-                SELECT 
-                    DATE_FORMAT(portfolio_date, '%Y-%m') AS month_key,
-                    MAX(portfolio_date) AS max_date
-                FROM cbs.portfolio
-                WHERE portfolio_date >= CASE WHEN MONTH(CURRENT_DATE()) >= 4 THEN DATE_FORMAT(CURRENT_DATE(), '%Y-04-01') ELSE DATE_FORMAT(DATE_SUB(CURRENT_DATE(), INTERVAL 1 YEAR), '%Y-04-01') END
-                  AND portfolio_date < CASE WHEN MONTH(CURRENT_DATE()) >= 4 THEN DATE_FORMAT(DATE_ADD(CURRENT_DATE(), INTERVAL 1 YEAR), '%Y-04-01') ELSE DATE_FORMAT(CURRENT_DATE(), '%Y-04-01') END
-                GROUP BY DATE_FORMAT(portfolio_date, '%Y-%m')
-            ) m ON p.portfolio_date = m.max_date
-            GROUP BY p.portfolio_date, DATE_FORMAT(p.portfolio_date, '%b %Y'), DATE_FORMAT(p.portfolio_date, '%Y-%m')
-            ORDER BY month_key ASC
-        """;
+                    SELECT
+                        DATE_FORMAT(p.portfolio_date, '%b %Y') AS month_name,
+                        DATE_FORMAT(p.portfolio_date, '%Y-%m') AS month_key,
+                        SUM(CASE WHEN COALESCE(p.dpd, 0) = 0 THEN p.exposure ELSE 0 END) AS dpd0_val,
+                        SUM(CASE WHEN COALESCE(p.dpd, 0) BETWEEN 1 AND 30 THEN p.exposure ELSE 0 END) AS dpd1_30_val,
+                        SUM(CASE WHEN COALESCE(p.dpd, 0) BETWEEN 31 AND 60 THEN p.exposure ELSE 0 END) AS dpd31_60_val,
+                        SUM(CASE WHEN COALESCE(p.dpd, 0) BETWEEN 61 AND 90 THEN p.exposure ELSE 0 END) AS dpd61_90_val,
+                        SUM(CASE WHEN COALESCE(p.dpd, 0) > 90 OR p.loan_status = 'N' THEN p.exposure ELSE 0 END) AS dpdAbove90_val
+                    FROM cbs.portfolio p
+                    INNER JOIN (
+                        SELECT
+                            DATE_FORMAT(portfolio_date, '%Y-%m') AS month_key,
+                            MAX(portfolio_date) AS max_date
+                        FROM cbs.portfolio
+                        WHERE portfolio_date >= CASE WHEN MONTH(CURRENT_DATE()) >= 4 THEN DATE_FORMAT(CURRENT_DATE(), '%Y-04-01') ELSE DATE_FORMAT(DATE_SUB(CURRENT_DATE(), INTERVAL 1 YEAR), '%Y-04-01') END
+                          AND portfolio_date < CASE WHEN MONTH(CURRENT_DATE()) >= 4 THEN DATE_FORMAT(DATE_ADD(CURRENT_DATE(), INTERVAL 1 YEAR), '%Y-04-01') ELSE DATE_FORMAT(CURRENT_DATE(), '%Y-04-01') END
+                        GROUP BY DATE_FORMAT(portfolio_date, '%Y-%m')
+                    ) m ON p.portfolio_date = m.max_date
+                    GROUP BY p.portfolio_date, DATE_FORMAT(p.portfolio_date, '%b %Y'), DATE_FORMAT(p.portfolio_date, '%Y-%m')
+                    ORDER BY month_key ASC
+                """;
         return jdbcTemplate.queryForList(sql);
     }
 
     public List<Map<String, Object>> getVendorPaymentsChannelChart() {
         String sql = """
-                SELECT 
-                    COALESCE(vendor_name, 'Unknown') AS channel_name, 
-                    SUM(amount) AS total_amount 
-                FROM cbs.vendor_payments 
+                SELECT
+                    COALESCE(vendor_name, 'Unknown') AS channel_name,
+                    SUM(amount) AS total_amount
+                FROM cbs.vendor_payments
                 WHERE trx_date >= DATE_FORMAT(CURRENT_DATE(), '%Y-%m-01')
                 GROUP BY channel_name
                 ORDER BY total_amount DESC
@@ -265,12 +267,11 @@ public class DashboardRepository {
 
         // Return 0 for performance charts
         List<Map<String, Object>> zeroPerf = List.of(
-            Map.of("state_name", "Performing", "count_val", 0),
-            Map.of("state_name", "Non-Performing", "count_val", 0)
-        );
+                Map.of("state_name", "Performing", "count_val", 0),
+                Map.of("state_name", "Non-Performing", "count_val", 0));
 
         String mobileLockSql = """
-                SELECT
+                    SELECT
                     CASE
                         WHEN ml.locked = 1 THEN 'Locked'
                         ELSE 'Unlocked'
@@ -295,7 +296,7 @@ public class DashboardRepository {
                 """;
 
         String laptopLockSql = """
-                SELECT
+                    SELECT
                     CASE
                         WHEN dl.locked = 1 THEN 'Locked'
                         ELSE 'Unlocked'
