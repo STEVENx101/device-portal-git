@@ -800,6 +800,40 @@ public class CbsReportService {
                             WHERE uts.user_type_id = ut.id AND uts.screen_id = s.id
                         )
                     """);
+
+            // Paid Off Report
+            jdbc.getJdbcTemplate().execute("""
+                        INSERT INTO device_portal.screen (name, path, icon, group_name)
+                        SELECT 'Paid Off Report', '/paid-off-report', 'fas fa-file-invoice-dollar', 'Reports'
+                        WHERE NOT EXISTS (SELECT 1 FROM device_portal.screen WHERE path = '/paid-off-report')
+                    """);
+            jdbc.getJdbcTemplate().execute("""
+                        INSERT INTO device_portal.user_type_screen (user_type_id, screen_id)
+                        SELECT ut.id, s.id
+                        FROM device_portal.user_type ut, device_portal.screen s
+                        WHERE s.path = '/paid-off-report'
+                        AND NOT EXISTS (
+                            SELECT 1 FROM device_portal.user_type_screen uts
+                            WHERE uts.user_type_id = ut.id AND uts.screen_id = s.id
+                        )
+                    """);
+
+            // Multiple Payments Report
+            jdbc.getJdbcTemplate().execute("""
+                        INSERT INTO device_portal.screen (name, path, icon, group_name)
+                        SELECT 'Multiple Payments', '/multiple-payments-report', 'fas fa-history', 'Reports'
+                        WHERE NOT EXISTS (SELECT 1 FROM device_portal.screen WHERE path = '/multiple-payments-report')
+                    """);
+            jdbc.getJdbcTemplate().execute("""
+                        INSERT INTO device_portal.user_type_screen (user_type_id, screen_id)
+                        SELECT ut.id, s.id
+                        FROM device_portal.user_type ut, device_portal.screen s
+                        WHERE s.path = '/multiple-payments-report'
+                        AND NOT EXISTS (
+                            SELECT 1 FROM device_portal.user_type_screen uts
+                            WHERE uts.user_type_id = ut.id AND uts.screen_id = s.id
+                        )
+                    """);
         } catch (Exception e) {
             log.error("Report configuration database operation failed", e);
         }
@@ -1877,6 +1911,144 @@ public class CbsReportService {
             log.error("Failed to fetch distinct models", e);
             return Collections.emptyList();
         }
+    }
+
+    public DataTableResponse fetchPaidOffReport(DataTableRequest request) {
+        Map<String, Object> params = new HashMap<>();
+        String sql = buildPaidOffReportQuery(request.getData(), params);
+        return executePagedReport(request, sql, params);
+    }
+
+    public List<Map<String, Object>> getPaidOffReportData(String asAt) {
+        Map<String, Object> filterMap = new HashMap<>();
+        filterMap.put("asAt", asAt);
+        Map<String, Object> params = new HashMap<>();
+        String sql = buildPaidOffReportQuery(filterMap, params);
+        return executeDownloadReport(sql, params);
+    }
+
+    private String buildPaidOffReportQuery(Object rawFilter, Map<String, Object> params) {
+        String subQuery = """
+                SELECT
+                    l.account_no,
+                    l.account_series AS `series`,
+                    l.legacy_account_no,
+                    c.full_name AS `client_name`,
+                    c.id_no AS `client_nic`,
+                    c.mobile AS `client_mobile`,
+                    c.address AS `client_address`,
+                    l.loan_amount,
+                    l.rental,
+                    DATE_FORMAT(l.disbursed_date, '%Y-%m-%d') AS `disbursed_date`,
+                    DATE_FORMAT(l.closed_date, '%Y-%m-%d') AS `closed_date`,
+                    CASE l.account_status
+                        WHEN 'P' THEN 'Paid Off (early sett)'
+                        WHEN 'F' THEN 'Fully Paid (settled)'
+                        ELSE l.account_status
+                    END AS `account_status`
+                FROM cbs.loan l
+                LEFT JOIN cbs.client c ON l.client = c.client_code
+                WHERE l.account_status IN ('P', 'F')""";
+
+        if (rawFilter instanceof Map) {
+            Map<?, ?> filter = (Map<?, ?>) rawFilter;
+            String asAt = (String) filter.get("asAt");
+            if (asAt != null && !asAt.trim().isEmpty()) {
+                subQuery += " AND l.closed_date < DATE_ADD(:asAt, INTERVAL 1 DAY)";
+                params.put("asAt", asAt.trim());
+            }
+        }
+
+        return """
+                SELECT
+                    t.account_no,
+                    t.series,
+                    t.legacy_account_no,
+                    t.client_name,
+                    t.client_nic,
+                    t.client_mobile,
+                    t.client_address,
+                    t.loan_amount,
+                    t.rental,
+                    t.disbursed_date,
+                    t.closed_date,
+                    t.account_status
+                FROM (""" + subQuery + ") t WHERE TRUE";
+    }
+
+    public DataTableResponse fetchMultiplePaymentsReport(DataTableRequest request) {
+        Map<String, Object> params = new HashMap<>();
+        String sql = buildMultiplePaymentsReportQuery(request.getData(), params);
+        return executePagedReport(request, sql, params);
+    }
+
+    public List<Map<String, Object>> getMultiplePaymentsReportData(String fromDate, String toDate) {
+        Map<String, Object> filterMap = new HashMap<>();
+        filterMap.put("fromDate", fromDate);
+        filterMap.put("toDate", toDate);
+        Map<String, Object> params = new HashMap<>();
+        String sql = buildMultiplePaymentsReportQuery(filterMap, params);
+        return executeDownloadReport(sql, params);
+    }
+
+    private String buildMultiplePaymentsReportQuery(Object rawFilter, Map<String, Object> params) {
+        String subQuery = """
+                SELECT
+                    t1.tran_id,
+                    t1.account_no,
+                    COALESCE(l1.legacy_account_no, l2.legacy_account_no) AS legacy_account_no,
+                    t1.amount,
+                    DATE_FORMAT(t1.date, '%Y-%m-%d') AS `date`,
+                    t1.user,
+                    t1.narration,
+                    t1.channel,
+                    CASE 
+                        WHEN EXISTS (
+                            SELECT 1 FROM cbs.transaction t2 
+                            WHERE t2.account_no = t1.account_no 
+                              AND DATE(t2.date) = DATE(t1.date) 
+                              AND t2.amount = t1.amount 
+                              AND t2.tran_id != t1.tran_id
+                        ) THEN 'Yes'
+                        ELSE 'No'
+                    END AS `same_amount_duplicate`
+                FROM cbs.transaction t1
+                INNER JOIN (
+                    SELECT account_no, DATE(date) AS tx_date
+                    FROM cbs.transaction
+                    GROUP BY account_no, DATE(date)
+                    HAVING COUNT(*) > 1
+                ) dup ON t1.account_no = dup.account_no AND DATE(t1.date) = dup.tx_date
+                LEFT JOIN cbs.loan l1 ON t1.account_no = l1.account_no
+                LEFT JOIN cbs.loan l2 ON t1.account_no = l2.legacy_account_no
+                WHERE 1=1""";
+
+        if (rawFilter instanceof Map) {
+            Map<?, ?> filter = (Map<?, ?>) rawFilter;
+            String fromDate = (String) filter.get("fromDate");
+            String toDate = (String) filter.get("toDate");
+            if (fromDate != null && !fromDate.trim().isEmpty()) {
+                subQuery += " AND t1.date >= :fromDate";
+                params.put("fromDate", fromDate.trim());
+            }
+            if (toDate != null && !toDate.trim().isEmpty()) {
+                subQuery += " AND t1.date < DATE_ADD(:toDate, INTERVAL 1 DAY)";
+                params.put("toDate", toDate.trim());
+            }
+        }
+
+        return """
+                SELECT
+                    t.tran_id,
+                    t.account_no,
+                    t.legacy_account_no,
+                    t.amount,
+                    t.date,
+                    t.user,
+                    t.narration,
+                    t.channel,
+                    t.same_amount_duplicate
+                FROM (""" + subQuery + ") t WHERE TRUE";
     }
 
     private double round(double val, int places) {

@@ -413,6 +413,66 @@ public class CbsReportController {
         writeExceptionLockCsv(response, "settled_and_early_settled_report.csv", data);
     }
 
+    @PostMapping("/paid-off-report")
+    public DataTableResponse getPaidOffReport(@RequestBody DataTableRequest request, HttpSession session) {
+        com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");
+        String username = currentUser != null ? currentUser.getUsername() : "system";
+        String filtersStr = request.getData() != null ? request.getData().toString() : "none";
+        cbsReportService.logReportActivity(username, "Paid Off Exception Report", "VIEW", filtersStr);
+        return cbsReportService.fetchPaidOffReport(request);
+    }
+
+    @GetMapping("/paid-off-report/download")
+    public void downloadPaidOffReport(
+            @RequestParam(value = "asAt", required = false) String asAt,
+            @RequestParam(value = "downloadToken", required = false) String downloadToken,
+            HttpSession session,
+            HttpServletResponse response) throws Exception {
+        verifyDownloadPermission(session, response);
+        com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");
+        String username = currentUser != null ? currentUser.getUsername() : "system";
+        String filtersStr = String.format("asAt=%s", asAt);
+        cbsReportService.logReportActivity(username, "Paid Off Exception Report", "DOWNLOAD", filtersStr);
+
+        setDownloadTokenCookie(response, downloadToken);
+        List<Map<String, Object>> data = cbsReportService.getPaidOffReportData(asAt);
+        writeExceptionLockCsv(response, "paid_off_report.csv", data);
+    }
+
+    @PostMapping("/multiple-payments-report")
+    public DataTableResponse getMultiplePaymentsReport(@RequestBody DataTableRequest request, HttpSession session) {
+        com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");
+        String username = currentUser != null ? currentUser.getUsername() : "system";
+        String filtersStr = request.getData() != null ? request.getData().toString() : "none";
+        cbsReportService.logReportActivity(username, "Multiple Payments Exception Report", "VIEW", filtersStr);
+        return cbsReportService.fetchMultiplePaymentsReport(request);
+    }
+
+    @GetMapping("/multiple-payments-report/download")
+    public void downloadMultiplePaymentsReport(
+            @RequestParam(value = "fromDate", required = false) String fromDate,
+            @RequestParam(value = "toDate", required = false) String toDate,
+            @RequestParam(value = "downloadToken", required = false) String downloadToken,
+            HttpSession session,
+            HttpServletResponse response) throws Exception {
+        verifyDownloadPermission(session, response);
+        com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");
+        String username = currentUser != null ? currentUser.getUsername() : "system";
+        String filtersStr = String.format("fromDate=%s, toDate=%s", fromDate, toDate);
+        cbsReportService.logReportActivity(username, "Multiple Payments Exception Report", "DOWNLOAD", filtersStr);
+
+        setDownloadTokenCookie(response, downloadToken);
+        List<Map<String, Object>> data = cbsReportService.getMultiplePaymentsReportData(fromDate, toDate);
+        writeMultiplePaymentsCsv(response, "multiple_payments_report.csv", data);
+    }
+
+    private void writeMultiplePaymentsCsv(HttpServletResponse response, String filename, List<Map<String, Object>> data) throws Exception {
+        String xlsxFilename = filename.replace(".csv", ".xlsx");
+        String[] headers = {"Tran ID", "Account No", "Legacy Account No", "Amount", "Date", "User", "Narration", "Channel", "Same Amount Duplicate"};
+        String[] keys = {"tran_id", "account_no", "legacy_account_no", "amount", "date", "user", "narration", "channel", "same_amount_duplicate"};
+        writeExcel(response, xlsxFilename, headers, keys, data);
+    }
+
     @PostMapping("/matured-low-balance")
     public DataTableResponse getMaturedLowBalance(@RequestBody DataTableRequest request, HttpSession session) {
         com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");

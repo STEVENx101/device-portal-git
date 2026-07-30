@@ -104,9 +104,19 @@ public class PageController {
         return "settled-report";
     }
 
+    @GetMapping("/paid-off-report")
+    public String paidOffReport() {
+        return "paid-off-report";
+    }
+
     @GetMapping("/matured-low-balance-report")
     public String maturedLowBalanceReport() {
         return "matured-low-balance-report";
+    }
+
+    @GetMapping("/multiple-payments-report")
+    public String multiplePaymentsReport() {
+        return "multiple-payments-report";
     }
 
     @GetMapping("/dpd-bucket-report")

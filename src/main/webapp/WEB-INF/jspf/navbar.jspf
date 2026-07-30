@@ -20,7 +20,9 @@
     boolean hasLockNoArrearsReport = false;
     boolean hasOneRentalReport = false;
     boolean hasSettledReport = false;
+    boolean hasPaidOffReport = false;
     boolean hasMaturedLowBalanceReport = false;
+    boolean hasMultiplePaymentsReport = false;
     boolean hasDpdBucketReport = false;
     boolean hasVendorPaymentsReport = false;
     boolean hasVendorPaymentsExceptionReport = false;
@@ -43,7 +45,9 @@
             if (s.getPath().equalsIgnoreCase("/lock-no-arrears-report")) hasLockNoArrearsReport = true;
             if (s.getPath().equalsIgnoreCase("/one-rental-report")) hasOneRentalReport = true;
             if (s.getPath().equalsIgnoreCase("/settled-report")) hasSettledReport = true;
+            if (s.getPath().equalsIgnoreCase("/paid-off-report")) hasPaidOffReport = true;
             if (s.getPath().equalsIgnoreCase("/matured-low-balance-report")) hasMaturedLowBalanceReport = true;
+            if (s.getPath().equalsIgnoreCase("/multiple-payments-report")) hasMultiplePaymentsReport = true;
             if (s.getPath().equalsIgnoreCase("/dpd-bucket-report")) hasDpdBucketReport = true;
             if (s.getPath().equalsIgnoreCase("/vendor-payments")) hasVendorPaymentsReport = true;
             if (s.getPath().equalsIgnoreCase("/vendor-payments-exception")) hasVendorPaymentsExceptionReport = true;
@@ -978,9 +982,19 @@ html body .dataTables_wrapper .dataTables_filter input {
                                     Settled & Early Settled
                                 </a>
                                 <% } %>
+                                <% if (hasPaidOffReport) { %>
+                                <a href="<%= request.getContextPath() %>/paid-off-report" class="dropdown-item-custom" id="nav-report-paid-off">
+                                    Paid Off Report
+                                </a>
+                                <% } %>
                                 <% if (hasMaturedLowBalanceReport) { %>
                                 <a href="<%= request.getContextPath() %>/matured-low-balance-report" class="dropdown-item-custom" id="nav-report-matured-low-balance">
                                     Matured Low Balance
+                                </a>
+                                <% } %>
+                                <% if (hasMultiplePaymentsReport) { %>
+                                <a href="<%= request.getContextPath() %>/multiple-payments-report" class="dropdown-item-custom" id="nav-report-multiple-payments">
+                                    Multiple Payments
                                 </a>
                                 <% } %>
                                 <% if (hasVendorPaymentsExceptionReport) { %>
