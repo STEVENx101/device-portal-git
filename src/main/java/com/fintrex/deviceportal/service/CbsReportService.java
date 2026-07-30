@@ -1445,8 +1445,8 @@ public class CbsReportService {
                 LEFT JOIN cbs.client c ON l.client = c.client_code
                 LEFT JOIN loan.mobileloan lm1 ON lm1.finance_no = l.account_no
                 LEFT JOIN loan.mobileloan lm2 ON lm2.finance_no = l.legacy_account_no
-                LEFT JOIN loan.mobileloan_charges lmc1 ON lmc1.mobileloan_id = lm1.id
-                LEFT JOIN loan.mobileloan_charges lmc2 ON lmc2.mobileloan_id = lm2.id
+                LEFT JOIN loan.mobileloan_charges lmc1 ON lmc1.id = lm1.id
+                LEFT JOIN loan.mobileloan_charges lmc2 ON lmc2.id = lm2.id
                 WHERE 1=1
                   AND l.maturity_date < CURDATE()
                   AND p1.exposure > 0
