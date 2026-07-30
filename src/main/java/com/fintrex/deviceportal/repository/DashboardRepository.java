@@ -265,10 +265,70 @@ public class DashboardRepository {
     public Map<String, Object> getDeviceStatusCharts() {
         Map<String, Object> result = new HashMap<>();
 
-        // Return 0 for performance charts
-        List<Map<String, Object>> zeroPerf = List.of(
-                Map.of("state_name", "Performing", "count_val", 0),
-                Map.of("state_name", "Non-Performing", "count_val", 0));
+        // Fetch latest portfolio date dynamically
+        String sqlLatest = """
+                    SELECT portfolio_date
+                    FROM cbs.portfolio
+                    WHERE portfolio_date IS NOT NULL
+                    ORDER BY portfolio_date DESC
+                    LIMIT 1
+                """;
+        Map<String, Object> latest = jdbcTemplate.queryForMap(sqlLatest);
+        Object latestPortfolioDate = latest.get("portfolio_date");
+
+        // Mobile Performing vs Non-Performing
+        String mobilePerfSql = """
+                    SELECT
+                        CASE
+                            WHEN COALESCE(p1.performing_status, p2.performing_status) = 'Non-Performing'
+                                THEN 'Non-Performing'
+                            ELSE 'Performing'
+                        END AS state_name,
+                        COUNT(*) AS count_val
+                    FROM cbs.loan l
+                    INNER JOIN cbs.product pr
+                        ON CAST(l.product AS UNSIGNED) = pr.code_val
+                    LEFT JOIN cbs.portfolio p1
+                        ON p1.account_no = l.account_no
+                        AND p1.series = l.account_series
+                        AND p1.portfolio_date = ?
+                    LEFT JOIN cbs.portfolio p2
+                        ON p2.account_no = l.legacy_account_no
+                        AND p2.series = l.account_series
+                        AND p2.portfolio_date = ?
+                    WHERE pr.product_code = 'MF'
+                      AND l.account_status IN ('A', 'N')
+                    GROUP BY state_name
+                    ORDER BY state_name
+                """;
+        List<Map<String, Object>> mobilePerf = jdbcTemplate.queryForList(mobilePerfSql, latestPortfolioDate, latestPortfolioDate);
+
+        // Laptop Performing vs Non-Performing
+        String laptopPerfSql = """
+                    SELECT
+                        CASE
+                            WHEN COALESCE(p1.performing_status, p2.performing_status) = 'Non-Performing'
+                                THEN 'Non-Performing'
+                            ELSE 'Performing'
+                        END AS state_name,
+                        COUNT(*) AS count_val
+                    FROM cbs.loan l
+                    INNER JOIN cbs.product pr
+                        ON CAST(l.product AS UNSIGNED) = pr.code_val
+                    LEFT JOIN cbs.portfolio p1
+                        ON p1.account_no = l.account_no
+                        AND p1.series = l.account_series
+                        AND p1.portfolio_date = ?
+                    LEFT JOIN cbs.portfolio p2
+                        ON p2.account_no = l.legacy_account_no
+                        AND p2.series = l.account_series
+                        AND p2.portfolio_date = ?
+                    WHERE pr.product_code IN ('LF', 'laptop')
+                      AND l.account_status IN ('A', 'N')
+                    GROUP BY state_name
+                    ORDER BY state_name
+                """;
+        List<Map<String, Object>> laptopPerf = jdbcTemplate.queryForList(laptopPerfSql, latestPortfolioDate, latestPortfolioDate);
 
         String mobileLockSql = """
                     SELECT
@@ -338,9 +398,9 @@ public class DashboardRepository {
             laptopLock.add(map);
         }
 
-        result.put("mobilePerforming", zeroPerf);
+        result.put("mobilePerforming", mobilePerf);
         result.put("mobileLock", mobileLock);
-        result.put("laptopPerforming", zeroPerf);
+        result.put("laptopPerforming", laptopPerf);
         result.put("laptopLock", laptopLock);
         return result;
     }
