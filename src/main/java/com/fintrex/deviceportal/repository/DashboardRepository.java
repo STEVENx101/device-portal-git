@@ -297,7 +297,6 @@ public class DashboardRepository {
                         AND p2.series = l.account_series
                         AND p2.portfolio_date = ?
                     WHERE pr.product_code = 'MF'
-                      AND l.account_status IN ('A', 'N')
                     GROUP BY state_name
                     ORDER BY state_name
                 """;
@@ -324,7 +323,6 @@ public class DashboardRepository {
                         AND p2.series = l.account_series
                         AND p2.portfolio_date = ?
                     WHERE pr.product_code IN ('LF', 'laptop')
-                      AND l.account_status IN ('A', 'N')
                     GROUP BY state_name
                     ORDER BY state_name
                 """;
