@@ -306,14 +306,14 @@ public class CbsReportService {
         addLatestPortfolioParams(params);
         String subQuery = """
                 SELECT
-                    DATE_FORMAT(COALESCE(p1.portfolio_date, p2.portfolio_date), '%Y-%m-%d') AS portfolio_date,
+                    DATE_FORMAT(p1.portfolio_date, '%Y-%m-%d') AS portfolio_date,
                     l.account_no,
                     l.account_series AS `series`,
-                    COALESCE(p1.loan_status, p2.loan_status) AS `portfolio_loan_status`,
-                    COALESCE(p1.total_due, p2.total_due) AS total_due,
-                    COALESCE(p1.exposure, p2.exposure) AS exposure,
-                    COALESCE(p1.dpd, p2.dpd) AS dpd,
-                    COALESCE(p1.performing_status, p2.performing_status) AS performing_status,
+                    p1.loan_status AS `portfolio_loan_status`,
+                    p1.total_due AS total_due,
+                    p1.exposure AS exposure,
+                    p1.dpd AS dpd,
+                    p1.performing_status AS performing_status,
                     l.legacy_account_no,
                     COALESCE(pr.product_name, l.product) AS `product_name`,
                     COALESCE(br.branch_name, l.branch) AS `branch_name`,
@@ -329,14 +329,10 @@ public class CbsReportService {
                     COALESCE(dl1.external_id, dl2.external_id) AS `external_id`,
                     COALESCE(dl1.platform, dl2.platform) AS `platform`
                 FROM cbs.loan l
-                LEFT JOIN cbs.portfolio p1
+                JOIN cbs.portfolio p1
                     ON p1.account_no = l.account_no
                     AND p1.series = l.account_series
                     AND p1.portfolio_date = :latestPortfolioDate
-                LEFT JOIN cbs.portfolio p2
-                    ON p2.account_no = l.legacy_account_no
-                    AND p2.series = l.account_series
-                    AND p2.portfolio_date = :latestPortfolioDate
                 LEFT JOIN cbs.branch br ON CAST(l.branch AS UNSIGNED) = br.branch_code
                 LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
                 LEFT JOIN cbs.device_loan dl1 ON dl1.account_no = l.account_no
@@ -905,26 +901,22 @@ public class CbsReportService {
                     c.address AS `client_address`,
                     l.loan_amount,
                     l.rental,
-                    COALESCE(p1.total_due, p2.total_due) AS `total_due`,
-                    COALESCE(p1.exposure, p2.exposure) AS `exposure`,
-                    COALESCE(p1.dpd, p2.dpd) AS `dpd`,
-                    COALESCE(p1.loan_status, p2.loan_status) AS `loan_status`,
-                    COALESCE(p1.performing_status, p2.performing_status) AS `performing_status`,
-                    COALESCE(p1.npl_status, p2.npl_status) AS `npl_status`,
-                    COALESCE(p1.recovery_officer, p2.recovery_officer) AS `recovery_officer`,
-                    DATE_FORMAT(COALESCE(p1.last_payment_date, p2.last_payment_date), '%Y-%m-%d') AS `last_payment_date`,
-                    COALESCE(p1.last_payment_amount, p2.last_payment_amount) AS `last_payment_amount`
+                    p1.total_due AS `total_due`,
+                    p1.exposure AS `exposure`,
+                    p1.dpd AS `dpd`,
+                    p1.loan_status AS `loan_status`,
+                    p1.performing_status AS `performing_status`,
+                    p1.npl_status AS `npl_status`,
+                    p1.recovery_officer AS `recovery_officer`,
+                    DATE_FORMAT(p1.last_payment_date, '%Y-%m-%d') AS `last_payment_date`,
+                    p1.last_payment_amount AS `last_payment_amount`
                 FROM cbs.loan l
-                LEFT JOIN cbs.portfolio p1
+                JOIN cbs.portfolio p1
                     ON p1.account_no = l.account_no
                     AND p1.series = l.account_series
                     AND p1.portfolio_date = :latestPortfolioDate
-                LEFT JOIN cbs.portfolio p2
-                    ON p2.account_no = l.legacy_account_no
-                    AND p2.series = l.account_series
-                    AND p2.portfolio_date = :latestPortfolioDate
                 LEFT JOIN cbs.client c ON l.client = c.client_code
-                WHERE 1=1 AND COALESCE(p1.dpd, p2.dpd) > 0""";
+                WHERE 1=1 AND p1.dpd > 0""";
 
         if (rawFilter instanceof Map) {
             Map<?, ?> filter = (Map<?, ?>) rawFilter;
@@ -977,26 +969,22 @@ public class CbsReportService {
                     c.address AS `client_address`,
                     l.loan_amount,
                     l.rental,
-                    COALESCE(p1.total_due, p2.total_due) AS `total_due`,
-                    COALESCE(p1.exposure, p2.exposure) AS `exposure`,
-                    COALESCE(p1.dpd, p2.dpd) AS `dpd`,
-                    COALESCE(p1.loan_status, p2.loan_status) AS `loan_status`,
-                    COALESCE(p1.performing_status, p2.performing_status) AS `performing_status`,
-                    COALESCE(p1.npl_status, p2.npl_status) AS `npl_status`,
-                    COALESCE(p1.recovery_officer, p2.recovery_officer) AS `recovery_officer`,
-                    DATE_FORMAT(COALESCE(p1.last_payment_date, p2.last_payment_date), '%Y-%m-%d') AS `last_payment_date`,
-                    COALESCE(p1.last_payment_amount, p2.last_payment_amount) AS `last_payment_amount`
+                    p1.total_due AS `total_due`,
+                    p1.exposure AS `exposure`,
+                    p1.dpd AS `dpd`,
+                    p1.loan_status AS `loan_status`,
+                    p1.performing_status AS `performing_status`,
+                    p1.npl_status AS `npl_status`,
+                    p1.recovery_officer AS `recovery_officer`,
+                    DATE_FORMAT(p1.last_payment_date, '%Y-%m-%d') AS `last_payment_date`,
+                    p1.last_payment_amount AS `last_payment_amount`
                 FROM cbs.loan l
-                LEFT JOIN cbs.portfolio p1
+                JOIN cbs.portfolio p1
                     ON p1.account_no = l.account_no
                     AND p1.series = l.account_series
                     AND p1.portfolio_date = :latestPortfolioDate
-                LEFT JOIN cbs.portfolio p2
-                    ON p2.account_no = l.legacy_account_no
-                    AND p2.series = l.account_series
-                    AND p2.portfolio_date = :latestPortfolioDate
                 LEFT JOIN cbs.client c ON l.client = c.client_code
-                WHERE 1=1 AND COALESCE(p1.performing_status, p2.performing_status) = 'Non-Performing'""";
+                WHERE 1=1 AND p1.performing_status = 'Non-Performing'""";
 
         if (rawFilter instanceof Map) {
             Map<?, ?> filter = (Map<?, ?>) rawFilter;
@@ -1049,26 +1037,22 @@ public class CbsReportService {
                     c.address AS `client_address`,
                     l.loan_amount,
                     l.rental,
-                    COALESCE(p1.total_due, p2.total_due) AS `total_due`,
-                    COALESCE(p1.exposure, p2.exposure) AS `exposure`,
-                    COALESCE(p1.dpd, p2.dpd) AS `dpd`,
-                    COALESCE(p1.loan_status, p2.loan_status) AS `loan_status`,
-                    COALESCE(p1.performing_status, p2.performing_status) AS `performing_status`,
-                    COALESCE(p1.npl_status, p2.npl_status) AS `npl_status`,
-                    COALESCE(p1.recovery_officer, p2.recovery_officer) AS `recovery_officer`,
-                    DATE_FORMAT(COALESCE(p1.last_payment_date, p2.last_payment_date), '%Y-%m-%d') AS `last_payment_date`,
-                    COALESCE(p1.last_payment_amount, p2.last_payment_amount) AS `last_payment_amount`
+                    p1.total_due AS `total_due`,
+                    p1.exposure AS `exposure`,
+                    p1.dpd AS `dpd`,
+                    p1.loan_status AS `loan_status`,
+                    p1.performing_status AS `performing_status`,
+                    p1.npl_status AS `npl_status`,
+                    p1.recovery_officer AS `recovery_officer`,
+                    DATE_FORMAT(p1.last_payment_date, '%Y-%m-%d') AS `last_payment_date`,
+                    p1.last_payment_amount AS `last_payment_amount`
                 FROM cbs.loan l
-                LEFT JOIN cbs.portfolio p1
+                JOIN cbs.portfolio p1
                     ON p1.account_no = l.account_no
                     AND p1.series = l.account_series
                     AND p1.portfolio_date = :latestPortfolioDate
-                LEFT JOIN cbs.portfolio p2
-                    ON p2.account_no = l.legacy_account_no
-                    AND p2.series = l.account_series
-                    AND p2.portfolio_date = :latestPortfolioDate
                 LEFT JOIN cbs.client c ON l.client = c.client_code
-                WHERE 1=1 AND COALESCE(p1.dpd, p2.dpd) BETWEEN 60 AND 90""";
+                WHERE 1=1 AND p1.dpd BETWEEN 60 AND 90""";
 
         if (rawFilter instanceof Map) {
             Map<?, ?> filter = (Map<?, ?>) rawFilter;
@@ -1312,29 +1296,25 @@ public class CbsReportService {
                     c.address AS `client_address`,
                     l.loan_amount,
                     l.rental,
-                    COALESCE(p1.total_due, p2.total_due) AS `total_due`,
-                    COALESCE(p1.exposure, p2.exposure) AS `exposure`,
-                    COALESCE(p1.dpd, p2.dpd) AS `dpd`,
+                    p1.total_due AS `total_due`,
+                    p1.exposure AS `exposure`,
+                    p1.dpd AS `dpd`,
                     CASE
                         WHEN COALESCE(lm1.locked, lm2.locked) = 1 THEN 'Locked'
                         ELSE 'Unlocked'
                     END AS `lock_status`,
-                    COALESCE(p1.recovery_officer, p2.recovery_officer) AS `recovery_officer`
+                    p1.recovery_officer AS `recovery_officer`
                 FROM cbs.loan l
-                LEFT JOIN cbs.portfolio p1
+                JOIN cbs.portfolio p1
                     ON p1.account_no = l.account_no
                     AND p1.series = l.account_series
                     AND p1.portfolio_date = :latestPortfolioDate
-                LEFT JOIN cbs.portfolio p2
-                    ON p2.account_no = l.legacy_account_no
-                    AND p2.series = l.account_series
-                    AND p2.portfolio_date = :latestPortfolioDate
                 LEFT JOIN cbs.client c ON l.client = c.client_code
                 LEFT JOIN loan.mobileloan lm1 ON lm1.finance_no = l.account_no
                 LEFT JOIN loan.mobileloan lm2 ON lm2.finance_no = l.legacy_account_no
                 WHERE 1=1
-                  AND COALESCE(p1.exposure, p2.exposure) > 0
-                  AND COALESCE(p1.exposure, p2.exposure) <= l.rental""";
+                  AND p1.exposure > 0
+                  AND p1.exposure <= l.rental""";
 
         if (rawFilter instanceof Map) {
             Map<?, ?> filter = (Map<?, ?>) rawFilter;
@@ -1347,9 +1327,9 @@ public class CbsReportService {
             String arrearsFilter = (String) filter.get("arrearsFilter");
             if (arrearsFilter != null && !arrearsFilter.trim().isEmpty()) {
                 if ("WITH_ARREARS".equalsIgnoreCase(arrearsFilter.trim())) {
-                    subQuery += " AND COALESCE(p1.dpd, p2.dpd) > 0";
+                    subQuery += " AND p1.dpd > 0";
                 } else if ("WITHOUT_ARREARS".equalsIgnoreCase(arrearsFilter.trim())) {
-                    subQuery += " AND (COALESCE(p1.dpd, p2.dpd) <= 0 OR COALESCE(p1.dpd, p2.dpd) IS NULL)";
+                    subQuery += " AND (p1.dpd <= 0 OR p1.dpd IS NULL)";
                 }
             }
         }
@@ -1448,30 +1428,26 @@ public class CbsReportService {
                     DATE_FORMAT(l.maturity_date, '%Y-%m-%d') AS `mature_date`,
                     l.loan_amount,
                     l.rental,
-                    COALESCE(p1.total_due, p2.total_due) AS `total_due`,
-                    COALESCE(p1.exposure, p2.exposure) AS `exposure`,
-                    COALESCE(p1.dpd, p2.dpd) AS `dpd`,
+                    p1.total_due AS `total_due`,
+                    p1.exposure AS `exposure`,
+                    p1.dpd AS `dpd`,
                     CASE
                         WHEN COALESCE(lm1.locked, lm2.locked) = 1 THEN 'Locked'
                         ELSE 'Unlocked'
                     END AS `lock_status`,
-                    COALESCE(p1.recovery_officer, p2.recovery_officer) AS `recovery_officer`
+                    p1.recovery_officer AS `recovery_officer`
                 FROM cbs.loan l
-                LEFT JOIN cbs.portfolio p1
+                JOIN cbs.portfolio p1
                     ON p1.account_no = l.account_no
                     AND p1.series = l.account_series
                     AND p1.portfolio_date = :latestPortfolioDate
-                LEFT JOIN cbs.portfolio p2
-                    ON p2.account_no = l.legacy_account_no
-                    AND p2.series = l.account_series
-                    AND p2.portfolio_date = :latestPortfolioDate
                 LEFT JOIN cbs.client c ON l.client = c.client_code
                 LEFT JOIN loan.mobileloan lm1 ON lm1.finance_no = l.account_no
                 LEFT JOIN loan.mobileloan lm2 ON lm2.finance_no = l.legacy_account_no
                 WHERE 1=1
                   AND l.maturity_date < CURDATE()
-                  AND COALESCE(p1.exposure, p2.exposure) > 0
-                  AND COALESCE(p1.exposure, p2.exposure) < :lowAmountThreshold""";
+                  AND p1.exposure > 0
+                  AND p1.exposure < :lowAmountThreshold""";
 
         if (rawFilter instanceof Map) {
             Map<?, ?> filter = (Map<?, ?>) rawFilter;
@@ -1572,7 +1548,8 @@ public class CbsReportService {
             }
 
             Object modelObj = filters.get("model");
-            if ("model".equals(dimension) && modelObj != null && !modelObj.toString().trim().isEmpty() && !"ALL".equalsIgnoreCase(modelObj.toString().trim())) {
+            if ("model".equals(dimension) && modelObj != null && !modelObj.toString().trim().isEmpty()
+                    && !"ALL".equalsIgnoreCase(modelObj.toString().trim())) {
                 whereClause.append(" AND COALESCE(lm1.model, lm2.model, dl2_1.model, dl2_2.model) = :model ");
                 params.put("model", modelObj.toString().trim());
             }
@@ -1582,27 +1559,23 @@ public class CbsReportService {
                 """
                             SELECT
                                 %s AS category_name,
-                                COUNT(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) = 0 THEN 1 END) AS dpd0_count,
-                                SUM(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) = 0 THEN COALESCE(p1.exposure, p2.exposure, l.loan_amount, 0) ELSE 0 END) AS dpd0_val,
-                                COUNT(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) BETWEEN 1 AND 30 THEN 1 END) AS dpd1_30_count,
-                                SUM(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) BETWEEN 1 AND 30 THEN COALESCE(p1.exposure, p2.exposure, l.loan_amount, 0) ELSE 0 END) AS dpd1_30_val,
-                                COUNT(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) BETWEEN 31 AND 60 THEN 1 END) AS dpd31_60_count,
-                                SUM(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) BETWEEN 31 AND 60 THEN COALESCE(p1.exposure, p2.exposure, l.loan_amount, 0) ELSE 0 END) AS dpd31_60_val,
-                                COUNT(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) BETWEEN 61 AND 90 THEN 1 END) AS dpd61_90_count,
-                                SUM(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) BETWEEN 61 AND 90 THEN COALESCE(p1.exposure, p2.exposure, l.loan_amount, 0) ELSE 0 END) AS dpd61_90_val,
-                                COUNT(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) > 90 OR COALESCE(p1.loan_status, p2.loan_status) = 'N' THEN 1 END) AS dpdAbove90_count,
-                                SUM(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) > 90 OR COALESCE(p1.loan_status, p2.loan_status) = 'N' THEN COALESCE(p1.exposure, p2.exposure, l.loan_amount, 0) ELSE 0 END) AS dpdAbove90_val,
+                                COUNT(CASE WHEN COALESCE(p1.dpd, 0) = 0 THEN 1 END) AS dpd0_count,
+                                SUM(CASE WHEN COALESCE(p1.dpd, 0) = 0 THEN COALESCE(p1.exposure, l.loan_amount, 0) ELSE 0 END) AS dpd0_val,
+                                COUNT(CASE WHEN COALESCE(p1.dpd, 0) BETWEEN 1 AND 30 THEN 1 END) AS dpd1_30_count,
+                                SUM(CASE WHEN COALESCE(p1.dpd, 0) BETWEEN 1 AND 30 THEN COALESCE(p1.exposure, l.loan_amount, 0) ELSE 0 END) AS dpd1_30_val,
+                                COUNT(CASE WHEN COALESCE(p1.dpd, 0) BETWEEN 31 AND 60 THEN 1 END) AS dpd31_60_count,
+                                SUM(CASE WHEN COALESCE(p1.dpd, 0) BETWEEN 31 AND 60 THEN COALESCE(p1.exposure, l.loan_amount, 0) ELSE 0 END) AS dpd31_60_val,
+                                COUNT(CASE WHEN COALESCE(p1.dpd, 0) BETWEEN 61 AND 90 THEN 1 END) AS dpd61_90_count,
+                                SUM(CASE WHEN COALESCE(p1.dpd, 0) BETWEEN 61 AND 90 THEN COALESCE(p1.exposure, l.loan_amount, 0) ELSE 0 END) AS dpd61_90_val,
+                                COUNT(CASE WHEN COALESCE(p1.dpd, 0) > 90 OR p1.loan_status = 'N' THEN 1 END) AS dpdAbove90_count,
+                                SUM(CASE WHEN COALESCE(p1.dpd, 0) > 90 OR p1.loan_status = 'N' THEN COALESCE(p1.exposure, l.loan_amount, 0) ELSE 0 END) AS dpdAbove90_val,
                                 COUNT(*) AS total_count,
-                                SUM(COALESCE(p1.exposure, p2.exposure, l.loan_amount, 0)) AS total_val
+                                SUM(COALESCE(p1.exposure, l.loan_amount, 0)) AS total_val
                             FROM cbs.loan l
-                            LEFT JOIN cbs.portfolio p1
+                            JOIN cbs.portfolio p1
                                 ON p1.account_no = l.account_no
                                 AND p1.series = l.account_series
                                 AND p1.portfolio_date = :latestPortfolioDate
-                            LEFT JOIN cbs.portfolio p2
-                                ON p2.account_no = l.legacy_account_no
-                                AND p2.series = l.account_series
-                                AND p2.portfolio_date = :latestPortfolioDate
                             LEFT JOIN cbs.branch br ON CAST(l.branch AS UNSIGNED) = br.branch_code
                             LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
                             %s
@@ -1857,13 +1830,13 @@ public class CbsReportService {
     public List<Map<String, Object>> fetchDistinctVendors() {
         try {
             return jdbc.queryForList("""
-                SELECT DISTINCT 
-                    COALESCE(vendor_code, '') AS vendor_code, 
-                    COALESCE(vendor_name, 'Unknown') AS vendor_name 
-                FROM cbs.vendor_payments 
-                WHERE vendor_code IS NOT NULL AND vendor_code <> ''
-                ORDER BY vendor_name ASC
-            """, Map.of());
+                        SELECT DISTINCT
+                            COALESCE(vendor_code, '') AS vendor_code,
+                            COALESCE(vendor_name, 'Unknown') AS vendor_name
+                        FROM cbs.vendor_payments
+                        WHERE vendor_code IS NOT NULL AND vendor_code <> ''
+                        ORDER BY vendor_name ASC
+                    """, Map.of());
         } catch (Exception e) {
             log.error("Failed to fetch distinct vendors", e);
             return Collections.emptyList();
@@ -1873,13 +1846,13 @@ public class CbsReportService {
     public List<Map<String, Object>> fetchDistinctDealers() {
         try {
             return jdbc.queryForList("""
-                SELECT 
-                    code AS code, 
-                    name AS name 
-                FROM cbs.vendor 
-                WHERE code IS NOT NULL AND code <> ''
-                ORDER BY name ASC
-            """, Map.of());
+                        SELECT
+                            code AS code,
+                            name AS name
+                        FROM cbs.vendor
+                        WHERE code IS NOT NULL AND code <> ''
+                        ORDER BY name ASC
+                    """, Map.of());
         } catch (Exception e) {
             log.error("Failed to fetch distinct dealers", e);
             return Collections.emptyList();
@@ -1889,13 +1862,13 @@ public class CbsReportService {
     public List<Map<String, Object>> fetchDistinctModels() {
         try {
             return jdbc.queryForList("""
-                SELECT 
-                    id AS id, 
-                    name AS name 
-                FROM loan.mobileloan_model 
-                WHERE id IS NOT NULL
-                ORDER BY name ASC
-            """, Map.of());
+                        SELECT
+                            id AS id,
+                            name AS name
+                        FROM loan.mobileloan_model
+                        WHERE id IS NOT NULL
+                        ORDER BY name ASC
+                    """, Map.of());
         } catch (Exception e) {
             log.error("Failed to fetch distinct models", e);
             return Collections.emptyList();
