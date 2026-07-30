@@ -43,9 +43,13 @@ public class DashboardRepository {
         // 3. Portfolio stats query
         String sqlPortfolio = """
                     SELECT
-                        COUNT(*) AS portfolio_count,
-                        COALESCE(SUM(loan_amount), 0) AS portfolio_amount
-                    FROM cbs.loan
+                        COUNT(DISTINCT account_no) AS portfolio_count,
+                        COALESCE(SUM(exposure), 0) AS portfolio_amount
+                    FROM cbs.portfolio
+                    WHERE portfolio_date = (
+                        SELECT MAX(portfolio_date)
+                        FROM cbs.portfolio
+                    )
                 """;
         Map<String, Object> portfolioStats = jdbcTemplate.queryForMap(sqlPortfolio);
 
@@ -258,10 +262,85 @@ public class DashboardRepository {
 
     public Map<String, Object> getDeviceStatusCharts() {
         Map<String, Object> result = new HashMap<>();
-        result.put("mobilePerforming", java.util.Collections.emptyList());
-        result.put("mobileLock", java.util.Collections.emptyList());
-        result.put("laptopPerforming", java.util.Collections.emptyList());
-        result.put("laptopLock", java.util.Collections.emptyList());
+
+        // Return 0 for performance charts
+        List<Map<String, Object>> zeroPerf = List.of(
+            Map.of("state_name", "Performing", "count_val", 0),
+            Map.of("state_name", "Non-Performing", "count_val", 0)
+        );
+
+        String mobileLockSql = """
+                SELECT
+                    CASE
+                        WHEN ml.locked = 1 THEN 'Locked'
+                        ELSE 'Unlocked'
+                    END AS device_status,
+                    COUNT(*) AS device_count
+                FROM loan.mobileloan ml
+                INNER JOIN (
+                    SELECT legacy_account_no AS finance_no
+                    FROM cbs.loan
+                    WHERE account_status = 'A'
+                      AND legacy_account_no IS NOT NULL
+                    UNION
+                    SELECT account_no AS finance_no
+                    FROM cbs.loan
+                    WHERE account_status = 'A'
+                      AND legacy_account_no IS NULL
+                ) active_loans
+                    ON active_loans.finance_no = ml.finance_no
+                WHERE ml.locked IN (0, 1)
+                GROUP BY ml.locked
+                ORDER BY ml.locked DESC
+                """;
+
+        String laptopLockSql = """
+                SELECT
+                    CASE
+                        WHEN dl.locked = 1 THEN 'Locked'
+                        ELSE 'Unlocked'
+                    END AS device_status,
+                    COUNT(*) AS device_count
+                FROM loan.device_loan dl
+                INNER JOIN (
+                    SELECT legacy_account_no AS finance_no
+                    FROM cbs.loan
+                    WHERE account_status = 'A'
+                      AND legacy_account_no IS NOT NULL
+                    UNION
+                    SELECT account_no AS finance_no
+                    FROM cbs.loan
+                    WHERE account_status = 'A'
+                      AND legacy_account_no IS NULL
+                ) active_loans
+                    ON active_loans.finance_no = dl.finance_no
+                WHERE dl.locked IN (0, 1)
+                GROUP BY dl.locked
+                ORDER BY dl.locked DESC
+                """;
+
+        List<Map<String, Object>> mobileLockRaw = jdbcTemplate.queryForList(mobileLockSql);
+        java.util.List<Map<String, Object>> mobileLock = new java.util.ArrayList<>();
+        for (Map<String, Object> raw : mobileLockRaw) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("state_name", raw.get("device_status"));
+            map.put("count_val", raw.get("device_count"));
+            mobileLock.add(map);
+        }
+
+        List<Map<String, Object>> laptopLockRaw = jdbcTemplate.queryForList(laptopLockSql);
+        java.util.List<Map<String, Object>> laptopLock = new java.util.ArrayList<>();
+        for (Map<String, Object> raw : laptopLockRaw) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("state_name", raw.get("device_status"));
+            map.put("count_val", raw.get("device_count"));
+            laptopLock.add(map);
+        }
+
+        result.put("mobilePerforming", zeroPerf);
+        result.put("mobileLock", mobileLock);
+        result.put("laptopPerforming", zeroPerf);
+        result.put("laptopLock", laptopLock);
         return result;
     }
 }
