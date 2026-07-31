@@ -905,13 +905,22 @@ html.dark .table thead th {
     border-bottom: 2px solid rgba(255, 255, 255, 0.08) !important;
 }
 
-html.dark .table tbody td {
+html.dark .table, html.dark .table tr, html.dark .table tbody td {
+    background-color: transparent !important;
     color: #cbd5e1 !important;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
 }
 
-html.dark .table-hover tbody tr:hover {
+html.dark .table-striped tbody tr:nth-of-type(odd) {
     background-color: rgba(255, 255, 255, 0.02) !important;
+}
+
+html.dark .table-striped tbody tr:nth-of-type(even) {
+    background-color: transparent !important;
+}
+
+html.dark .table-hover tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.04) !important;
 }
 
 html.dark .form-control, html.dark .form-select {

@@ -72,10 +72,14 @@
                 background: transparent;
                 display: none;
             }
-            .dark__bg-1000 .search-collapsed {
-                background: rgba(21, 26, 35, 0.98) !important;
-                border: 1px solid rgba(255,255,255,0.1) !important;
+            .dark__bg-1000 .search-collapsed,
+            html.dark .search-collapsed {
+                background: rgba(15, 23, 42, 0.96) !important;
+                backdrop-filter: blur(20px) !important;
+                -webkit-backdrop-filter: blur(20px) !important;
+                border: 1px solid rgba(255, 255, 255, 0.1) !important;
                 border-top: none !important;
+                box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5) !important;
             }
             .search-box .search-input {
                 padding-left: 2.5rem !important;

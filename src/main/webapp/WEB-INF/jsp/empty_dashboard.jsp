@@ -239,7 +239,7 @@
                                     <h6 class="mb-0 text-primary fw-bold"><i class="fas fa-chart-line me-2"></i>Month Wise Business (Financial Year)</h6>
                                 </div>
                                 <div class="card-body p-3 d-flex flex-column justify-content-center">
-                                    <div class="chart-container" style="height: 320px; position: relative; width: 100%;">
+                                    <div class="chart-container" style="height: 280px; position: relative; width: 100%;">
                                         <canvas id="businessChart"></canvas>
                                     </div>
                                 </div>
@@ -253,7 +253,7 @@
                                     <h6 class="mb-0 text-primary fw-bold"><i class="fas fa-chart-bar me-2"></i>DPD Comparison Month Wise (Financial Year)</h6>
                                 </div>
                                 <div class="card-body p-3 d-flex flex-column justify-content-center">
-                                    <div class="chart-container" style="height: 320px; position: relative; width: 100%;">
+                                    <div class="chart-container" style="height: 280px; position: relative; width: 100%;">
                                         <canvas id="dpdComparisonChart"></canvas>
                                     </div>
                                 </div>
@@ -408,7 +408,7 @@
                                                     borderColor: isDark ? '#8b5cf6' : '#6366f1',
                                                     borderWidth: 2,
                                                     borderRadius: { topLeft: 8, topRight: 8, bottomLeft: 0, bottomRight: 0 },
-                                                    barThickness: 22
+                                                    barThickness: 30
                                                 }
                                             ]
                                         },
