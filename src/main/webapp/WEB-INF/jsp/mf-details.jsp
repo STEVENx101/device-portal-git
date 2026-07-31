@@ -79,6 +79,25 @@
             }
             .search-box .search-input {
                 padding-left: 2.5rem !important;
+                border: 2px solid #cbd5e1 !important;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important;
+                transition: all 0.25s ease-in-out !important;
+                font-weight: 500 !important;
+            }
+            .search-box .search-input:focus {
+                border-color: #6366f1 !important;
+                box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2), 0 4px 20px rgba(99, 102, 241, 0.15) !important;
+            }
+            
+            html.dark .search-box .search-input {
+                border: 2.5px solid rgba(255, 255, 255, 0.15) !important;
+                background-color: rgba(15, 23, 42, 0.8) !important;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
+                color: #f8fafc !important;
+            }
+            html.dark .search-box .search-input:focus {
+                border-color: #f59e0b !important;
+                box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.25), 0 4px 25px rgba(245, 158, 11, 0.2) !important;
             }
         </style>
     </head>

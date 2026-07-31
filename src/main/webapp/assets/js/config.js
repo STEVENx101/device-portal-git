@@ -7,7 +7,7 @@
 /* -------------------------------------------------------------------------- */
 var CONFIG = {
   isNavbarVerticalCollapsed: false,
-  theme: 'light',
+  theme: 'dark',
   isRTL: false,
   isFluid: false,
   navbarStyle: 'transparent',
@@ -18,6 +18,12 @@ Object.keys(CONFIG).forEach(function (key) {
     localStorage.setItem(key, CONFIG[key]);
   }
 });
+
+// One-time migration to switch existing users to the new default dark theme
+if (!localStorage.getItem('theme_migrated_v1')) {
+  localStorage.setItem('theme', 'dark');
+  localStorage.setItem('theme_migrated_v1', 'true');
+}
 
 if (JSON.parse(localStorage.getItem('isNavbarVerticalCollapsed'))) {
   document.documentElement.classList.add('navbar-vertical-collapsed');

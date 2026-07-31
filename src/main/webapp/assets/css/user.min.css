@@ -5,7 +5,7 @@ html, body, .main, [data-layout="container"], .container-fluid {
 }
 
 body {
-    background-image: url('../img/chatgpt_bg.png') !important;
+    background-image: url('../img/chatgpt_bg.png?v=2') !important;
     background-repeat: no-repeat !important;
     background-position: center center !important;
     background-attachment: fixed !important;

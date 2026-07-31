@@ -846,6 +846,257 @@ html body .dataTables_wrapper .dataTables_filter input {
         max-height: none !important;
     }
 }
+
+/* Premium Dark Mode Styling Overrides (ui-ux-pro-max) */
+html.dark body {
+    background-color: #0b0f19 !important;
+    background-image: url('<%= request.getContextPath() %>/assets/img/chatgpt_bg.png?v=2') !important;
+    background-repeat: no-repeat !important;
+    background-position: center center !important;
+    background-attachment: fixed !important;
+    background-size: cover !important;
+    color: #f8fafc !important;
+}
+
+html.dark .card:not([class*="gradient-"]), html.dark .glass-card, html.dark .modal-content {
+    background: rgba(15, 23, 42, 0.65) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    color: #f8fafc !important;
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5) !important;
+}
+
+html.dark .card:not([class*="gradient-"]):hover {
+    box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.7) !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+html.dark .card:not([class*="gradient-"]) .card-header {
+    background-color: rgba(15, 23, 42, 0.8) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+html.dark .card-header h5, html.dark .card-header h6 {
+    color: #f8fafc !important;
+}
+
+html.dark .text-primary {
+    color: #f59e0b !important; /* Premium Gold/Amber Accent */
+}
+
+html.dark .btn-primary {
+    background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%) !important; /* Premium Purple/Violet CTA */
+    border: none !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 10px rgba(139, 92, 246, 0.3) !important;
+}
+
+html.dark .btn-primary:hover,
+html.dark .btn-primary:focus,
+html.dark .btn-primary:active {
+    background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%) !important;
+    box-shadow: 0 6px 16px rgba(139, 92, 246, 0.4) !important;
+}
+
+html.dark .table thead th {
+    background-color: rgba(15, 23, 42, 0.5) !important;
+    color: #94a3b8 !important;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+html.dark .table tbody td {
+    color: #cbd5e1 !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+html.dark .table-hover tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.02) !important;
+}
+
+html.dark .form-control, html.dark .form-select {
+    background-color: rgba(15, 23, 42, 0.8) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.1) !important;
+    color: #f8fafc !important;
+}
+
+html.dark .form-control:focus, html.dark .form-select:focus {
+    border-color: #f59e0b !important;
+    box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.15) !important;
+}
+
+html.dark .navbar-vertical-modern {
+    background: rgba(15, 23, 42, 0.8) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5) !important;
+}
+
+html.dark .nav-item-link {
+    color: #94a3b8 !important;
+}
+
+html.dark .nav-item-link:hover {
+    color: #f59e0b !important;
+    background: rgba(245, 158, 11, 0.08) !important;
+}
+
+html.dark .nav-item-link.active {
+    background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.35) !important;
+}
+
+html.dark .dropdown-header-custom {
+    color: #f8fafc !important;
+}
+
+html.dark .dropdown-item-custom {
+    color: #94a3b8 !important;
+}
+
+html.dark .dropdown-item-custom:hover {
+    color: #f59e0b !important;
+    background: rgba(245, 158, 11, 0.08) !important;
+}
+
+html.dark .dropdown-item-custom.active {
+    color: #f59e0b !important;
+    background: rgba(245, 158, 11, 0.12) !important;
+}
+
+html.dark .submenu-trigger {
+    color: #cbd5e1 !important;
+}
+
+html.dark .submenu-trigger:hover {
+    background: rgba(245, 158, 11, 0.05) !important;
+    color: #f59e0b !important;
+}
+
+html.dark .user-profile-section {
+    border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+html.dark .user-name {
+    color: #f8fafc !important;
+}
+
+html.dark .user-role {
+    color: #94a3b8 !important;
+}
+
+html.dark .logout-btn {
+    color: #ef4444 !important;
+}
+
+html.dark .logout-btn:hover {
+    background: rgba(239, 68, 68, 0.1) !important;
+}
+
+html.dark ::-webkit-scrollbar-track {
+    background: #0b0f19;
+}
+
+html.dark ::-webkit-scrollbar-thumb {
+    background: #1e293b !important;
+    border: 1px solid #0b0f19;
+}
+
+html.dark ::-webkit-scrollbar-thumb:hover {
+    background: #334155 !important;
+}
+
+/* Premium Dark Mode DataTables, Pagination, and Dropdowns Overrides */
+html.dark .pagination .page-link {
+    background-color: rgba(15, 23, 42, 0.6) !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+    color: #cbd5e1 !important;
+}
+
+html.dark .pagination .page-item.active .page-link {
+    background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%) !important;
+    border-color: transparent !important;
+    color: #ffffff !important;
+}
+
+html.dark .pagination .page-item.disabled .page-link {
+    background-color: rgba(15, 23, 42, 0.3) !important;
+    border-color: rgba(255, 255, 255, 0.05) !important;
+    color: #64748b !important;
+}
+
+html.dark .dataTables_info {
+    color: #94a3b8 !important;
+}
+
+html.dark .dataTables_length, html.dark .dataTables_filter {
+    color: #cbd5e1 !important;
+}
+
+html.dark select option {
+    background-color: #0f172a !important;
+    color: #f8fafc !important;
+}
+
+html.dark .dropdown-menu {
+    background-color: #151a23 !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5) !important;
+}
+
+html.dark .dropdown-item {
+    color: #cbd5e1 !important;
+}
+
+html.dark .dropdown-item:hover, html.dark .dropdown-item:focus {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    color: #f8fafc !important;
+}
+
+/* Direct DataTables Paginate Button Styling overrides */
+html.dark .dataTables_wrapper .dataTables_paginate .paginate_button {
+    background: rgba(15, 23, 42, 0.6) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    color: #cbd5e1 !important;
+    border-radius: 6px !important;
+}
+html.dark .dataTables_wrapper .dataTables_paginate .paginate_button.current,
+html.dark .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+    background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%) !important;
+    border-color: transparent !important;
+    color: #ffffff !important;
+}
+html.dark .dataTables_wrapper .dataTables_paginate .paginate_button.disabled,
+html.dark .dataTables_wrapper .dataTables_paginate .paginate_button.disabled:hover,
+html.dark .dataTables_wrapper .dataTables_paginate .paginate_button.disabled:active {
+    background-color: rgba(15, 23, 42, 0.3) !important;
+    border-color: rgba(255, 255, 255, 0.05) !important;
+    color: #64748b !important;
+}
+html.dark .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+    background: rgba(255, 255, 255, 0.05) !important;
+    color: #f8fafc !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+/* Contrast helpers for bootstrap text shades in dark mode */
+html.dark .text-black, html.dark .text-dark, html.dark .text-900 {
+    color: #f8fafc !important;
+}
+html.dark .text-800 {
+    color: #f1f5f9 !important;
+}
+html.dark .text-700 {
+    color: #e2e8f0 !important;
+}
+html.dark .text-600 {
+    color: #cbd5e1 !important;
+}
+html.dark .text-500 {
+    color: #94a3b8 !important;
+}
 </style>
 
 <div class="navbar-vertical-modern">

@@ -103,6 +103,23 @@
                 background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
                 color: #ffffff !important;
             }
+            /* Dark mode overrides for dashboard cards */
+            html.dark .kpi-card {
+                background: rgba(15, 23, 42, 0.65) !important;
+                backdrop-filter: blur(16px) !important;
+                border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                color: #f8fafc !important;
+                box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5) !important;
+            }
+            html.dark .kpi-card .card-title-sub {
+                color: #94a3b8 !important;
+            }
+            html.dark .kpi-card .card-value {
+                color: #f8fafc !important;
+            }
+            html.dark .kpi-card .card-detail-text {
+                color: #cbd5e1 !important;
+            }
             .card-title-sub {
                 font-size: 0.7rem;
                 opacity: 0.85;
@@ -166,9 +183,6 @@
                                             <div class="card-value" id="n-month-amount">LKR 0.00</div>
                                             <div class="card-detail-text" id="n-month-count">0 Accounts</div>
                                         </div>
-                                        <div class="bg-white bg-opacity-20 rounded p-2 text-white">
-                                            <i class="fas fa-calendar-day fa-lg"></i>
-                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -181,9 +195,6 @@
                                             <span class="card-title-sub">YTD (Financial Year)</span>
                                             <div class="card-value" id="n-ytd-amount">LKR 0.00</div>
                                             <div class="card-detail-text" id="n-ytd-count">0 Accounts</div>
-                                        </div>
-                                        <div class="bg-white bg-opacity-20 rounded p-2 text-white">
-                                            <i class="fas fa-calendar-alt fa-lg"></i>
                                         </div>
                                     </div>
                                 </div>
@@ -198,9 +209,6 @@
                                             <div class="card-value" id="n-portfolio-amount">LKR 0.00</div>
                                             <div class="card-detail-text" id="n-portfolio-count">0 Accounts</div>
                                         </div>
-                                        <div class="bg-white bg-opacity-20 rounded p-2 text-white">
-                                            <i class="fas fa-briefcase fa-lg"></i>
-                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -213,9 +221,6 @@
                                             <span class="card-title-sub">NPL</span>
                                             <div class="card-value" id="n-npl-exposure">LKR 0.00</div>
                                             <div class="card-detail-text" id="n-npl-count">0 Accounts (Arrears: LKR 0)</div>
-                                        </div>
-                                        <div class="bg-white bg-opacity-20 rounded p-2 text-white">
-                                            <i class="fas fa-exclamation-triangle fa-lg"></i>
                                         </div>
                                     </div>
                                 </div>
