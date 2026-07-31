@@ -426,9 +426,15 @@
             </div>
         </main>
 
-        <div id="detailsLoader" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.7); z-index: 9999; justify-content: center; align-items: center; flex-direction: column;">
-            <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"></div>
-            <span class="mt-2 fw-semi-bold">Loading contract details...</span>
+        <div id="detailsLoader" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.4); z-index: 9999; justify-content: center; align-items: center; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); transition: all 0.3s ease;">
+            <div class="loader-widget">
+                <div class="orb-container">
+                    <div class="orb"></div>
+                    <div class="orb"></div>
+                    <div class="orb"></div>
+                </div>
+                <span class="fw-bold fs--1 text-800 text-uppercase tracking-wider">Loading Contract Details</span>
+            </div>
         </div>
 
 

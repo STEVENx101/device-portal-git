@@ -50,19 +50,24 @@
         <style>
             body {
                 background-color: #f8fafc !important;
-                background-image: radial-gradient(rgba(99, 102, 241, 0.04) 1.5px, transparent 1.5px) !important;
-                background-size: 24px 24px !important;
+                background-image: 
+                    radial-gradient(at 0% 0%, rgba(139, 92, 246, 0.03) 0px, transparent 50%),
+                    radial-gradient(at 100% 100%, rgba(99, 102, 241, 0.03) 0px, transparent 50%),
+                    linear-gradient(rgba(99, 102, 241, 0.02) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(99, 102, 241, 0.02) 1px, transparent 1px) !important;
+                background-size: 100% 100%, 100% 100%, 24px 24px, 24px 24px !important;
                 transition: background-color 0.3s, color 0.3s;
             }
 
             /* Dark theme background override */
             html.dark body {
                 background-color: #0b0f19 !important;
-                background-image: url('assets/img/chatgpt_bg.png?v=2') !important;
-                background-repeat: no-repeat !important;
-                background-position: center center !important;
-                background-attachment: fixed !important;
-                background-size: cover !important;
+                background-image: 
+                    radial-gradient(at 0% 0%, rgba(139, 92, 246, 0.08) 0px, transparent 50%),
+                    radial-gradient(at 100% 100%, rgba(99, 102, 241, 0.05) 0px, transparent 50%),
+                    linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px) !important;
+                background-size: 100% 100%, 100% 100%, 24px 24px, 24px 24px !important;
                 color: #f8fafc !important;
             }
 

@@ -7,7 +7,7 @@
 /* -------------------------------------------------------------------------- */
 var CONFIG = {
   isNavbarVerticalCollapsed: false,
-  theme: 'dark',
+  theme: 'light',
   isRTL: false,
   isFluid: false,
   navbarStyle: 'transparent',
@@ -19,10 +19,10 @@ Object.keys(CONFIG).forEach(function (key) {
   }
 });
 
-// One-time migration to switch existing users to the new default dark theme
-if (!localStorage.getItem('theme_migrated_v1')) {
-  localStorage.setItem('theme', 'dark');
-  localStorage.setItem('theme_migrated_v1', 'true');
+// One-time migration to switch existing users to the new default light theme
+if (!localStorage.getItem('theme_migrated_v2')) {
+  localStorage.setItem('theme', 'light');
+  localStorage.setItem('theme_migrated_v2', 'true');
 }
 
 if (JSON.parse(localStorage.getItem('isNavbarVerticalCollapsed'))) {
@@ -31,4 +31,6 @@ if (JSON.parse(localStorage.getItem('isNavbarVerticalCollapsed'))) {
 
 if (localStorage.getItem('theme') === 'dark') {
   document.documentElement.classList.add('dark');
+} else {
+  document.documentElement.classList.remove('dark');
 }
