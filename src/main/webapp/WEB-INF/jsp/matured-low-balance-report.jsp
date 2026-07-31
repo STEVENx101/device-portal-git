@@ -137,13 +137,13 @@
                                             <th>Mature Date</th>
                                             <th>Loan Amount</th>
                                             <th>Rental</th>
+                                            <th>Charge Amount</th>
                                             <th>Total Due</th>
                                             <th>Exposure</th>
                                             <th>DPD</th>
                                             <th>Locked Status</th>
                                             <th>Recovery Officer</th>
                                             <th>Customer Name</th>
-                                            <th>Charge Amount</th>
                                         </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -225,13 +225,13 @@
                         { data: 'mature_date', defaultContent: '-' },
                         { data: 'loan_amount', render: $.fn.dataTable.render.number(',', '.', 2) },
                         { data: 'rental', render: $.fn.dataTable.render.number(',', '.', 2) },
+                        { data: 'charge_amount', defaultContent: '-', render: $.fn.dataTable.render.number(',', '.', 2) },
                         { data: 'total_due', render: $.fn.dataTable.render.number(',', '.', 2) },
                         { data: 'exposure', render: $.fn.dataTable.render.number(',', '.', 2) },
                         { data: 'dpd' },
                         { data: 'lock_status' },
                         { data: 'recovery_officer', defaultContent: '-' },
-                        { data: 'client_name' },
-                        { data: 'charge_amount', defaultContent: '-', render: $.fn.dataTable.render.number(',', '.', 2) }
+                        { data: 'client_name' }
                     ]
                 });
 

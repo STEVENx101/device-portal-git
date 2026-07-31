@@ -119,7 +119,7 @@
                     
                     <div id="searchContainer" class="d-flex flex-column align-items-center mt-2 mb-2">
                         <div class="search-box w-50" data-list='{"valueNames":["title"]}'>
-                            <form class="position-relative w-100" data-bs-toggle="search" data-bs-display="static"><input class="form-control search-input fuzzy-search" type="search" placeholder="Search by Finance No, Name, or NIC..." aria-label="Search" />
+                            <form class="position-relative w-100" data-bs-toggle="search" data-bs-display="static"><input class="form-control search-input fuzzy-search ps-5" type="search" placeholder="Search by Finance No, Name, or NIC..." aria-label="Search" />
                                 <span class="fas fa-search search-box-icon"></span>
                             </form>
                             <div class="btn-close-falcon-container position-absolute end-0 top-50 translate-middle shadow-none" data-bs-dismiss="search"><button class="btn btn-link btn-close-falcon p-0" aria-label="Close"></button></div>
