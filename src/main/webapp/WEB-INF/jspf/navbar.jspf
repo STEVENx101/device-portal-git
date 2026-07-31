@@ -1169,9 +1169,13 @@ html.dark .orb {
     transform: translate(-50%, -50%) !important;
     margin-left: 0 !important;
     margin-top: 0 !important;
-    display: flex !important;
+    display: none !important;
     justify-content: center !important;
     align-items: center !important;
+}
+
+.dataTables_wrapper .dataTables_processing[style*="display: block"] {
+    display: flex !important;
 }
 
 html.dark .dataTables_wrapper .dataTables_processing {
