@@ -400,35 +400,36 @@
                                                     data: amounts,
                                                     backgroundColor: function(context) {
                                                         const chart = context.chart;
-                                                        return getGradient(chart.ctx, chart.chartArea, 
-                                                            isDark ? 'rgba(139, 92, 246, 0.15)' : 'rgba(99, 102, 241, 0.15)', 
-                                                            isDark ? 'rgba(139, 92, 246, 0.85)' : 'rgba(99, 102, 241, 0.85)'
-                                                        );
+                                                        const {ctx: canvasCtx, chartArea} = chart;
+                                                        if (!chartArea) return isDark ? 'rgba(139, 92, 246, 0.85)' : 'rgba(99, 102, 241, 0.85)';
+                                                        const gradient = canvasCtx.createLinearGradient(chartArea.left, 0, chartArea.right, 0);
+                                                        gradient.addColorStop(0, isDark ? 'rgba(139, 92, 246, 0.15)' : 'rgba(99, 102, 241, 0.15)');
+                                                        gradient.addColorStop(1, isDark ? 'rgba(139, 92, 246, 0.85)' : 'rgba(99, 102, 241, 0.85)');
+                                                        return gradient;
                                                     },
                                                     borderColor: isDark ? '#8b5cf6' : '#6366f1',
                                                     borderWidth: 2,
-                                                    borderRadius: { topLeft: 8, topRight: 8, bottomLeft: 0, bottomRight: 0 },
-                                                    barThickness: 30
+                                                    borderRadius: { topRight: 8, bottomRight: 8, topLeft: 0, bottomLeft: 0 },
+                                                    barThickness: 16
                                                 }
                                             ]
                                         },
                                         options: {
+                                            indexAxis: 'y',
                                             responsive: true,
                                             maintainAspectRatio: false,
                                             scales: {
                                                 x: {
-                                                    grid: { display: false }
-                                                },
-                                                y: {
                                                     type: 'linear',
-                                                    display: true,
-                                                    position: 'left',
                                                     beginAtZero: true,
                                                     grid: { 
                                                         borderDash: [4, 4], 
                                                         color: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(226, 232, 240, 0.4)' 
                                                     },
                                                     title: { display: true, text: 'LKR Millions', font: { weight: 'bold' }, color: isDark ? '#94a3b8' : '#475569' }
+                                                },
+                                                y: {
+                                                    grid: { display: false }
                                                 }
                                             },
                                             plugins: {
