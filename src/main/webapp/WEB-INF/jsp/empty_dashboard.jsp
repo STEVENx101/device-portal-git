@@ -48,18 +48,19 @@
         <!-- Chart.js for premium analytics rendering -->
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script>
-            // Set premium global defaults for Chart.js in Light Theme
+            // Set premium global defaults for Chart.js dynamically supporting dark mode
+            const isDark = document.documentElement.classList.contains('dark');
             Chart.defaults.font.family = "'Plus Jakarta Sans', 'Inter', sans-serif";
             Chart.defaults.font.weight = '500';
-            Chart.defaults.color = "#64748b"; // slate-500
+            Chart.defaults.color = isDark ? "#94a3b8" : "#64748b";
             
             // Tooltip styling
-            Chart.defaults.plugins.tooltip.backgroundColor = "rgba(255, 255, 255, 0.96)";
-            Chart.defaults.plugins.tooltip.titleColor = "#1e293b";
+            Chart.defaults.plugins.tooltip.backgroundColor = isDark ? "rgba(15, 23, 42, 0.96)" : "rgba(255, 255, 255, 0.96)";
+            Chart.defaults.plugins.tooltip.titleColor = isDark ? "#f8fafc" : "#1e293b";
             Chart.defaults.plugins.tooltip.titleFont = { size: 13, weight: 'bold' };
-            Chart.defaults.plugins.tooltip.bodyColor = "#475569";
+            Chart.defaults.plugins.tooltip.bodyColor = isDark ? "#cbd5e1" : "#475569";
             Chart.defaults.plugins.tooltip.bodyFont = { size: 12 };
-            Chart.defaults.plugins.tooltip.borderColor = "#e2e8f0";
+            Chart.defaults.plugins.tooltip.borderColor = isDark ? "rgba(255, 255, 255, 0.1)" : "#e2e8f0";
             Chart.defaults.plugins.tooltip.borderWidth = 1;
             Chart.defaults.plugins.tooltip.cornerRadius = 10;
             Chart.defaults.plugins.tooltip.padding = 12;
@@ -70,6 +71,7 @@
             Chart.defaults.plugins.legend.labels.usePointStyle = true;
             Chart.defaults.plugins.legend.labels.padding = 15;
             Chart.defaults.plugins.legend.labels.font = { size: 12, weight: '600' };
+            Chart.defaults.plugins.legend.labels.color = isDark ? "#94a3b8" : "#64748b";
         </script>
 
         <script>
@@ -343,6 +345,15 @@
                                 return new Intl.NumberFormat().format(val);
                             };
 
+                            // Helper function to create canvas gradients dynamically
+                            function getGradient(ctx, chartArea, startColor, endColor) {
+                                if (!chartArea) return startColor;
+                                const gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
+                                gradient.addColorStop(0, startColor);
+                                gradient.addColorStop(1, endColor);
+                                return gradient;
+                            }
+
                             // API statistics fetching
                             fetch('${pageContext.request.contextPath}/api/dashboard/stats')
                                 .then(response => {
@@ -387,11 +398,17 @@
                                                 {
                                                     label: 'Disbursed Amount (LKR Mn)',
                                                     data: amounts,
-                                                    backgroundColor: 'rgba(99, 102, 241, 0.75)',
-                                                    borderColor: '#6366f1',
-                                                    borderWidth: 1.5,
-                                                    borderRadius: 6,
-                                                    barThickness: 25
+                                                    backgroundColor: function(context) {
+                                                        const chart = context.chart;
+                                                        return getGradient(chart.ctx, chart.chartArea, 
+                                                            isDark ? 'rgba(139, 92, 246, 0.15)' : 'rgba(99, 102, 241, 0.15)', 
+                                                            isDark ? 'rgba(139, 92, 246, 0.85)' : 'rgba(99, 102, 241, 0.85)'
+                                                        );
+                                                    },
+                                                    borderColor: isDark ? '#8b5cf6' : '#6366f1',
+                                                    borderWidth: 2,
+                                                    borderRadius: { topLeft: 8, topRight: 8, bottomLeft: 0, bottomRight: 0 },
+                                                    barThickness: 22
                                                 }
                                             ]
                                         },
@@ -400,15 +417,18 @@
                                             maintainAspectRatio: false,
                                             scales: {
                                                 x: {
-                                                    grid: { color: 'rgba(226, 232, 240, 0.6)' }
+                                                    grid: { display: false }
                                                 },
                                                 y: {
                                                     type: 'linear',
                                                     display: true,
                                                     position: 'left',
                                                     beginAtZero: true,
-                                                    grid: { color: 'rgba(226, 232, 240, 0.6)' },
-                                                    title: { display: true, text: 'LKR Millions', font: { weight: 'bold' } }
+                                                    grid: { 
+                                                        borderDash: [4, 4], 
+                                                        color: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(226, 232, 240, 0.4)' 
+                                                    },
+                                                    title: { display: true, text: 'LKR Millions', font: { weight: 'bold' }, color: isDark ? '#94a3b8' : '#475569' }
                                                 }
                                             },
                                             plugins: {
@@ -442,7 +462,8 @@
                                                     backgroundColor: 'rgba(16, 185, 129, 0.75)',
                                                     borderColor: '#10b981',
                                                     borderWidth: 1.5,
-                                                    barThickness: 35
+                                                    borderRadius: 4,
+                                                    barThickness: 30
                                                 },
                                                 {
                                                     label: 'DPD 1-30',
@@ -450,7 +471,8 @@
                                                     backgroundColor: 'rgba(245, 158, 11, 0.75)',
                                                     borderColor: '#f59e0b',
                                                     borderWidth: 1.5,
-                                                    barThickness: 35
+                                                    borderRadius: 4,
+                                                    barThickness: 30
                                                 },
                                                 {
                                                     label: 'DPD 31-60',
@@ -458,7 +480,8 @@
                                                     backgroundColor: 'rgba(249, 115, 22, 0.75)',
                                                     borderColor: '#f97316',
                                                     borderWidth: 1.5,
-                                                    barThickness: 35
+                                                    borderRadius: 4,
+                                                    barThickness: 30
                                                 },
                                                 {
                                                     label: 'DPD 61-90',
@@ -466,15 +489,17 @@
                                                     backgroundColor: 'rgba(239, 68, 68, 0.75)',
                                                     borderColor: '#ef4444',
                                                     borderWidth: 1.5,
-                                                    barThickness: 35
+                                                    borderRadius: 4,
+                                                    barThickness: 30
                                                 },
                                                 {
                                                     label: 'Over 90 DPD',
                                                     data: dpdAbove90,
-                                                    backgroundColor: 'rgba(30, 41, 59, 0.75)',
-                                                    borderColor: '#1e293b',
+                                                    backgroundColor: isDark ? 'rgba(167, 139, 250, 0.75)' : 'rgba(30, 41, 59, 0.75)',
+                                                    borderColor: isDark ? '#a78bfa' : '#1e293b',
                                                     borderWidth: 1.5,
-                                                    barThickness: 35
+                                                    borderRadius: 4,
+                                                    barThickness: 30
                                                 }
                                             ]
                                         },
@@ -484,13 +509,16 @@
                                             scales: {
                                                 x: {
                                                     stacked: true,
-                                                    grid: { color: 'rgba(226, 232, 240, 0.6)' }
+                                                    grid: { display: false }
                                                 },
                                                 y: {
                                                     stacked: true,
                                                     beginAtZero: true,
-                                                    grid: { color: 'rgba(226, 232, 240, 0.6)' },
-                                                    title: { display: true, text: 'LKR Millions', font: { weight: 'bold' } }
+                                                    grid: { 
+                                                        borderDash: [4, 4], 
+                                                        color: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(226, 232, 240, 0.4)' 
+                                                    },
+                                                    title: { display: true, text: 'LKR Millions', font: { weight: 'bold' }, color: isDark ? '#94a3b8' : '#475569' }
                                                 }
                                             },
                                             plugins: {
@@ -528,10 +556,20 @@
                                             datasets: [{
                                                 label: 'Payment Amount (LKR)',
                                                 data: amounts,
-                                                backgroundColor: 'rgba(79, 70, 229, 0.8)',
-                                                borderColor: 'rgba(79, 70, 229, 1)',
-                                                borderWidth: 1,
-                                                borderRadius: 4
+                                                backgroundColor: function(context) {
+                                                    const chart = context.chart;
+                                                    // Dynamic horizontal gradient
+                                                    const {ctx: canvasCtx, chartArea} = chart;
+                                                    if (!chartArea) return isDark ? 'rgba(167, 139, 250, 0.85)' : 'rgba(79, 70, 229, 0.8)';
+                                                    const gradient = canvasCtx.createLinearGradient(chartArea.left, 0, chartArea.right, 0);
+                                                    gradient.addColorStop(0, isDark ? 'rgba(167, 139, 250, 0.15)' : 'rgba(79, 70, 229, 0.15)');
+                                                    gradient.addColorStop(1, isDark ? 'rgba(167, 139, 250, 0.85)' : 'rgba(79, 70, 229, 0.85)');
+                                                    return gradient;
+                                                },
+                                                borderColor: isDark ? '#a78bfa' : 'rgba(79, 70, 229, 1)',
+                                                borderWidth: 1.5,
+                                                borderRadius: { topRight: 6, bottomRight: 6, topLeft: 0, bottomLeft: 0 },
+                                                barThickness: 16
                                             }]
                                         },
                                         options: {
@@ -552,6 +590,7 @@
                                                 x: {
                                                     grid: { display: false },
                                                     ticks: {
+                                                        color: isDark ? '#94a3b8' : '#64748b',
                                                         callback: function(value) {
                                                             if (value >= 1000000) return (value / 1000000).toFixed(1) + 'M';
                                                             if (value >= 1000) return (value / 1000).toFixed(0) + 'K';
@@ -560,7 +599,10 @@
                                                     }
                                                 },
                                                 y: {
-                                                    grid: { display: false }
+                                                    grid: { display: false },
+                                                    ticks: {
+                                                        color: isDark ? '#94a3b8' : '#64748b'
+                                                    }
                                                 }
                                             }
                                         }
@@ -585,15 +627,25 @@
                                                 datasets: [{
                                                     data: counts.length ? counts : [0, 0],
                                                     backgroundColor: colorsList,
-                                                    borderWidth: 1
+                                                    borderColor: isDark ? 'rgba(15, 23, 42, 0.65)' : '#ffffff',
+                                                    borderWidth: 2,
+                                                    spacing: 4
                                                 }]
                                             },
                                             options: {
                                                 responsive: true,
                                                 maintainAspectRatio: false,
-                                                cutout: '60%',
+                                                cutout: '75%',
                                                 plugins: {
-                                                    legend: { position: 'bottom', labels: { boxWidth: 10, padding: 8, font: { size: 10 } } }
+                                                    legend: { 
+                                                        position: 'bottom', 
+                                                        labels: { 
+                                                            boxWidth: 8, 
+                                                            padding: 10, 
+                                                            font: { size: 10, weight: '600' },
+                                                            color: isDark ? '#94a3b8' : '#64748b'
+                                                        } 
+                                                    }
                                                 }
                                             }
                                         });

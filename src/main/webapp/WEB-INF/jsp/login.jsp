@@ -52,13 +52,82 @@
                 background-color: #f8fafc !important;
                 background-image: radial-gradient(rgba(99, 102, 241, 0.04) 1.5px, transparent 1.5px) !important;
                 background-size: 24px 24px !important;
+                transition: background-color 0.3s, color 0.3s;
             }
+
+            /* Dark theme background override */
+            html.dark body {
+                background-color: #0b0f19 !important;
+                background-image: url('assets/img/chatgpt_bg.png?v=2') !important;
+                background-repeat: no-repeat !important;
+                background-position: center center !important;
+                background-attachment: fixed !important;
+                background-size: cover !important;
+                color: #f8fafc !important;
+            }
+
             .log-bg {
                 background: transparent !important;
             }
 
             .ft-size {
                 font-size: small;
+            }
+
+            /* Glassmorphic login card styling */
+            .login-card {
+                border-radius: 16px !important;
+                border: 1px solid rgba(0, 0, 0, 0.06) !important;
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05) !important;
+                background: rgba(255, 255, 255, 0.8) !important;
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                overflow: hidden;
+            }
+
+            html.dark .login-card {
+                background: rgba(15, 23, 42, 0.45) !important;
+                border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4) !important;
+            }
+
+            /* Left banner section */
+            .banner-section {
+                background: linear-gradient(135deg, rgba(99, 102, 241, 0.03) 0%, rgba(139, 92, 246, 0.03) 100%);
+                border-right: 1px solid rgba(0, 0, 0, 0.04);
+            }
+
+            html.dark .banner-section {
+                background: linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, rgba(99, 102, 241, 0.03) 100%) !important;
+                border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
+            }
+
+            /* Text styles override */
+            html.dark h3 {
+                color: #f8fafc !important;
+                font-weight: 700;
+                letter-spacing: 0.5px;
+            }
+
+            /* Premium CTA button overrides */
+            .btn-sso {
+                background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%) !important;
+                border: none !important;
+                color: #ffffff !important;
+                padding: 12px 24px !important;
+                font-weight: 600 !important;
+                border-radius: 8px !important;
+                box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3) !important;
+                transition: transform 0.2s, box-shadow 0.2s !important;
+            }
+
+            .btn-sso:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4) !important;
+            }
+
+            .btn-sso:active {
+                transform: translateY(1px);
             }
         </style>
 
@@ -67,10 +136,10 @@
                 <div class="container-fluid log-bg">
                     <div class="row min-vh-100 flex-center g-0">
                         <div class="col-lg-5 col-xxl-5 py-3 position-relative">
-                            <div class="card overflow-hidden z-index-1">
+                            <div class="card login-card z-index-1">
                                 <div class="card-body p-0">
                                     <div class="row g-0 h-100">
-                                        <div class="col-md-5 text-center">
+                                        <div class="col-md-5 text-center banner-section">
                                             <div class="position-relative p-4 pt-md-5 pb-md-7 light">
                                                 <div class="row">
                                                     <div class="col-sm-12">
@@ -97,14 +166,14 @@
                                         <div class="col-md-7 d-flex flex-center">
                                             <div class="p-4 p-md-5 flex-grow-1">
                                                 <div class="row flex-between-center">
-                                                    <div class="col-auto">
+                                                    <div class="col-auto mb-3">
                                                         <h3>LOGIN</h3>
                                                     </div>
                                                 </div>
                                                 <div id="error-message" class="alert alert-danger p-2 fs--1"
                                                     style="display: none;"></div>
 
-                                                <button id="ssoLoginBtn" class="btn btn-outline-primary d-block w-100" type="button">
+                                                <button id="ssoLoginBtn" class="btn btn-sso d-block w-100" type="button">
                                                     <span class="fas fa-key me-2"></span>Login with SSO
                                                 </button>
                                             </div>
