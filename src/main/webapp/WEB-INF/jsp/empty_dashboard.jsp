@@ -38,21 +38,26 @@
         <script src="${pageContext.request.contextPath}/vendors/simplebar/simplebar.min.js"></script>
 
         <link rel="preconnect" href="https://fonts.gstatic.com/">
-        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,500,600,700%7cPoppins:300,400,500,600,700,800,900&amp;display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
         <link href="${pageContext.request.contextPath}/vendors/simplebar/simplebar.min.css" rel="stylesheet">
         <link href="${pageContext.request.contextPath}/assets/css/theme-rtl.min.css" rel="stylesheet" id="style-rtl">
         <link href="${pageContext.request.contextPath}/assets/css/theme.min.css" rel="stylesheet" id="style-default">
         <link href="${pageContext.request.contextPath}/assets/css/user-rtl.min.css" rel="stylesheet" id="user-style-rtl">
         <link href="${pageContext.request.contextPath}/assets/css/user.min.css" rel="stylesheet" id="user-style-default">
         
-        <!-- Chart.js for premium analytics rendering -->
+        <!-- Chart.js and Datalabels for premium analytics rendering -->
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
         <script>
             // Set premium global defaults for Chart.js dynamically supporting dark mode
             const isDark = document.documentElement.classList.contains('dark');
-            Chart.defaults.font.family = "'Plus Jakarta Sans', 'Inter', sans-serif";
+            Chart.defaults.font.family = "'Plus Jakarta Sans', 'Poppins', sans-serif";
             Chart.defaults.font.weight = '500';
             Chart.defaults.color = isDark ? "#94a3b8" : "#64748b";
+
+            // Register and disable datalabels plugin globally so we only enable it on specific doughnut charts
+            Chart.register(ChartDataLabels);
+            Chart.defaults.plugins.datalabels.display = false;
             
             // Tooltip styling
             Chart.defaults.plugins.tooltip.backgroundColor = isDark ? "rgba(15, 23, 42, 0.96)" : "rgba(255, 255, 255, 0.96)";
@@ -148,6 +153,64 @@
                 overflow-y: auto !important;
                 height: calc(100vh - 20px) !important;
                 padding-right: 15px !important;
+            }
+            
+            /* Modern Futuristic Card & Header Styles */
+            .card {
+                border-radius: 12px !important;
+                border: 1px solid rgba(226, 232, 240, 0.8) !important;
+                box-shadow: 0 4px 15px -1px rgba(0, 0, 0, 0.03) !important;
+                transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            }
+            html.dark .card {
+                background: rgba(15, 23, 42, 0.6) !important;
+                backdrop-filter: blur(20px) !important;
+                -webkit-backdrop-filter: blur(20px) !important;
+                border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25) !important;
+            }
+            .card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 12px 28px -4px rgba(99, 102, 241, 0.12) !important;
+            }
+            html.dark .card:hover {
+                box-shadow: 0 12px 30px -4px rgba(245, 158, 11, 0.15) !important;
+            }
+            .card-header {
+                background: transparent !important;
+                border-bottom: 1px solid rgba(99, 102, 241, 0.12) !important;
+                padding: 14px 20px !important;
+                border-left: 4px solid #6366f1 !important;
+                border-top-left-radius: 12px !important;
+                border-top-right-radius: 12px !important;
+            }
+            html.dark .card-header {
+                border-bottom: 1px solid rgba(245, 158, 11, 0.15) !important;
+                border-left: 4px solid #f59e0b !important;
+            }
+            .card-header h6.text-primary {
+                font-family: 'Plus Jakarta Sans', 'Poppins', sans-serif !important;
+                text-transform: uppercase !important;
+                letter-spacing: 0.8px !important;
+                font-size: 0.82rem !important;
+                font-weight: 700 !important;
+                background: linear-gradient(90deg, #6366f1, #a855f7) !important;
+                -webkit-background-clip: text !important;
+                -webkit-text-fill-color: transparent !important;
+                display: inline-flex !important;
+                align-items: center !important;
+            }
+            html.dark .card-header h6.text-primary {
+                background: linear-gradient(90deg, #f59e0b, #fbbf24) !important;
+                -webkit-background-clip: text !important;
+                -webkit-text-fill-color: transparent !important;
+            }
+            .card-header h6.text-primary i {
+                -webkit-text-fill-color: #6366f1 !important;
+                margin-right: 8px !important;
+            }
+            html.dark .card-header h6.text-primary i {
+                -webkit-text-fill-color: #f59e0b !important;
             }
         </style>
     </head>
@@ -464,7 +527,7 @@
                                                     borderColor: '#10b981',
                                                     borderWidth: 1.5,
                                                     borderRadius: 4,
-                                                    barThickness: 30
+                                                    barThickness: 16
                                                 },
                                                 {
                                                     label: 'DPD 1-30',
@@ -473,7 +536,7 @@
                                                     borderColor: '#f59e0b',
                                                     borderWidth: 1.5,
                                                     borderRadius: 4,
-                                                    barThickness: 30
+                                                    barThickness: 16
                                                 },
                                                 {
                                                     label: 'DPD 31-60',
@@ -482,7 +545,7 @@
                                                     borderColor: '#f97316',
                                                     borderWidth: 1.5,
                                                     borderRadius: 4,
-                                                    barThickness: 30
+                                                    barThickness: 16
                                                 },
                                                 {
                                                     label: 'DPD 61-90',
@@ -491,7 +554,7 @@
                                                     borderColor: '#ef4444',
                                                     borderWidth: 1.5,
                                                     borderRadius: 4,
-                                                    barThickness: 30
+                                                    barThickness: 16
                                                 },
                                                 {
                                                     label: 'Over 90 DPD',
@@ -500,32 +563,33 @@
                                                     borderColor: isDark ? '#a78bfa' : '#1e293b',
                                                     borderWidth: 1.5,
                                                     borderRadius: 4,
-                                                    barThickness: 30
+                                                    barThickness: 16
                                                 }
                                             ]
                                         },
                                         options: {
-                                            responsive: true,
-                                            maintainAspectRatio: false,
-                                            scales: {
-                                                x: {
-                                                    stacked: true,
-                                                    grid: { display: false }
-                                                },
-                                                y: {
-                                                    stacked: true,
-                                                    beginAtZero: true,
-                                                    grid: { 
-                                                        borderDash: [4, 4], 
-                                                        color: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(226, 232, 240, 0.4)' 
-                                                    },
-                                                    title: { display: true, text: 'LKR Millions', font: { weight: 'bold' }, color: isDark ? '#94a3b8' : '#475569' }
-                                                }
-                                            },
-                                            plugins: {
-                                                legend: { position: 'bottom' }
-                                            }
-                                        }
+                                             indexAxis: 'y',
+                                             responsive: true,
+                                             maintainAspectRatio: false,
+                                             scales: {
+                                                 x: {
+                                                     stacked: true,
+                                                     beginAtZero: true,
+                                                     grid: { 
+                                                         borderDash: [4, 4], 
+                                                         color: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(226, 232, 240, 0.4)' 
+                                                     },
+                                                     title: { display: true, text: 'LKR Millions', font: { weight: 'bold' }, color: isDark ? '#94a3b8' : '#475569' }
+                                                 },
+                                                 y: {
+                                                     stacked: true,
+                                                     grid: { display: false }
+                                                 }
+                                             },
+                                             plugins: {
+                                                 legend: { position: 'bottom' }
+                                             }
+                                         }
                                     });
                                 })
                                 .catch(err => console.error("Error loading DPD comparison chart:", err));
@@ -620,6 +684,41 @@
                                         const labels = dataset.map(item => item.state_name);
                                         const counts = dataset.map(item => item.count_val);
                                         
+                                        // Custom center text plugin for this chart instance
+                                        const centerTextPlugin = {
+                                            id: 'centerTextPlugin',
+                                            beforeDraw: function(chart) {
+                                                const width = chart.width,
+                                                      height = chart.height,
+                                                      ctx = chart.ctx;
+                                                ctx.restore();
+                                                
+                                                const total = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                                
+                                                // Responsive font size
+                                                const fontSize = (chart.innerRadius / 35).toFixed(2);
+                                                ctx.font = "bold " + fontSize + "em 'Plus Jakarta Sans', sans-serif";
+                                                ctx.textBaseline = "middle";
+                                                ctx.fillStyle = isDark ? "#f8fafc" : "#0f172a";
+                                                
+                                                const text = total.toLocaleString(),
+                                                      textX = Math.round((width - ctx.measureText(text).width) / 2),
+                                                      textY = chart.chartArea.top + (chart.chartArea.bottom - chart.chartArea.top) / 2 - 6;
+                                                
+                                                ctx.fillText(text, textX, textY);
+                                                
+                                                // Subtitle below center count
+                                                ctx.font = "600 0.7em 'Plus Jakarta Sans', sans-serif";
+                                                ctx.fillStyle = isDark ? "#64748b" : "#94a3b8";
+                                                const labelText = "Total",
+                                                      labelX = Math.round((width - ctx.measureText(labelText).width) / 2),
+                                                      labelY = textY + 14;
+                                                      
+                                                ctx.fillText(labelText, labelX, labelY);
+                                                ctx.save();
+                                            }
+                                        };
+
                                         const ctx = document.getElementById(canvasId).getContext('2d');
                                         new Chart(ctx, {
                                             type: 'doughnut',
@@ -628,25 +727,51 @@
                                                 datasets: [{
                                                     data: counts.length ? counts : [0, 0],
                                                     backgroundColor: colorsList,
-                                                    borderColor: isDark ? 'rgba(15, 23, 42, 0.65)' : '#ffffff',
-                                                    borderWidth: 2,
-                                                    spacing: 4
+                                                    borderColor: isDark ? 'rgba(15, 23, 42, 0.95)' : '#ffffff',
+                                                    borderWidth: 2.5,
+                                                    hoverOffset: 4,
+                                                    spacing: 3
                                                 }]
                                             },
+                                            plugins: [centerTextPlugin],
                                             options: {
                                                 responsive: true,
                                                 maintainAspectRatio: false,
-                                                cutout: '75%',
+                                                cutout: '72%',
                                                 plugins: {
+                                                    datalabels: {
+                                                        display: true,
+                                                        color: '#ffffff',
+                                                        font: {
+                                                            family: "'Plus Jakarta Sans', sans-serif",
+                                                            weight: 'bold',
+                                                            size: 10
+                                                        },
+                                                        formatter: (value, ctx) => {
+                                                            let sum = 0;
+                                                            let dataArr = ctx.chart.data.datasets[0].data;
+                                                            dataArr.map(data => {
+                                                                sum += data;
+                                                            });
+                                                            if (sum === 0) return '';
+                                                            let percentage = (value * 100 / sum).toFixed(0);
+                                                            if (percentage === "0" || value === 0) return '';
+                                                            return percentage + "%";
+                                                        },
+                                                        anchor: 'center',
+                                                        align: 'center',
+                                                        textShadowColor: 'rgba(0, 0, 0, 0.6)',
+                                                        textShadowBlur: 4
+                                                    },
                                                     legend: { 
                                                         position: 'bottom', 
                                                         labels: { 
                                                             boxWidth: 8, 
-                                                            padding: 10, 
+                                                            padding: 8, 
                                                             font: { size: 10, weight: '600' },
                                                             color: isDark ? '#94a3b8' : '#64748b'
                                                         } 
-                                                    }
+                                                     }
                                                 }
                                             }
                                         });
@@ -657,7 +782,7 @@
                                         'mobilePerformingChart',
                                         data.mobilePerforming,
                                         ['Performing', 'Non-Performing'],
-                                        ['rgba(16, 185, 129, 0.75)', 'rgba(239, 68, 68, 0.75)']
+                                        ['rgba(16, 185, 129, 0.85)', 'rgba(244, 63, 94, 0.85)']
                                     );
                                     
                                     // 2. Mobile Locked
@@ -665,7 +790,7 @@
                                         'mobileLockChart',
                                         data.mobileLock,
                                         ['Active', 'Locked'],
-                                        ['rgba(79, 70, 229, 0.75)', 'rgba(245, 158, 11, 0.75)']
+                                        ['rgba(99, 102, 241, 0.85)', 'rgba(245, 158, 11, 0.85)']
                                     );
 
                                     // 3. Laptop Performing
@@ -673,7 +798,7 @@
                                         'laptopPerformingChart',
                                         data.laptopPerforming,
                                         ['Performing', 'Non-Performing'],
-                                        ['rgba(16, 185, 129, 0.75)', 'rgba(239, 68, 68, 0.75)']
+                                        ['rgba(16, 185, 129, 0.85)', 'rgba(244, 63, 94, 0.85)']
                                     );
 
                                     // 4. Laptop Locked
@@ -681,7 +806,7 @@
                                         'laptopLockChart',
                                         data.laptopLock,
                                         ['Active', 'Locked'],
-                                        ['rgba(79, 70, 229, 0.75)', 'rgba(245, 158, 11, 0.75)']
+                                        ['rgba(99, 102, 241, 0.85)', 'rgba(245, 158, 11, 0.85)']
                                     );
                                 })
                                 .catch(err => console.error("Error loading device status charts:", err));
