@@ -273,18 +273,20 @@
 
                     <!-- Row 2: Trend Chart and NPL model/dealer details side-by-side -->
                     <div class="row g-2 mb-2">
-                        <!-- Left: Monthly trend charts (2/3 width, Clean No Header) -->
-                        <div class="col-lg-8 col-md-7">
+                        <!-- Left: Monthly trend charts (wider) -->
+                        <div class="col-lg-9 col-md-8">
                             <div class="card shadow-sm h-100">
                                 <div class="card-body p-3">
-                                    <div class="row g-2">
+                                    <div class="row g-3">
                                         <div class="col-6">
-                                            <div style="height: 180px; position: relative; width: 100%;">
+                                            <div class="fs--2 fw-semi-bold text-muted mb-1"><i class="fas fa-chart-line me-1"></i>Month-Wise Disbursements</div>
+                                            <div style="height: 220px; position: relative; width: 100%;">
                                                 <canvas id="businessChart"></canvas>
                                             </div>
                                         </div>
                                         <div class="col-6">
-                                            <div style="height: 180px; position: relative; width: 100%;">
+                                            <div class="fs--2 fw-semi-bold text-muted mb-1"><i class="fas fa-chart-bar me-1"></i>DPD Status (Month-Wise)</div>
+                                            <div style="height: 220px; position: relative; width: 100%;">
                                                 <canvas id="dpdComparisonChart"></canvas>
                                             </div>
                                         </div>
@@ -293,22 +295,22 @@
                             </div>
                         </div>
 
-                        <!-- Right: Highest NPL Model and Dealer (1/3 width) -->
-                        <div class="col-lg-4 col-md-5">
+                        <!-- Right: NPL Model & Dealer (compact, matching KPI cards) -->
+                        <div class="col-lg-3 col-md-4">
                             <div class="d-flex flex-column gap-2 h-100">
                                 <!-- Highest NPL Model -->
-                                <div class="card shadow-sm flex-fill" style="border-left: 3px solid #ef4444 !important;">
-                                    <div class="card-body p-3">
+                                <div class="card kpi-card shadow-sm flex-fill" style="border-left: 3px solid #ef4444 !important;">
+                                    <div class="card-body p-2 d-flex flex-column justify-content-center">
                                         <span class="card-title-sub text-muted">HIGHEST NPL MODEL</span>
-                                        <div class="card-value text-danger mt-1" id="npl-model-name" style="font-size: 1.1rem;">Loading...</div>
+                                        <div class="card-value text-danger" id="npl-model-name" style="font-size: 0.95rem;">Loading...</div>
                                         <div class="card-detail-text text-muted" id="npl-model-count">0 Accounts</div>
                                     </div>
                                 </div>
                                 <!-- Highest NPL Dealer -->
-                                <div class="card shadow-sm flex-fill" style="border-left: 3px solid #f59e0b !important;">
-                                    <div class="card-body p-3">
+                                <div class="card kpi-card shadow-sm flex-fill" style="border-left: 3px solid #f59e0b !important;">
+                                    <div class="card-body p-2 d-flex flex-column justify-content-center">
                                         <span class="card-title-sub text-muted">HIGHEST NPL DEALER</span>
-                                        <div class="card-value text-warning mt-1" id="npl-dealer-name" style="font-size: 1.1rem;">Loading...</div>
+                                        <div class="card-value text-warning" id="npl-dealer-name" style="font-size: 0.95rem;">Loading...</div>
                                         <div class="card-detail-text text-muted" id="npl-dealer-count">0 Accounts</div>
                                     </div>
                                 </div>
@@ -316,33 +318,34 @@
                         </div>
                     </div>
 
-                    <!-- Row 3: Device status & lock doughnuts (Performing & Lock status, Clean No Header) -->
-                    <div class="row g-2 mb-2">
+                    <!-- Row 3: Device status & lock doughnuts -->
+                    <div class="row g-2 mb-2" style="margin-top: 4px;">
                         <div class="col-12">
                             <div class="card shadow-sm">
                                 <div class="card-body p-3">
-                                    <div class="row g-1 align-items-center text-center">
+                                    <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-hdd me-1"></i>Device Performance & Security Status</div>
+                                    <div class="row g-3 align-items-center text-center">
                                         <div class="col-3">
                                             <div class="fs--2 fw-semi-bold text-muted mb-2">Mobiles Performing</div>
-                                            <div style="height: 120px; position: relative; width: 100%;">
+                                            <div style="height: 130px; position: relative; width: 100%;">
                                                 <canvas id="mobilePerformingChart"></canvas>
                                             </div>
                                         </div>
                                         <div class="col-3">
                                             <div class="fs--2 fw-semi-bold text-muted mb-2">Mobiles Lock</div>
-                                            <div style="height: 120px; position: relative; width: 100%;">
+                                            <div style="height: 130px; position: relative; width: 100%;">
                                                 <canvas id="mobileLockChart"></canvas>
                                             </div>
                                         </div>
                                         <div class="col-3">
                                             <div class="fs--2 fw-semi-bold text-muted mb-2">Laptops Performing</div>
-                                            <div style="height: 120px; position: relative; width: 100%;">
+                                            <div style="height: 130px; position: relative; width: 100%;">
                                                 <canvas id="laptopPerformingChart"></canvas>
                                             </div>
                                         </div>
                                         <div class="col-3">
                                             <div class="fs--2 fw-semi-bold text-muted mb-2">Laptops Lock</div>
-                                            <div style="height: 120px; position: relative; width: 100%;">
+                                            <div style="height: 130px; position: relative; width: 100%;">
                                                 <canvas id="laptopLockChart"></canvas>
                                             </div>
                                         </div>
@@ -664,21 +667,22 @@
                                             ]
                                         },
                                         options: {
+                                            indexAxis: 'y',
                                             responsive: true,
                                             maintainAspectRatio: false,
                                             scales: {
                                                 x: {
-                                                    stacked: true,
-                                                    grid: { display: false },
-                                                    ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 9, weight: 'bold' } }
-                                                },
-                                                y: {
                                                     stacked: true,
                                                     beginAtZero: true,
                                                     grid: {
                                                         borderDash: [4, 4],
                                                         color: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(226, 232, 240, 0.4)'
                                                     },
+                                                    ticks: { display: false }
+                                                },
+                                                y: {
+                                                    stacked: true,
+                                                    grid: { display: false },
                                                     ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 9, weight: 'bold' } }
                                                 }
                                             },
