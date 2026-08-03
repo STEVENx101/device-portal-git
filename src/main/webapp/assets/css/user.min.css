@@ -147,6 +147,32 @@ body {
     padding-bottom: 10px !important;
 }
 
+/* Dashboard-specific override: allow scrolling for the expanded dashboard */
+.content.dashboard-content {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    height: calc(100vh - 85px) !important;
+    max-height: calc(100vh - 85px) !important;
+    padding-bottom: 40px !important;
+    display: block !important;
+}
+
+/* Dashboard scrollbar styling */
+.dashboard-content::-webkit-scrollbar {
+    width: 6px;
+}
+.dashboard-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+.dashboard-content::-webkit-scrollbar-thumb {
+    background: rgba(99, 102, 241, 0.4);
+    border-radius: 4px;
+}
+.dashboard-content::-webkit-scrollbar-thumb:hover {
+    background: rgba(168, 85, 247, 0.6);
+}
+
+
 #detailsCard {
     flex: 0 0 auto;
     margin-bottom: 1rem !important;

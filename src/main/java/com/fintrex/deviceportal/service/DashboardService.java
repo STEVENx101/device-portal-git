@@ -37,5 +37,29 @@ public class DashboardService {
     public Map<String, Object> getDeviceStatusCharts() {
         return dashboardRepository.getDeviceStatusCharts();
     }
+
+    public List<Map<String, Object>> getDealerCurrentMonthBusiness() {
+        return dashboardRepository.getDealerCurrentMonthBusiness();
+    }
+
+    public List<Map<String, Object>> getDealerPortfolioBusiness() {
+        return dashboardRepository.getDealerPortfolioBusiness();
+    }
+
+    public List<Map<String, Object>> getArrearsAnalysis() {
+        return dashboardRepository.getArrearsAnalysis();
+    }
+
+    public Map<String, Object> getHighestNplModel() {
+        return dashboardRepository.getHighestNplModel();
+    }
+
+    public Map<String, Object> getHighestNplDealer() {
+        return dashboardRepository.getHighestNplDealer();
+    }
+
+    public List<Map<String, Object>> getCollectionsDealerWise() {
+        return dashboardRepository.getCollectionsDealerWise();
+    }
 }
 

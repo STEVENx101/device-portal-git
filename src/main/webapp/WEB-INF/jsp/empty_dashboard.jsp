@@ -110,6 +110,22 @@
                 background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
                 color: #ffffff !important;
             }
+            .gradient-5 {
+                background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%) !important;
+                color: #ffffff !important;
+            }
+            .gradient-6 {
+                background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%) !important;
+                color: #ffffff !important;
+            }
+            .gradient-7 {
+                background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%) !important;
+                color: #ffffff !important;
+            }
+            .gradient-8 {
+                background: linear-gradient(135deg, #64748b 0%, #475569 100%) !important;
+                color: #ffffff !important;
+            }
             /* Dark mode overrides for dashboard cards */
             html.dark .kpi-card {
                 background: rgba(15, 23, 42, 0.65) !important;
@@ -149,10 +165,12 @@
                 height: 280px;
                 width: 100%;
             }
-            .content {
+            /* Dashboard content must scroll */
+            .dashboard-content {
                 overflow-y: auto !important;
                 height: calc(100vh - 20px) !important;
                 padding-right: 15px !important;
+                padding-bottom: 30px !important;
             }
             
             /* Modern Futuristic Card & Header Styles */
@@ -212,6 +230,107 @@
             html.dark .card-header h6.text-primary i {
                 -webkit-text-fill-color: #f59e0b !important;
             }
+
+            /* Security strip mini cards */
+            .security-mini-card {
+                border-radius: 10px !important;
+                padding: 12px 16px !important;
+                transition: transform 0.2s, box-shadow 0.2s;
+                cursor: default;
+            }
+            .security-mini-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 20px rgba(99, 102, 241, 0.12) !important;
+            }
+            .security-mini-card .mini-label {
+                font-size: 0.65rem;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.06em;
+                opacity: 0.9;
+            }
+            .security-mini-card .mini-value {
+                font-size: 1.1rem;
+                font-weight: 800;
+            }
+            .security-mini-card .mini-detail {
+                font-size: 0.62rem;
+                opacity: 0.85;
+                font-weight: 600;
+            }
+
+            /* NPL Highlight cards */
+            .npl-highlight-card {
+                border-radius: 12px !important;
+                padding: 20px !important;
+                position: relative;
+                overflow: hidden;
+            }
+            .npl-highlight-card::before {
+                content: '';
+                position: absolute;
+                top: -50%;
+                right: -50%;
+                width: 100%;
+                height: 100%;
+                background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+                pointer-events: none;
+            }
+            .npl-highlight-card .highlight-icon {
+                width: 44px;
+                height: 44px;
+                border-radius: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.2rem;
+                background: rgba(255,255,255,0.2);
+                margin-bottom: 12px;
+            }
+            .npl-highlight-card .highlight-label {
+                font-size: 0.7rem;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                opacity: 0.85;
+            }
+            .npl-highlight-card .highlight-name {
+                font-size: 1.05rem;
+                font-weight: 800;
+                margin: 4px 0;
+                line-height: 1.3;
+            }
+            .npl-highlight-card .highlight-stat {
+                font-size: 0.72rem;
+                font-weight: 600;
+                opacity: 0.9;
+            }
+
+            /* Section dividers */
+            .section-title {
+                font-family: 'Plus Jakarta Sans', sans-serif;
+                font-size: 0.78rem;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.08em;
+                color: #6366f1;
+                margin-bottom: 12px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+            html.dark .section-title {
+                color: #f59e0b;
+            }
+            .section-title::after {
+                content: '';
+                flex: 1;
+                height: 1px;
+                background: linear-gradient(90deg, rgba(99, 102, 241, 0.3), transparent);
+            }
+            html.dark .section-title::after {
+                background: linear-gradient(90deg, rgba(245, 158, 11, 0.3), transparent);
+            }
         </style>
     </head>
 
@@ -228,7 +347,7 @@
                 </script>
                 <%@include file="../jspf/navbar.jspf" %>
 
-                <div class="content">
+                <div class="content dashboard-content">
                     <%@include file="../jspf/topbar.jspf" %>
 
                     <div class="d-flex mb-3 align-items-center justify-content-between mt-2">
@@ -237,55 +356,88 @@
                         </div>
                     </div>
 
-                    <!-- N-Status Metrics Card Row -->
-                    <div class="row g-2 mb-3">
-                        <div class="col-md-3">
+                    <!-- ======================== ROW 1: Primary KPI Cards ======================== -->
+                    <div class="section-title"><i class="fas fa-chart-pie"></i> Key Performance Indicators</div>
+                    <div class="row g-2 mb-2">
+                        <!-- Current Month Loans -->
+                        <div class="col-lg-2 col-md-4 col-sm-6">
                             <div class="card kpi-card gradient-1 shadow-sm h-100">
                                 <div class="card-body p-2">
                                     <div class="d-flex justify-content-between align-items-start">
                                         <div>
-                                            <span class="card-title-sub">Current Month Business</span>
-                                            <div class="card-value" id="n-month-amount">LKR 0.00</div>
-                                            <div class="card-detail-text" id="n-month-count">0 Accounts</div>
+                                            <span class="card-title-sub">Current Month Loans</span>
+                                            <div class="card-value" id="kpi-month-count">0</div>
+                                            <div class="card-detail-text" id="kpi-month-amount">LKR 0.00 Mn</div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-3">
-                            <div class="card kpi-card gradient-2 shadow-sm h-100">
-                                <div class="card-body p-2">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <div>
-                                            <span class="card-title-sub">YTD (Financial Year)</span>
-                                            <div class="card-value" id="n-ytd-amount">LKR 0.00</div>
-                                            <div class="card-detail-text" id="n-ytd-count">0 Accounts</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
+                        <!-- Active Loans -->
+                        <div class="col-lg-2 col-md-4 col-sm-6">
                             <div class="card kpi-card gradient-3 shadow-sm h-100">
                                 <div class="card-body p-2">
                                     <div class="d-flex justify-content-between align-items-start">
                                         <div>
-                                            <span class="card-title-sub">Portfolio</span>
-                                            <div class="card-value" id="n-portfolio-amount">LKR 0.00</div>
-                                            <div class="card-detail-text" id="n-portfolio-count">0 Accounts</div>
+                                            <span class="card-title-sub">Active Loans</span>
+                                            <div class="card-value" id="kpi-active-count">0</div>
+                                            <div class="card-detail-text">Active status</div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-3">
+                        <!-- NPL Count -->
+                        <div class="col-lg-2 col-md-4 col-sm-6">
                             <div class="card kpi-card gradient-4 shadow-sm h-100">
                                 <div class="card-body p-2">
                                     <div class="d-flex justify-content-between align-items-start">
                                         <div>
-                                            <span class="card-title-sub">NPL</span>
-                                            <div class="card-value" id="n-npl-exposure">LKR 0.00</div>
-                                            <div class="card-detail-text" id="n-npl-count">0 Accounts (Arrears: LKR 0)</div>
+                                            <span class="card-title-sub">NPL Count</span>
+                                            <div class="card-value" id="kpi-npl-count">0</div>
+                                            <div class="card-detail-text" id="kpi-npl-exposure">LKR 0.00 Mn</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Arrears -->
+                        <div class="col-lg-2 col-md-4 col-sm-6">
+                            <div class="card kpi-card gradient-5 shadow-sm h-100">
+                                <div class="card-body p-2">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <span class="card-title-sub">Arrears</span>
+                                            <div class="card-value" id="kpi-arrears-count">0</div>
+                                            <div class="card-detail-text" id="kpi-arrears-amount">LKR 0.00 Mn</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Portfolio -->
+                        <div class="col-lg-2 col-md-4 col-sm-6">
+                            <div class="card kpi-card gradient-2 shadow-sm h-100">
+                                <div class="card-body p-2">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <span class="card-title-sub">Portfolio</span>
+                                            <div class="card-value" id="kpi-portfolio-amount">LKR 0.00 Mn</div>
+                                            <div class="card-detail-text" id="kpi-portfolio-count">0 Accounts</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- YTD -->
+                        <div class="col-lg-2 col-md-4 col-sm-6">
+                            <div class="card kpi-card gradient-7 shadow-sm h-100">
+                                <div class="card-body p-2">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <span class="card-title-sub">YTD (Fin Year)</span>
+                                            <div class="card-value" id="kpi-ytd-amount">LKR 0.00 Mn</div>
+                                            <div class="card-detail-text" id="kpi-ytd-count">0 Accounts</div>
                                         </div>
                                     </div>
                                 </div>
@@ -293,7 +445,100 @@
                         </div>
                     </div>
 
-                    <!-- Interactive Analytics Charts Row -->
+                    <!-- KPI Row 2: Business, NPL Arrears, and Security Counts -->
+                    <div class="row g-2 mb-3">
+                        <!-- Current Month Business -->
+                        <div class="col-lg-2 col-md-4 col-sm-6">
+                            <div class="card kpi-card gradient-8 shadow-sm h-100">
+                                <div class="card-body p-2">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <span class="card-title-sub">Month Business</span>
+                                            <div class="card-value" id="kpi-month-biz-amount">LKR 0.00 Mn</div>
+                                            <div class="card-detail-text" id="kpi-month-biz-count">0 Accounts</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- NPL Arrears -->
+                        <div class="col-lg-2 col-md-4 col-sm-6">
+                            <div class="card kpi-card gradient-6 shadow-sm h-100">
+                                <div class="card-body p-2">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <span class="card-title-sub">NPL Arrears</span>
+                                            <div class="card-value" id="kpi-npl-arrears">LKR 0.00 Mn</div>
+                                            <div class="card-detail-text">Non-performing</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Datacultr -->
+                        <div class="col-lg-2 col-md-4 col-sm-6">
+                            <div class="card kpi-card shadow-sm h-100" style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: #fff;">
+                                <div class="card-body p-2">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <span class="card-title-sub">Datacultr</span>
+                                            <div class="card-value" id="sec-datacultr-total">0</div>
+                                            <div class="card-detail-text"><span id="sec-datacultr-locked">0</span> L &bull; <span id="sec-datacultr-unlocked">0</span> U</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Knox -->
+                        <div class="col-lg-2 col-md-4 col-sm-6">
+                            <div class="card kpi-card shadow-sm h-100" style="background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%); color: #fff;">
+                                <div class="card-body p-2">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <span class="card-title-sub">Knox</span>
+                                            <div class="card-value" id="sec-knox-total">0</div>
+                                            <div class="card-detail-text"><span id="sec-knox-locked">0</span> L &bull; <span id="sec-knox-unlocked">0</span> U</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Absolute (Laptops) -->
+                        <div class="col-lg-2 col-md-4 col-sm-6">
+                            <div class="card kpi-card shadow-sm h-100" style="background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%); color: #fff;">
+                                <div class="card-body p-2">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <span class="card-title-sub">Absolute</span>
+                                            <div class="card-value" id="sec-absolute-total">0</div>
+                                            <div class="card-detail-text"><span id="sec-absolute-locked">0</span> L &bull; <span id="sec-absolute-unlocked">0</span> U</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Mobile/Laptop Lock Status Summary -->
+                        <div class="col-lg-2 col-md-4 col-sm-6">
+                            <div class="card kpi-card shadow-sm h-100" style="background: linear-gradient(135deg, #10b981 0%, #047857 100%); color: #fff;">
+                                <div class="card-body p-2">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <span class="card-title-sub">Lock Status</span>
+                                            <div class="card-value" style="font-size: 1.15rem; margin-top: 0.5rem;">
+                                                M: <span id="sec-mobile-locked-val">0</span>L/<span id="sec-mobile-unlocked-val">0</span>U
+                                            </div>
+                                            <div class="card-detail-text" style="font-size: 0.65rem;">
+                                                L: <span id="sec-laptop-locked-val">0</span>L/<span id="sec-laptop-unlocked-val">0</span>U
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ======================== ROW 3: Charts - Business & DPD ======================== -->
+                    <div class="section-title"><i class="fas fa-chart-bar"></i> Business & DPD Analytics</div>
                     <div class="row g-3 mb-4">
                         <!-- Chart 1: Month-wise Business -->
                         <div class="col-lg-6">
@@ -324,24 +569,123 @@
                         </div>
                     </div>
 
-                    <!-- Second Row: Vendor Payments & Device Status Analytics -->
+                    <!-- ======================== ROW 4: Dealer Analytics ======================== -->
+                    <div class="section-title"><i class="fas fa-store"></i> Dealer Analytics</div>
                     <div class="row g-3 mb-4">
-                        <!-- Chart 3: Vendor Payments (Channel-Wise) -->
-                        <div class="col-lg-4">
+                        <!-- Dealer Current Month Business -->
+                        <div class="col-lg-6">
                             <div class="card shadow-sm h-100">
                                 <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
-                                    <h6 class="mb-0 text-primary fw-bold"><i class="fas fa-money-check-alt me-2"></i>Vendor Payments (Current Month)</h6>
+                                    <h6 class="mb-0 text-primary fw-bold"><i class="fas fa-store me-2"></i>Dealer's Current Month Business</h6>
                                 </div>
                                 <div class="card-body p-3 d-flex flex-column justify-content-center">
-                                    <div class="chart-container" style="height: 280px; position: relative; width: 100%;">
-                                        <canvas id="vendorPaymentsChart"></canvas>
+                                    <div class="chart-container" style="height: 320px; position: relative; width: 100%;">
+                                        <canvas id="dealerCurrentMonthChart"></canvas>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Chart 4: Mobile Device Status -->
-                        <div class="col-lg-4">
+                        <!-- Dealer Portfolio Business -->
+                        <div class="col-lg-6">
+                            <div class="card shadow-sm h-100">
+                                <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
+                                    <h6 class="mb-0 text-primary fw-bold"><i class="fas fa-briefcase me-2"></i>Dealer's Portfolio Business (As At Now)</h6>
+                                </div>
+                                <div class="card-body p-3 d-flex flex-column justify-content-center">
+                                    <div class="chart-container" style="height: 320px; position: relative; width: 100%;">
+                                        <canvas id="dealerPortfolioChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ======================== ROW 5: Arrears Analysis & NPL Highlights ======================== -->
+                    <div class="section-title"><i class="fas fa-exclamation-circle"></i> Arrears & NPL Analysis</div>
+                    <div class="row g-3 mb-4">
+                        <!-- Arrears Analysis Doughnut -->
+                        <div class="col-lg-5">
+                            <div class="card shadow-sm h-100">
+                                <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
+                                    <h6 class="mb-0 text-primary fw-bold"><i class="fas fa-chart-pie me-2"></i>Arrears Analysis (DPD Buckets)</h6>
+                                </div>
+                                <div class="card-body p-3 d-flex flex-column justify-content-center">
+                                    <div class="chart-container" style="height: 300px; position: relative; width: 100%;">
+                                        <canvas id="arrearsAnalysisChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Highest NPL Model & Dealer -->
+                        <div class="col-lg-7">
+                            <div class="row g-3 h-100">
+                                <!-- Highest NPL Model -->
+                                <div class="col-md-6">
+                                    <div class="card npl-highlight-card gradient-5 shadow-sm h-100">
+                                        <div class="highlight-icon">
+                                            <i class="fas fa-mobile-alt"></i>
+                                        </div>
+                                        <div class="highlight-label">Highest NPL Model</div>
+                                        <div class="highlight-name" id="npl-model-name">Loading...</div>
+                                        <div class="highlight-stat" id="npl-model-count">0 Accounts</div>
+                                        <div class="highlight-stat" id="npl-model-exposure">Exposure: LKR 0.00 Mn</div>
+                                    </div>
+                                </div>
+                                <!-- Highest NPL Dealer -->
+                                <div class="col-md-6">
+                                    <div class="card npl-highlight-card gradient-4 shadow-sm h-100">
+                                        <div class="highlight-icon">
+                                            <i class="fas fa-store"></i>
+                                        </div>
+                                        <div class="highlight-label">Highest NPL Dealer</div>
+                                        <div class="highlight-name" id="npl-dealer-name">Loading...</div>
+                                        <div class="highlight-stat" id="npl-dealer-count">0 Accounts</div>
+                                        <div class="highlight-stat" id="npl-dealer-exposure">Exposure: LKR 0.00 Mn</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ======================== ROW 6: Collections Dealer Wise ======================== -->
+                    <div class="section-title"><i class="fas fa-hand-holding-usd"></i> Collections</div>
+                    <div class="row g-3 mb-4">
+                        <!-- Collections Dealer Wise -->
+                        <div class="col-lg-6">
+                            <div class="card shadow-sm h-100">
+                                <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
+                                    <h6 class="mb-0 text-primary fw-bold"><i class="fas fa-hand-holding-usd me-2"></i>Collections Dealer Wise (Current Month)</h6>
+                                </div>
+                                <div class="card-body p-3 d-flex flex-column justify-content-center">
+                                    <div class="chart-container" style="height: 320px; position: relative; width: 100%;">
+                                        <canvas id="collectionsDealerChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Vendor Payments (existing, moved here) -->
+                        <div class="col-lg-6">
+                            <div class="card shadow-sm h-100">
+                                <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
+                                    <h6 class="mb-0 text-primary fw-bold"><i class="fas fa-money-check-alt me-2"></i>Vendor Payments (Current Month)</h6>
+                                </div>
+                                <div class="card-body p-3 d-flex flex-column justify-content-center">
+                                    <div class="chart-container" style="height: 320px; position: relative; width: 100%;">
+                                        <canvas id="vendorPaymentsChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ======================== ROW 7: Device Status Charts ======================== -->
+                    <div class="section-title"><i class="fas fa-hdd"></i> Device Status Analytics</div>
+                    <div class="row g-3 mb-4">
+                        <!-- Mobile Device Status -->
+                        <div class="col-lg-6">
                             <div class="card shadow-sm h-100">
                                 <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
                                     <h6 class="mb-0 text-primary fw-bold"><i class="fas fa-mobile-alt me-2"></i>Mobile Device Status (MF)</h6>
@@ -365,8 +709,8 @@
                             </div>
                         </div>
 
-                        <!-- Chart 5: Laptop Device Status -->
-                        <div class="col-lg-4">
+                        <!-- Laptop Device Status -->
+                        <div class="col-lg-6">
                             <div class="card shadow-sm h-100">
                                 <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
                                     <h6 class="mb-0 text-primary fw-bold"><i class="fas fa-laptop me-2"></i>Laptop Device Status (LF)</h6>
@@ -391,7 +735,7 @@
                         </div>
                     </div>
 
-                    <!-- Fetch and Render Script -->
+                    <!-- ======================== SCRIPTS ======================== -->
                     <script>
                         document.addEventListener("DOMContentLoaded", function() {
                             const formatLKR = (val) => {
@@ -417,7 +761,67 @@
                                 return gradient;
                             }
 
-                            // API statistics fetching
+                            // Helper: build horizontal bar chart (reusable)
+                            function buildHorizontalBar(canvasId, labels, amounts, gradientStart, gradientEnd, borderColor, tooltipPrefix) {
+                                const ctx = document.getElementById(canvasId).getContext('2d');
+                                new Chart(ctx, {
+                                    type: 'bar',
+                                    data: {
+                                        labels: labels,
+                                        datasets: [{
+                                            label: tooltipPrefix || 'Amount (LKR)',
+                                            data: amounts,
+                                            backgroundColor: function(context) {
+                                                const chart = context.chart;
+                                                const {ctx: canvasCtx, chartArea} = chart;
+                                                if (!chartArea) return gradientEnd;
+                                                const gradient = canvasCtx.createLinearGradient(chartArea.left, 0, chartArea.right, 0);
+                                                gradient.addColorStop(0, gradientStart);
+                                                gradient.addColorStop(1, gradientEnd);
+                                                return gradient;
+                                            },
+                                            borderColor: borderColor,
+                                            borderWidth: 1.5,
+                                            borderRadius: { topRight: 6, bottomRight: 6, topLeft: 0, bottomLeft: 0 },
+                                            barThickness: 16
+                                        }]
+                                    },
+                                    options: {
+                                        indexAxis: 'y',
+                                        responsive: true,
+                                        maintainAspectRatio: false,
+                                        plugins: {
+                                            legend: { display: false },
+                                            tooltip: {
+                                                callbacks: {
+                                                    label: function(context) {
+                                                        return ' LKR ' + Number(context.raw).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        scales: {
+                                            x: {
+                                                grid: { display: false },
+                                                ticks: {
+                                                    color: isDark ? '#94a3b8' : '#64748b',
+                                                    callback: function(value) {
+                                                        if (value >= 1000000) return (value / 1000000).toFixed(1) + 'M';
+                                                        if (value >= 1000) return (value / 1000).toFixed(0) + 'K';
+                                                        return value;
+                                                    }
+                                                }
+                                            },
+                                            y: {
+                                                grid: { display: false },
+                                                ticks: { color: isDark ? '#94a3b8' : '#64748b' }
+                                            }
+                                        }
+                                    }
+                                });
+                            }
+
+                            // ============ 1. Dashboard Stats (KPI Cards + Security Strip) ============
                             fetch('${pageContext.request.contextPath}/api/dashboard/stats')
                                 .then(response => {
                                     if (!response.ok) {
@@ -428,24 +832,59 @@
                                 .then(data => {
                                     console.log("Dashboard Stats:", data);
                                     
-                                    // Set N-Status Kpis (in Millions)
-                                    document.getElementById("n-month-amount").innerText = formatLKR(data.nMonthAmount);
-                                    document.getElementById("n-month-count").innerText = formatNum(data.nMonthCount) + " Accounts";
+                                    // Primary KPIs
+                                    document.getElementById("kpi-month-count").innerText = formatNum(data.nMonthCount);
+                                    document.getElementById("kpi-month-amount").innerText = formatLKR(data.nMonthAmount);
                                     
-                                    document.getElementById("n-ytd-amount").innerText = formatLKR(data.nYtdAmount);
-                                    document.getElementById("n-ytd-count").innerText = formatNum(data.nYtdCount) + " Accounts";
+                                    document.getElementById("kpi-active-count").innerText = formatNum(data.activeCount);
                                     
-                                    document.getElementById("n-portfolio-amount").innerText = formatLKR(data.nPortfolioAmount);
-                                    document.getElementById("n-portfolio-count").innerText = formatNum(data.nPortfolioCount) + " Accounts";
+                                    document.getElementById("kpi-npl-count").innerText = formatNum(data.nNplCount);
+                                    document.getElementById("kpi-npl-exposure").innerText = "Exposure: " + formatLKR(data.nNplExposure);
                                     
-                                    document.getElementById("n-npl-exposure").innerText = formatLKR(data.nNplExposure);
-                                    document.getElementById("n-npl-count").innerText = formatNum(data.nNplCount) + " Accounts (Arrears: " + formatLKR(data.nNplArrears) + ")";
+                                    document.getElementById("kpi-arrears-count").innerText = formatNum(data.arrearsCount);
+                                    document.getElementById("kpi-arrears-amount").innerText = formatLKR(data.arrearsAmount);
+                                    
+                                    // Secondary KPIs
+                                    document.getElementById("kpi-portfolio-amount").innerText = formatLKR(data.nPortfolioAmount);
+                                    document.getElementById("kpi-portfolio-count").innerText = formatNum(data.nPortfolioCount) + " Accounts";
+                                    
+                                    document.getElementById("kpi-ytd-amount").innerText = formatLKR(data.nYtdAmount);
+                                    document.getElementById("kpi-ytd-count").innerText = formatNum(data.nYtdCount) + " Accounts";
+                                    
+                                    document.getElementById("kpi-month-biz-amount").innerText = formatLKR(data.nMonthAmount);
+                                    document.getElementById("kpi-month-biz-count").innerText = formatNum(data.nMonthCount) + " Accounts";
+                                    
+                                    document.getElementById("kpi-npl-arrears").innerText = formatLKR(data.nNplArrears);
+
+                                    // Security Stats strip
+                                    if (data.securityStats && Array.isArray(data.securityStats)) {
+                                        data.securityStats.forEach(sec => {
+                                            const type = (sec.security_type || '').toUpperCase();
+                                            const locked = Number(sec.locked_count || 0);
+                                            const unlocked = Number(sec.unlocked_count || 0);
+                                            const total = locked + unlocked;
+
+                                            if (type === 'DATACULTR') {
+                                                document.getElementById("sec-datacultr-total").innerText = formatNum(total);
+                                                document.getElementById("sec-datacultr-locked").innerText = formatNum(locked);
+                                                document.getElementById("sec-datacultr-unlocked").innerText = formatNum(unlocked);
+                                            } else if (type === 'KNOX') {
+                                                document.getElementById("sec-knox-total").innerText = formatNum(total);
+                                                document.getElementById("sec-knox-locked").innerText = formatNum(locked);
+                                                document.getElementById("sec-knox-unlocked").innerText = formatNum(unlocked);
+                                            } else if (type === 'ABSOLUTE') {
+                                                document.getElementById("sec-absolute-total").innerText = formatNum(total);
+                                                document.getElementById("sec-absolute-locked").innerText = formatNum(locked);
+                                                document.getElementById("sec-absolute-unlocked").innerText = formatNum(unlocked);
+                                            }
+                                        });
+                                    }
                                 })
                                 .catch(err => {
                                     console.error("Error fetching dashboard statistics:", err);
                                 });
 
-                            // Chart 1: Month Wise Business
+                            // ============ 2. Month Wise Business Chart ============
                             fetch('${pageContext.request.contextPath}/api/dashboard/business-chart')
                                 .then(res => res.json())
                                 .then(data => {
@@ -503,7 +942,7 @@
                                 })
                                 .catch(err => console.error("Error loading business chart:", err));
 
-                            // Chart 2: DPD Comparison Month Wise
+                            // ============ 3. DPD Comparison Month Wise ============
                             fetch('${pageContext.request.contextPath}/api/dashboard/dpd-comparison-chart')
                                 .then(res => res.json())
                                 .then(data => {
@@ -594,7 +1033,7 @@
                                 })
                                 .catch(err => console.error("Error loading DPD comparison chart:", err));
 
-                            // Chart 3: Vendor Payments Horizontal Bar Chart (Top 10 + Others)
+                            // ============ 4. Vendor Payments ============
                             fetch('${pageContext.request.contextPath}/api/dashboard/vendor-payments-chart')
                                 .then(res => res.json())
                                 .then(data => {
@@ -606,76 +1045,21 @@
                                     } else {
                                         chartData = data;
                                     }
-
-                                    // For horizontal bar chart, showing highest on top: reverse it so the highest is at the top of the chart
                                     chartData.reverse();
-
                                     const labels = chartData.map(item => item.channel_name);
                                     const amounts = chartData.map(item => item.total_amount);
                                     
-                                    const ctx = document.getElementById('vendorPaymentsChart').getContext('2d');
-                                    new Chart(ctx, {
-                                        type: 'bar',
-                                        data: {
-                                            labels: labels,
-                                            datasets: [{
-                                                label: 'Payment Amount (LKR)',
-                                                data: amounts,
-                                                backgroundColor: function(context) {
-                                                    const chart = context.chart;
-                                                    // Dynamic horizontal gradient
-                                                    const {ctx: canvasCtx, chartArea} = chart;
-                                                    if (!chartArea) return isDark ? 'rgba(167, 139, 250, 0.85)' : 'rgba(79, 70, 229, 0.8)';
-                                                    const gradient = canvasCtx.createLinearGradient(chartArea.left, 0, chartArea.right, 0);
-                                                    gradient.addColorStop(0, isDark ? 'rgba(167, 139, 250, 0.15)' : 'rgba(79, 70, 229, 0.15)');
-                                                    gradient.addColorStop(1, isDark ? 'rgba(167, 139, 250, 0.85)' : 'rgba(79, 70, 229, 0.85)');
-                                                    return gradient;
-                                                },
-                                                borderColor: isDark ? '#a78bfa' : 'rgba(79, 70, 229, 1)',
-                                                borderWidth: 1.5,
-                                                borderRadius: { topRight: 6, bottomRight: 6, topLeft: 0, bottomLeft: 0 },
-                                                barThickness: 16
-                                            }]
-                                        },
-                                        options: {
-                                            indexAxis: 'y',
-                                            responsive: true,
-                                            maintainAspectRatio: false,
-                                            plugins: {
-                                                legend: { display: false },
-                                                tooltip: {
-                                                    callbacks: {
-                                                        label: function(context) {
-                                                            return ' LKR ' + Number(context.raw).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                                                        }
-                                                    }
-                                                }
-                                            },
-                                            scales: {
-                                                x: {
-                                                    grid: { display: false },
-                                                    ticks: {
-                                                        color: isDark ? '#94a3b8' : '#64748b',
-                                                        callback: function(value) {
-                                                            if (value >= 1000000) return (value / 1000000).toFixed(1) + 'M';
-                                                            if (value >= 1000) return (value / 1000).toFixed(0) + 'K';
-                                                            return value;
-                                                        }
-                                                    }
-                                                },
-                                                y: {
-                                                    grid: { display: false },
-                                                    ticks: {
-                                                        color: isDark ? '#94a3b8' : '#64748b'
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    });
+                                    buildHorizontalBar(
+                                        'vendorPaymentsChart', labels, amounts,
+                                        isDark ? 'rgba(167, 139, 250, 0.15)' : 'rgba(79, 70, 229, 0.15)',
+                                        isDark ? 'rgba(167, 139, 250, 0.85)' : 'rgba(79, 70, 229, 0.85)',
+                                        isDark ? '#a78bfa' : 'rgba(79, 70, 229, 1)',
+                                        'Payment Amount (LKR)'
+                                    );
                                 })
                                 .catch(err => console.error("Error loading vendor payments chart:", err));
 
-                            // Chart 4 & 5: Device Status charts (Mobile / Laptop)
+                            // ============ 5. Device Status Charts ============
                             fetch('${pageContext.request.contextPath}/api/dashboard/device-status-charts')
                                 .then(res => res.json())
                                 .then(data => {
@@ -777,7 +1161,7 @@
                                         });
                                     }
 
-                                    // 1. Mobile Performing
+                                    // Mobile Performing
                                     buildDoughnut(
                                         'mobilePerformingChart',
                                         data.mobilePerforming,
@@ -785,7 +1169,7 @@
                                         ['rgba(16, 185, 129, 0.85)', 'rgba(244, 63, 94, 0.85)']
                                     );
                                     
-                                    // 2. Mobile Locked
+                                    // Mobile Locked
                                     buildDoughnut(
                                         'mobileLockChart',
                                         data.mobileLock,
@@ -793,7 +1177,7 @@
                                         ['rgba(99, 102, 241, 0.85)', 'rgba(245, 158, 11, 0.85)']
                                     );
 
-                                    // 3. Laptop Performing
+                                    // Laptop Performing
                                     buildDoughnut(
                                         'laptopPerformingChart',
                                         data.laptopPerforming,
@@ -801,15 +1185,188 @@
                                         ['rgba(16, 185, 129, 0.85)', 'rgba(244, 63, 94, 0.85)']
                                     );
 
-                                    // 4. Laptop Locked
+                                    // Laptop Locked
                                     buildDoughnut(
                                         'laptopLockChart',
                                         data.laptopLock,
                                         ['Active', 'Locked'],
                                         ['rgba(99, 102, 241, 0.85)', 'rgba(245, 158, 11, 0.85)']
                                     );
+
+                                    // Populate lock strip counts from device status data
+                                    let mobileLocked = 0, mobileUnlocked = 0;
+                                    if (data.mobileLock) {
+                                        data.mobileLock.forEach(item => {
+                                            if (item.state_name === 'Locked') mobileLocked = item.count_val;
+                                            else mobileUnlocked = item.count_val;
+                                        });
+                                    }
+                                    document.getElementById("sec-mobile-locked-val").innerText = formatNum(mobileLocked);
+                                    document.getElementById("sec-mobile-unlocked-val").innerText = formatNum(mobileUnlocked);
+
+                                    let laptopLocked = 0, laptopUnlocked = 0;
+                                    if (data.laptopLock) {
+                                        data.laptopLock.forEach(item => {
+                                            if (item.state_name === 'Locked') laptopLocked = item.count_val;
+                                            else laptopUnlocked = item.count_val;
+                                        });
+                                    }
+                                    document.getElementById("sec-laptop-locked-val").innerText = formatNum(laptopLocked);
+                                    document.getElementById("sec-laptop-unlocked-val").innerText = formatNum(laptopUnlocked);
                                 })
                                 .catch(err => console.error("Error loading device status charts:", err));
+
+                            // ============ 6. Dealer Current Month Business ============
+                            fetch('${pageContext.request.contextPath}/api/dashboard/dealer-current-month')
+                                .then(res => res.json())
+                                .then(data => {
+                                    let chartData = data.length > 10 ? data.slice(0, 10) : data;
+                                    if (data.length > 10) {
+                                        const othersAmt = data.slice(10).reduce((s, i) => s + (i.total_amount || 0), 0);
+                                        chartData.push({ dealer_name: 'Others', total_amount: othersAmt });
+                                    }
+                                    chartData.reverse();
+                                    buildHorizontalBar(
+                                        'dealerCurrentMonthChart',
+                                        chartData.map(i => i.dealer_name),
+                                        chartData.map(i => i.total_amount),
+                                        isDark ? 'rgba(16, 185, 129, 0.15)' : 'rgba(16, 185, 129, 0.15)',
+                                        isDark ? 'rgba(16, 185, 129, 0.85)' : 'rgba(16, 185, 129, 0.85)',
+                                        '#10b981',
+                                        'Disbursed (LKR)'
+                                    );
+                                })
+                                .catch(err => console.error("Error loading dealer current month:", err));
+
+                            // ============ 7. Dealer Portfolio Business ============
+                            fetch('${pageContext.request.contextPath}/api/dashboard/dealer-portfolio')
+                                .then(res => res.json())
+                                .then(data => {
+                                    let chartData = data.length > 10 ? data.slice(0, 10) : data;
+                                    if (data.length > 10) {
+                                        const othersExp = data.slice(10).reduce((s, i) => s + (i.total_exposure || 0), 0);
+                                        chartData.push({ dealer_name: 'Others', total_exposure: othersExp });
+                                    }
+                                    chartData.reverse();
+                                    buildHorizontalBar(
+                                        'dealerPortfolioChart',
+                                        chartData.map(i => i.dealer_name),
+                                        chartData.map(i => i.total_exposure),
+                                        isDark ? 'rgba(99, 102, 241, 0.15)' : 'rgba(99, 102, 241, 0.15)',
+                                        isDark ? 'rgba(99, 102, 241, 0.85)' : 'rgba(99, 102, 241, 0.85)',
+                                        '#6366f1',
+                                        'Exposure (LKR)'
+                                    );
+                                })
+                                .catch(err => console.error("Error loading dealer portfolio:", err));
+
+                            // ============ 8. Arrears Analysis ============
+                            fetch('${pageContext.request.contextPath}/api/dashboard/arrears-analysis')
+                                .then(res => res.json())
+                                .then(data => {
+                                    const labels = data.map(i => i.dpd_bucket);
+                                    const amounts = data.map(i => i.arrears_amount);
+                                    const counts = data.map(i => i.account_count);
+                                    const bucketColors = [
+                                        'rgba(245, 158, 11, 0.85)',   // Current / 1-30
+                                        'rgba(249, 115, 22, 0.85)',   // 31-60
+                                        'rgba(239, 68, 68, 0.85)',    // 61-90
+                                        'rgba(190, 18, 60, 0.85)',    // 90+
+                                        'rgba(99, 102, 241, 0.85)'    // extra
+                                    ];
+
+                                    const ctx = document.getElementById('arrearsAnalysisChart').getContext('2d');
+                                    new Chart(ctx, {
+                                        type: 'doughnut',
+                                        data: {
+                                            labels: labels,
+                                            datasets: [{
+                                                data: amounts,
+                                                backgroundColor: bucketColors.slice(0, labels.length),
+                                                borderColor: isDark ? 'rgba(15, 23, 42, 0.95)' : '#ffffff',
+                                                borderWidth: 2.5,
+                                                hoverOffset: 6,
+                                                spacing: 3
+                                            }]
+                                        },
+                                        options: {
+                                            responsive: true,
+                                            maintainAspectRatio: false,
+                                            cutout: '65%',
+                                            plugins: {
+                                                datalabels: {
+                                                    display: true,
+                                                    color: '#ffffff',
+                                                    font: { family: "'Plus Jakarta Sans', sans-serif", weight: 'bold', size: 11 },
+                                                    formatter: (value, ctx) => {
+                                                        let sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                                        if (sum === 0) return '';
+                                                        let pct = (value * 100 / sum).toFixed(0);
+                                                        if (pct === "0") return '';
+                                                        return pct + "%";
+                                                    },
+                                                    anchor: 'center',
+                                                    align: 'center',
+                                                    textShadowColor: 'rgba(0, 0, 0, 0.6)',
+                                                    textShadowBlur: 4
+                                                },
+                                                legend: { position: 'bottom', labels: { boxWidth: 10, padding: 10, font: { size: 11, weight: '600' } } },
+                                                tooltip: {
+                                                    callbacks: {
+                                                        label: function(context) {
+                                                            const idx = context.dataIndex;
+                                                            const cnt = counts[idx] || 0;
+                                                            return ' LKR ' + Number(context.raw).toLocaleString(undefined, {minimumFractionDigits: 2}) + ' (' + cnt + ' accounts)';
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    });
+                                })
+                                .catch(err => console.error("Error loading arrears analysis:", err));
+
+                            // ============ 9. Highest NPL Model ============
+                            fetch('${pageContext.request.contextPath}/api/dashboard/highest-npl-model')
+                                .then(res => res.json())
+                                .then(data => {
+                                    document.getElementById("npl-model-name").innerText = data.model_name || 'N/A';
+                                    document.getElementById("npl-model-count").innerText = formatNum(data.npl_count || 0) + ' Accounts';
+                                    document.getElementById("npl-model-exposure").innerText = 'Exposure: ' + formatLKR(data.npl_exposure || 0);
+                                })
+                                .catch(err => console.error("Error loading highest NPL model:", err));
+
+                            // ============ 10. Highest NPL Dealer ============
+                            fetch('${pageContext.request.contextPath}/api/dashboard/highest-npl-dealer')
+                                .then(res => res.json())
+                                .then(data => {
+                                    document.getElementById("npl-dealer-name").innerText = data.dealer_name || 'N/A';
+                                    document.getElementById("npl-dealer-count").innerText = formatNum(data.npl_count || 0) + ' Accounts';
+                                    document.getElementById("npl-dealer-exposure").innerText = 'Exposure: ' + formatLKR(data.npl_exposure || 0);
+                                })
+                                .catch(err => console.error("Error loading highest NPL dealer:", err));
+
+                            // ============ 11. Collections Dealer Wise ============
+                            fetch('${pageContext.request.contextPath}/api/dashboard/collections-dealer-wise')
+                                .then(res => res.json())
+                                .then(data => {
+                                    let chartData = data.length > 10 ? data.slice(0, 10) : data;
+                                    if (data.length > 10) {
+                                        const othersAmt = data.slice(10).reduce((s, i) => s + (i.total_collected || 0), 0);
+                                        chartData.push({ dealer_name: 'Others', total_collected: othersAmt });
+                                    }
+                                    chartData.reverse();
+                                    buildHorizontalBar(
+                                        'collectionsDealerChart',
+                                        chartData.map(i => i.dealer_name),
+                                        chartData.map(i => i.total_collected),
+                                        isDark ? 'rgba(245, 158, 11, 0.15)' : 'rgba(245, 158, 11, 0.15)',
+                                        isDark ? 'rgba(245, 158, 11, 0.85)' : 'rgba(245, 158, 11, 0.85)',
+                                        '#f59e0b',
+                                        'Collected (LKR)'
+                                    );
+                                })
+                                .catch(err => console.error("Error loading collections dealer wise:", err));
                         });
                     </script>
 

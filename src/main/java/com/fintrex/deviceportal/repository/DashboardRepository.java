@@ -115,6 +115,27 @@ public class DashboardRepository {
                                 """;
         List<Map<String, Object>> securityStats = jdbcTemplate.queryForList(sqlSecurityStats);
 
+        // 6. Active loan count
+        String sqlActiveCount = """
+                    SELECT COUNT(*) AS active_count
+                    FROM cbs.loan
+                    WHERE account_status = 'A'
+                """;
+        Map<String, Object> activeStats = jdbcTemplate.queryForMap(sqlActiveCount);
+
+        // 7. Arrears count and amount from latest portfolio
+        String sqlArrearsStats = """
+                    SELECT
+                        COUNT(DISTINCT account_no) AS arrears_count,
+                        COALESCE(SUM(total_due), 0) AS arrears_amount
+                    FROM cbs.portfolio
+                    WHERE portfolio_date = (
+                        SELECT MAX(portfolio_date) FROM cbs.portfolio
+                    )
+                    AND total_due > 0
+                """;
+        Map<String, Object> arrearsStats = jdbcTemplate.queryForMap(sqlArrearsStats);
+
         stats.put("nMonthCount", monthStats.get("month_count") != null ? monthStats.get("month_count") : 0);
         stats.put("nMonthAmount", monthStats.get("month_amount") != null ? monthStats.get("month_amount") : 0);
         stats.put("nYtdCount", ytdStats.get("ytd_count") != null ? ytdStats.get("ytd_count") : 0);
@@ -127,6 +148,10 @@ public class DashboardRepository {
         stats.put("nNplCount", nplStats.get("npl_count") != null ? nplStats.get("npl_count") : 0);
         stats.put("nNplExposure", nplStats.get("npl_exposure") != null ? nplStats.get("npl_exposure") : 0);
         stats.put("nNplArrears", nplStats.get("npl_arrears") != null ? nplStats.get("npl_arrears") : 0);
+
+        stats.put("activeCount", activeStats.get("active_count") != null ? activeStats.get("active_count") : 0);
+        stats.put("arrearsCount", arrearsStats.get("arrears_count") != null ? arrearsStats.get("arrears_count") : 0);
+        stats.put("arrearsAmount", arrearsStats.get("arrears_amount") != null ? arrearsStats.get("arrears_amount") : 0);
 
         stats.put("securityStats", securityStats);
 
@@ -401,5 +426,142 @@ public class DashboardRepository {
         result.put("laptopPerforming", laptopPerf);
         result.put("laptopLock", laptopLock);
         return result;
+    }
+
+    public List<Map<String, Object>> getDealerCurrentMonthBusiness() {
+        String sql = """
+                SELECT
+                    COALESCE(v.name, 'Unknown Dealer') AS dealer_name,
+                    COUNT(*) AS loan_count,
+                    COALESCE(SUM(l.loan_amount), 0) AS total_amount
+                FROM cbs.loan l
+                LEFT JOIN cbs.vendor v ON l.vendor = v.code
+                WHERE l.disbursed_date >= DATE_FORMAT(CURRENT_DATE(), '%Y-%m-01')
+                  AND l.disbursed_date < DATE_ADD(DATE_FORMAT(CURRENT_DATE(), '%Y-%m-01'), INTERVAL 1 MONTH)
+                GROUP BY dealer_name
+                ORDER BY total_amount DESC
+                """;
+        return jdbcTemplate.queryForList(sql);
+    }
+
+    public List<Map<String, Object>> getDealerPortfolioBusiness() {
+        String sql = """
+                SELECT
+                    COALESCE(v.name, 'Unknown Dealer') AS dealer_name,
+                    COUNT(DISTINCT p.account_no) AS loan_count,
+                    COALESCE(SUM(p.exposure), 0) AS total_exposure
+                FROM cbs.portfolio p
+                INNER JOIN (
+                    SELECT account_no, legacy_account_no, vendor, account_series
+                    FROM cbs.loan
+                ) l ON (p.account_no = l.account_no AND p.series = l.account_series)
+                    OR (p.account_no = l.legacy_account_no AND p.series = l.account_series)
+                LEFT JOIN cbs.vendor v ON l.vendor = v.code
+                WHERE p.portfolio_date = (
+                    SELECT MAX(portfolio_date) FROM cbs.portfolio
+                )
+                GROUP BY dealer_name
+                ORDER BY total_exposure DESC
+                """;
+        return jdbcTemplate.queryForList(sql);
+    }
+
+    public List<Map<String, Object>> getArrearsAnalysis() {
+        String sql = """
+                SELECT
+                    CASE
+                        WHEN COALESCE(p.dpd, 0) BETWEEN 1 AND 30 THEN '1-30 DPD'
+                        WHEN COALESCE(p.dpd, 0) BETWEEN 31 AND 60 THEN '31-60 DPD'
+                        WHEN COALESCE(p.dpd, 0) BETWEEN 61 AND 90 THEN '61-90 DPD'
+                        WHEN COALESCE(p.dpd, 0) > 90 THEN '90+ DPD'
+                        ELSE 'Current'
+                    END AS dpd_bucket,
+                    COUNT(DISTINCT p.account_no) AS account_count,
+                    COALESCE(SUM(p.total_due), 0) AS arrears_amount,
+                    COALESCE(SUM(p.exposure), 0) AS exposure_amount
+                FROM cbs.portfolio p
+                WHERE p.portfolio_date = (
+                    SELECT MAX(portfolio_date) FROM cbs.portfolio
+                )
+                AND p.total_due > 0
+                GROUP BY dpd_bucket
+                ORDER BY FIELD(dpd_bucket, 'Current', '1-30 DPD', '31-60 DPD', '61-90 DPD', '90+ DPD')
+                """;
+        return jdbcTemplate.queryForList(sql);
+    }
+
+    public Map<String, Object> getHighestNplModel() {
+        String sql = """
+                SELECT
+                    COALESCE(lmm.name, 'Unknown Model') AS model_name,
+                    COUNT(DISTINCT l.account_no) AS npl_count,
+                    COALESCE(SUM(p.exposure), 0) AS npl_exposure
+                FROM cbs.loan l
+                LEFT JOIN loan.mobileloan lm1 ON lm1.finance_no = l.account_no
+                LEFT JOIN loan.mobileloan lm2 ON lm2.finance_no = l.legacy_account_no
+                LEFT JOIN loan.device_loan dl1 ON dl1.finance_no = l.account_no
+                LEFT JOIN loan.device_loan dl2 ON dl2.finance_no = l.legacy_account_no
+                LEFT JOIN loan.mobileloan_model lmm
+                    ON lmm.id = COALESCE(lm1.model, lm2.model, dl1.model, dl2.model)
+                LEFT JOIN cbs.portfolio p
+                    ON (p.account_no = l.account_no OR p.account_no = l.legacy_account_no)
+                    AND p.series = l.account_series
+                    AND p.portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio)
+                WHERE l.account_status = 'N'
+                GROUP BY model_name
+                ORDER BY npl_count DESC
+                LIMIT 1
+                """;
+        try {
+            return jdbcTemplate.queryForMap(sql);
+        } catch (Exception e) {
+            Map<String, Object> empty = new HashMap<>();
+            empty.put("model_name", "N/A");
+            empty.put("npl_count", 0);
+            empty.put("npl_exposure", 0);
+            return empty;
+        }
+    }
+
+    public Map<String, Object> getHighestNplDealer() {
+        String sql = """
+                SELECT
+                    COALESCE(v.name, 'Unknown Dealer') AS dealer_name,
+                    COUNT(DISTINCT l.account_no) AS npl_count,
+                    COALESCE(SUM(p.exposure), 0) AS npl_exposure
+                FROM cbs.loan l
+                LEFT JOIN cbs.vendor v ON l.vendor = v.code
+                LEFT JOIN cbs.portfolio p
+                    ON (p.account_no = l.account_no OR p.account_no = l.legacy_account_no)
+                    AND p.series = l.account_series
+                    AND p.portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio)
+                WHERE l.account_status = 'N'
+                GROUP BY dealer_name
+                ORDER BY npl_count DESC
+                LIMIT 1
+                """;
+        try {
+            return jdbcTemplate.queryForMap(sql);
+        } catch (Exception e) {
+            Map<String, Object> empty = new HashMap<>();
+            empty.put("dealer_name", "N/A");
+            empty.put("npl_count", 0);
+            empty.put("npl_exposure", 0);
+            return empty;
+        }
+    }
+
+    public List<Map<String, Object>> getCollectionsDealerWise() {
+        String sql = """
+                SELECT
+                    COALESCE(vendor_name, 'Unknown') AS dealer_name,
+                    COUNT(*) AS trx_count,
+                    COALESCE(SUM(amount), 0) AS total_collected
+                FROM cbs.vendor_payments
+                WHERE trx_date >= DATE_FORMAT(CURRENT_DATE(), '%Y-%m-01')
+                GROUP BY dealer_name
+                ORDER BY total_collected DESC
+                """;
+        return jdbcTemplate.queryForList(sql);
     }
 }

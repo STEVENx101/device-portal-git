@@ -48,5 +48,35 @@ public class DashboardController {
     public ResponseEntity<Map<String, Object>> getDeviceStatusCharts() {
         return ResponseEntity.ok(dashboardService.getDeviceStatusCharts());
     }
+
+    @GetMapping("/dealer-current-month")
+    public ResponseEntity<List<Map<String, Object>>> getDealerCurrentMonthBusiness() {
+        return ResponseEntity.ok(dashboardService.getDealerCurrentMonthBusiness());
+    }
+
+    @GetMapping("/dealer-portfolio")
+    public ResponseEntity<List<Map<String, Object>>> getDealerPortfolioBusiness() {
+        return ResponseEntity.ok(dashboardService.getDealerPortfolioBusiness());
+    }
+
+    @GetMapping("/arrears-analysis")
+    public ResponseEntity<List<Map<String, Object>>> getArrearsAnalysis() {
+        return ResponseEntity.ok(dashboardService.getArrearsAnalysis());
+    }
+
+    @GetMapping("/highest-npl-model")
+    public ResponseEntity<Map<String, Object>> getHighestNplModel() {
+        return ResponseEntity.ok(dashboardService.getHighestNplModel());
+    }
+
+    @GetMapping("/highest-npl-dealer")
+    public ResponseEntity<Map<String, Object>> getHighestNplDealer() {
+        return ResponseEntity.ok(dashboardService.getHighestNplDealer());
+    }
+
+    @GetMapping("/collections-dealer-wise")
+    public ResponseEntity<List<Map<String, Object>>> getCollectionsDealerWise() {
+        return ResponseEntity.ok(dashboardService.getCollectionsDealerWise());
+    }
 }
 
