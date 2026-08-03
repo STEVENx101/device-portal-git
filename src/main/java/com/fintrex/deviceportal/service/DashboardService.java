@@ -19,7 +19,7 @@ public class DashboardService {
     private final DashboardRepository dashboardRepository;
     private final ConcurrentHashMap<String, Object> cache = new ConcurrentHashMap<>();
     private final AtomicBoolean isSyncing = new AtomicBoolean(false);
-    private String lastSyncedTime = "N/A";
+    private String lastSyncedTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
     public DashboardService(DashboardRepository dashboardRepository) {
         this.dashboardRepository = dashboardRepository;
