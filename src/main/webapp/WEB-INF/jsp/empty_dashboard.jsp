@@ -185,8 +185,13 @@
                             <span class="badge bg-soft-primary text-primary fw-semi-bold">Fintrex Snapshot</span>
                             <span class="badge bg-soft-success text-success fw-semi-bold"><i class="fas fa-calendar-alt me-1"></i>Current Month</span>
                         </div>
-                        <div class="text-muted fs--2 fw-semi-bold">
-                            Only tracked active device contracts
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="text-muted fs--2 fw-semi-bold" id="sync-time-badge" style="border-right: 1px solid rgba(226, 232, 240, 0.8); padding-right: 10px;">
+                                Last Synced: <span class="fw-bold text-dark dark__text-white" id="last-sync-timestamp">Loading...</span>
+                            </div>
+                            <button class="btn btn-sm btn-primary d-flex align-items-center gap-1 fw-bold" id="btn-sync-now" onclick="triggerManualSync()" style="font-size: 0.68rem; padding: 4px 10px; border-radius: 4px;">
+                                <i class="fas fa-sync-alt" id="sync-icon"></i> <span id="sync-btn-text">Sync Now</span>
+                            </button>
                         </div>
                     </div>
 
@@ -376,7 +381,77 @@
 
                     <!-- ======================== SCRIPTS ======================== -->
                     <script>
-                        document.addEventListener("DOMContentLoaded", function() {
+                        // Global chart instances to allow clean redrawing without hover issues
+                        const activeCharts = {};
+
+                        function destroyChart(canvasId) {
+                            if (activeCharts[canvasId]) {
+                                activeCharts[canvasId].destroy();
+                                delete activeCharts[canvasId];
+                            }
+                        }
+
+                        function checkSyncStatus() {
+                            fetch('${pageContext.request.contextPath}/api/dashboard/sync-info')
+                                .then(res => res.json())
+                                .then(data => {
+                                    document.getElementById("last-sync-timestamp").innerText = data.lastSynced || 'N/A';
+                                    const btn = document.getElementById("btn-sync-now");
+                                    const icon = document.getElementById("sync-icon");
+                                    const text = document.getElementById("sync-btn-text");
+
+                                    if (data.isSyncing) {
+                                        btn.disabled = true;
+                                        btn.classList.remove('btn-primary');
+                                        btn.classList.add('btn-secondary');
+                                        icon.classList.add('fa-spin');
+                                        text.innerText = "Syncing...";
+                                        // Poll status again in 3 seconds
+                                        setTimeout(checkSyncStatus, 3000);
+                                    } else {
+                                        if (btn.disabled) {
+                                            btn.disabled = false;
+                                            btn.classList.remove('btn-secondary');
+                                            btn.classList.add('btn-primary');
+                                            icon.classList.remove('fa-spin');
+                                            text.innerText = "Sync Now";
+                                            loadDashboardData();
+                                        }
+                                    }
+                                })
+                                .catch(err => console.error("Error fetching sync status:", err));
+                        }
+
+                        function triggerManualSync() {
+                            const btn = document.getElementById("btn-sync-now");
+                            const icon = document.getElementById("sync-icon");
+                            const text = document.getElementById("sync-btn-text");
+
+                            btn.disabled = true;
+                            btn.classList.remove('btn-primary');
+                            btn.classList.add('btn-secondary');
+                            icon.classList.add('fa-spin');
+                            text.innerText = "Syncing...";
+
+                            fetch('${pageContext.request.contextPath}/api/dashboard/sync-now', {
+                                method: 'POST'
+                            })
+                            .then(res => res.json())
+                            .then(data => {
+                                // Wait 2 seconds and check status
+                                setTimeout(checkSyncStatus, 2000);
+                            })
+                            .catch(err => {
+                                console.error("Error triggering manual sync:", err);
+                                btn.disabled = false;
+                                btn.classList.remove('btn-secondary');
+                                btn.classList.add('btn-primary');
+                                icon.classList.remove('fa-spin');
+                                text.innerText = "Sync Now";
+                            });
+                        }
+
+                        function loadDashboardData() {
                             const formatLKR = (val) => {
                                 const millions = val / 1000000;
                                 return new Intl.NumberFormat('en-LK', {
@@ -393,8 +468,9 @@
 
                             // Helper: build horizontal bar chart with direct data labels
                             function buildHorizontalBar(canvasId, labels, amounts, gradientStart, gradientEnd, borderColor, isCollected) {
+                                destroyChart(canvasId);
                                 const ctx = document.getElementById(canvasId).getContext('2d');
-                                new Chart(ctx, {
+                                activeCharts[canvasId] = new Chart(ctx, {
                                     type: 'bar',
                                     data: {
                                         labels: labels,
@@ -456,21 +532,21 @@
                                 })
                                 .then(data => {
                                     // Primary KPIs
-                                    document.getElementById("kpi-month-count").innerText = formatNum(data.nMonthCount) + " Accounts";
-                                    document.getElementById("kpi-month-amount").innerText = formatLKR(data.nMonthAmount);
+                                    document.getElementById("kpi-month-count").innerText = formatNum(data.nMonthCount || 0) + " Accounts";
+                                    document.getElementById("kpi-month-amount").innerText = formatLKR(data.nMonthAmount || 0);
                                     
-                                    document.getElementById("kpi-portfolio-amount").innerText = formatLKR(data.nPortfolioAmount);
-                                    document.getElementById("kpi-portfolio-count").innerText = formatNum(data.nPortfolioCount) + " Accounts";
+                                    document.getElementById("kpi-portfolio-amount").innerText = formatLKR(data.nPortfolioAmount || 0);
+                                    document.getElementById("kpi-portfolio-count").innerText = formatNum(data.nPortfolioCount || 0) + " Accounts";
                                     
-                                    document.getElementById("kpi-npl-exposure").innerText = formatLKR(data.nNplExposure);
-                                    document.getElementById("kpi-npl-count").innerText = formatNum(data.nNplCount) + " Accounts";
+                                    document.getElementById("kpi-npl-exposure").innerText = formatLKR(data.nNplExposure || 0);
+                                    document.getElementById("kpi-npl-count").innerText = formatNum(data.nNplCount || 0) + " Accounts";
                                     
-                                    document.getElementById("kpi-arrears-amount").innerText = formatLKR(data.arrearsAmount);
-                                    document.getElementById("kpi-arrears-count").innerText = formatNum(data.arrearsCount) + " Accounts";
+                                    document.getElementById("kpi-arrears-amount").innerText = formatLKR(data.arrearsAmount || 0);
+                                    document.getElementById("kpi-arrears-count").innerText = formatNum(data.arrearsCount || 0) + " Accounts";
                                     
                                     // Highlights / Analytics Row
-                                    document.getElementById("kpi-ytd-count-val").innerText = formatNum(data.nYtdCount) + " Accounts";
-                                    document.getElementById("kpi-active-count-val").innerText = formatNum(data.activeCount) + " Active contracts";
+                                    document.getElementById("kpi-ytd-count-val").innerText = formatNum(data.nYtdCount || 0) + " Accounts";
+                                    document.getElementById("kpi-active-count-val").innerText = formatNum(data.activeCount || 0) + " Active contracts";
                                 })
                                 .catch(err => console.error("Error fetching dashboard statistics:", err));
 
@@ -478,200 +554,202 @@
                             fetch('${pageContext.request.contextPath}/api/dashboard/business-chart')
                                 .then(res => res.json())
                                 .then(data => {
-                                    const labels = data.map(item => item.month_name);
-                                    const amounts = data.map(item => Math.round((item.business_amount / 1000000) * 100) / 100);
+                                    const labels = data.map(i => i.month_name);
+                                    const amounts = data.map(i => i.total_disbursed || 0);
 
-                                    const ctx = document.getElementById('businessChart').getContext('2d');
-                                    new Chart(ctx, {
-                                        type: 'bar',
+                                    destroyChart('businessChart');
+                                    const ctx = document.getElementById("businessChart").getContext('2d');
+                                    activeCharts['businessChart'] = new Chart(ctx, {
+                                        type: 'line',
                                         data: {
                                             labels: labels,
                                             datasets: [{
+                                                label: 'Month Disbursement',
                                                 data: amounts,
-                                                backgroundColor: isDark ? 'rgba(139, 92, 246, 0.85)' : 'rgba(99, 102, 241, 0.85)',
-                                                borderColor: isDark ? '#8b5cf6' : '#6366f1',
-                                                borderWidth: 1.5,
-                                                borderRadius: { topRight: 4, bottomRight: 4, topLeft: 0, bottomLeft: 0 },
-                                                barThickness: 12
+                                                borderColor: '#6366f1',
+                                                backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                                                fill: true,
+                                                tension: 0.35,
+                                                borderWidth: 2.5,
+                                                pointBackgroundColor: '#6366f1',
+                                                pointRadius: 4
                                             }]
                                         },
                                         options: {
-                                            indexAxis: 'y',
                                             responsive: true,
                                             maintainAspectRatio: false,
-                                            layout: { padding: { right: 30 } },
                                             plugins: {
                                                 legend: { display: false },
+                                                tooltip: { enabled: true },
                                                 datalabels: {
                                                     display: true,
-                                                    anchor: 'end',
-                                                    align: 'end',
-                                                    formatter: (val) => val.toFixed(1) + 'M'
+                                                    align: 'top',
+                                                    color: isDark ? '#94a3b8' : '#475569',
+                                                    font: { size: 8, weight: 'bold' },
+                                                    formatter: (val) => formatLKR(val)
                                                 }
                                             },
                                             scales: {
-                                                x: { grid: { display: false }, ticks: { display: false } },
-                                                y: { grid: { display: false }, ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 9, weight: 'bold' } } }
+                                                x: { grid: { display: false }, ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 8, weight: 'bold' } } },
+                                                y: { grid: { color: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }, ticks: { display: false } }
                                             }
                                         }
                                     });
                                 })
-                                .catch(err => console.error("Error loading business chart:", err));
+                                .catch(err => console.error("Error loading month wise business:", err));
 
-                            // ============ 3. DPD Comparison Month Wise ============
+                            // ============ 3. DPD Comparison Trend Chart ============
                             fetch('${pageContext.request.contextPath}/api/dashboard/dpd-comparison-chart')
                                 .then(res => res.json())
                                 .then(data => {
-                                    const labels = data.map(item => item.month_name);
-                                    const dpdAbove90 = data.map(item => Math.round((item.dpdAbove90_val / 1000000) * 100) / 100);
+                                    const labels = data.map(i => i.month_name);
+                                    const dpdArr = data.map(i => i.npl_arrears || 0);
 
-                                    const ctx = document.getElementById('dpdComparisonChart').getContext('2d');
-                                    new Chart(ctx, {
-                                        type: 'bar',
+                                    destroyChart('dpdComparisonChart');
+                                    const ctx = document.getElementById("dpdComparisonChart").getContext('2d');
+                                    activeCharts['dpdComparisonChart'] = new Chart(ctx, {
+                                        type: 'line',
                                         data: {
                                             labels: labels,
                                             datasets: [{
-                                                label: 'Over 90 DPD',
-                                                data: dpdAbove90,
-                                                backgroundColor: 'rgba(239, 68, 68, 0.85)',
+                                                label: 'NPL Arrears',
+                                                data: dpdArr,
                                                 borderColor: '#ef4444',
-                                                borderWidth: 1.5,
-                                                borderRadius: { topRight: 4, bottomRight: 4, topLeft: 0, bottomLeft: 0 },
-                                                barThickness: 12
+                                                backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                                                fill: true,
+                                                tension: 0.35,
+                                                borderWidth: 2.5,
+                                                pointBackgroundColor: '#ef4444',
+                                                pointRadius: 4
                                             }]
                                         },
                                         options: {
-                                            indexAxis: 'y',
                                             responsive: true,
                                             maintainAspectRatio: false,
-                                            layout: { padding: { right: 30 } },
                                             plugins: {
                                                 legend: { display: false },
+                                                tooltip: { enabled: true },
                                                 datalabels: {
                                                     display: true,
-                                                    anchor: 'end',
-                                                    align: 'end',
-                                                    formatter: (val) => val.toFixed(1) + 'M'
+                                                    align: 'top',
+                                                    color: isDark ? '#94a3b8' : '#475569',
+                                                    font: { size: 8, weight: 'bold' },
+                                                    formatter: (val) => formatLKR(val)
                                                 }
                                             },
                                             scales: {
-                                                x: { grid: { display: false }, ticks: { display: false } },
-                                                y: { grid: { display: false }, ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 9, weight: 'bold' } } }
+                                                x: { grid: { display: false }, ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 8, weight: 'bold' } } },
+                                                y: { grid: { color: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }, ticks: { display: false } }
                                             }
                                         }
                                     });
                                 })
-                                .catch(err => console.error("Error loading DPD comparison chart:", err));
+                                .catch(err => console.error("Error loading monthly DPD comparison:", err));
 
-                            // ============ 4. Device Status Charts ============
+                            // ============ 4. Highest NPL Model Highlight ============
+                            fetch('${pageContext.request.contextPath}/api/dashboard/highest-npl-model')
+                                .then(res => res.json())
+                                .then(data => {
+                                    if (data && data.model_name) {
+                                        document.getElementById("npl-model-name").innerText = data.model_name;
+                                        document.getElementById("npl-model-count").innerText = formatNum(data.accounts_count) + " Accounts \u2022 Exposure: " + formatLKR(data.exposure);
+                                    } else {
+                                        document.getElementById("npl-model-name").innerText = 'Unknown Model';
+                                        document.getElementById("npl-model-count").innerText = '0 Accounts';
+                                    }
+                                })
+                                .catch(err => console.error("Error loading highest NPL model:", err));
+
+                            // ============ 5. Highest NPL Dealer Highlight ============
+                            fetch('${pageContext.request.contextPath}/api/dashboard/highest-npl-dealer')
+                                .then(res => res.json())
+                                .then(data => {
+                                    if (data && data.dealer_name) {
+                                        document.getElementById("npl-dealer-name").innerText = data.dealer_name;
+                                        document.getElementById("npl-dealer-count").innerText = formatNum(data.accounts_count) + " Accounts \u2022 Exposure: " + formatLKR(data.exposure);
+                                    } else {
+                                        document.getElementById("npl-dealer-name").innerText = 'Unknown Dealer';
+                                        document.getElementById("npl-dealer-count").innerText = '0 Accounts';
+                                    }
+                                })
+                                .catch(err => console.error("Error loading highest NPL dealer:", err));
+
+                            // ============ 6. Device Status Charts ============
                             fetch('${pageContext.request.contextPath}/api/dashboard/device-status-charts')
                                 .then(res => res.json())
                                 .then(data => {
-                                    function buildDoughnut(canvasId, dataset, labelsList, colorsList) {
-                                        const labels = dataset.map(item => item.state_name);
-                                        const counts = dataset.map(item => item.count_val);
-                                        
-                                        const centerTextPlugin = {
-                                            id: 'centerTextPlugin',
-                                            beforeDraw: function(chart) {
-                                                const width = chart.width, height = chart.height, ctx = chart.ctx;
-                                                ctx.restore();
-                                                const total = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                                                const fontSize = (chart.innerRadius / 26).toFixed(2);
-                                                ctx.font = "bold " + fontSize + "em 'Plus Jakarta Sans', sans-serif";
-                                                ctx.textBaseline = "middle";
-                                                ctx.fillStyle = isDark ? "#f8fafc" : "#1e293b";
-                                                const text = total.toLocaleString(),
-                                                      textX = Math.round((width - ctx.measureText(text).width) / 2),
-                                                      textY = chart.chartArea.top + (chart.chartArea.bottom - chart.chartArea.top) / 2;
-                                                ctx.fillText(text, textX, textY);
-                                                ctx.save();
-                                            }
-                                        };
+                                    // Security Status locked numbers
+                                    document.getElementById("sec-mobile-locked-val").innerText = formatNum(data.mobilesLocked || 0);
+                                    document.getElementById("sec-laptop-locked-val").innerText = formatNum(data.laptopsLocked || 0);
 
+                                    // Helper function for small doughnut charts
+                                    const buildDoughnut = (canvasId, label1, val1, label2, val2, colors) => {
+                                        destroyChart(canvasId);
                                         const ctx = document.getElementById(canvasId).getContext('2d');
-                                        new Chart(ctx, {
+                                        activeCharts[canvasId] = new Chart(ctx, {
                                             type: 'doughnut',
                                             data: {
-                                                labels: labels.length ? labels : labelsList,
+                                                labels: [label1, label2],
                                                 datasets: [{
-                                                    data: counts.length ? counts : [0, 0],
-                                                    backgroundColor: colorsList,
-                                                    borderColor: isDark ? 'rgba(15, 23, 42, 0.95)' : '#ffffff',
-                                                    borderWidth: 2,
-                                                    hoverOffset: 3,
-                                                    spacing: 2
+                                                    data: [val1, val2],
+                                                    backgroundColor: colors,
+                                                    borderWidth: 0
                                                 }]
                                             },
-                                            plugins: [centerTextPlugin],
                                             options: {
                                                 responsive: true,
                                                 maintainAspectRatio: false,
                                                 cutout: '72%',
                                                 plugins: {
                                                     legend: { display: false },
+                                                    tooltip: { enabled: true },
                                                     datalabels: {
                                                         display: true,
-                                                        color: '#ffffff',
+                                                        color: isDark ? '#ffffff' : '#000000',
                                                         font: { weight: 'bold', size: 9 },
-                                                        formatter: (value, ctx) => {
-                                                            let sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                                                            if (sum === 0) return '';
-                                                            let percentage = (value * 100 / sum).toFixed(0);
-                                                            return percentage > 0 ? percentage + "%" : '';
-                                                        },
-                                                        anchor: 'center',
-                                                        align: 'center'
+                                                        formatter: (val, ctx) => {
+                                                            let total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                                                            let pct = total > 0 ? Math.round((val / total) * 100) : 0;
+                                                            return pct > 15 ? (pct + "%") : "";
+                                                        }
                                                     }
                                                 }
                                             }
                                         });
-                                    }
+                                    };
 
-                                    buildDoughnut('mobilePerformingChart', data.mobilePerforming, ['Performing', 'Non-Performing'], ['rgba(16, 185, 129, 0.85)', 'rgba(244, 63, 94, 0.85)']);
-                                    buildDoughnut('mobileLockChart', data.mobileLock, ['Active', 'Locked'], ['rgba(99, 102, 241, 0.85)', 'rgba(245, 158, 11, 0.85)']);
-                                    buildDoughnut('laptopPerformingChart', data.laptopPerforming, ['Performing', 'Non-Performing'], ['rgba(16, 185, 129, 0.85)', 'rgba(244, 63, 94, 0.85)']);
-                                    buildDoughnut('laptopLockChart', data.laptopLock, ['Active', 'Locked'], ['rgba(99, 102, 241, 0.85)', 'rgba(245, 158, 11, 0.85)']);
-
-                                    let mobileLocked = 0, mobileUnlocked = 0;
-                                    if (data.mobileLock) {
-                                        data.mobileLock.forEach(item => {
-                                            if (item.state_name === 'Locked') mobileLocked = item.count_val;
-                                            else mobileUnlocked = item.count_val;
-                                        });
-                                    }
-                                    document.getElementById("sec-mobile-locked-val").innerText = formatNum(mobileLocked);
-
-                                    let laptopLocked = 0, laptopUnlocked = 0;
-                                    if (data.laptopLock) {
-                                        data.laptopLock.forEach(item => {
-                                            if (item.state_name === 'Locked') laptopLocked = item.count_val;
-                                            else laptopUnlocked = item.count_val;
-                                        });
-                                    }
-                                    document.getElementById("sec-laptop-locked-val").innerText = formatNum(laptopLocked);
+                                    // Mobile Performing
+                                    buildDoughnut(
+                                        'mobilePerformingChart',
+                                        'Performing', data.mobilesPerforming || 0,
+                                        'Non-Performing', data.mobilesNonPerforming || 0,
+                                        ['#10b981', '#ef4444']
+                                    );
+                                    // Mobile Lock
+                                    buildDoughnut(
+                                        'mobileLockChart',
+                                        'Active', data.mobilesActive || 0,
+                                        'Locked', data.mobilesLocked || 0,
+                                        ['#3b82f6', '#f59e0b']
+                                    );
+                                    // Laptop Performing
+                                    buildDoughnut(
+                                        'laptopPerformingChart',
+                                        'Performing', data.laptopsPerforming || 0,
+                                        'Non-Performing', data.laptopsNonPerforming || 0,
+                                        ['#10b981', '#ef4444']
+                                    );
+                                    // Laptop Lock
+                                    buildDoughnut(
+                                        'laptopLockChart',
+                                        'Active', data.laptopsActive || 0,
+                                        'Locked', data.laptopsLocked || 0,
+                                        ['#3b82f6', '#f59e0b']
+                                    );
                                 })
-                                .catch(err => console.error("Error loading device status charts:", err));
+                                .catch(err => console.error("Error loading security doughnut status:", err));
 
-                            // ============ 5. Highest NPL Model ============
-                            fetch('${pageContext.request.contextPath}/api/dashboard/highest-npl-model')
-                                .then(res => res.json())
-                                .then(data => {
-                                    document.getElementById("npl-model-name").innerText = data.model_name || 'N/A';
-                                    document.getElementById("npl-model-count").innerText = formatNum(data.npl_count || 0) + ' Accounts';
-                                })
-                                .catch(err => console.error("Error loading highest NPL model:", err));
-
-                            // ============ 6. Highest NPL Dealer ============
-                            fetch('${pageContext.request.contextPath}/api/dashboard/highest-npl-dealer')
-                                .then(res => res.json())
-                                .then(data => {
-                                    document.getElementById("npl-dealer-name").innerText = data.dealer_name || 'N/A';
-                                    document.getElementById("npl-dealer-count").innerText = formatNum(data.npl_count || 0) + ' Accounts';
-                                })
-                                .catch(err => console.error("Error loading highest NPL dealer:", err));
-
-                            // ============ 7. Vendor Payments ============
+                            // ============ 7. Vendor Payments Channel-Wise ============
                             fetch('${pageContext.request.contextPath}/api/dashboard/vendor-payments-chart')
                                 .then(res => res.json())
                                 .then(data => {
@@ -679,11 +757,11 @@
                                     chartData.reverse();
                                     buildHorizontalBar(
                                         'vendorPaymentsChart',
-                                        chartData.map(item => item.channel_name),
-                                        chartData.map(item => item.total_amount),
-                                        isDark ? 'rgba(167, 139, 250, 0.15)' : 'rgba(79, 70, 229, 0.15)',
-                                        isDark ? 'rgba(167, 139, 250, 0.85)' : 'rgba(79, 70, 229, 0.85)',
-                                        isDark ? '#a78bfa' : 'rgba(79, 70, 229, 1)',
+                                        chartData.map(i => i.channel_name),
+                                        chartData.map(i => i.total_disbursed || 0),
+                                        isDark ? 'rgba(99, 102, 241, 0.15)' : 'rgba(99, 102, 241, 0.15)',
+                                        isDark ? 'rgba(99, 102, 241, 0.85)' : 'rgba(99, 102, 241, 0.85)',
+                                        '#6366f1',
                                         false
                                     );
                                 })
@@ -707,7 +785,7 @@
                                     buildHorizontalBar(
                                         'collectionsDealerChart',
                                         chartData.map(i => i.dealer_name),
-                                        chartData.map(i => i.total_collected),
+                                        chartData.map(i => i.total_collected || 0),
                                         isDark ? 'rgba(245, 158, 11, 0.15)' : 'rgba(245, 158, 11, 0.15)',
                                         isDark ? 'rgba(245, 158, 11, 0.85)' : 'rgba(245, 158, 11, 0.85)',
                                         '#f59e0b',
@@ -715,6 +793,11 @@
                                     );
                                 })
                                 .catch(err => console.error("Error loading collections dealer wise:", err));
+                        }
+
+                        document.addEventListener("DOMContentLoaded", function() {
+                            checkSyncStatus();
+                            loadDashboardData();
                         });
                     </script>
                 </div>

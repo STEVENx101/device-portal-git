@@ -78,5 +78,19 @@ public class DashboardController {
     public ResponseEntity<List<Map<String, Object>>> getCollectionsDealerWise() {
         return ResponseEntity.ok(dashboardService.getCollectionsDealerWise());
     }
+
+    @GetMapping("/sync-info")
+    public ResponseEntity<Map<String, Object>> getSyncInfo() {
+        return ResponseEntity.ok(dashboardService.getSyncInfo());
+    }
+
+    @org.springframework.web.bind.annotation.PostMapping("/sync-now")
+    public ResponseEntity<Map<String, Object>> triggerManualSync() {
+        dashboardService.triggerManualSync();
+        Map<String, Object> res = new java.util.HashMap<>();
+        res.put("success", true);
+        res.put("message", "Background sync triggered successfully.");
+        return ResponseEntity.ok(res);
+    }
 }
 
