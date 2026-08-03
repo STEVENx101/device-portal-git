@@ -3,24 +3,6 @@
 <html lang="en-US" dir="ltr">
 
     <head>
-        <script>
-            window.addEventListener('error', function(e) {
-                console.error("GLOBAL ERROR DETECTED:", e);
-                var div = document.createElement('div');
-                div.style.position = 'fixed';
-                div.style.top = '0';
-                div.style.left = '0';
-                div.style.width = '100%';
-                div.style.backgroundColor = '#f8d7da';
-                div.style.color = '#721c24';
-                div.style.padding = '10px';
-                div.style.zIndex = '9999';
-                div.style.borderBottom = '2px solid #f5c6cb';
-                div.style.fontFamily = 'monospace';
-                div.innerText = "JS ERROR: " + e.message + " in " + e.filename + ":" + e.lineno;
-                document.body.appendChild(div);
-            });
-        </script>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -49,34 +31,25 @@
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
         <script>
-            // Set premium global defaults for Chart.js dynamically supporting dark mode
             const isDark = document.documentElement.classList.contains('dark');
             Chart.defaults.font.family = "'Plus Jakarta Sans', 'Poppins', sans-serif";
-            Chart.defaults.font.weight = '500';
-            Chart.defaults.color = isDark ? "#94a3b8" : "#64748b";
+            Chart.defaults.font.weight = '600';
+            Chart.defaults.color = isDark ? "#94a3b8" : "#475569";
 
-            // Register and disable datalabels plugin globally so we only enable it on specific doughnut charts
+            // Register ChartDataLabels globally
             Chart.register(ChartDataLabels);
-            Chart.defaults.plugins.datalabels.display = false;
             
-            // Tooltip styling
-            Chart.defaults.plugins.tooltip.backgroundColor = isDark ? "rgba(15, 23, 42, 0.96)" : "rgba(255, 255, 255, 0.96)";
-            Chart.defaults.plugins.tooltip.titleColor = isDark ? "#f8fafc" : "#1e293b";
-            Chart.defaults.plugins.tooltip.titleFont = { size: 13, weight: 'bold' };
-            Chart.defaults.plugins.tooltip.bodyColor = isDark ? "#cbd5e1" : "#475569";
-            Chart.defaults.plugins.tooltip.bodyFont = { size: 12 };
-            Chart.defaults.plugins.tooltip.borderColor = isDark ? "rgba(255, 255, 255, 0.1)" : "#e2e8f0";
-            Chart.defaults.plugins.tooltip.borderWidth = 1;
-            Chart.defaults.plugins.tooltip.cornerRadius = 10;
-            Chart.defaults.plugins.tooltip.padding = 12;
-            Chart.defaults.plugins.tooltip.boxPadding = 6;
-            Chart.defaults.plugins.tooltip.usePointStyle = true;
-            
-            // Legend styling
-            Chart.defaults.plugins.legend.labels.usePointStyle = true;
-            Chart.defaults.plugins.legend.labels.padding = 15;
-            Chart.defaults.plugins.legend.labels.font = { size: 12, weight: '600' };
-            Chart.defaults.plugins.legend.labels.color = isDark ? "#94a3b8" : "#64748b";
+            // Set global datalabels default values to display directly on charts
+            Chart.defaults.plugins.datalabels.color = isDark ? "#f8fafc" : "#1e293b";
+            Chart.defaults.plugins.datalabels.display = true;
+            Chart.defaults.plugins.datalabels.anchor = 'end';
+            Chart.defaults.plugins.datalabels.align = 'end';
+            Chart.defaults.plugins.datalabels.offset = 4;
+            Chart.defaults.plugins.datalabels.font = {
+                family: "'Plus Jakarta Sans', sans-serif",
+                weight: 'bold',
+                size: 9
+            };
         </script>
 
         <script>
@@ -89,235 +62,86 @@
         <style>
             .kpi-card {
                 transition: transform 0.2s, box-shadow 0.2s;
+                border: 1px solid rgba(226, 232, 240, 0.8) !important;
+                background: #ffffff !important;
+            }
+            html.dark .kpi-card {
+                background: rgba(15, 23, 42, 0.6) !important;
+                border: 1px solid rgba(255, 255, 255, 0.08) !important;
             }
             .kpi-card:hover {
-                transform: translateY(-3px);
-                box-shadow: 0 12px 24px rgba(99, 102, 241, 0.15) !important;
-            }
-            .gradient-1 {
-                background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%) !important;
-                color: #ffffff !important;
-            }
-            .gradient-2 {
-                background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%) !important;
-                color: #ffffff !important;
-            }
-            .gradient-3 {
-                background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
-                color: #ffffff !important;
-            }
-            .gradient-4 {
-                background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
-                color: #ffffff !important;
-            }
-            .gradient-5 {
-                background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%) !important;
-                color: #ffffff !important;
-            }
-            .gradient-6 {
-                background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%) !important;
-                color: #ffffff !important;
-            }
-            .gradient-7 {
-                background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%) !important;
-                color: #ffffff !important;
-            }
-            .gradient-8 {
-                background: linear-gradient(135deg, #64748b 0%, #475569 100%) !important;
-                color: #ffffff !important;
-            }
-            /* Dark mode overrides for dashboard cards */
-            html.dark .kpi-card {
-                background: rgba(15, 23, 42, 0.65) !important;
-                backdrop-filter: blur(16px) !important;
-                border: 1px solid rgba(255, 255, 255, 0.08) !important;
-                color: #f8fafc !important;
-                box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5) !important;
-            }
-            html.dark .kpi-card .card-title-sub {
-                color: #94a3b8 !important;
-            }
-            html.dark .kpi-card .card-value {
-                color: #f8fafc !important;
-            }
-            html.dark .kpi-card .card-detail-text {
-                color: #cbd5e1 !important;
+                transform: translateY(-2px);
+                box-shadow: 0 8px 20px rgba(99, 102, 241, 0.12) !important;
             }
             .card-title-sub {
-                font-size: 0.7rem;
-                opacity: 0.85;
-                font-weight: 600;
+                font-size: 0.65rem;
+                font-weight: 700;
                 text-transform: uppercase;
                 letter-spacing: 0.05em;
             }
             .card-value {
-                font-size: 1.4rem;
+                font-size: 1.15rem;
                 font-weight: 800;
-                margin-top: 0.3rem;
+                margin-top: 0.2rem;
             }
             .card-detail-text {
-                font-size: 0.68rem;
-                opacity: 0.9;
-                margin-top: 0.2rem;
+                font-size: 0.65rem;
+                font-weight: 600;
+                margin-top: 0.1rem;
             }
             .chart-container {
                 position: relative;
-                height: 280px;
                 width: 100%;
             }
-            /* Dashboard content must scroll */
             .dashboard-content {
-                overflow-y: auto !important;
-                height: calc(100vh - 20px) !important;
-                padding-right: 15px !important;
-                padding-bottom: 30px !important;
+                overflow: hidden !important;
+                height: calc(100vh - 85px) !important;
+                padding: 10px !important;
+                zoom: 75% !important;
             }
-            
-            /* Modern Futuristic Card & Header Styles */
             .card {
-                border-radius: 12px !important;
+                border-radius: 8px !important;
                 border: 1px solid rgba(226, 232, 240, 0.8) !important;
-                box-shadow: 0 4px 15px -1px rgba(0, 0, 0, 0.03) !important;
-                transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
             }
             html.dark .card {
                 background: rgba(15, 23, 42, 0.6) !important;
-                backdrop-filter: blur(20px) !important;
-                -webkit-backdrop-filter: blur(20px) !important;
                 border: 1px solid rgba(255, 255, 255, 0.08) !important;
-                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25) !important;
-            }
-            .card:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 12px 28px -4px rgba(99, 102, 241, 0.12) !important;
-            }
-            html.dark .card:hover {
-                box-shadow: 0 12px 30px -4px rgba(245, 158, 11, 0.15) !important;
             }
             .card-header {
                 background: transparent !important;
                 border-bottom: 1px solid rgba(99, 102, 241, 0.12) !important;
-                padding: 14px 20px !important;
-                border-left: 4px solid #6366f1 !important;
-                border-top-left-radius: 12px !important;
-                border-top-right-radius: 12px !important;
+                padding: 6px 12px !important;
             }
-            html.dark .card-header {
-                border-bottom: 1px solid rgba(245, 158, 11, 0.15) !important;
-                border-left: 4px solid #f59e0b !important;
+            .npl-highlight-card {
+                border-radius: 8px !important;
+                padding: 10px 14px !important;
             }
-            .card-header h6.text-primary {
-                font-family: 'Plus Jakarta Sans', 'Poppins', sans-serif !important;
-                text-transform: uppercase !important;
-                letter-spacing: 0.8px !important;
-                font-size: 0.82rem !important;
-                font-weight: 700 !important;
-                background: linear-gradient(90deg, #6366f1, #a855f7) !important;
-                -webkit-background-clip: text !important;
-                -webkit-text-fill-color: transparent !important;
-                display: inline-flex !important;
-                align-items: center !important;
-            }
-            html.dark .card-header h6.text-primary {
-                background: linear-gradient(90deg, #f59e0b, #fbbf24) !important;
-                -webkit-background-clip: text !important;
-                -webkit-text-fill-color: transparent !important;
-            }
-            .card-header h6.text-primary i {
-                -webkit-text-fill-color: #6366f1 !important;
-                margin-right: 8px !important;
-            }
-            html.dark .card-header h6.text-primary i {
-                -webkit-text-fill-color: #f59e0b !important;
-            }
-
-            /* Security strip mini cards */
-            .security-mini-card {
-                border-radius: 10px !important;
-                padding: 12px 16px !important;
-                transition: transform 0.2s, box-shadow 0.2s;
-                cursor: default;
-            }
-            .security-mini-card:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 8px 20px rgba(99, 102, 241, 0.12) !important;
-            }
-            .security-mini-card .mini-label {
-                font-size: 0.65rem;
+            .highlight-label {
+                font-size: 0.62rem;
                 font-weight: 700;
                 text-transform: uppercase;
-                letter-spacing: 0.06em;
-                opacity: 0.9;
-            }
-            .security-mini-card .mini-value {
-                font-size: 1.1rem;
-                font-weight: 800;
-            }
-            .security-mini-card .mini-detail {
-                font-size: 0.62rem;
-                opacity: 0.85;
-                font-weight: 600;
-            }
-
-            /* NPL Highlight cards */
-            .npl-highlight-card {
-                border-radius: 12px !important;
-                padding: 20px !important;
-                position: relative;
-                overflow: hidden;
-            }
-            .npl-highlight-card::before {
-                content: '';
-                position: absolute;
-                top: -50%;
-                right: -50%;
-                width: 100%;
-                height: 100%;
-                background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-                pointer-events: none;
-            }
-            .npl-highlight-card .highlight-icon {
-                width: 44px;
-                height: 44px;
-                border-radius: 10px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 1.2rem;
-                background: rgba(255,255,255,0.2);
-                margin-bottom: 12px;
-            }
-            .npl-highlight-card .highlight-label {
-                font-size: 0.7rem;
-                font-weight: 600;
-                text-transform: uppercase;
                 letter-spacing: 0.05em;
-                opacity: 0.85;
             }
-            .npl-highlight-card .highlight-name {
-                font-size: 1.05rem;
+            .highlight-name {
+                font-size: 0.95rem;
                 font-weight: 800;
-                margin: 4px 0;
-                line-height: 1.3;
+                margin: 2px 0;
             }
-            .npl-highlight-card .highlight-stat {
-                font-size: 0.72rem;
+            .highlight-stat {
+                font-size: 0.65rem;
                 font-weight: 600;
-                opacity: 0.9;
             }
-
-            /* Section dividers */
             .section-title {
                 font-family: 'Plus Jakarta Sans', sans-serif;
-                font-size: 0.78rem;
+                font-size: 0.72rem;
                 font-weight: 700;
                 text-transform: uppercase;
                 letter-spacing: 0.08em;
                 color: #6366f1;
-                margin-bottom: 12px;
+                margin-bottom: 6px;
                 display: flex;
                 align-items: center;
-                gap: 8px;
+                gap: 6px;
             }
             html.dark .section-title {
                 color: #f59e0b;
@@ -326,16 +150,12 @@
                 content: '';
                 flex: 1;
                 height: 1px;
-                background: linear-gradient(90deg, rgba(99, 102, 241, 0.3), transparent);
-            }
-            html.dark .section-title::after {
-                background: linear-gradient(90deg, rgba(245, 158, 11, 0.3), transparent);
+                background: linear-gradient(90deg, rgba(99, 102, 241, 0.2), transparent);
             }
         </style>
     </head>
 
     <body>
-
         <main class="main" id="top">
             <div class="container-fluid" data-layout="container">
                 <script>
@@ -350,16 +170,10 @@
                 <div class="content dashboard-content">
                     <%@include file="../jspf/topbar.jspf" %>
 
-                    <div class="d-flex mb-3 align-items-center justify-content-between mt-2">
-                        <div>
-                            <h4 class="mb-0 text-primary"><i class="fas fa-tachometer-alt me-2"></i>Device Finance Analytics Dashboard</h4>
-                        </div>
-                    </div>
-
                     <!-- Header Area -->
-                    <div class="d-flex align-items-center justify-content-between mb-2 py-1 border-bottom">
+                    <div class="d-flex align-items-center justify-content-between mb-2 pb-1 border-bottom">
                         <div class="d-flex align-items-center gap-3">
-                            <h4 class="mb-0 text-primary fw-bold" style="font-size: 1.3rem;"><i class="fas fa-chart-line me-2"></i>Device Finance Analytics Dashboard</h4>
+                            <h4 class="mb-0 text-primary fw-bold" style="font-size: 1.25rem;"><i class="fas fa-chart-line me-2"></i>Device Finance Analytics Dashboard</h4>
                             <span class="badge bg-soft-primary text-primary fw-semi-bold">Fintrex Snapshot</span>
                             <span class="badge bg-soft-success text-success fw-semi-bold"><i class="fas fa-calendar-alt me-1"></i>Current Month</span>
                         </div>
@@ -372,11 +186,11 @@
                     <div class="row g-2 mb-2">
                         <!-- Current Month Business -->
                         <div class="col-lg-3 col-md-6">
-                            <div class="card kpi-card shadow-sm" style="border-left: 4px solid #6366f1 !important; border-radius: 8px !important;">
+                            <div class="card kpi-card shadow-sm" style="border-left: 4px solid #6366f1 !important;">
                                 <div class="card-body p-2 d-flex align-items-center justify-content-between">
                                     <div>
                                         <span class="card-title-sub text-muted">MONTH DISBURSEMENT</span>
-                                        <div class="card-value text-primary mt-1" id="kpi-month-amount" style="font-size: 1.25rem;">LKR 0.00 Mn</div>
+                                        <div class="card-value text-primary" id="kpi-month-amount">LKR 0.00 Mn</div>
                                         <div class="card-detail-text text-muted" id="kpi-month-count">0 Accounts</div>
                                     </div>
                                     <div class="text-primary opacity-50" style="font-size: 1.5rem;"><i class="fas fa-file-invoice-dollar"></i></div>
@@ -385,11 +199,11 @@
                         </div>
                         <!-- Active Loans -->
                         <div class="col-lg-3 col-md-6">
-                            <div class="card kpi-card shadow-sm" style="border-left: 4px solid #10b981 !important; border-radius: 8px !important;">
+                            <div class="card kpi-card shadow-sm" style="border-left: 4px solid #10b981 !important;">
                                 <div class="card-body p-2 d-flex align-items-center justify-content-between">
                                     <div>
                                         <span class="card-title-sub text-muted">ACTIVE PORTFOLIO</span>
-                                        <div class="card-value text-success mt-1" id="kpi-portfolio-amount" style="font-size: 1.25rem;">LKR 0.00 Mn</div>
+                                        <div class="card-value text-success" id="kpi-portfolio-amount">LKR 0.00 Mn</div>
                                         <div class="card-detail-text text-muted" id="kpi-portfolio-count">0 Accounts</div>
                                     </div>
                                     <div class="text-success opacity-50" style="font-size: 1.5rem;"><i class="fas fa-check-circle"></i></div>
@@ -398,11 +212,11 @@
                         </div>
                         <!-- NPL Card -->
                         <div class="col-lg-3 col-md-6">
-                            <div class="card kpi-card shadow-sm" style="border-left: 4px solid #ef4444 !important; border-radius: 8px !important;">
+                            <div class="card kpi-card shadow-sm" style="border-left: 4px solid #ef4444 !important;">
                                 <div class="card-body p-2 d-flex align-items-center justify-content-between">
                                     <div>
                                         <span class="card-title-sub text-muted">NPL EXPOSURE</span>
-                                        <div class="card-value text-danger mt-1" id="kpi-npl-exposure" style="font-size: 1.25rem;">LKR 0.00 Mn</div>
+                                        <div class="card-value text-danger" id="kpi-npl-exposure">LKR 0.00 Mn</div>
                                         <div class="card-detail-text text-muted" id="kpi-npl-count">0 Accounts</div>
                                     </div>
                                     <div class="text-danger opacity-50" style="font-size: 1.5rem;"><i class="fas fa-exclamation-triangle"></i></div>
@@ -411,11 +225,11 @@
                         </div>
                         <!-- Arrears -->
                         <div class="col-lg-3 col-md-6">
-                            <div class="card kpi-card shadow-sm" style="border-left: 4px solid #f59e0b !important; border-radius: 8px !important;">
+                            <div class="card kpi-card shadow-sm" style="border-left: 4px solid #f59e0b !important;">
                                 <div class="card-body p-2 d-flex align-items-center justify-content-between">
                                     <div>
                                         <span class="card-title-sub text-muted">TOTAL ARREARS</span>
-                                        <div class="card-value text-warning mt-1" id="kpi-arrears-amount" style="font-size: 1.25rem;">LKR 0.00 Mn</div>
+                                        <div class="card-value text-warning" id="kpi-arrears-amount">LKR 0.00 Mn</div>
                                         <div class="card-detail-text text-muted" id="kpi-arrears-count">0 Accounts</div>
                                     </div>
                                     <div class="text-warning opacity-50" style="font-size: 1.5rem;"><i class="fas fa-clock"></i></div>
@@ -428,12 +242,12 @@
                     <div class="row g-2 mb-2">
                         <!-- Left: Monthly trend charts -->
                         <div class="col-lg-8 col-md-7">
-                            <div class="card shadow-sm h-100" style="border-radius: 8px !important;">
+                            <div class="card shadow-sm h-100">
                                 <div class="card-header bg-light py-1 d-flex justify-content-between align-items-center">
                                     <span class="fw-bold fs--1 text-primary"><i class="fas fa-chart-line me-1"></i>Month-Wise Disbursements & DPD Status</span>
                                 </div>
                                 <div class="card-body p-2">
-                                    <div class="row g-1">
+                                    <div class="row g-2">
                                         <div class="col-6">
                                             <div style="height: 180px; position: relative; width: 100%;">
                                                 <canvas id="businessChart"></canvas>
@@ -451,7 +265,7 @@
 
                         <!-- Right: Device Status Doughnut -->
                         <div class="col-lg-4 col-md-5">
-                            <div class="card shadow-sm h-100" style="border-radius: 8px !important;">
+                            <div class="card shadow-sm h-100">
                                 <div class="card-header bg-light py-1">
                                     <span class="fw-bold fs--1 text-primary"><i class="fas fa-mobile-alt me-1"></i>Device Security Status</span>
                                 </div>
@@ -470,7 +284,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="text-center fs--2 text-muted mt-2 border-top pt-1">
+                                    <div class="text-center fs--2 text-muted mt-1 border-top pt-1">
                                         Active locks: <span id="sec-mobile-locked-val" class="fw-bold text-danger">0</span> Mobiles &bull; <span id="sec-laptop-locked-val" class="fw-bold text-danger">0</span> Laptops
                                     </div>
                                 </div>
@@ -478,12 +292,12 @@
                         </div>
                     </div>
 
-                    <!-- Row 3: Key Days / Highlights at a Glance (4 cards) -->
+                    <!-- Row 3: Highlights at a Glance (4 cards) -->
                     <div class="section-title mb-1" style="font-size: 0.7rem;"><i class="fas fa-star"></i> Key Analytics Highlights</div>
                     <div class="row g-2 mb-2">
                         <!-- Highest NPL Model -->
                         <div class="col-lg-3 col-md-6 col-sm-6">
-                            <div class="card shadow-sm border-left-rose" style="border-radius: 8px !important; border-left: 3px solid #ef4444 !important;">
+                            <div class="card shadow-sm" style="border-left: 3px solid #ef4444 !important;">
                                 <div class="card-body p-2 d-flex align-items-center gap-2">
                                     <div class="text-danger" style="font-size: 1.25rem;"><i class="fas fa-mobile-alt"></i></div>
                                     <div>
@@ -496,7 +310,7 @@
                         </div>
                         <!-- Highest NPL Dealer -->
                         <div class="col-lg-3 col-md-6 col-sm-6">
-                            <div class="card shadow-sm" style="border-radius: 8px !important; border-left: 3px solid #f59e0b !important;">
+                            <div class="card shadow-sm" style="border-left: 3px solid #f59e0b !important;">
                                 <div class="card-body p-2 d-flex align-items-center gap-2">
                                     <div class="text-warning" style="font-size: 1.25rem;"><i class="fas fa-store"></i></div>
                                     <div>
@@ -509,7 +323,7 @@
                         </div>
                         <!-- Top Collection Channel -->
                         <div class="col-lg-3 col-md-6 col-sm-6">
-                            <div class="card shadow-sm" style="border-radius: 8px !important; border-left: 3px solid #3b82f6 !important;">
+                            <div class="card shadow-sm" style="border-left: 3px solid #3b82f6 !important;">
                                 <div class="card-body p-2 d-flex align-items-center gap-2">
                                     <div class="text-primary" style="font-size: 1.25rem;"><i class="fas fa-wallet"></i></div>
                                     <div>
@@ -520,9 +334,9 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- Performing status summary -->
+                        <!-- YTD summary -->
                         <div class="col-lg-3 col-md-6 col-sm-6">
-                            <div class="card shadow-sm" style="border-radius: 8px !important; border-left: 3px solid #10b981 !important;">
+                            <div class="card shadow-sm" style="border-left: 3px solid #10b981 !important;">
                                 <div class="card-body p-2 d-flex align-items-center gap-2">
                                     <div class="text-success" style="font-size: 1.25rem;"><i class="fas fa-users-cog"></i></div>
                                     <div>
@@ -535,43 +349,30 @@
                         </div>
                     </div>
 
-                    <!-- Row 4: Collections & Vendor Payments (Side-by-Side Horizontal Bars) -->
-                    <div class="row g-2 mb-2">
+                    <!-- Row 4: Collections & Payments (Side-by-Side Horizontal Bars) -->
+                    <div class="row g-2">
                         <div class="col-lg-6">
-                            <div class="card shadow-sm" style="border-radius: 8px !important;">
+                            <div class="card shadow-sm">
                                 <div class="card-header bg-light py-1">
                                     <span class="fw-bold fs--1 text-primary"><i class="fas fa-hand-holding-usd me-1"></i>Collections Dealer Wise (Current Month)</span>
                                 </div>
                                 <div class="card-body p-2">
-                                    <div style="height: 150px; position: relative; width: 100%;">
+                                    <div style="height: 140px; position: relative; width: 100%;">
                                         <canvas id="collectionsDealerChart"></canvas>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div class="col-lg-6">
-                            <div class="card shadow-sm" style="border-radius: 8px !important;">
+                            <div class="card shadow-sm">
                                 <div class="card-header bg-light py-1">
                                     <span class="fw-bold fs--1 text-primary"><i class="fas fa-money-check-alt me-1"></i>Vendor Payments Channel-Wise (Current Month)</span>
                                 </div>
                                 <div class="card-body p-2">
-                                    <div style="height: 150px; position: relative; width: 100%;">
+                                    <div style="height: 140px; position: relative; width: 100%;">
                                         <canvas id="vendorPaymentsChart"></canvas>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Insight Banner (Bottom Strip) -->
-                    <div class="card shadow-sm mb-1" style="background: rgba(99, 102, 241, 0.06) !important; border: 1px solid rgba(99, 102, 241, 0.15) !important; border-radius: 8px !important;">
-                        <div class="card-body p-2 d-flex align-items-center gap-3">
-                            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; font-size: 0.9rem; flex-shrink: 0;">
-                                <i class="fas fa-lightbulb"></i>
-                            </div>
-                            <div class="fs--2 text-dark">
-                                <span class="fw-bold text-primary">PORTFOLIO INSIGHT:</span> 
-                                NPL exposure is currently managed under threshold. Device security lock integration (Datacultr/Knox/Absolute) actively covers device risk. Maintain collection target allocations for optimal recovery flow.
                             </div>
                         </div>
                     </div>
@@ -593,24 +394,14 @@
                                 return new Intl.NumberFormat().format(val);
                             };
 
-                            // Helper function to create canvas gradients dynamically
-                            function getGradient(ctx, chartArea, startColor, endColor) {
-                                if (!chartArea) return startColor;
-                                const gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
-                                gradient.addColorStop(0, startColor);
-                                gradient.addColorStop(1, endColor);
-                                return gradient;
-                            }
-
-                            // Helper: build horizontal bar chart (reusable)
-                            function buildHorizontalBar(canvasId, labels, amounts, gradientStart, gradientEnd, borderColor, tooltipPrefix) {
+                            // Helper: build horizontal bar chart with direct data labels
+                            function buildHorizontalBar(canvasId, labels, amounts, gradientStart, gradientEnd, borderColor, isCollected) {
                                 const ctx = document.getElementById(canvasId).getContext('2d');
                                 new Chart(ctx, {
                                     type: 'bar',
                                     data: {
                                         labels: labels,
                                         datasets: [{
-                                            label: tooltipPrefix || 'Amount (LKR)',
                                             data: amounts,
                                             backgroundColor: function(context) {
                                                 const chart = context.chart;
@@ -623,39 +414,37 @@
                                             },
                                             borderColor: borderColor,
                                             borderWidth: 1.5,
-                                            borderRadius: { topRight: 6, bottomRight: 6, topLeft: 0, bottomLeft: 0 },
-                                            barThickness: 16
+                                            borderRadius: { topRight: 4, bottomRight: 4, topLeft: 0, bottomLeft: 0 },
+                                            barThickness: 12
                                         }]
                                     },
                                     options: {
                                         indexAxis: 'y',
                                         responsive: true,
                                         maintainAspectRatio: false,
+                                        layout: {
+                                            padding: { right: 40 }
+                                        },
                                         plugins: {
                                             legend: { display: false },
-                                            tooltip: {
-                                                callbacks: {
-                                                    label: function(context) {
-                                                        return ' LKR ' + Number(context.raw).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                                                    }
-                                                }
+                                            tooltip: { enabled: true },
+                                            datalabels: {
+                                                display: true,
+                                                anchor: 'end',
+                                                align: 'end',
+                                                color: isDark ? '#cbd5e1' : '#1e293b',
+                                                font: { weight: 'bold', size: 9 },
+                                                formatter: (val) => formatLKR(val)
                                             }
                                         },
                                         scales: {
                                             x: {
                                                 grid: { display: false },
-                                                ticks: {
-                                                    color: isDark ? '#94a3b8' : '#64748b',
-                                                    callback: function(value) {
-                                                        if (value >= 1000000) return (value / 1000000).toFixed(1) + 'M';
-                                                        if (value >= 1000) return (value / 1000).toFixed(0) + 'K';
-                                                        return value;
-                                                    }
-                                                }
+                                                ticks: { display: false }
                                             },
                                             y: {
                                                 grid: { display: false },
-                                                ticks: { color: isDark ? '#94a3b8' : '#64748b' }
+                                                ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 9, weight: 'bold' } }
                                             }
                                         }
                                     }
@@ -665,14 +454,10 @@
                             // ============ 1. Dashboard Stats (KPI Cards) ============
                             fetch('${pageContext.request.contextPath}/api/dashboard/stats')
                                 .then(response => {
-                                    if (!response.ok) {
-                                        throw new Error("HTTP error " + response.status);
-                                    }
+                                    if (!response.ok) throw new Error("HTTP error " + response.status);
                                     return response.json();
-                                    })
+                                })
                                 .then(data => {
-                                    console.log("Dashboard Stats:", data);
-                                    
                                     // Primary KPIs
                                     document.getElementById("kpi-month-count").innerText = formatNum(data.nMonthCount) + " Accounts";
                                     document.getElementById("kpi-month-amount").innerText = formatLKR(data.nMonthAmount);
@@ -690,9 +475,7 @@
                                     document.getElementById("kpi-ytd-count-val").innerText = formatNum(data.nYtdCount) + " Accounts";
                                     document.getElementById("kpi-active-count-val").innerText = formatNum(data.activeCount) + " Active contracts";
                                 })
-                                .catch(err => {
-                                    console.error("Error fetching dashboard statistics:", err);
-                                });
+                                .catch(err => console.error("Error fetching dashboard statistics:", err));
 
                             // ============ 2. Month Wise Business Chart ============
                             fetch('${pageContext.request.contextPath}/api/dashboard/business-chart')
@@ -706,46 +489,32 @@
                                         type: 'bar',
                                         data: {
                                             labels: labels,
-                                            datasets: [
-                                                {
-                                                    label: 'Disbursed Amount (LKR Mn)',
-                                                    data: amounts,
-                                                    backgroundColor: function(context) {
-                                                        const chart = context.chart;
-                                                        const {ctx: canvasCtx, chartArea} = chart;
-                                                        if (!chartArea) return isDark ? 'rgba(139, 92, 246, 0.85)' : 'rgba(99, 102, 241, 0.85)';
-                                                        const gradient = canvasCtx.createLinearGradient(chartArea.left, 0, chartArea.right, 0);
-                                                        gradient.addColorStop(0, isDark ? 'rgba(139, 92, 246, 0.15)' : 'rgba(99, 102, 241, 0.15)');
-                                                        gradient.addColorStop(1, isDark ? 'rgba(139, 92, 246, 0.85)' : 'rgba(99, 102, 241, 0.85)');
-                                                        return gradient;
-                                                    },
-                                                    borderColor: isDark ? '#8b5cf6' : '#6366f1',
-                                                    borderWidth: 2,
-                                                    borderRadius: { topRight: 8, bottomRight: 8, topLeft: 0, bottomLeft: 0 },
-                                                    barThickness: 16
-                                                }
-                                            ]
+                                            datasets: [{
+                                                data: amounts,
+                                                backgroundColor: isDark ? 'rgba(139, 92, 246, 0.85)' : 'rgba(99, 102, 241, 0.85)',
+                                                borderColor: isDark ? '#8b5cf6' : '#6366f1',
+                                                borderWidth: 1.5,
+                                                borderRadius: { topRight: 4, bottomRight: 4, topLeft: 0, bottomLeft: 0 },
+                                                barThickness: 12
+                                            }]
                                         },
                                         options: {
                                             indexAxis: 'y',
                                             responsive: true,
                                             maintainAspectRatio: false,
-                                            scales: {
-                                                x: {
-                                                    type: 'linear',
-                                                    beginAtZero: true,
-                                                    grid: { 
-                                                        borderDash: [4, 4], 
-                                                        color: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(226, 232, 240, 0.4)' 
-                                                    },
-                                                    title: { display: true, text: 'LKR Millions', font: { weight: 'bold' }, color: isDark ? '#94a3b8' : '#475569' }
-                                                },
-                                                y: {
-                                                    grid: { display: false }
+                                            layout: { padding: { right: 30 } },
+                                            plugins: {
+                                                legend: { display: false },
+                                                datalabels: {
+                                                    display: true,
+                                                    anchor: 'end',
+                                                    align: 'end',
+                                                    formatter: (val) => val.toFixed(1) + 'M'
                                                 }
                                             },
-                                            plugins: {
-                                                legend: { position: 'bottom' }
+                                            scales: {
+                                                x: { grid: { display: false }, ticks: { display: false } },
+                                                y: { grid: { display: false }, ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 9, weight: 'bold' } } }
                                             }
                                         }
                                     });
@@ -757,10 +526,6 @@
                                 .then(res => res.json())
                                 .then(data => {
                                     const labels = data.map(item => item.month_name);
-                                    const dpd0 = data.map(item => Math.round((item.dpd0_val / 1000000) * 100) / 100);
-                                    const dpd1_30 = data.map(item => Math.round((item.dpd1_30_val / 1000000) * 100) / 100);
-                                    const dpd31_60 = data.map(item => Math.round((item.dpd31_60_val / 1000000) * 100) / 100);
-                                    const dpd61_90 = data.map(item => Math.round((item.dpd61_90_val / 1000000) * 100) / 100);
                                     const dpdAbove90 = data.map(item => Math.round((item.dpdAbove90_val / 1000000) * 100) / 100);
 
                                     const ctx = document.getElementById('dpdComparisonChart').getContext('2d');
@@ -768,147 +533,61 @@
                                         type: 'bar',
                                         data: {
                                             labels: labels,
-                                            datasets: [
-                                                {
-                                                    label: 'DPD 0',
-                                                    data: dpd0,
-                                                    backgroundColor: 'rgba(16, 185, 129, 0.75)',
-                                                    borderColor: '#10b981',
-                                                    borderWidth: 1.5,
-                                                    borderRadius: 4,
-                                                    barThickness: 16
-                                                },
-                                                {
-                                                    label: 'DPD 1-30',
-                                                    data: dpd1_30,
-                                                    backgroundColor: 'rgba(245, 158, 11, 0.75)',
-                                                    borderColor: '#f59e0b',
-                                                    borderWidth: 1.5,
-                                                    borderRadius: 4,
-                                                    barThickness: 16
-                                                },
-                                                {
-                                                    label: 'DPD 31-60',
-                                                    data: dpd31_60,
-                                                    backgroundColor: 'rgba(249, 115, 22, 0.75)',
-                                                    borderColor: '#f97316',
-                                                    borderWidth: 1.5,
-                                                    borderRadius: 4,
-                                                    barThickness: 16
-                                                },
-                                                {
-                                                    label: 'DPD 61-90',
-                                                    data: dpd61_90,
-                                                    backgroundColor: 'rgba(239, 68, 68, 0.75)',
-                                                    borderColor: '#ef4444',
-                                                    borderWidth: 1.5,
-                                                    borderRadius: 4,
-                                                    barThickness: 16
-                                                },
-                                                {
-                                                    label: 'Over 90 DPD',
-                                                    data: dpdAbove90,
-                                                    backgroundColor: isDark ? 'rgba(167, 139, 250, 0.75)' : 'rgba(30, 41, 59, 0.75)',
-                                                    borderColor: isDark ? '#a78bfa' : '#1e293b',
-                                                    borderWidth: 1.5,
-                                                    borderRadius: 4,
-                                                    barThickness: 16
-                                                }
-                                            ]
+                                            datasets: [{
+                                                label: 'Over 90 DPD',
+                                                data: dpdAbove90,
+                                                backgroundColor: 'rgba(239, 68, 68, 0.85)',
+                                                borderColor: '#ef4444',
+                                                borderWidth: 1.5,
+                                                borderRadius: { topRight: 4, bottomRight: 4, topLeft: 0, bottomLeft: 0 },
+                                                barThickness: 12
+                                            }]
                                         },
                                         options: {
-                                             indexAxis: 'y',
-                                             responsive: true,
-                                             maintainAspectRatio: false,
-                                             scales: {
-                                                 x: {
-                                                     stacked: true,
-                                                     beginAtZero: true,
-                                                     grid: { 
-                                                         borderDash: [4, 4], 
-                                                         color: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(226, 232, 240, 0.4)' 
-                                                     },
-                                                     title: { display: true, text: 'LKR Millions', font: { weight: 'bold' }, color: isDark ? '#94a3b8' : '#475569' }
-                                                 },
-                                                 y: {
-                                                     stacked: true,
-                                                     grid: { display: false }
-                                                 }
-                                             },
-                                             plugins: {
-                                                 legend: { position: 'bottom' }
-                                             }
-                                         }
+                                            indexAxis: 'y',
+                                            responsive: true,
+                                            maintainAspectRatio: false,
+                                            layout: { padding: { right: 30 } },
+                                            plugins: {
+                                                legend: { display: false },
+                                                datalabels: {
+                                                    display: true,
+                                                    anchor: 'end',
+                                                    align: 'end',
+                                                    formatter: (val) => val.toFixed(1) + 'M'
+                                                }
+                                            },
+                                            scales: {
+                                                x: { grid: { display: false }, ticks: { display: false } },
+                                                y: { grid: { display: false }, ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 9, weight: 'bold' } } }
+                                            }
+                                        }
                                     });
                                 })
                                 .catch(err => console.error("Error loading DPD comparison chart:", err));
 
-                            // ============ 4. Vendor Payments ============
-                            fetch('${pageContext.request.contextPath}/api/dashboard/vendor-payments-chart')
-                                .then(res => res.json())
-                                .then(data => {
-                                    let chartData = [];
-                                    if (data.length > 10) {
-                                        chartData = data.slice(0, 10);
-                                        const othersSum = data.slice(10).reduce((sum, item) => sum + (item.total_amount || 0), 0);
-                                        chartData.push({ channel_name: 'Others', total_amount: othersSum });
-                                    } else {
-                                        chartData = data;
-                                    }
-                                    chartData.reverse();
-                                    const labels = chartData.map(item => item.channel_name);
-                                    const amounts = chartData.map(item => item.total_amount);
-                                    
-                                    buildHorizontalBar(
-                                        'vendorPaymentsChart', labels, amounts,
-                                        isDark ? 'rgba(167, 139, 250, 0.15)' : 'rgba(79, 70, 229, 0.15)',
-                                        isDark ? 'rgba(167, 139, 250, 0.85)' : 'rgba(79, 70, 229, 0.85)',
-                                        isDark ? '#a78bfa' : 'rgba(79, 70, 229, 1)',
-                                        'Payment Amount (LKR)'
-                                    );
-                                })
-                                .catch(err => console.error("Error loading vendor payments chart:", err));
-
-                            // ============ 5. Device Status Charts ============
+                            // ============ 4. Device Status Charts ============
                             fetch('${pageContext.request.contextPath}/api/dashboard/device-status-charts')
                                 .then(res => res.json())
                                 .then(data => {
-                                    // Helper function to build status doughnut chart
                                     function buildDoughnut(canvasId, dataset, labelsList, colorsList) {
                                         const labels = dataset.map(item => item.state_name);
                                         const counts = dataset.map(item => item.count_val);
                                         
-                                        // Custom center text plugin for this chart instance
                                         const centerTextPlugin = {
                                             id: 'centerTextPlugin',
                                             beforeDraw: function(chart) {
-                                                const width = chart.width,
-                                                      height = chart.height,
-                                                      ctx = chart.ctx;
+                                                const width = chart.width, height = chart.height, ctx = chart.ctx;
                                                 ctx.restore();
-                                                
                                                 const total = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                                                
-                                                // Responsive font size
-                                                const fontSize = (chart.innerRadius / 35).toFixed(2);
+                                                const fontSize = (chart.innerRadius / 26).toFixed(2);
                                                 ctx.font = "bold " + fontSize + "em 'Plus Jakarta Sans', sans-serif";
                                                 ctx.textBaseline = "middle";
-                                                ctx.fillStyle = isDark ? "#f8fafc" : "#0f172a";
-                                                
+                                                ctx.fillStyle = isDark ? "#f8fafc" : "#1e293b";
                                                 const text = total.toLocaleString(),
                                                       textX = Math.round((width - ctx.measureText(text).width) / 2),
-                                                      textY = chart.chartArea.top + (chart.chartArea.bottom - chart.chartArea.top) / 2 - 6;
-                                                
+                                                      textY = chart.chartArea.top + (chart.chartArea.bottom - chart.chartArea.top) / 2;
                                                 ctx.fillText(text, textX, textY);
-                                                
-                                                // Subtitle below center count
-                                                ctx.font = "600 0.7em 'Plus Jakarta Sans', sans-serif";
-                                                ctx.fillStyle = isDark ? "#64748b" : "#94a3b8";
-                                                const labelText = "Total",
-                                                      labelX = Math.round((width - ctx.measureText(labelText).width) / 2),
-                                                      labelY = textY + 14;
-                                                      
-                                                ctx.fillText(labelText, labelX, labelY);
                                                 ctx.save();
                                             }
                                         };
@@ -922,9 +601,9 @@
                                                     data: counts.length ? counts : [0, 0],
                                                     backgroundColor: colorsList,
                                                     borderColor: isDark ? 'rgba(15, 23, 42, 0.95)' : '#ffffff',
-                                                    borderWidth: 2.5,
-                                                    hoverOffset: 4,
-                                                    spacing: 3
+                                                    borderWidth: 2,
+                                                    hoverOffset: 3,
+                                                    spacing: 2
                                                 }]
                                             },
                                             plugins: [centerTextPlugin],
@@ -933,77 +612,28 @@
                                                 maintainAspectRatio: false,
                                                 cutout: '72%',
                                                 plugins: {
+                                                    legend: { display: false },
                                                     datalabels: {
                                                         display: true,
                                                         color: '#ffffff',
-                                                        font: {
-                                                            family: "'Plus Jakarta Sans', sans-serif",
-                                                            weight: 'bold',
-                                                            size: 10
-                                                        },
+                                                        font: { weight: 'bold', size: 9 },
                                                         formatter: (value, ctx) => {
-                                                            let sum = 0;
-                                                            let dataArr = ctx.chart.data.datasets[0].data;
-                                                            dataArr.map(data => {
-                                                                sum += data;
-                                                            });
+                                                            let sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
                                                             if (sum === 0) return '';
                                                             let percentage = (value * 100 / sum).toFixed(0);
-                                                            if (percentage === "0" || value === 0) return '';
-                                                            return percentage + "%";
+                                                            return percentage > 0 ? percentage + "%" : '';
                                                         },
                                                         anchor: 'center',
-                                                        align: 'center',
-                                                        textShadowColor: 'rgba(0, 0, 0, 0.6)',
-                                                        textShadowBlur: 4
-                                                    },
-                                                    legend: { 
-                                                        position: 'bottom', 
-                                                        labels: { 
-                                                            boxWidth: 8, 
-                                                            padding: 8, 
-                                                            font: { size: 10, weight: '600' },
-                                                            color: isDark ? '#94a3b8' : '#64748b'
-                                                        } 
-                                                     }
+                                                        align: 'center'
+                                                    }
                                                 }
                                             }
                                         });
                                     }
 
-                                    // Mobile Performing
-                                    buildDoughnut(
-                                        'mobilePerformingChart',
-                                        data.mobilePerforming,
-                                        ['Performing', 'Non-Performing'],
-                                        ['rgba(16, 185, 129, 0.85)', 'rgba(244, 63, 94, 0.85)']
-                                    );
-                                    
-                                    // Mobile Locked
-                                    buildDoughnut(
-                                        'mobileLockChart',
-                                        data.mobileLock,
-                                        ['Active', 'Locked'],
-                                        ['rgba(99, 102, 241, 0.85)', 'rgba(245, 158, 11, 0.85)']
-                                    );
+                                    buildDoughnut('mobileLockChart', data.mobileLock, ['Active', 'Locked'], ['rgba(99, 102, 241, 0.85)', 'rgba(245, 158, 11, 0.85)']);
+                                    buildDoughnut('laptopLockChart', data.laptopLock, ['Active', 'Locked'], ['rgba(99, 102, 241, 0.85)', 'rgba(245, 158, 11, 0.85)']);
 
-                                    // Laptop Performing
-                                    buildDoughnut(
-                                        'laptopPerformingChart',
-                                        data.laptopPerforming,
-                                        ['Performing', 'Non-Performing'],
-                                        ['rgba(16, 185, 129, 0.85)', 'rgba(244, 63, 94, 0.85)']
-                                    );
-
-                                    // Laptop Locked
-                                    buildDoughnut(
-                                        'laptopLockChart',
-                                        data.laptopLock,
-                                        ['Active', 'Locked'],
-                                        ['rgba(99, 102, 241, 0.85)', 'rgba(245, 158, 11, 0.85)']
-                                    );
-
-                                    // Populate lock strip counts from device status data
                                     let mobileLocked = 0, mobileUnlocked = 0;
                                     if (data.mobileLock) {
                                         data.mobileLock.forEach(item => {
@@ -1012,7 +642,6 @@
                                         });
                                     }
                                     document.getElementById("sec-mobile-locked-val").innerText = formatNum(mobileLocked);
-                                    document.getElementById("sec-mobile-unlocked-val").innerText = formatNum(mobileUnlocked);
 
                                     let laptopLocked = 0, laptopUnlocked = 0;
                                     if (data.laptopLock) {
@@ -1022,36 +651,50 @@
                                         });
                                     }
                                     document.getElementById("sec-laptop-locked-val").innerText = formatNum(laptopLocked);
-                                    document.getElementById("sec-laptop-unlocked-val").innerText = formatNum(laptopUnlocked);
                                 })
                                 .catch(err => console.error("Error loading device status charts:", err));
 
-                            // ============ 9. Highest NPL Model ============
+                            // ============ 5. Highest NPL Model ============
                             fetch('${pageContext.request.contextPath}/api/dashboard/highest-npl-model')
                                 .then(res => res.json())
                                 .then(data => {
                                     document.getElementById("npl-model-name").innerText = data.model_name || 'N/A';
                                     document.getElementById("npl-model-count").innerText = formatNum(data.npl_count || 0) + ' Accounts';
-                                    document.getElementById("npl-model-exposure").innerText = 'Exposure: ' + formatLKR(data.npl_exposure || 0);
                                 })
                                 .catch(err => console.error("Error loading highest NPL model:", err));
 
-                            // ============ 10. Highest NPL Dealer ============
+                            // ============ 6. Highest NPL Dealer ============
                             fetch('${pageContext.request.contextPath}/api/dashboard/highest-npl-dealer')
                                 .then(res => res.json())
                                 .then(data => {
                                     document.getElementById("npl-dealer-name").innerText = data.dealer_name || 'N/A';
                                     document.getElementById("npl-dealer-count").innerText = formatNum(data.npl_count || 0) + ' Accounts';
-                                    document.getElementById("npl-dealer-exposure").innerText = 'Exposure: ' + formatLKR(data.npl_exposure || 0);
                                 })
                                 .catch(err => console.error("Error loading highest NPL dealer:", err));
 
-                            // ============ 11. Collections Dealer Wise ============
+                            // ============ 7. Vendor Payments ============
+                            fetch('${pageContext.request.contextPath}/api/dashboard/vendor-payments-chart')
+                                .then(res => res.json())
+                                .then(data => {
+                                    let chartData = data.length > 5 ? data.slice(0, 5) : data;
+                                    chartData.reverse();
+                                    buildHorizontalBar(
+                                        'vendorPaymentsChart',
+                                        chartData.map(item => item.channel_name),
+                                        chartData.map(item => item.total_amount),
+                                        isDark ? 'rgba(167, 139, 250, 0.15)' : 'rgba(79, 70, 229, 0.15)',
+                                        isDark ? 'rgba(167, 139, 250, 0.85)' : 'rgba(79, 70, 229, 0.85)',
+                                        isDark ? '#a78bfa' : 'rgba(79, 70, 229, 1)',
+                                        false
+                                    );
+                                })
+                                .catch(err => console.error("Error loading vendor payments chart:", err));
+
+                            // ============ 8. Collections Dealer Wise ============
                             fetch('${pageContext.request.contextPath}/api/dashboard/collections-dealer-wise')
                                 .then(res => res.json())
                                 .then(data => {
                                     if (data && data.length > 0) {
-                                        // The list is sorted DESC by total_collected, so index 0 is the highest/top channel
                                         const top = data[0];
                                         document.getElementById("top-collection-channel").innerText = top.dealer_name || 'N/A';
                                         document.getElementById("top-collection-amount").innerText = formatLKR(top.total_collected || 0);
@@ -1060,11 +703,7 @@
                                         document.getElementById("top-collection-amount").innerText = 'LKR 0.00';
                                     }
 
-                                    let chartData = data.length > 10 ? data.slice(0, 10) : data;
-                                    if (data.length > 10) {
-                                        const othersAmt = data.slice(10).reduce((s, i) => s + (i.total_collected || 0), 0);
-                                        chartData.push({ dealer_name: 'Others', total_collected: othersAmt });
-                                    }
+                                    let chartData = data.length > 5 ? data.slice(0, 5) : data;
                                     chartData.reverse();
                                     buildHorizontalBar(
                                         'collectionsDealerChart',
@@ -1073,14 +712,12 @@
                                         isDark ? 'rgba(245, 158, 11, 0.15)' : 'rgba(245, 158, 11, 0.15)',
                                         isDark ? 'rgba(245, 158, 11, 0.85)' : 'rgba(245, 158, 11, 0.85)',
                                         '#f59e0b',
-                                        'Collected (LKR)'
+                                        true
                                     );
                                 })
                                 .catch(err => console.error("Error loading collections dealer wise:", err));
                         });
                     </script>
-
-
                 </div>
             </div>
         </main>
