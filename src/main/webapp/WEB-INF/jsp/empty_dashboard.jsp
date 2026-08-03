@@ -555,7 +555,7 @@
                                 .then(res => res.json())
                                 .then(data => {
                                     const labels = data.map(i => i.month_name);
-                                    const amounts = data.map(i => i.total_disbursed || 0);
+                                    const amounts = data.map(i => i.business_amount || 0);
 
                                     destroyChart('businessChart');
                                     const ctx = document.getElementById("businessChart").getContext('2d');
@@ -603,7 +603,7 @@
                                 .then(res => res.json())
                                 .then(data => {
                                     const labels = data.map(i => i.month_name);
-                                    const dpdArr = data.map(i => i.npl_arrears || 0);
+                                    const dpdArr = data.map(i => i.dpdAbove90_val || 0);
 
                                     destroyChart('dpdComparisonChart');
                                     const ctx = document.getElementById("dpdComparisonChart").getContext('2d');
@@ -652,7 +652,7 @@
                                 .then(data => {
                                     if (data && data.model_name) {
                                         document.getElementById("npl-model-name").innerText = data.model_name;
-                                        document.getElementById("npl-model-count").innerText = formatNum(data.accounts_count) + " Accounts \u2022 Exposure: " + formatLKR(data.exposure);
+                                        document.getElementById("npl-model-count").innerText = formatNum(data.accounts_count || 0) + " Accounts \u2022 Exposure: " + formatLKR(data.exposure || 0);
                                     } else {
                                         document.getElementById("npl-model-name").innerText = 'Unknown Model';
                                         document.getElementById("npl-model-count").innerText = '0 Accounts';
@@ -666,7 +666,7 @@
                                 .then(data => {
                                     if (data && data.dealer_name) {
                                         document.getElementById("npl-dealer-name").innerText = data.dealer_name;
-                                        document.getElementById("npl-dealer-count").innerText = formatNum(data.accounts_count) + " Accounts \u2022 Exposure: " + formatLKR(data.exposure);
+                                        document.getElementById("npl-dealer-count").innerText = formatNum(data.accounts_count || 0) + " Accounts \u2022 Exposure: " + formatLKR(data.exposure || 0);
                                     } else {
                                         document.getElementById("npl-dealer-name").innerText = 'Unknown Dealer';
                                         document.getElementById("npl-dealer-count").innerText = '0 Accounts';
@@ -678,24 +678,58 @@
                             fetch('${pageContext.request.contextPath}/api/dashboard/device-status-charts')
                                 .then(res => res.json())
                                 .then(data => {
-                                    // Security Status locked numbers
-                                    document.getElementById("sec-mobile-locked-val").innerText = formatNum(data.mobilesLocked || 0);
-                                    document.getElementById("sec-laptop-locked-val").innerText = formatNum(data.laptopsLocked || 0);
+                                    let mobileLocked = 0;
+                                    if (data.mobileLock) {
+                                        data.mobileLock.forEach(item => {
+                                            if (item.state_name === 'Locked') mobileLocked = item.count_val || 0;
+                                        });
+                                    }
+                                    document.getElementById("sec-mobile-locked-val").innerText = formatNum(mobileLocked);
+
+                                    let laptopLocked = 0;
+                                    if (data.laptopLock) {
+                                        data.laptopLock.forEach(item => {
+                                            if (item.state_name === 'Locked') laptopLocked = item.count_val || 0;
+                                        });
+                                    }
+                                    document.getElementById("sec-laptop-locked-val").innerText = formatNum(laptopLocked);
 
                                     // Helper function for small doughnut charts
-                                    const buildDoughnut = (canvasId, label1, val1, label2, val2, colors) => {
+                                    const buildDoughnut = (canvasId, dataset, labelsList, colorsList) => {
                                         destroyChart(canvasId);
+                                        const labels = dataset.map(item => item.state_name);
+                                        const counts = dataset.map(item => item.count_val);
+
+                                        const centerTextPlugin = {
+                                            id: 'centerTextPlugin',
+                                            beforeDraw: function(chart) {
+                                                const width = chart.width, height = chart.height, ctx = chart.ctx;
+                                                ctx.restore();
+                                                const total = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                                const fontSize = (chart.innerRadius / 26).toFixed(2);
+                                                ctx.font = "bold " + fontSize + "em 'Work Sans', sans-serif";
+                                                ctx.textBaseline = "middle";
+                                                ctx.fillStyle = isDark ? "#f8fafc" : "#1e293b";
+                                                const text = total.toLocaleString(),
+                                                      textX = Math.round((width - ctx.measureText(text).width) / 2),
+                                                      textY = chart.chartArea.top + (chart.chartArea.bottom - chart.chartArea.top) / 2;
+                                                ctx.fillText(text, textX, textY);
+                                                ctx.save();
+                                            }
+                                        };
+
                                         const ctx = document.getElementById(canvasId).getContext('2d');
                                         activeCharts[canvasId] = new Chart(ctx, {
                                             type: 'doughnut',
                                             data: {
-                                                labels: [label1, label2],
+                                                labels: labels.length ? labels : labelsList,
                                                 datasets: [{
-                                                    data: [val1, val2],
-                                                    backgroundColor: colors,
+                                                    data: counts.length ? counts : [0, 0],
+                                                    backgroundColor: colorsList,
                                                     borderWidth: 0
                                                 }]
                                             },
+                                            plugins: [centerTextPlugin],
                                             options: {
                                                 responsive: true,
                                                 maintainAspectRatio: false,
@@ -705,47 +739,26 @@
                                                     tooltip: { enabled: true },
                                                     datalabels: {
                                                         display: true,
-                                                        color: isDark ? '#ffffff' : '#000000',
+                                                        color: '#ffffff',
                                                         font: { weight: 'bold', size: 9 },
-                                                        formatter: (val, ctx) => {
-                                                            let total = ctx.dataset.data.reduce((a, b) => a + b, 0);
-                                                            let pct = total > 0 ? Math.round((val / total) * 100) : 0;
-                                                            return pct > 15 ? (pct + "%") : "";
-                                                        }
+                                                        formatter: (value, ctx) => {
+                                                            let sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                                            if (sum === 0) return '';
+                                                            let percentage = (value * 100 / sum).toFixed(0);
+                                                            return percentage > 15 ? percentage + "%" : '';
+                                                        },
+                                                        anchor: 'center',
+                                                        align: 'center'
                                                     }
                                                 }
                                             }
                                         });
                                     };
 
-                                    // Mobile Performing
-                                    buildDoughnut(
-                                        'mobilePerformingChart',
-                                        'Performing', data.mobilesPerforming || 0,
-                                        'Non-Performing', data.mobilesNonPerforming || 0,
-                                        ['#10b981', '#ef4444']
-                                    );
-                                    // Mobile Lock
-                                    buildDoughnut(
-                                        'mobileLockChart',
-                                        'Active', data.mobilesActive || 0,
-                                        'Locked', data.mobilesLocked || 0,
-                                        ['#3b82f6', '#f59e0b']
-                                    );
-                                    // Laptop Performing
-                                    buildDoughnut(
-                                        'laptopPerformingChart',
-                                        'Performing', data.laptopsPerforming || 0,
-                                        'Non-Performing', data.laptopsNonPerforming || 0,
-                                        ['#10b981', '#ef4444']
-                                    );
-                                    // Laptop Lock
-                                    buildDoughnut(
-                                        'laptopLockChart',
-                                        'Active', data.laptopsActive || 0,
-                                        'Locked', data.laptopsLocked || 0,
-                                        ['#3b82f6', '#f59e0b']
-                                    );
+                                    buildDoughnut('mobilePerformingChart', data.mobilePerforming || [], ['Performing', 'Non-Performing'], ['rgba(16, 185, 129, 0.85)', 'rgba(244, 63, 94, 0.85)']);
+                                    buildDoughnut('mobileLockChart', data.mobileLock || [], ['Active', 'Locked'], ['rgba(99, 102, 241, 0.85)', 'rgba(245, 158, 11, 0.85)']);
+                                    buildDoughnut('laptopPerformingChart', data.laptopPerforming || [], ['Performing', 'Non-Performing'], ['rgba(16, 185, 129, 0.85)', 'rgba(244, 63, 94, 0.85)']);
+                                    buildDoughnut('laptopLockChart', data.laptopLock || [], ['Active', 'Locked'], ['rgba(99, 102, 241, 0.85)', 'rgba(245, 158, 11, 0.85)']);
                                 })
                                 .catch(err => console.error("Error loading security doughnut status:", err));
 
@@ -758,7 +771,7 @@
                                     buildHorizontalBar(
                                         'vendorPaymentsChart',
                                         chartData.map(i => i.channel_name),
-                                        chartData.map(i => i.total_disbursed || 0),
+                                        chartData.map(i => i.total_amount || 0),
                                         isDark ? 'rgba(99, 102, 241, 0.15)' : 'rgba(99, 102, 241, 0.15)',
                                         isDark ? 'rgba(99, 102, 241, 0.85)' : 'rgba(99, 102, 241, 0.85)',
                                         '#6366f1',
