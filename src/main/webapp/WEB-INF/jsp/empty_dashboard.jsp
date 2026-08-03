@@ -94,10 +94,12 @@
                 width: 100%;
             }
             .dashboard-content {
-                overflow: hidden !important;
-                height: calc(100vh - 85px) !important;
+                overflow-y: auto !important;
+                overflow-x: hidden !important;
+                height: auto !important;
+                max-height: none !important;
                 padding: 10px !important;
-                zoom: 75% !important;
+                padding-bottom: 60px !important;
             }
             .card {
                 border-radius: 8px !important;
