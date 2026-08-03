@@ -599,10 +599,10 @@
                                 .catch(err => console.error("Error loading month wise business:", err));
 
                             // ============ 3. DPD Range Wise Chart ============
-                            fetch('${pageContext.request.contextPath}/api/dashboard/dpd-chart-data?dimension=dealer')
+                            fetch('${pageContext.request.contextPath}/api/dashboard/dpd-comparison-chart')
                                 .then(res => res.json())
                                 .then(data => {
-                                    const labels = data.map(i => i.category_name);
+                                    const labels = data.map(i => i.month_name);
                                     const dpd0 = data.map(item => Math.round((item.dpd0_val / 1000000) * 100) / 100);
                                     const dpd1_30 = data.map(item => Math.round((item.dpd1_30_val / 1000000) * 100) / 100);
                                     const dpd31_60 = data.map(item => Math.round((item.dpd31_60_val / 1000000) * 100) / 100);
@@ -664,22 +664,21 @@
                                             ]
                                         },
                                         options: {
-                                            indexAxis: 'y',
                                             responsive: true,
                                             maintainAspectRatio: false,
                                             scales: {
                                                 x: {
+                                                    stacked: true,
+                                                    grid: { display: false },
+                                                    ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 9, weight: 'bold' } }
+                                                },
+                                                y: {
                                                     stacked: true,
                                                     beginAtZero: true,
                                                     grid: {
                                                         borderDash: [4, 4],
                                                         color: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(226, 232, 240, 0.4)'
                                                     },
-                                                    ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 9, weight: 'bold' } }
-                                                },
-                                                y: {
-                                                    stacked: true,
-                                                    grid: { display: false },
                                                     ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 9, weight: 'bold' } }
                                                 }
                                             },
