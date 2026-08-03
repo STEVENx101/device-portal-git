@@ -598,48 +598,99 @@
                                 })
                                 .catch(err => console.error("Error loading month wise business:", err));
 
-                            // ============ 3. DPD Comparison Trend Chart ============
-                            fetch('${pageContext.request.contextPath}/api/dashboard/dpd-comparison-chart')
+                            // ============ 3. DPD Range Wise Chart ============
+                            fetch('${pageContext.request.contextPath}/api/dashboard/dpd-chart-data?dimension=dealer')
                                 .then(res => res.json())
                                 .then(data => {
-                                    const labels = data.map(i => i.month_name);
-                                    const dpdArr = data.map(i => i.dpdAbove90_val || 0);
+                                    const labels = data.map(i => i.category_name);
+                                    const dpd0 = data.map(item => Math.round((item.dpd0_val / 1000000) * 100) / 100);
+                                    const dpd1_30 = data.map(item => Math.round((item.dpd1_30_val / 1000000) * 100) / 100);
+                                    const dpd31_60 = data.map(item => Math.round((item.dpd31_60_val / 1000000) * 100) / 100);
+                                    const dpd61_90 = data.map(item => Math.round((item.dpd61_90_val / 1000000) * 100) / 100);
+                                    const dpdAbove90 = data.map(item => Math.round((item.dpdAbove90_val / 1000000) * 100) / 100);
 
                                     destroyChart('dpdComparisonChart');
                                     const ctx = document.getElementById("dpdComparisonChart").getContext('2d');
                                     activeCharts['dpdComparisonChart'] = new Chart(ctx, {
-                                        type: 'line',
+                                        type: 'bar',
                                         data: {
                                             labels: labels,
-                                            datasets: [{
-                                                label: 'NPL Arrears',
-                                                data: dpdArr,
-                                                borderColor: '#ef4444',
-                                                backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                                                fill: true,
-                                                tension: 0.35,
-                                                borderWidth: 2.5,
-                                                pointBackgroundColor: '#ef4444',
-                                                pointRadius: 4
-                                            }]
+                                            datasets: [
+                                                {
+                                                    label: 'DPD 0',
+                                                    data: dpd0,
+                                                    backgroundColor: 'rgba(16, 185, 129, 0.75)',
+                                                    borderColor: '#10b981',
+                                                    borderWidth: 1.5,
+                                                    borderRadius: 4,
+                                                    barThickness: 16
+                                                },
+                                                {
+                                                    label: 'DPD 1-30',
+                                                    data: dpd1_30,
+                                                    backgroundColor: 'rgba(245, 158, 11, 0.75)',
+                                                    borderColor: '#f59e0b',
+                                                    borderWidth: 1.5,
+                                                    borderRadius: 4,
+                                                    barThickness: 16
+                                                },
+                                                {
+                                                    label: 'DPD 31-60',
+                                                    data: dpd31_60,
+                                                    backgroundColor: 'rgba(249, 115, 22, 0.75)',
+                                                    borderColor: '#f97316',
+                                                    borderWidth: 1.5,
+                                                    borderRadius: 4,
+                                                    barThickness: 16
+                                                },
+                                                {
+                                                    label: 'DPD 61-90',
+                                                    data: dpd61_90,
+                                                    backgroundColor: 'rgba(239, 68, 68, 0.75)',
+                                                    borderColor: '#ef4444',
+                                                    borderWidth: 1.5,
+                                                    borderRadius: 4,
+                                                    barThickness: 16
+                                                },
+                                                {
+                                                    label: 'Over 90 DPD',
+                                                    data: dpdAbove90,
+                                                    backgroundColor: isDark ? 'rgba(167, 139, 250, 0.75)' : 'rgba(30, 41, 59, 0.75)',
+                                                    borderColor: isDark ? '#a78bfa' : '#1e293b',
+                                                    borderWidth: 1.5,
+                                                    borderRadius: 4,
+                                                    barThickness: 16
+                                                }
+                                            ]
                                         },
                                         options: {
+                                            indexAxis: 'y',
                                             responsive: true,
                                             maintainAspectRatio: false,
-                                            plugins: {
-                                                legend: { display: false },
-                                                tooltip: { enabled: true },
-                                                datalabels: {
-                                                    display: true,
-                                                    align: 'top',
-                                                    color: isDark ? '#94a3b8' : '#475569',
-                                                    font: { size: 8, weight: 'bold' },
-                                                    formatter: (val) => formatLKR(val)
+                                            scales: {
+                                                x: {
+                                                    stacked: true,
+                                                    beginAtZero: true,
+                                                    grid: {
+                                                        borderDash: [4, 4],
+                                                        color: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(226, 232, 240, 0.4)'
+                                                    },
+                                                    ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 9, weight: 'bold' } }
+                                                },
+                                                y: {
+                                                    stacked: true,
+                                                    grid: { display: false },
+                                                    ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 9, weight: 'bold' } }
                                                 }
                                             },
-                                            scales: {
-                                                x: { grid: { display: false }, ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 8, weight: 'bold' } } },
-                                                y: { grid: { color: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }, ticks: { display: false } }
+                                            plugins: {
+                                                legend: {
+                                                    display: true,
+                                                    position: 'top',
+                                                    labels: { boxWidth: 10, padding: 8, font: { size: 9, weight: 'bold' } }
+                                                },
+                                                tooltip: { enabled: true },
+                                                datalabels: { display: false }
                                             }
                                         }
                                     });
