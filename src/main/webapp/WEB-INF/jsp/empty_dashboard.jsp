@@ -20,7 +20,7 @@
         <script src="${pageContext.request.contextPath}/vendors/simplebar/simplebar.min.js"></script>
 
         <link rel="preconnect" href="https://fonts.gstatic.com/">
-        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Work+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
         <link href="${pageContext.request.contextPath}/vendors/simplebar/simplebar.min.css" rel="stylesheet">
         <link href="${pageContext.request.contextPath}/assets/css/theme-rtl.min.css" rel="stylesheet" id="style-rtl">
         <link href="${pageContext.request.contextPath}/assets/css/theme.min.css" rel="stylesheet" id="style-default">
@@ -32,7 +32,7 @@
         <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
         <script>
             const isDark = document.documentElement.classList.contains('dark');
-            Chart.defaults.font.family = "'Plus Jakarta Sans', 'Poppins', sans-serif";
+            Chart.defaults.font.family = "'Work Sans', sans-serif";
             Chart.defaults.font.weight = '600';
             Chart.defaults.color = isDark ? "#94a3b8" : "#475569";
 
@@ -46,7 +46,7 @@
             Chart.defaults.plugins.datalabels.align = 'end';
             Chart.defaults.plugins.datalabels.offset = 4;
             Chart.defaults.plugins.datalabels.font = {
-                family: "'Plus Jakarta Sans', sans-serif",
+                family: "'Work Sans', sans-serif",
                 weight: 'bold',
                 size: 9
             };
@@ -60,34 +60,45 @@
         </script>
 
         <style>
+            body, .main, p, div, span, select, input, button, textarea, .card-value, .card-detail-text, h4, h3, h5, .fs--1, .fs--2 { 
+                font-family: 'Work Sans', sans-serif !important; 
+            }
+            h1, h2, h3, h4, h5, h6, .fw-bold, .fw-extrabold, .card-title-sub, .section-title, .navbar-brand { 
+                font-family: 'Outfit', sans-serif !important; 
+                letter-spacing: -0.01em;
+            }
             .kpi-card {
                 transition: transform 0.2s, box-shadow 0.2s;
-                border: 1px solid rgba(226, 232, 240, 0.8) !important;
+                border: 1px solid rgba(226, 232, 240, 0.6) !important;
                 background: #ffffff !important;
+                border-radius: 6px !important;
             }
             html.dark .kpi-card {
-                background: rgba(15, 23, 42, 0.6) !important;
-                border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                background: rgba(15, 23, 42, 0.4) !important;
+                border: 1px solid rgba(255, 255, 255, 0.05) !important;
             }
             .kpi-card:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 8px 20px rgba(99, 102, 241, 0.12) !important;
+                transform: translateY(-1px);
+                box-shadow: 0 4px 12px rgba(99, 102, 241, 0.08) !important;
             }
             .card-title-sub {
-                font-size: 0.65rem;
+                font-size: 0.62rem;
                 font-weight: 700;
                 text-transform: uppercase;
-                letter-spacing: 0.05em;
+                letter-spacing: 0.06em;
+                color: #64748b !important;
             }
             .card-value {
                 font-size: 1.15rem;
                 font-weight: 800;
-                margin-top: 0.2rem;
+                margin-top: 0.25rem;
+                letter-spacing: -0.02em;
             }
             .card-detail-text {
-                font-size: 0.65rem;
+                font-size: 0.62rem;
                 font-weight: 600;
-                margin-top: 0.1rem;
+                margin-top: 0.15rem;
+                color: #94a3b8 !important;
             }
             .chart-container {
                 position: relative;
@@ -102,40 +113,35 @@
                 padding-bottom: 60px !important;
             }
             .card {
-                border-radius: 8px !important;
-                border: 1px solid rgba(226, 232, 240, 0.8) !important;
+                border-radius: 6px !important;
+                border: 1px solid rgba(226, 232, 240, 0.6) !important;
             }
             html.dark .card {
-                background: rgba(15, 23, 42, 0.6) !important;
-                border: 1px solid rgba(255, 255, 255, 0.08) !important;
-            }
-            .card-header {
-                background: transparent !important;
-                border-bottom: 1px solid rgba(99, 102, 241, 0.12) !important;
-                padding: 6px 12px !important;
+                background: rgba(15, 23, 42, 0.4) !important;
+                border: 1px solid rgba(255, 255, 255, 0.05) !important;
             }
             .npl-highlight-card {
-                border-radius: 8px !important;
+                border-radius: 6px !important;
                 padding: 10px 14px !important;
             }
             .highlight-label {
-                font-size: 0.62rem;
+                font-size: 0.6rem;
                 font-weight: 700;
                 text-transform: uppercase;
                 letter-spacing: 0.05em;
             }
             .highlight-name {
-                font-size: 0.95rem;
+                font-size: 0.9rem;
                 font-weight: 800;
                 margin: 2px 0;
             }
             .highlight-stat {
-                font-size: 0.65rem;
+                font-size: 0.62rem;
                 font-weight: 600;
             }
             .section-title {
-                font-family: 'Plus Jakarta Sans', sans-serif;
-                font-size: 0.72rem;
+                font-family: 'Outfit', sans-serif !important;
+                font-size: 0.7rem;
                 font-weight: 700;
                 text-transform: uppercase;
                 letter-spacing: 0.08em;
@@ -152,7 +158,7 @@
                 content: '';
                 flex: 1;
                 height: 1px;
-                background: linear-gradient(90deg, rgba(99, 102, 241, 0.2), transparent);
+                background: linear-gradient(90deg, rgba(99, 102, 241, 0.15), transparent);
             }
         </style>
     </head>
@@ -188,7 +194,7 @@
                     <div class="row g-2 mb-2">
                         <!-- Current Month Business -->
                         <div class="col-lg-2 col-md-4 col-sm-6">
-                            <div class="card kpi-card shadow-sm h-100" style="border-left: 4px solid #6366f1 !important;">
+                            <div class="card kpi-card shadow-sm h-100" style="border-left: 3px solid #6366f1 !important;">
                                 <div class="card-body p-2 d-flex flex-column justify-content-between">
                                     <div>
                                         <span class="card-title-sub text-muted">MONTH DISBURSEMENT</span>
@@ -200,7 +206,7 @@
                         </div>
                         <!-- Active Loans -->
                         <div class="col-lg-2 col-md-4 col-sm-6">
-                            <div class="card kpi-card shadow-sm h-100" style="border-left: 4px solid #10b981 !important;">
+                            <div class="card kpi-card shadow-sm h-100" style="border-left: 3px solid #10b981 !important;">
                                 <div class="card-body p-2 d-flex flex-column justify-content-between">
                                     <div>
                                         <span class="card-title-sub text-muted">ACTIVE PORTFOLIO</span>
@@ -212,7 +218,7 @@
                         </div>
                         <!-- NPL Card -->
                         <div class="col-lg-2 col-md-4 col-sm-6">
-                            <div class="card kpi-card shadow-sm h-100" style="border-left: 4px solid #ef4444 !important;">
+                            <div class="card kpi-card shadow-sm h-100" style="border-left: 3px solid #ef4444 !important;">
                                 <div class="card-body p-2 d-flex flex-column justify-content-between">
                                     <div>
                                         <span class="card-title-sub text-muted">NPL EXPOSURE</span>
@@ -224,7 +230,7 @@
                         </div>
                         <!-- Arrears -->
                         <div class="col-lg-2 col-md-4 col-sm-6">
-                            <div class="card kpi-card shadow-sm h-100" style="border-left: 4px solid #f59e0b !important;">
+                            <div class="card kpi-card shadow-sm h-100" style="border-left: 3px solid #f59e0b !important;">
                                 <div class="card-body p-2 d-flex flex-column justify-content-between">
                                     <div>
                                         <span class="card-title-sub text-muted">TOTAL ARREARS</span>
@@ -236,7 +242,7 @@
                         </div>
                         <!-- Collections Active -->
                         <div class="col-lg-2 col-md-4 col-sm-6">
-                            <div class="card kpi-card shadow-sm h-100" style="border-left: 4px solid #3b82f6 !important;">
+                            <div class="card kpi-card shadow-sm h-100" style="border-left: 3px solid #3b82f6 !important;">
                                 <div class="card-body p-2 d-flex flex-column justify-content-between">
                                     <div>
                                         <span class="card-title-sub text-muted">COLLECTIONS ACTIVE</span>
@@ -248,7 +254,7 @@
                         </div>
                         <!-- YTD summary -->
                         <div class="col-lg-2 col-md-4 col-sm-6">
-                            <div class="card kpi-card shadow-sm h-100" style="border-left: 4px solid #8b5cf6 !important;">
+                            <div class="card kpi-card shadow-sm h-100" style="border-left: 3px solid #8b5cf6 !important;">
                                 <div class="card-body p-2 d-flex flex-column justify-content-between">
                                     <div>
                                         <span class="card-title-sub text-muted">YTD FINANCE ACCOUNTS</span>
@@ -262,13 +268,10 @@
 
                     <!-- Row 2: Trend Chart and NPL model/dealer details side-by-side -->
                     <div class="row g-2 mb-2">
-                        <!-- Left: Monthly trend charts (2/3 width) -->
+                        <!-- Left: Monthly trend charts (2/3 width, Clean No Header) -->
                         <div class="col-lg-8 col-md-7">
                             <div class="card shadow-sm h-100">
-                                <div class="card-header bg-light py-1 d-flex justify-content-between align-items-center">
-                                    <span class="fw-bold fs--1 text-primary"><i class="fas fa-chart-line me-1"></i>Month-Wise Disbursements & DPD Status</span>
-                                </div>
-                                <div class="card-body p-2">
+                                <div class="card-body p-3">
                                     <div class="row g-2">
                                         <div class="col-6">
                                             <div style="height: 180px; position: relative; width: 100%;">
@@ -289,16 +292,16 @@
                         <div class="col-lg-4 col-md-5">
                             <div class="d-flex flex-column gap-2 h-100">
                                 <!-- Highest NPL Model -->
-                                <div class="card shadow-sm flex-fill" style="border-left: 4px solid #ef4444 !important;">
-                                    <div class="card-body p-2">
+                                <div class="card shadow-sm flex-fill" style="border-left: 3px solid #ef4444 !important;">
+                                    <div class="card-body p-3">
                                         <span class="card-title-sub text-muted">HIGHEST NPL MODEL</span>
                                         <div class="card-value text-danger mt-1" id="npl-model-name" style="font-size: 1.1rem;">Loading...</div>
                                         <div class="card-detail-text text-muted" id="npl-model-count">0 Accounts</div>
                                     </div>
                                 </div>
                                 <!-- Highest NPL Dealer -->
-                                <div class="card shadow-sm flex-fill" style="border-left: 4px solid #f59e0b !important;">
-                                    <div class="card-body p-2">
+                                <div class="card shadow-sm flex-fill" style="border-left: 3px solid #f59e0b !important;">
+                                    <div class="card-body p-3">
                                         <span class="card-title-sub text-muted">HIGHEST NPL DEALER</span>
                                         <div class="card-value text-warning mt-1" id="npl-dealer-name" style="font-size: 1.1rem;">Loading...</div>
                                         <div class="card-detail-text text-muted" id="npl-dealer-count">0 Accounts</div>
@@ -308,41 +311,38 @@
                         </div>
                     </div>
 
-                    <!-- Row 3: Device status & lock doughnuts (Performing & Lock status) -->
+                    <!-- Row 3: Device status & lock doughnuts (Performing & Lock status, Clean No Header) -->
                     <div class="row g-2 mb-2">
                         <div class="col-12">
                             <div class="card shadow-sm">
-                                <div class="card-header bg-light py-1">
-                                    <span class="fw-bold fs--1 text-primary"><i class="fas fa-hdd me-1"></i>Device Performing & Security Status</span>
-                                </div>
-                                <div class="card-body p-2">
+                                <div class="card-body p-3">
                                     <div class="row g-1 align-items-center text-center">
                                         <div class="col-3">
-                                            <div class="fs--2 fw-semi-bold text-muted mb-1">Mobiles Performing</div>
+                                            <div class="fs--2 fw-semi-bold text-muted mb-2">Mobiles Performing</div>
                                             <div style="height: 120px; position: relative; width: 100%;">
                                                 <canvas id="mobilePerformingChart"></canvas>
                                             </div>
                                         </div>
                                         <div class="col-3">
-                                            <div class="fs--2 fw-semi-bold text-muted mb-1">Mobiles Lock</div>
+                                            <div class="fs--2 fw-semi-bold text-muted mb-2">Mobiles Lock</div>
                                             <div style="height: 120px; position: relative; width: 100%;">
                                                 <canvas id="mobileLockChart"></canvas>
                                             </div>
                                         </div>
                                         <div class="col-3">
-                                            <div class="fs--2 fw-semi-bold text-muted mb-1">Laptops Performing</div>
+                                            <div class="fs--2 fw-semi-bold text-muted mb-2">Laptops Performing</div>
                                             <div style="height: 120px; position: relative; width: 100%;">
                                                 <canvas id="laptopPerformingChart"></canvas>
                                             </div>
                                         </div>
                                         <div class="col-3">
-                                            <div class="fs--2 fw-semi-bold text-muted mb-1">Laptops Lock</div>
+                                            <div class="fs--2 fw-semi-bold text-muted mb-2">Laptops Lock</div>
                                             <div style="height: 120px; position: relative; width: 100%;">
                                                 <canvas id="laptopLockChart"></canvas>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="text-center fs--2 text-muted mt-2 border-top pt-1">
+                                    <div class="text-center fs--2 text-muted mt-3 border-top pt-2">
                                         Device locks summary &bull; Active: <span id="sec-mobile-locked-val" class="fw-bold text-danger">0</span> Mobiles &bull; <span id="sec-laptop-locked-val" class="fw-bold text-danger">0</span> Laptops
                                     </div>
                                 </div>
@@ -350,14 +350,12 @@
                         </div>
                     </div>
 
-                    <!-- Row 4: Collections & Payments (Side-by-Side Horizontal Bars) -->
+                    <!-- Row 4: Collections & Payments (Side-by-Side Horizontal Bars, Clean No Header) -->
                     <div class="row g-2">
                         <div class="col-lg-6">
                             <div class="card shadow-sm">
-                                <div class="card-header bg-light py-1">
-                                    <span class="fw-bold fs--1 text-primary"><i class="fas fa-hand-holding-usd me-1"></i>Collections Dealer Wise (Current Month)</span>
-                                </div>
-                                <div class="card-body p-2">
+                                <div class="card-body p-3">
+                                    <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-hand-holding-usd me-1"></i>Collections Dealer Wise (Current Month)</div>
                                     <div style="height: 140px; position: relative; width: 100%;">
                                         <canvas id="collectionsDealerChart"></canvas>
                                     </div>
@@ -366,10 +364,8 @@
                         </div>
                         <div class="col-lg-6">
                             <div class="card shadow-sm">
-                                <div class="card-header bg-light py-1">
-                                    <span class="fw-bold fs--1 text-primary"><i class="fas fa-money-check-alt me-1"></i>Vendor Payments Channel-Wise (Current Month)</span>
-                                </div>
-                                <div class="card-body p-2">
+                                <div class="card-body p-3">
+                                    <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-money-check-alt me-1"></i>Vendor Payments Channel-Wise (Current Month)</div>
                                     <div style="height: 140px; position: relative; width: 100%;">
                                         <canvas id="vendorPaymentsChart"></canvas>
                                     </div>
