@@ -492,22 +492,22 @@ public class DashboardRepository {
 
     public Map<String, Object> getHighestNplModel() {
         String sql = """
-                SELECT
+                SELECT 
                     COALESCE(lmm.name, 'Unknown Model') AS model_name,
-                    COUNT(DISTINCT l.account_no) AS npl_count,
+                    COUNT(DISTINCT active_loans.account_no) AS npl_count,
                     COALESCE(SUM(p.exposure), 0) AS npl_exposure
-                FROM cbs.loan l
-                LEFT JOIN loan.mobileloan lm1 ON lm1.finance_no = l.account_no
-                LEFT JOIN loan.mobileloan lm2 ON lm2.finance_no = l.legacy_account_no
-                LEFT JOIN loan.device_loan dl1 ON dl1.finance_no = l.account_no
-                LEFT JOIN loan.device_loan dl2 ON dl2.finance_no = l.legacy_account_no
-                LEFT JOIN loan.mobileloan_model lmm
-                    ON lmm.id = COALESCE(lm1.model, lm2.model, dl1.model, dl2.model)
-                LEFT JOIN cbs.portfolio p
-                    ON (p.account_no = l.account_no OR p.account_no = l.legacy_account_no)
-                    AND p.series = l.account_series
+                FROM (
+                    SELECT account_no, account_series, account_no AS join_no FROM cbs.loan WHERE account_status = 'N'
+                    UNION ALL
+                    SELECT account_no, account_series, legacy_account_no AS join_no FROM cbs.loan WHERE account_status = 'N' AND legacy_account_no IS NOT NULL
+                ) active_loans
+                LEFT JOIN loan.mobileloan lm ON lm.finance_no = active_loans.join_no
+                LEFT JOIN loan.device_loan dl ON dl.finance_no = active_loans.join_no
+                LEFT JOIN loan.mobileloan_model lmm ON lmm.id = COALESCE(lm.model, dl.model)
+                LEFT JOIN cbs.portfolio p 
+                    ON p.account_no = active_loans.join_no 
+                    AND p.series = active_loans.account_series
                     AND p.portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio)
-                WHERE l.account_status = 'N'
                 GROUP BY model_name
                 ORDER BY npl_count DESC
                 LIMIT 1
@@ -525,17 +525,20 @@ public class DashboardRepository {
 
     public Map<String, Object> getHighestNplDealer() {
         String sql = """
-                SELECT
+                SELECT 
                     COALESCE(v.name, 'Unknown Dealer') AS dealer_name,
-                    COUNT(DISTINCT l.account_no) AS npl_count,
+                    COUNT(DISTINCT active_loans.account_no) AS npl_count,
                     COALESCE(SUM(p.exposure), 0) AS npl_exposure
-                FROM cbs.loan l
-                LEFT JOIN cbs.vendor v ON l.vendor = v.code
-                LEFT JOIN cbs.portfolio p
-                    ON (p.account_no = l.account_no OR p.account_no = l.legacy_account_no)
-                    AND p.series = l.account_series
+                FROM (
+                    SELECT account_no, account_series, vendor, account_no AS join_no FROM cbs.loan WHERE account_status = 'N'
+                    UNION ALL
+                    SELECT account_no, account_series, vendor, legacy_account_no AS join_no FROM cbs.loan WHERE account_status = 'N' AND legacy_account_no IS NOT NULL
+                ) active_loans
+                LEFT JOIN cbs.vendor v ON active_loans.vendor = v.code
+                LEFT JOIN cbs.portfolio p 
+                    ON p.account_no = active_loans.join_no 
+                    AND p.series = active_loans.account_series
                     AND p.portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio)
-                WHERE l.account_status = 'N'
                 GROUP BY dealer_name
                 ORDER BY npl_count DESC
                 LIMIT 1

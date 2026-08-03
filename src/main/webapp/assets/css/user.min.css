@@ -155,6 +155,7 @@ body {
     max-height: calc(100vh - 85px) !important;
     padding-bottom: 40px !important;
     display: block !important;
+    zoom: 75% !important;
 }
 
 /* Dashboard scrollbar styling */

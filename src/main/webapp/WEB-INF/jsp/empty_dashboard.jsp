@@ -478,119 +478,36 @@
                         </div>
                     </div>
 
-                    <!-- ======================== ROW 4: Dealer Analytics ======================== -->
-                    <div class="section-title"><i class="fas fa-store"></i> Dealer Analytics</div>
+                    <!-- ======================== ROW 4: Highest NPL Model & Dealer ======================== -->
+                    <div class="section-title"><i class="fas fa-exclamation-circle"></i> NPL Highlight Statistics</div>
                     <div class="row g-3 mb-4">
-                        <!-- Dealer Current Month Business -->
-                        <div class="col-lg-6">
-                            <div class="card shadow-sm h-100">
-                                <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
-                                    <h6 class="mb-0 text-primary fw-bold"><i class="fas fa-store me-2"></i>Dealer's Current Month Business</h6>
+                        <!-- Highest NPL Model -->
+                        <div class="col-md-6">
+                            <div class="card npl-highlight-card gradient-5 shadow-sm h-100">
+                                <div class="highlight-icon">
+                                    <i class="fas fa-mobile-alt"></i>
                                 </div>
-                                <div class="card-body p-3 d-flex flex-column justify-content-center">
-                                    <div class="chart-container" style="height: 320px; position: relative; width: 100%;">
-                                        <canvas id="dealerCurrentMonthChart"></canvas>
-                                    </div>
-                                </div>
+                                <div class="highlight-label">Highest NPL Model</div>
+                                <div class="highlight-name" id="npl-model-name">Loading...</div>
+                                <div class="highlight-stat" id="npl-model-count">0 Accounts</div>
+                                <div class="highlight-stat" id="npl-model-exposure">Exposure: LKR 0.00 Mn</div>
                             </div>
                         </div>
-
-                        <!-- Dealer Portfolio Business -->
-                        <div class="col-lg-6">
-                            <div class="card shadow-sm h-100">
-                                <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
-                                    <h6 class="mb-0 text-primary fw-bold"><i class="fas fa-briefcase me-2"></i>Dealer's Portfolio Business (As At Now)</h6>
+                        <!-- Highest NPL Dealer -->
+                        <div class="col-md-6">
+                            <div class="card npl-highlight-card gradient-4 shadow-sm h-100">
+                                <div class="highlight-icon">
+                                    <i class="fas fa-store"></i>
                                 </div>
-                                <div class="card-body p-3 d-flex flex-column justify-content-center">
-                                    <div class="chart-container" style="height: 320px; position: relative; width: 100%;">
-                                        <canvas id="dealerPortfolioChart"></canvas>
-                                    </div>
-                                </div>
+                                <div class="highlight-label">Highest NPL Dealer</div>
+                                <div class="highlight-name" id="npl-dealer-name">Loading...</div>
+                                <div class="highlight-stat" id="npl-dealer-count">0 Accounts</div>
+                                <div class="highlight-stat" id="npl-dealer-exposure">Exposure: LKR 0.00 Mn</div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- ======================== ROW 5: Arrears Analysis & NPL Highlights ======================== -->
-                    <div class="section-title"><i class="fas fa-exclamation-circle"></i> Arrears & NPL Analysis</div>
-                    <div class="row g-3 mb-4">
-                        <!-- Arrears Analysis Doughnut -->
-                        <div class="col-lg-5">
-                            <div class="card shadow-sm h-100">
-                                <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
-                                    <h6 class="mb-0 text-primary fw-bold"><i class="fas fa-chart-pie me-2"></i>Arrears Analysis (DPD Buckets)</h6>
-                                </div>
-                                <div class="card-body p-3 d-flex flex-column justify-content-center">
-                                    <div class="chart-container" style="height: 300px; position: relative; width: 100%;">
-                                        <canvas id="arrearsAnalysisChart"></canvas>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Highest NPL Model & Dealer -->
-                        <div class="col-lg-7">
-                            <div class="row g-3 h-100">
-                                <!-- Highest NPL Model -->
-                                <div class="col-md-6">
-                                    <div class="card npl-highlight-card gradient-5 shadow-sm h-100">
-                                        <div class="highlight-icon">
-                                            <i class="fas fa-mobile-alt"></i>
-                                        </div>
-                                        <div class="highlight-label">Highest NPL Model</div>
-                                        <div class="highlight-name" id="npl-model-name">Loading...</div>
-                                        <div class="highlight-stat" id="npl-model-count">0 Accounts</div>
-                                        <div class="highlight-stat" id="npl-model-exposure">Exposure: LKR 0.00 Mn</div>
-                                    </div>
-                                </div>
-                                <!-- Highest NPL Dealer -->
-                                <div class="col-md-6">
-                                    <div class="card npl-highlight-card gradient-4 shadow-sm h-100">
-                                        <div class="highlight-icon">
-                                            <i class="fas fa-store"></i>
-                                        </div>
-                                        <div class="highlight-label">Highest NPL Dealer</div>
-                                        <div class="highlight-name" id="npl-dealer-name">Loading...</div>
-                                        <div class="highlight-stat" id="npl-dealer-count">0 Accounts</div>
-                                        <div class="highlight-stat" id="npl-dealer-exposure">Exposure: LKR 0.00 Mn</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- ======================== ROW 6: Collections Dealer Wise ======================== -->
-                    <div class="section-title"><i class="fas fa-hand-holding-usd"></i> Collections</div>
-                    <div class="row g-3 mb-4">
-                        <!-- Collections Dealer Wise -->
-                        <div class="col-lg-6">
-                            <div class="card shadow-sm h-100">
-                                <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
-                                    <h6 class="mb-0 text-primary fw-bold"><i class="fas fa-hand-holding-usd me-2"></i>Collections Dealer Wise (Current Month)</h6>
-                                </div>
-                                <div class="card-body p-3 d-flex flex-column justify-content-center">
-                                    <div class="chart-container" style="height: 320px; position: relative; width: 100%;">
-                                        <canvas id="collectionsDealerChart"></canvas>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Vendor Payments (existing, moved here) -->
-                        <div class="col-lg-6">
-                            <div class="card shadow-sm h-100">
-                                <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
-                                    <h6 class="mb-0 text-primary fw-bold"><i class="fas fa-money-check-alt me-2"></i>Vendor Payments (Current Month)</h6>
-                                </div>
-                                <div class="card-body p-3 d-flex flex-column justify-content-center">
-                                    <div class="chart-container" style="height: 320px; position: relative; width: 100%;">
-                                        <canvas id="vendorPaymentsChart"></canvas>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- ======================== ROW 7: Device Status Charts ======================== -->
+                    <!-- ======================== ROW 5: Device Status Charts ======================== -->
                     <div class="section-title"><i class="fas fa-hdd"></i> Device Status Analytics</div>
                     <div class="row g-3 mb-4">
                         <!-- Mobile Device Status -->
@@ -638,6 +555,38 @@
                                                 <canvas id="laptopLockChart"></canvas>
                                             </div>
                                         </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ======================== ROW 6: Collections & Vendor Payments ======================== -->
+                    <div class="section-title"><i class="fas fa-hand-holding-usd"></i> Collections & Payments</div>
+                    <div class="row g-3 mb-4">
+                        <!-- Collections Dealer Wise -->
+                        <div class="col-lg-6">
+                            <div class="card shadow-sm h-100">
+                                <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
+                                    <h6 class="mb-0 text-primary fw-bold"><i class="fas fa-hand-holding-usd me-2"></i>Collections Dealer Wise (Current Month)</h6>
+                                </div>
+                                <div class="card-body p-3 d-flex flex-column justify-content-center">
+                                    <div class="chart-container" style="height: 320px; position: relative; width: 100%;">
+                                        <canvas id="collectionsDealerChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Vendor Payments -->
+                        <div class="col-lg-6">
+                            <div class="card shadow-sm h-100">
+                                <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
+                                    <h6 class="mb-0 text-primary fw-bold"><i class="fas fa-money-check-alt me-2"></i>Vendor Payments (Current Month)</h6>
+                                </div>
+                                <div class="card-body p-3 d-flex flex-column justify-content-center">
+                                    <div class="chart-container" style="height: 320px; position: relative; width: 100%;">
+                                        <canvas id="vendorPaymentsChart"></canvas>
                                     </div>
                                 </div>
                             </div>
@@ -1095,116 +1044,6 @@
                                     document.getElementById("sec-laptop-unlocked-val").innerText = formatNum(laptopUnlocked);
                                 })
                                 .catch(err => console.error("Error loading device status charts:", err));
-
-                            // ============ 6. Dealer Current Month Business ============
-                            fetch('${pageContext.request.contextPath}/api/dashboard/dealer-current-month')
-                                .then(res => res.json())
-                                .then(data => {
-                                    let chartData = data.length > 10 ? data.slice(0, 10) : data;
-                                    if (data.length > 10) {
-                                        const othersAmt = data.slice(10).reduce((s, i) => s + (i.total_amount || 0), 0);
-                                        chartData.push({ dealer_name: 'Others', total_amount: othersAmt });
-                                    }
-                                    chartData.reverse();
-                                    buildHorizontalBar(
-                                        'dealerCurrentMonthChart',
-                                        chartData.map(i => i.dealer_name),
-                                        chartData.map(i => i.total_amount),
-                                        isDark ? 'rgba(16, 185, 129, 0.15)' : 'rgba(16, 185, 129, 0.15)',
-                                        isDark ? 'rgba(16, 185, 129, 0.85)' : 'rgba(16, 185, 129, 0.85)',
-                                        '#10b981',
-                                        'Disbursed (LKR)'
-                                    );
-                                })
-                                .catch(err => console.error("Error loading dealer current month:", err));
-
-                            // ============ 7. Dealer Portfolio Business ============
-                            fetch('${pageContext.request.contextPath}/api/dashboard/dealer-portfolio')
-                                .then(res => res.json())
-                                .then(data => {
-                                    let chartData = data.length > 10 ? data.slice(0, 10) : data;
-                                    if (data.length > 10) {
-                                        const othersExp = data.slice(10).reduce((s, i) => s + (i.total_exposure || 0), 0);
-                                        chartData.push({ dealer_name: 'Others', total_exposure: othersExp });
-                                    }
-                                    chartData.reverse();
-                                    buildHorizontalBar(
-                                        'dealerPortfolioChart',
-                                        chartData.map(i => i.dealer_name),
-                                        chartData.map(i => i.total_exposure),
-                                        isDark ? 'rgba(99, 102, 241, 0.15)' : 'rgba(99, 102, 241, 0.15)',
-                                        isDark ? 'rgba(99, 102, 241, 0.85)' : 'rgba(99, 102, 241, 0.85)',
-                                        '#6366f1',
-                                        'Exposure (LKR)'
-                                    );
-                                })
-                                .catch(err => console.error("Error loading dealer portfolio:", err));
-
-                            // ============ 8. Arrears Analysis ============
-                            fetch('${pageContext.request.contextPath}/api/dashboard/arrears-analysis')
-                                .then(res => res.json())
-                                .then(data => {
-                                    const labels = data.map(i => i.dpd_bucket);
-                                    const amounts = data.map(i => i.arrears_amount);
-                                    const counts = data.map(i => i.account_count);
-                                    const bucketColors = [
-                                        'rgba(245, 158, 11, 0.85)',   // Current / 1-30
-                                        'rgba(249, 115, 22, 0.85)',   // 31-60
-                                        'rgba(239, 68, 68, 0.85)',    // 61-90
-                                        'rgba(190, 18, 60, 0.85)',    // 90+
-                                        'rgba(99, 102, 241, 0.85)'    // extra
-                                    ];
-
-                                    const ctx = document.getElementById('arrearsAnalysisChart').getContext('2d');
-                                    new Chart(ctx, {
-                                        type: 'doughnut',
-                                        data: {
-                                            labels: labels,
-                                            datasets: [{
-                                                data: amounts,
-                                                backgroundColor: bucketColors.slice(0, labels.length),
-                                                borderColor: isDark ? 'rgba(15, 23, 42, 0.95)' : '#ffffff',
-                                                borderWidth: 2.5,
-                                                hoverOffset: 6,
-                                                spacing: 3
-                                            }]
-                                        },
-                                        options: {
-                                            responsive: true,
-                                            maintainAspectRatio: false,
-                                            cutout: '65%',
-                                            plugins: {
-                                                datalabels: {
-                                                    display: true,
-                                                    color: '#ffffff',
-                                                    font: { family: "'Plus Jakarta Sans', sans-serif", weight: 'bold', size: 11 },
-                                                    formatter: (value, ctx) => {
-                                                        let sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                                                        if (sum === 0) return '';
-                                                        let pct = (value * 100 / sum).toFixed(0);
-                                                        if (pct === "0") return '';
-                                                        return pct + "%";
-                                                    },
-                                                    anchor: 'center',
-                                                    align: 'center',
-                                                    textShadowColor: 'rgba(0, 0, 0, 0.6)',
-                                                    textShadowBlur: 4
-                                                },
-                                                legend: { position: 'bottom', labels: { boxWidth: 10, padding: 10, font: { size: 11, weight: '600' } } },
-                                                tooltip: {
-                                                    callbacks: {
-                                                        label: function(context) {
-                                                            const idx = context.dataIndex;
-                                                            const cnt = counts[idx] || 0;
-                                                            return ' LKR ' + Number(context.raw).toLocaleString(undefined, {minimumFractionDigits: 2}) + ' (' + cnt + ' accounts)';
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    });
-                                })
-                                .catch(err => console.error("Error loading arrears analysis:", err));
 
                             // ============ 9. Highest NPL Model ============
                             fetch('${pageContext.request.contextPath}/api/dashboard/highest-npl-model')
