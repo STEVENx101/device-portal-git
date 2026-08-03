@@ -240,10 +240,26 @@
                                   body: JSON.stringify(ssoUser)
                             });
 
-                            if (localRes.ok) {
-                                window.location.replace(CTX + getRedirectTarget());
-                                return;
-                            }
+                             if (localRes.ok) {
+                                 // Asynchronously pre-fetch dashboard data into browser cache
+                                 const endpoints = [
+                                     '/api/dashboard/stats',
+                                     '/api/dashboard/business-chart',
+                                     '/api/dashboard/dpd-comparison-chart',
+                                     '/api/dashboard/device-status-charts',
+                                     '/api/dashboard/highest-npl-model',
+                                     '/api/dashboard/highest-npl-dealer',
+                                     '/api/dashboard/vendor-payments-chart',
+                                     '/api/dashboard/collections-dealer-wise'
+                                 ];
+                                 try {
+                                     await Promise.all(endpoints.map(ep => fetch(CTX + ep)));
+                                 } catch (preloadErr) {
+                                     console.warn("Preload failed", preloadErr);
+                                 }
+                                 window.location.replace(CTX + getRedirectTarget());
+                                 return;
+                             }
                         }
                     } catch (err) {
                         console.error('SSO verification check failed:', err);

@@ -182,65 +182,85 @@
                         </div>
                     </div>
 
-                    <!-- Row 1: KPI Cards (4 Cards) -->
+                    <!-- Row 1: KPI Cards (6 Cards) -->
                     <div class="row g-2 mb-2">
                         <!-- Current Month Business -->
-                        <div class="col-lg-3 col-md-6">
-                            <div class="card kpi-card shadow-sm" style="border-left: 4px solid #6366f1 !important;">
-                                <div class="card-body p-2 d-flex align-items-center justify-content-between">
+                        <div class="col-lg-2 col-md-4 col-sm-6">
+                            <div class="card kpi-card shadow-sm h-100" style="border-left: 4px solid #6366f1 !important;">
+                                <div class="card-body p-2 d-flex flex-column justify-content-between">
                                     <div>
                                         <span class="card-title-sub text-muted">MONTH DISBURSEMENT</span>
                                         <div class="card-value text-primary" id="kpi-month-amount">LKR 0.00 Mn</div>
                                         <div class="card-detail-text text-muted" id="kpi-month-count">0 Accounts</div>
                                     </div>
-                                    <div class="text-primary opacity-50" style="font-size: 1.5rem;"><i class="fas fa-file-invoice-dollar"></i></div>
                                 </div>
                             </div>
                         </div>
                         <!-- Active Loans -->
-                        <div class="col-lg-3 col-md-6">
-                            <div class="card kpi-card shadow-sm" style="border-left: 4px solid #10b981 !important;">
-                                <div class="card-body p-2 d-flex align-items-center justify-content-between">
+                        <div class="col-lg-2 col-md-4 col-sm-6">
+                            <div class="card kpi-card shadow-sm h-100" style="border-left: 4px solid #10b981 !important;">
+                                <div class="card-body p-2 d-flex flex-column justify-content-between">
                                     <div>
                                         <span class="card-title-sub text-muted">ACTIVE PORTFOLIO</span>
                                         <div class="card-value text-success" id="kpi-portfolio-amount">LKR 0.00 Mn</div>
                                         <div class="card-detail-text text-muted" id="kpi-portfolio-count">0 Accounts</div>
                                     </div>
-                                    <div class="text-success opacity-50" style="font-size: 1.5rem;"><i class="fas fa-check-circle"></i></div>
                                 </div>
                             </div>
                         </div>
                         <!-- NPL Card -->
-                        <div class="col-lg-3 col-md-6">
-                            <div class="card kpi-card shadow-sm" style="border-left: 4px solid #ef4444 !important;">
-                                <div class="card-body p-2 d-flex align-items-center justify-content-between">
+                        <div class="col-lg-2 col-md-4 col-sm-6">
+                            <div class="card kpi-card shadow-sm h-100" style="border-left: 4px solid #ef4444 !important;">
+                                <div class="card-body p-2 d-flex flex-column justify-content-between">
                                     <div>
                                         <span class="card-title-sub text-muted">NPL EXPOSURE</span>
                                         <div class="card-value text-danger" id="kpi-npl-exposure">LKR 0.00 Mn</div>
                                         <div class="card-detail-text text-muted" id="kpi-npl-count">0 Accounts</div>
                                     </div>
-                                    <div class="text-danger opacity-50" style="font-size: 1.5rem;"><i class="fas fa-exclamation-triangle"></i></div>
                                 </div>
                             </div>
                         </div>
                         <!-- Arrears -->
-                        <div class="col-lg-3 col-md-6">
-                            <div class="card kpi-card shadow-sm" style="border-left: 4px solid #f59e0b !important;">
-                                <div class="card-body p-2 d-flex align-items-center justify-content-between">
+                        <div class="col-lg-2 col-md-4 col-sm-6">
+                            <div class="card kpi-card shadow-sm h-100" style="border-left: 4px solid #f59e0b !important;">
+                                <div class="card-body p-2 d-flex flex-column justify-content-between">
                                     <div>
                                         <span class="card-title-sub text-muted">TOTAL ARREARS</span>
                                         <div class="card-value text-warning" id="kpi-arrears-amount">LKR 0.00 Mn</div>
                                         <div class="card-detail-text text-muted" id="kpi-arrears-count">0 Accounts</div>
                                     </div>
-                                    <div class="text-warning opacity-50" style="font-size: 1.5rem;"><i class="fas fa-clock"></i></div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Collections Active -->
+                        <div class="col-lg-2 col-md-4 col-sm-6">
+                            <div class="card kpi-card shadow-sm h-100" style="border-left: 4px solid #3b82f6 !important;">
+                                <div class="card-body p-2 d-flex flex-column justify-content-between">
+                                    <div>
+                                        <span class="card-title-sub text-muted">COLLECTIONS ACTIVE</span>
+                                        <div class="card-value text-info" id="top-collection-amount">LKR 0.00</div>
+                                        <div class="card-detail-text text-muted" id="top-collection-channel">Loading...</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- YTD summary -->
+                        <div class="col-lg-2 col-md-4 col-sm-6">
+                            <div class="card kpi-card shadow-sm h-100" style="border-left: 4px solid #8b5cf6 !important;">
+                                <div class="card-body p-2 d-flex flex-column justify-content-between">
+                                    <div>
+                                        <span class="card-title-sub text-muted">YTD FINANCE ACCOUNTS</span>
+                                        <div class="card-value text-secondary" id="kpi-ytd-count-val" style="font-size: 1.0rem;">0 Accounts</div>
+                                        <div class="card-detail-text text-muted" id="kpi-active-count-val">0 Active contracts</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Row 2: Charts (Side-by-Side: Trend and status) -->
+                    <!-- Row 2: Trend Chart and NPL model/dealer details side-by-side -->
                     <div class="row g-2 mb-2">
-                        <!-- Left: Monthly trend charts -->
+                        <!-- Left: Monthly trend charts (2/3 width) -->
                         <div class="col-lg-8 col-md-7">
                             <div class="card shadow-sm h-100">
                                 <div class="card-header bg-light py-1 d-flex justify-content-between align-items-center">
@@ -263,86 +283,65 @@
                             </div>
                         </div>
 
-                        <!-- Right: Device Status Doughnut -->
+                        <!-- Right: Highest NPL Model and Dealer (1/3 width) -->
                         <div class="col-lg-4 col-md-5">
-                            <div class="card shadow-sm h-100">
-                                <div class="card-header bg-light py-1">
-                                    <span class="fw-bold fs--1 text-primary"><i class="fas fa-mobile-alt me-1"></i>Device Security Status</span>
-                                </div>
-                                <div class="card-body p-2 d-flex flex-column justify-content-between">
-                                    <div class="row g-1 align-items-center">
-                                        <div class="col-6 text-center">
-                                            <div class="fs--2 fw-semi-bold text-muted mb-1">Mobiles Lock</div>
-                                            <div style="height: 120px; position: relative; width: 100%;">
-                                                <canvas id="mobileLockChart"></canvas>
-                                            </div>
-                                        </div>
-                                        <div class="col-6 text-center">
-                                            <div class="fs--2 fw-semi-bold text-muted mb-1">Laptops Lock</div>
-                                            <div style="height: 120px; position: relative; width: 100%;">
-                                                <canvas id="laptopLockChart"></canvas>
-                                            </div>
-                                        </div>
+                            <div class="d-flex flex-column gap-2 h-100">
+                                <!-- Highest NPL Model -->
+                                <div class="card shadow-sm flex-fill" style="border-left: 4px solid #ef4444 !important;">
+                                    <div class="card-body p-2">
+                                        <span class="card-title-sub text-muted">HIGHEST NPL MODEL</span>
+                                        <div class="card-value text-danger mt-1" id="npl-model-name" style="font-size: 1.1rem;">Loading...</div>
+                                        <div class="card-detail-text text-muted" id="npl-model-count">0 Accounts</div>
                                     </div>
-                                    <div class="text-center fs--2 text-muted mt-1 border-top pt-1">
-                                        Active locks: <span id="sec-mobile-locked-val" class="fw-bold text-danger">0</span> Mobiles &bull; <span id="sec-laptop-locked-val" class="fw-bold text-danger">0</span> Laptops
+                                </div>
+                                <!-- Highest NPL Dealer -->
+                                <div class="card shadow-sm flex-fill" style="border-left: 4px solid #f59e0b !important;">
+                                    <div class="card-body p-2">
+                                        <span class="card-title-sub text-muted">HIGHEST NPL DEALER</span>
+                                        <div class="card-value text-warning mt-1" id="npl-dealer-name" style="font-size: 1.1rem;">Loading...</div>
+                                        <div class="card-detail-text text-muted" id="npl-dealer-count">0 Accounts</div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Row 3: Highlights at a Glance (4 cards) -->
-                    <div class="section-title mb-1" style="font-size: 0.7rem;"><i class="fas fa-star"></i> Key Analytics Highlights</div>
+                    <!-- Row 3: Device status & lock doughnuts (Performing & Lock status) -->
                     <div class="row g-2 mb-2">
-                        <!-- Highest NPL Model -->
-                        <div class="col-lg-3 col-md-6 col-sm-6">
-                            <div class="card shadow-sm" style="border-left: 3px solid #ef4444 !important;">
-                                <div class="card-body p-2 d-flex align-items-center gap-2">
-                                    <div class="text-danger" style="font-size: 1.25rem;"><i class="fas fa-mobile-alt"></i></div>
-                                    <div>
-                                        <div class="fs--2 text-muted fw-bold" style="letter-spacing: 0.05em;">HIGHEST NPL MODEL</div>
-                                        <div class="fw-extrabold text-dark fs--1" id="npl-model-name">Loading...</div>
-                                        <div class="fs--2 text-muted" id="npl-model-count">0 Accounts</div>
-                                    </div>
+                        <div class="col-12">
+                            <div class="card shadow-sm">
+                                <div class="card-header bg-light py-1">
+                                    <span class="fw-bold fs--1 text-primary"><i class="fas fa-hdd me-1"></i>Device Performing & Security Status</span>
                                 </div>
-                            </div>
-                        </div>
-                        <!-- Highest NPL Dealer -->
-                        <div class="col-lg-3 col-md-6 col-sm-6">
-                            <div class="card shadow-sm" style="border-left: 3px solid #f59e0b !important;">
-                                <div class="card-body p-2 d-flex align-items-center gap-2">
-                                    <div class="text-warning" style="font-size: 1.25rem;"><i class="fas fa-store"></i></div>
-                                    <div>
-                                        <div class="fs--2 text-muted fw-bold" style="letter-spacing: 0.05em;">HIGHEST NPL DEALER</div>
-                                        <div class="fw-extrabold text-dark fs--1" id="npl-dealer-name">Loading...</div>
-                                        <div class="fs--2 text-muted" id="npl-dealer-count">0 Accounts</div>
+                                <div class="card-body p-2">
+                                    <div class="row g-1 align-items-center text-center">
+                                        <div class="col-3">
+                                            <div class="fs--2 fw-semi-bold text-muted mb-1">Mobiles Performing</div>
+                                            <div style="height: 120px; position: relative; width: 100%;">
+                                                <canvas id="mobilePerformingChart"></canvas>
+                                            </div>
+                                        </div>
+                                        <div class="col-3">
+                                            <div class="fs--2 fw-semi-bold text-muted mb-1">Mobiles Lock</div>
+                                            <div style="height: 120px; position: relative; width: 100%;">
+                                                <canvas id="mobileLockChart"></canvas>
+                                            </div>
+                                        </div>
+                                        <div class="col-3">
+                                            <div class="fs--2 fw-semi-bold text-muted mb-1">Laptops Performing</div>
+                                            <div style="height: 120px; position: relative; width: 100%;">
+                                                <canvas id="laptopPerformingChart"></canvas>
+                                            </div>
+                                        </div>
+                                        <div class="col-3">
+                                            <div class="fs--2 fw-semi-bold text-muted mb-1">Laptops Lock</div>
+                                            <div style="height: 120px; position: relative; width: 100%;">
+                                                <canvas id="laptopLockChart"></canvas>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Top Collection Channel -->
-                        <div class="col-lg-3 col-md-6 col-sm-6">
-                            <div class="card shadow-sm" style="border-left: 3px solid #3b82f6 !important;">
-                                <div class="card-body p-2 d-flex align-items-center gap-2">
-                                    <div class="text-primary" style="font-size: 1.25rem;"><i class="fas fa-wallet"></i></div>
-                                    <div>
-                                        <div class="fs--2 text-muted fw-bold" style="letter-spacing: 0.05em;">COLLECTIONS ACTIVE</div>
-                                        <div class="fw-extrabold text-dark fs--1" id="top-collection-channel">Loading...</div>
-                                        <div class="fs--2 text-muted" id="top-collection-amount">LKR 0.00</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- YTD summary -->
-                        <div class="col-lg-3 col-md-6 col-sm-6">
-                            <div class="card shadow-sm" style="border-left: 3px solid #10b981 !important;">
-                                <div class="card-body p-2 d-flex align-items-center gap-2">
-                                    <div class="text-success" style="font-size: 1.25rem;"><i class="fas fa-users-cog"></i></div>
-                                    <div>
-                                        <div class="fs--2 text-muted fw-bold" style="letter-spacing: 0.05em;">YTD FINANCE ACCOUNTS</div>
-                                        <div class="fw-extrabold text-dark fs--1" id="kpi-ytd-count-val">0 Accounts</div>
-                                        <div class="fs--2 text-muted" id="kpi-active-count-val">0 Active contracts</div>
+                                    <div class="text-center fs--2 text-muted mt-2 border-top pt-1">
+                                        Device locks summary &bull; Active: <span id="sec-mobile-locked-val" class="fw-bold text-danger">0</span> Mobiles &bull; <span id="sec-laptop-locked-val" class="fw-bold text-danger">0</span> Laptops
                                     </div>
                                 </div>
                             </div>
@@ -631,7 +630,9 @@
                                         });
                                     }
 
+                                    buildDoughnut('mobilePerformingChart', data.mobilePerforming, ['Performing', 'Non-Performing'], ['rgba(16, 185, 129, 0.85)', 'rgba(244, 63, 94, 0.85)']);
                                     buildDoughnut('mobileLockChart', data.mobileLock, ['Active', 'Locked'], ['rgba(99, 102, 241, 0.85)', 'rgba(245, 158, 11, 0.85)']);
+                                    buildDoughnut('laptopPerformingChart', data.laptopPerforming, ['Performing', 'Non-Performing'], ['rgba(16, 185, 129, 0.85)', 'rgba(244, 63, 94, 0.85)']);
                                     buildDoughnut('laptopLockChart', data.laptopLock, ['Active', 'Locked'], ['rgba(99, 102, 241, 0.85)', 'rgba(245, 158, 11, 0.85)']);
 
                                     let mobileLocked = 0, mobileUnlocked = 0;
