@@ -358,7 +358,7 @@
 
                     <!-- ======================== ROW 1: Primary KPI Cards ======================== -->
                     <div class="section-title"><i class="fas fa-chart-pie"></i> Key Performance Indicators</div>
-                    <div class="row g-2 mb-2">
+                    <div class="row g-2 mb-3">
                         <!-- Current Month Loans -->
                         <div class="col-lg-2 col-md-4 col-sm-6">
                             <div class="card kpi-card gradient-1 shadow-sm h-100">
@@ -387,15 +387,16 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- NPL Count -->
+                        <!-- NPL Card (Merged Count & Arrears) -->
                         <div class="col-lg-2 col-md-4 col-sm-6">
                             <div class="card kpi-card gradient-4 shadow-sm h-100">
                                 <div class="card-body p-2">
                                     <div class="d-flex justify-content-between align-items-start">
                                         <div>
-                                            <span class="card-title-sub">NPL Count</span>
-                                            <div class="card-value" id="kpi-npl-count">0</div>
-                                            <div class="card-detail-text" id="kpi-npl-exposure">LKR 0.00 Mn</div>
+                                            <span class="card-title-sub">NPL</span>
+                                            <div class="card-value" id="kpi-npl-count">0 Accounts</div>
+                                            <div class="card-detail-text" id="kpi-npl-exposure">Exp: LKR 0.00 Mn</div>
+                                            <div class="card-detail-text" id="kpi-npl-arrears" style="font-size: 0.65rem; opacity: 0.85;">Arr: LKR 0.00 Mn</div>
                                         </div>
                                     </div>
                                 </div>
@@ -438,98 +439,6 @@
                                             <span class="card-title-sub">YTD (Fin Year)</span>
                                             <div class="card-value" id="kpi-ytd-amount">LKR 0.00 Mn</div>
                                             <div class="card-detail-text" id="kpi-ytd-count">0 Accounts</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- KPI Row 2: Business, NPL Arrears, and Security Counts -->
-                    <div class="row g-2 mb-3">
-                        <!-- Current Month Business -->
-                        <div class="col-lg-2 col-md-4 col-sm-6">
-                            <div class="card kpi-card gradient-8 shadow-sm h-100">
-                                <div class="card-body p-2">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <div>
-                                            <span class="card-title-sub">Month Business</span>
-                                            <div class="card-value" id="kpi-month-biz-amount">LKR 0.00 Mn</div>
-                                            <div class="card-detail-text" id="kpi-month-biz-count">0 Accounts</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- NPL Arrears -->
-                        <div class="col-lg-2 col-md-4 col-sm-6">
-                            <div class="card kpi-card gradient-6 shadow-sm h-100">
-                                <div class="card-body p-2">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <div>
-                                            <span class="card-title-sub">NPL Arrears</span>
-                                            <div class="card-value" id="kpi-npl-arrears">LKR 0.00 Mn</div>
-                                            <div class="card-detail-text">Non-performing</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Datacultr -->
-                        <div class="col-lg-2 col-md-4 col-sm-6">
-                            <div class="card kpi-card shadow-sm h-100" style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: #fff;">
-                                <div class="card-body p-2">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <div>
-                                            <span class="card-title-sub">Datacultr</span>
-                                            <div class="card-value" id="sec-datacultr-total">0</div>
-                                            <div class="card-detail-text"><span id="sec-datacultr-locked">0</span> L &bull; <span id="sec-datacultr-unlocked">0</span> U</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Knox -->
-                        <div class="col-lg-2 col-md-4 col-sm-6">
-                            <div class="card kpi-card shadow-sm h-100" style="background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%); color: #fff;">
-                                <div class="card-body p-2">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <div>
-                                            <span class="card-title-sub">Knox</span>
-                                            <div class="card-value" id="sec-knox-total">0</div>
-                                            <div class="card-detail-text"><span id="sec-knox-locked">0</span> L &bull; <span id="sec-knox-unlocked">0</span> U</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Absolute (Laptops) -->
-                        <div class="col-lg-2 col-md-4 col-sm-6">
-                            <div class="card kpi-card shadow-sm h-100" style="background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%); color: #fff;">
-                                <div class="card-body p-2">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <div>
-                                            <span class="card-title-sub">Absolute</span>
-                                            <div class="card-value" id="sec-absolute-total">0</div>
-                                            <div class="card-detail-text"><span id="sec-absolute-locked">0</span> L &bull; <span id="sec-absolute-unlocked">0</span> U</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Mobile/Laptop Lock Status Summary -->
-                        <div class="col-lg-2 col-md-4 col-sm-6">
-                            <div class="card kpi-card shadow-sm h-100" style="background: linear-gradient(135deg, #10b981 0%, #047857 100%); color: #fff;">
-                                <div class="card-body p-2">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <div>
-                                            <span class="card-title-sub">Lock Status</span>
-                                            <div class="card-value" style="font-size: 1.15rem; margin-top: 0.5rem;">
-                                                M: <span id="sec-mobile-locked-val">0</span>L/<span id="sec-mobile-unlocked-val">0</span>U
-                                            </div>
-                                            <div class="card-detail-text" style="font-size: 0.65rem;">
-                                                L: <span id="sec-laptop-locked-val">0</span>L/<span id="sec-laptop-unlocked-val">0</span>U
-                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -821,7 +730,7 @@
                                 });
                             }
 
-                            // ============ 1. Dashboard Stats (KPI Cards + Security Strip) ============
+                            // ============ 1. Dashboard Stats (KPI Cards) ============
                             fetch('${pageContext.request.contextPath}/api/dashboard/stats')
                                 .then(response => {
                                     if (!response.ok) {
@@ -838,47 +747,18 @@
                                     
                                     document.getElementById("kpi-active-count").innerText = formatNum(data.activeCount);
                                     
-                                    document.getElementById("kpi-npl-count").innerText = formatNum(data.nNplCount);
-                                    document.getElementById("kpi-npl-exposure").innerText = "Exposure: " + formatLKR(data.nNplExposure);
+                                    document.getElementById("kpi-npl-count").innerText = formatNum(data.nNplCount) + " A/Cs";
+                                    document.getElementById("kpi-npl-exposure").innerText = "Exp: " + formatLKR(data.nNplExposure);
+                                    document.getElementById("kpi-npl-arrears").innerText = "Arr: " + formatLKR(data.nNplArrears);
                                     
                                     document.getElementById("kpi-arrears-count").innerText = formatNum(data.arrearsCount);
                                     document.getElementById("kpi-arrears-amount").innerText = formatLKR(data.arrearsAmount);
                                     
-                                    // Secondary KPIs
                                     document.getElementById("kpi-portfolio-amount").innerText = formatLKR(data.nPortfolioAmount);
                                     document.getElementById("kpi-portfolio-count").innerText = formatNum(data.nPortfolioCount) + " Accounts";
                                     
                                     document.getElementById("kpi-ytd-amount").innerText = formatLKR(data.nYtdAmount);
                                     document.getElementById("kpi-ytd-count").innerText = formatNum(data.nYtdCount) + " Accounts";
-                                    
-                                    document.getElementById("kpi-month-biz-amount").innerText = formatLKR(data.nMonthAmount);
-                                    document.getElementById("kpi-month-biz-count").innerText = formatNum(data.nMonthCount) + " Accounts";
-                                    
-                                    document.getElementById("kpi-npl-arrears").innerText = formatLKR(data.nNplArrears);
-
-                                    // Security Stats strip
-                                    if (data.securityStats && Array.isArray(data.securityStats)) {
-                                        data.securityStats.forEach(sec => {
-                                            const type = (sec.security_type || '').toUpperCase();
-                                            const locked = Number(sec.locked_count || 0);
-                                            const unlocked = Number(sec.unlocked_count || 0);
-                                            const total = locked + unlocked;
-
-                                            if (type === 'DATACULTR') {
-                                                document.getElementById("sec-datacultr-total").innerText = formatNum(total);
-                                                document.getElementById("sec-datacultr-locked").innerText = formatNum(locked);
-                                                document.getElementById("sec-datacultr-unlocked").innerText = formatNum(unlocked);
-                                            } else if (type === 'KNOX') {
-                                                document.getElementById("sec-knox-total").innerText = formatNum(total);
-                                                document.getElementById("sec-knox-locked").innerText = formatNum(locked);
-                                                document.getElementById("sec-knox-unlocked").innerText = formatNum(unlocked);
-                                            } else if (type === 'ABSOLUTE') {
-                                                document.getElementById("sec-absolute-total").innerText = formatNum(total);
-                                                document.getElementById("sec-absolute-locked").innerText = formatNum(locked);
-                                                document.getElementById("sec-absolute-unlocked").innerText = formatNum(unlocked);
-                                            }
-                                        });
-                                    }
                                 })
                                 .catch(err => {
                                     console.error("Error fetching dashboard statistics:", err);
