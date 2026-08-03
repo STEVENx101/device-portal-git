@@ -241,7 +241,7 @@
                             });
 
                              if (localRes.ok) {
-                                 // Asynchronously pre-fetch dashboard data into browser cache
+                                 // Asynchronously fire pre-fetch dashboard data into browser cache in parallel background
                                  const endpoints = [
                                      '/api/dashboard/stats',
                                      '/api/dashboard/business-chart',
@@ -252,11 +252,9 @@
                                      '/api/dashboard/vendor-payments-chart',
                                      '/api/dashboard/collections-dealer-wise'
                                  ];
-                                 try {
-                                     await Promise.all(endpoints.map(ep => fetch(CTX + ep)));
-                                 } catch (preloadErr) {
-                                     console.warn("Preload failed", preloadErr);
-                                 }
+                                 endpoints.forEach(ep => {
+                                     fetch(CTX + ep).catch(err => console.warn("Preload failed for " + ep, err));
+                                 });
                                  window.location.replace(CTX + getRedirectTarget());
                                  return;
                              }
