@@ -243,64 +243,25 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- Empty summary -->
+                        <!-- Highest NPL Model -->
                         <div class="col-lg-2 col-md-4 col-sm-6">
-                            <div class="card kpi-card shadow-sm h-100" style="border-left: 3px solid #e2e8f0 !important; background-color: transparent;">
-                                <div class="card-body p-2">
-                                    <!-- Empty KPI card -->
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Empty summary -->
-                        <div class="col-lg-2 col-md-4 col-sm-6">
-                            <div class="card kpi-card shadow-sm h-100" style="border-left: 3px solid #e2e8f0 !important; background-color: transparent;">
-                                <div class="card-body p-2">
-                                    <!-- Empty KPI card -->
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Row 2: Trend Chart and NPL model/dealer details side-by-side -->
-                    <div class="row g-2 mb-2">
-                        <!-- Left: Monthly trend charts (wider) -->
-                        <div class="col-lg-9 col-md-8">
-                            <div class="card shadow-sm h-100">
-                                <div class="card-body p-3">
-                                    <div class="row g-3">
-                                        <div class="col-6">
-                                            <div class="fs--2 fw-semi-bold text-muted mb-1"><i class="fas fa-chart-line me-1"></i>Month-Wise Disbursements</div>
-                                            <div style="height: 220px; position: relative; width: 100%;">
-                                                <canvas id="businessChart"></canvas>
-                                            </div>
-                                        </div>
-                                        <div class="col-6">
-                                            <div class="fs--2 fw-semi-bold text-muted mb-1"><i class="fas fa-chart-bar me-1"></i>DPD Status (Month-Wise)</div>
-                                            <div style="height: 220px; position: relative; width: 100%;">
-                                                <canvas id="dpdComparisonChart"></canvas>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Right: NPL Model & Dealer (compact, matching KPI cards) -->
-                        <div class="col-lg-3 col-md-4">
-                            <div class="d-flex flex-column gap-2 h-100">
-                                <!-- Highest NPL Model -->
-                                <div class="card kpi-card shadow-sm flex-fill" style="border-left: 3px solid #ef4444 !important;">
-                                    <div class="card-body p-2 d-flex flex-column justify-content-center">
+                            <div class="card kpi-card shadow-sm h-100" style="border-left: 3px solid #ef4444 !important;">
+                                <div class="card-body p-2 d-flex flex-column justify-content-between">
+                                    <div>
                                         <span class="card-title-sub text-muted">HIGHEST NPL MODEL</span>
-                                        <div class="card-value text-danger" id="npl-model-name" style="font-size: 0.95rem;">Loading...</div>
+                                        <div class="card-value text-danger" id="npl-model-name" style="font-size: 0.85rem;">Loading...</div>
                                         <div class="card-detail-text text-muted" id="npl-model-count">0 Accounts</div>
                                     </div>
                                 </div>
-                                <!-- Highest NPL Dealer -->
-                                <div class="card kpi-card shadow-sm flex-fill" style="border-left: 3px solid #f59e0b !important;">
-                                    <div class="card-body p-2 d-flex flex-column justify-content-center">
+                            </div>
+                        </div>
+                        <!-- Highest NPL Dealer -->
+                        <div class="col-lg-2 col-md-4 col-sm-6">
+                            <div class="card kpi-card shadow-sm h-100" style="border-left: 3px solid #f59e0b !important;">
+                                <div class="card-body p-2 d-flex flex-column justify-content-between">
+                                    <div>
                                         <span class="card-title-sub text-muted">HIGHEST NPL DEALER</span>
-                                        <div class="card-value text-warning" id="npl-dealer-name" style="font-size: 0.95rem;">Loading...</div>
+                                        <div class="card-value text-warning" id="npl-dealer-name" style="font-size: 0.85rem;">Loading...</div>
                                         <div class="card-detail-text text-muted" id="npl-dealer-count">0 Accounts</div>
                                     </div>
                                 </div>
@@ -308,64 +269,99 @@
                         </div>
                     </div>
 
-                    <!-- Row 3: Device status & lock doughnuts -->
-                    <div class="row g-2 mb-2" style="margin-top: 4px;">
-                        <div class="col-12">
-                            <div class="card shadow-sm">
-                                <div class="card-body p-3">
-                                    <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-hdd me-1"></i>Device Performance & Security Status</div>
-                                    <div class="row g-3 align-items-center text-center">
-                                        <div class="col-3">
-                                            <div class="fs--2 fw-semi-bold text-muted mb-2">Mobiles Performing</div>
-                                            <div style="height: 130px; position: relative; width: 100%;">
+                    <!-- Row 2: Charts (Disbursements & Collections on Left, Security Status on Right) -->
+                    <div class="row g-2 mb-2">
+                        <!-- Left: Large Charts Column (Disbursements, NPL, Collections) -->
+                        <div class="col-lg-9 col-md-8">
+                            <div class="d-flex flex-column gap-2">
+                                <!-- Top Chart Row: Monthly trend charts -->
+                                <div class="card shadow-sm">
+                                    <div class="card-body p-3">
+                                        <div class="row g-3">
+                                            <div class="col-6">
+                                                <div class="fs--2 fw-semi-bold text-muted mb-1"><i class="fas fa-chart-line me-1"></i>Month-Wise Disbursements</div>
+                                                <div style="height: 160px; position: relative; width: 100%;">
+                                                    <canvas id="businessChart"></canvas>
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="fs--2 fw-semi-bold text-muted mb-1"><i class="fas fa-chart-bar me-1"></i>DPD Status (Month-Wise)</div>
+                                                <div style="height: 160px; position: relative; width: 100%;">
+                                                    <canvas id="dpdComparisonChart"></canvas>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Bottom Chart Row: Collections & Daily Disbursements -->
+                                <div class="row g-2">
+                                    <div class="col-lg-6">
+                                        <div class="card shadow-sm">
+                                            <div class="card-body p-3">
+                                                <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-hand-holding-usd me-1"></i>Collections Dealer Wise (Current Month)</div>
+                                                <div style="height: 140px; position: relative; width: 100%;">
+                                                    <canvas id="collectionsDealerChart"></canvas>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="card shadow-sm">
+                                            <div class="card-body p-3">
+                                                <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-money-check-alt me-1"></i>Daily Disbursements (Past 7 Days)</div>
+                                                <div style="height: 140px; position: relative; width: 100%;">
+                                                    <canvas id="vendorPaymentsChart"></canvas>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right: Device Security Status Column (4 Doughnut charts vertically stacked) -->
+                        <div class="col-lg-3 col-md-4">
+                            <div class="card shadow-sm h-100">
+                                <div class="card-body p-3 d-flex flex-column justify-content-between">
+                                    <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-hdd me-1"></i>Device Security Status</div>
+                                    
+                                    <div class="d-flex flex-column gap-2 flex-fill justify-content-around">
+                                        <!-- Mobile Performing -->
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <span class="fs--2 fw-semi-bold text-muted">Mobiles Performing</span>
+                                            <div style="height: 65px; width: 65px; position: relative;">
                                                 <canvas id="mobilePerformingChart"></canvas>
                                             </div>
                                         </div>
-                                        <div class="col-3">
-                                            <div class="fs--2 fw-semi-bold text-muted mb-2">Mobiles Lock</div>
-                                            <div style="height: 130px; position: relative; width: 100%;">
+                                        <hr class="my-1 border-200">
+                                        <!-- Mobile Lock -->
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <span class="fs--2 fw-semi-bold text-muted">Mobiles Lock</span>
+                                            <div style="height: 65px; width: 65px; position: relative;">
                                                 <canvas id="mobileLockChart"></canvas>
                                             </div>
                                         </div>
-                                        <div class="col-3">
-                                            <div class="fs--2 fw-semi-bold text-muted mb-2">Laptops Performing</div>
-                                            <div style="height: 130px; position: relative; width: 100%;">
+                                        <hr class="my-1 border-200">
+                                        <!-- Laptop Performing -->
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <span class="fs--2 fw-semi-bold text-muted">Laptops Performing</span>
+                                            <div style="height: 65px; width: 65px; position: relative;">
                                                 <canvas id="laptopPerformingChart"></canvas>
                                             </div>
                                         </div>
-                                        <div class="col-3">
-                                            <div class="fs--2 fw-semi-bold text-muted mb-2">Laptops Lock</div>
-                                            <div style="height: 130px; position: relative; width: 100%;">
+                                        <hr class="my-1 border-200">
+                                        <!-- Laptop Lock -->
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <span class="fs--2 fw-semi-bold text-muted">Laptops Lock</span>
+                                            <div style="height: 65px; width: 65px; position: relative;">
                                                 <canvas id="laptopLockChart"></canvas>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="text-center fs--2 text-muted mt-3 border-top pt-2">
-                                        Device locks summary &bull; Active: <span id="sec-mobile-locked-val" class="fw-bold text-danger">0</span> Mobiles &bull; <span id="sec-laptop-locked-val" class="fw-bold text-danger">0</span> Laptops
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Row 4: Collections & Payments (Side-by-Side Horizontal Bars, Clean No Header) -->
-                    <div class="row g-2">
-                        <div class="col-lg-6">
-                            <div class="card shadow-sm">
-                                <div class="card-body p-3">
-                                    <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-hand-holding-usd me-1"></i>Collections Dealer Wise (Current Month)</div>
-                                    <div style="height: 140px; position: relative; width: 100%;">
-                                        <canvas id="collectionsDealerChart"></canvas>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-6">
-                            <div class="card shadow-sm">
-                                <div class="card-body p-3">
-                                    <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-money-check-alt me-1"></i>Daily Disbursements (Past 7 Days)</div>
-                                    <div style="height: 140px; position: relative; width: 100%;">
-                                        <canvas id="vendorPaymentsChart"></canvas>
+                                    
+                                    <div class="text-center fs--2 text-muted mt-2 border-top pt-2" style="font-size: 0.65rem !important;">
+                                        Locked: <span id="sec-mobile-locked-val" class="fw-bold text-danger">0</span> Mobiles &bull; <span id="sec-laptop-locked-val" class="fw-bold text-danger">0</span> Laptops
                                     </div>
                                 </div>
                             </div>
