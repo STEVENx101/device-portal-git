@@ -283,7 +283,7 @@
                                             </div>
                                         </div>
                                         <div class="col-6">
-                                            <div class="fs--2 fw-semi-bold text-muted mb-1"><i class="fas fa-chart-bar me-1"></i>DPD Status (Month-Wise)</div>
+                                            <div class="fs--2 fw-semi-bold text-muted mb-1"><i class="fas fa-chart-bar me-1"></i>DPD Status (Overdue Portfolio)</div>
                                             <div style="height: 200px; position: relative; width: 100%;">
                                                 <canvas id="dpdComparisonChart"></canvas>
                                             </div>
@@ -576,70 +576,57 @@
                                             labels: labels,
                                             datasets: [
                                                 {
-                                                    label: 'DPD 0',
-                                                    data: dpd0,
-                                                    backgroundColor: 'rgba(16, 185, 129, 0.75)',
-                                                    borderColor: '#10b981',
-                                                    borderWidth: 1.5,
-                                                    borderRadius: 4,
-                                                    barThickness: 16
-                                                },
-                                                {
                                                     label: 'DPD 1-30',
                                                     data: dpd1_30,
-                                                    backgroundColor: 'rgba(245, 158, 11, 0.75)',
+                                                    backgroundColor: 'rgba(245, 158, 11, 0.8)',
                                                     borderColor: '#f59e0b',
-                                                    borderWidth: 1.5,
-                                                    borderRadius: 4,
-                                                    barThickness: 16
+                                                    borderWidth: 1,
+                                                    borderRadius: { topLeft: 3, topRight: 3, bottomLeft: 0, bottomRight: 0 }
                                                 },
                                                 {
                                                     label: 'DPD 31-60',
                                                     data: dpd31_60,
-                                                    backgroundColor: 'rgba(249, 115, 22, 0.75)',
+                                                    backgroundColor: 'rgba(249, 115, 22, 0.8)',
                                                     borderColor: '#f97316',
-                                                    borderWidth: 1.5,
-                                                    borderRadius: 4,
-                                                    barThickness: 16
+                                                    borderWidth: 1,
+                                                    borderRadius: { topLeft: 3, topRight: 3, bottomLeft: 0, bottomRight: 0 }
                                                 },
                                                 {
                                                     label: 'DPD 61-90',
                                                     data: dpd61_90,
-                                                    backgroundColor: 'rgba(239, 68, 68, 0.75)',
+                                                    backgroundColor: 'rgba(239, 68, 68, 0.8)',
                                                     borderColor: '#ef4444',
-                                                    borderWidth: 1.5,
-                                                    borderRadius: 4,
-                                                    barThickness: 16
+                                                    borderWidth: 1,
+                                                    borderRadius: { topLeft: 3, topRight: 3, bottomLeft: 0, bottomRight: 0 }
                                                 },
                                                 {
                                                     label: 'Over 90 DPD',
                                                     data: dpdAbove90,
-                                                    backgroundColor: isDark ? 'rgba(167, 139, 250, 0.75)' : 'rgba(30, 41, 59, 0.75)',
+                                                    backgroundColor: isDark ? 'rgba(167, 139, 250, 0.8)' : 'rgba(30, 41, 59, 0.8)',
                                                     borderColor: isDark ? '#a78bfa' : '#1e293b',
-                                                    borderWidth: 1.5,
-                                                    borderRadius: 4,
-                                                    barThickness: 16
+                                                    borderWidth: 1,
+                                                    borderRadius: { topLeft: 3, topRight: 3, bottomLeft: 0, bottomRight: 0 }
                                                 }
                                             ]
                                         },
                                         options: {
-                                            indexAxis: 'y',
                                             responsive: true,
                                             maintainAspectRatio: false,
                                             scales: {
                                                 x: {
-                                                    stacked: true,
-                                                    beginAtZero: true,
-                                                    grid: {
-                                                        borderDash: [4, 4],
-                                                        color: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(226, 232, 240, 0.4)'
-                                                    },
-                                                    ticks: { display: false }
-                                                },
-                                                y: {
-                                                    stacked: true,
                                                     grid: { display: false },
                                                     ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 9, weight: 'bold' } }
+                                                },
+                                                y: {
+                                                    beginAtZero: true,
+                                                    grid: { color: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' },
+                                                    ticks: {
+                                                        color: isDark ? '#94a3b8' : '#475569',
+                                                        font: { size: 9 },
+                                                        callback: function(value) {
+                                                            return value + ' Mn';
+                                                        }
+                                                    }
                                                 }
                                             },
                                             plugins: {
