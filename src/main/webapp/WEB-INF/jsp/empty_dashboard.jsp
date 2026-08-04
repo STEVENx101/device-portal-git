@@ -245,27 +245,23 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- Collections Active -->
+                        <!-- Active Contracts -->
                         <div class="col-lg-2 col-md-4 col-sm-6">
                             <div class="card kpi-card shadow-sm h-100" style="border-left: 3px solid #3b82f6 !important;">
                                 <div class="card-body p-2 d-flex flex-column justify-content-between">
                                     <div>
-                                        <span class="card-title-sub text-muted">COLLECTIONS ACTIVE</span>
-                                        <div class="card-value text-info" id="top-collection-amount">LKR 0.00</div>
-                                        <div class="card-detail-text text-muted" id="top-collection-channel">Loading...</div>
+                                        <span class="card-title-sub text-muted">ACTIVE CONTRACTS</span>
+                                        <div class="card-value text-info" id="kpi-active-contracts-count">0 Accounts</div>
+                                        <div class="card-detail-text text-muted">Active contracts</div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <!-- YTD summary -->
+                        <!-- Empty summary -->
                         <div class="col-lg-2 col-md-4 col-sm-6">
-                            <div class="card kpi-card shadow-sm h-100" style="border-left: 3px solid #8b5cf6 !important;">
-                                <div class="card-body p-2 d-flex flex-column justify-content-between">
-                                    <div>
-                                        <span class="card-title-sub text-muted">YTD FINANCE ACCOUNTS</span>
-                                        <div class="card-value text-secondary" id="kpi-ytd-count-val" style="font-size: 1.0rem;">0 Accounts</div>
-                                        <div class="card-detail-text text-muted" id="kpi-active-count-val">0 Active contracts</div>
-                                    </div>
+                            <div class="card kpi-card shadow-sm h-100" style="border-left: 3px solid #e2e8f0 !important; background-color: transparent;">
+                                <div class="card-body p-2">
+                                    <!-- Empty KPI card -->
                                 </div>
                             </div>
                         </div>
@@ -548,8 +544,7 @@
                                     document.getElementById("kpi-arrears-count").innerText = formatNum(data.arrearsCount || 0) + " Accounts";
                                     
                                     // Highlights / Analytics Row
-                                    document.getElementById("kpi-ytd-count-val").innerText = formatNum(data.nYtdCount || 0) + " Accounts";
-                                    document.getElementById("kpi-active-count-val").innerText = formatNum(data.activeCount || 0) + " Active contracts";
+                                    document.getElementById("kpi-active-contracts-count").innerText = formatNum(data.activeCount || 0) + " Accounts";
                                 })
                                 .catch(err => console.error("Error fetching dashboard statistics:", err));
 
@@ -838,14 +833,7 @@
                             fetch('${pageContext.request.contextPath}/api/dashboard/collections-dealer-wise')
                                 .then(res => res.json())
                                 .then(data => {
-                                    if (data && data.length > 0) {
-                                        const top = data[0];
-                                        document.getElementById("top-collection-channel").innerText = top.dealer_name || 'N/A';
-                                        document.getElementById("top-collection-amount").innerText = formatLKR(top.total_collected || 0);
-                                    } else {
-                                        document.getElementById("top-collection-channel").innerText = 'N/A';
-                                        document.getElementById("top-collection-amount").innerText = 'LKR 0.00';
-                                    }
+                                    // Collections details not displayed anymore on top cards but processed for chart
 
                                     let chartData = data.length > 5 ? data.slice(0, 5) : data;
                                     chartData.reverse();
