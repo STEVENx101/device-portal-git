@@ -243,41 +243,76 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- Empty summary -->
+                        <!-- Highest NPL Model -->
                         <div class="col-lg-2 col-md-4 col-sm-6">
-                            <div class="card kpi-card shadow-sm h-100" style="border-left: 3px solid #e2e8f0 !important; background-color: transparent;">
-                                <div class="card-body p-2">
-                                    <!-- Empty KPI card -->
+                            <div class="card kpi-card shadow-sm h-100" style="border-left: 3px solid #ef4444 !important;">
+                                <div class="card-body p-2 d-flex flex-column justify-content-between">
+                                    <div>
+                                        <span class="card-title-sub text-muted">HIGHEST NPL MODEL</span>
+                                        <div class="card-value text-danger" id="npl-model-name" style="font-size: 0.85rem;">Loading...</div>
+                                        <div class="card-detail-text text-muted" id="npl-model-count">0 Accounts</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <!-- Empty summary -->
+                        <!-- Highest NPL Dealer -->
                         <div class="col-lg-2 col-md-4 col-sm-6">
-                            <div class="card kpi-card shadow-sm h-100" style="border-left: 3px solid #e2e8f0 !important; background-color: transparent;">
-                                <div class="card-body p-2">
-                                    <!-- Empty KPI card -->
+                            <div class="card kpi-card shadow-sm h-100" style="border-left: 3px solid #f59e0b !important;">
+                                <div class="card-body p-2 d-flex flex-column justify-content-between">
+                                    <div>
+                                        <span class="card-title-sub text-muted">HIGHEST NPL DEALER</span>
+                                        <div class="card-value text-warning" id="npl-dealer-name" style="font-size: 0.85rem;">Loading...</div>
+                                        <div class="card-detail-text text-muted" id="npl-dealer-count">0 Accounts</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Row 2: Trend Chart and NPL model/dealer details side-by-side -->
+                    <!-- Row 2: Charts (Disbursements & Collections on Left, Product Business Pie on Right) -->
                     <div class="row g-2 mb-2">
-                        <!-- Left: Monthly trend charts (wider) -->
+                        <!-- Left: Large Charts Column (Disbursements, NPL, Collections) -->
                         <div class="col-lg-9 col-md-8">
-                            <div class="card shadow-sm h-100">
-                                <div class="card-body p-3">
-                                    <div class="row g-3">
-                                        <div class="col-6">
-                                            <div class="fs--2 fw-semi-bold text-muted mb-1"><i class="fas fa-chart-line me-1"></i>Month-Wise Disbursements</div>
-                                            <div style="height: 220px; position: relative; width: 100%;">
-                                                <canvas id="businessChart"></canvas>
+                            <div class="d-flex flex-column gap-2">
+                                <!-- Top Chart Row: Monthly trend charts -->
+                                <div class="card shadow-sm">
+                                    <div class="card-body p-3">
+                                        <div class="row g-3">
+                                            <div class="col-6">
+                                                <div class="fs--2 fw-semi-bold text-muted mb-1"><i class="fas fa-chart-line me-1"></i>Month-Wise Disbursements</div>
+                                                <div style="height: 160px; position: relative; width: 100%;">
+                                                    <canvas id="businessChart"></canvas>
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="fs--2 fw-semi-bold text-muted mb-1"><i class="fas fa-chart-bar me-1"></i>DPD Status (Month-Wise)</div>
+                                                <div style="height: 160px; position: relative; width: 100%;">
+                                                    <canvas id="dpdComparisonChart"></canvas>
+                                                </div>
                                             </div>
                                         </div>
-                                        <div class="col-6">
-                                            <div class="fs--2 fw-semi-bold text-muted mb-1"><i class="fas fa-chart-bar me-1"></i>DPD Status (Month-Wise)</div>
-                                            <div style="height: 220px; position: relative; width: 100%;">
-                                                <canvas id="dpdComparisonChart"></canvas>
+                                    </div>
+                                </div>
+                                
+                                <!-- Bottom Chart Row: Collections & Daily Disbursements -->
+                                <div class="row g-2">
+                                    <div class="col-lg-6">
+                                        <div class="card shadow-sm">
+                                            <div class="card-body p-3">
+                                                <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-hand-holding-usd me-1"></i>Collections Dealer Wise (Current Month)</div>
+                                                <div style="height: 140px; position: relative; width: 100%;">
+                                                    <canvas id="collectionsDealerChart"></canvas>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="card shadow-sm">
+                                            <div class="card-body p-3">
+                                                <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-money-check-alt me-1"></i>Daily Disbursements (Past 7 Days)</div>
+                                                <div style="height: 140px; position: relative; width: 100%;">
+                                                    <canvas id="vendorPaymentsChart"></canvas>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -285,23 +320,13 @@
                             </div>
                         </div>
 
-                        <!-- Right: NPL Model & Dealer (compact, matching KPI cards) -->
+                        <!-- Right: Product-Wise Business Distribution Column -->
                         <div class="col-lg-3 col-md-4">
-                            <div class="d-flex flex-column gap-2 h-100">
-                                <!-- Highest NPL Model -->
-                                <div class="card kpi-card shadow-sm flex-fill" style="border-left: 3px solid #ef4444 !important;">
-                                    <div class="card-body p-2 d-flex flex-column justify-content-center">
-                                        <span class="card-title-sub text-muted">HIGHEST NPL MODEL</span>
-                                        <div class="card-value text-danger" id="npl-model-name" style="font-size: 0.95rem;">Loading...</div>
-                                        <div class="card-detail-text text-muted" id="npl-model-count">0 Accounts</div>
-                                    </div>
-                                </div>
-                                <!-- Highest NPL Dealer -->
-                                <div class="card kpi-card shadow-sm flex-fill" style="border-left: 3px solid #f59e0b !important;">
-                                    <div class="card-body p-2 d-flex flex-column justify-content-center">
-                                        <span class="card-title-sub text-muted">HIGHEST NPL DEALER</span>
-                                        <div class="card-value text-warning" id="npl-dealer-name" style="font-size: 0.95rem;">Loading...</div>
-                                        <div class="card-detail-text text-muted" id="npl-dealer-count">0 Accounts</div>
+                            <div class="card shadow-sm h-100">
+                                <div class="card-body p-3 d-flex flex-column justify-content-between">
+                                    <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-chart-pie me-1"></i>Product Business (Current Month)</div>
+                                    <div style="height: 290px; position: relative; width: 100%;" class="d-flex align-items-center justify-content-center">
+                                        <canvas id="productBusinessChart"></canvas>
                                     </div>
                                 </div>
                             </div>
@@ -342,30 +367,6 @@
                                     </div>
                                     <div class="text-center fs--2 text-muted mt-3 border-top pt-2">
                                         Device locks summary &bull; Active: <span id="sec-mobile-locked-val" class="fw-bold text-danger">0</span> Mobiles &bull; <span id="sec-laptop-locked-val" class="fw-bold text-danger">0</span> Laptops
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Row 4: Collections & Payments (Side-by-Side Horizontal Bars, Clean No Header) -->
-                    <div class="row g-2">
-                        <div class="col-lg-6">
-                            <div class="card shadow-sm">
-                                <div class="card-body p-3">
-                                    <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-hand-holding-usd me-1"></i>Collections Dealer Wise (Current Month)</div>
-                                    <div style="height: 140px; position: relative; width: 100%;">
-                                        <canvas id="collectionsDealerChart"></canvas>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-6">
-                            <div class="card shadow-sm">
-                                <div class="card-body p-3">
-                                    <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-money-check-alt me-1"></i>Daily Disbursements (Past 7 Days)</div>
-                                    <div style="height: 140px; position: relative; width: 100%;">
-                                        <canvas id="vendorPaymentsChart"></canvas>
                                     </div>
                                 </div>
                             </div>
@@ -810,6 +811,73 @@
                                     );
                                 })
                                 .catch(err => console.error("Error loading collections dealer wise:", err));
+
+                            // ============ 9. Product-Wise Business Chart ============
+                            fetch('${pageContext.request.contextPath}/api/dashboard/product-business-chart')
+                                .then(res => res.json())
+                                .then(data => {
+                                    const total = data.reduce((sum, item) => sum + (item.business_amount || 0), 0);
+                                    
+                                    const labels = data.map(item => item.product_name);
+                                    const amounts = data.map(item => item.business_amount || 0);
+                                    const percentages = data.map(item => total > 0 ? Math.round((item.business_amount / total) * 100) : 0);
+
+                                    destroyChart('productBusinessChart');
+                                    const ctx = document.getElementById("productBusinessChart").getContext('2d');
+                                    activeCharts['productBusinessChart'] = new Chart(ctx, {
+                                        type: 'pie',
+                                        data: {
+                                            labels: labels,
+                                            datasets: [{
+                                                data: amounts,
+                                                backgroundColor: [
+                                                    'rgba(99, 102, 241, 0.85)',
+                                                    'rgba(59, 130, 246, 0.85)',
+                                                    'rgba(245, 158, 11, 0.85)',
+                                                    'rgba(16, 185, 129, 0.85)',
+                                                    'rgba(239, 68, 68, 0.85)',
+                                                    'rgba(139, 92, 246, 0.85)'
+                                                ],
+                                                borderWidth: 1,
+                                                borderColor: isDark ? '#1e293b' : '#ffffff'
+                                            }]
+                                        },
+                                        options: {
+                                            responsive: true,
+                                            maintainAspectRatio: false,
+                                            plugins: {
+                                                legend: {
+                                                    position: 'bottom',
+                                                    labels: {
+                                                        color: isDark ? '#94a3b8' : '#475569',
+                                                        boxWidth: 8,
+                                                        font: { size: 8, weight: 'bold' }
+                                                    }
+                                                },
+                                                tooltip: {
+                                                    callbacks: {
+                                                        label: function(context) {
+                                                            const label = context.label || '';
+                                                            const val = context.raw || 0;
+                                                            const pct = percentages[context.dataIndex];
+                                                            return label + ': ' + formatLKR(val) + ' (' + pct + '%)';
+                                                        }
+                                                    }
+                                                },
+                                                datalabels: {
+                                                    display: true,
+                                                    color: '#ffffff',
+                                                    font: { size: 9, weight: 'bold' },
+                                                    formatter: (val, ctx) => {
+                                                        const pct = percentages[ctx.dataIndex];
+                                                        return pct >= 5 ? pct + '%' : '';
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    });
+                                })
+                                .catch(err => console.error("Error loading product business chart:", err));
                         }
 
                         document.addEventListener("DOMContentLoaded", function() {

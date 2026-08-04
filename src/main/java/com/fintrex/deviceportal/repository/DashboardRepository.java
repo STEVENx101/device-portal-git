@@ -583,4 +583,19 @@ public class DashboardRepository {
                 """;
         return jdbcTemplate.queryForList(sql);
     }
+
+    public List<Map<String, Object>> getProductBusinessChart() {
+        String sql = """
+                SELECT
+                    COALESCE(pr.product_name, l.product) AS product_name,
+                    COUNT(*) AS business_count,
+                    COALESCE(SUM(l.loan_amount), 0) AS business_amount
+                FROM cbs.loan l
+                LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
+                WHERE l.disbursed_date >= DATE_FORMAT(CURRENT_DATE(), '%Y-%m-01')
+                GROUP BY product_name
+                ORDER BY business_amount DESC
+                """;
+        return jdbcTemplate.queryForList(sql);
+    }
 }

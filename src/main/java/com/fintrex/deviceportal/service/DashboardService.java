@@ -70,6 +70,9 @@ public class DashboardService {
             List<Map<String, Object>> coll = dashboardRepository.getCollectionsDealerWise();
             cache.put("collections", coll != null ? coll : new ArrayList<>());
 
+            List<Map<String, Object>> prodBiz = dashboardRepository.getProductBusinessChart();
+            cache.put("productBusiness", prodBiz != null ? prodBiz : new ArrayList<>());
+
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
             lastSyncedTime = LocalDateTime.now().format(formatter);
             System.out.println("DASHBOARD SNAPSHOT STORE DATA SUCCESSFULLY SYNCED AT: " + lastSyncedTime);
@@ -148,5 +151,10 @@ public class DashboardService {
     @SuppressWarnings("unchecked")
     public List<Map<String, Object>> getCollectionsDealerWise() {
         return (List<Map<String, Object>>) cache.computeIfAbsent("collections", k -> dashboardRepository.getCollectionsDealerWise());
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<Map<String, Object>> getProductBusinessChart() {
+        return (List<Map<String, Object>>) cache.computeIfAbsent("productBusiness", k -> dashboardRepository.getProductBusinessChart());
     }
 }

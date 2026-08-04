@@ -79,6 +79,11 @@ public class DashboardController {
         return ResponseEntity.ok(dashboardService.getCollectionsDealerWise());
     }
 
+    @GetMapping("/product-business-chart")
+    public ResponseEntity<List<Map<String, Object>>> getProductBusinessChart() {
+        return ResponseEntity.ok(dashboardService.getProductBusinessChart());
+    }
+
     @GetMapping("/sync-info")
     public ResponseEntity<Map<String, Object>> getSyncInfo() {
         return ResponseEntity.ok(dashboardService.getSyncInfo());
