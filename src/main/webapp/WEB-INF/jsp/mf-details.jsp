@@ -362,6 +362,21 @@
                                 </div>
                                 <!-- Lock/Unlock logs pane -->
                                 <div class="tab-pane fade" id="locks-pane" role="tabpanel" aria-labelledby="tab-locks">
+                                    
+                                    <!-- Device Control Status Card -->
+                                    <div class="card shadow-none border mb-4 mx-auto" id="locks-status-card" style="max-width: 320px; display: none; background-color: rgba(var(--falcon-primary-rgb), 0.03);">
+                                        <div class="card-body p-3 text-center">
+                                            <div class="d-flex align-items-center justify-content-center mb-2">
+                                                <span class="fs-1 me-2" id="locks-status-icon"><i class="fas fa-lock text-danger"></i></span>
+                                                <h5 class="mb-0 fw-bold" id="locks-status-title">Device is Locked</h5>
+                                            </div>
+                                            <p class="fs--2 text-muted mb-3" id="locks-status-desc">Use the action below to send a command to the device.</p>
+                                            <button type="button" class="btn btn-sm w-100 fw-bold transition-all" id="btn-locks-toggle" style="border-radius: 6px;">
+                                                Unlock Device
+                                            </button>
+                                        </div>
+                                    </div>
+
                                     <div class="table-responsive" id="standard_locks_wrapper" style="max-height: 350px; overflow-y: auto;">
                                         <table id="locks_table" class="table table-hover table-striped mb-0 fs--1 w-100">
                                             <thead>
@@ -474,6 +489,15 @@
                             SmsTable('');
                             LocksTable('');
                             RemarksTable('');
+
+                            // Bind click handler for locks status card button toggle (UI-only mockup)
+                            $(document).on('click', '#btn-locks-toggle', function() {
+                                const titleEl = document.getElementById('locks-status-title');
+                                if (titleEl) {
+                                    const isLocked = titleEl.innerText.includes('Locked');
+                                    updateLocksStatusCard(!isLocked);
+                                }
+                            });
 
                             const remarkForm = document.getElementById('remark-form');
                             if (remarkForm) {
@@ -1094,6 +1118,15 @@
                                             SmsTable(data.financeNo);
                                             LocksTable(data.financeNo, data.security, data.imeiNo);
                                             RemarksTable(data.financeNo);
+
+                                            let isLocked = false;
+                                            if (data.product === 'LF') {
+                                                isLocked = (data.currentDeviceStatus === 'Locked');
+                                            } else {
+                                                isLocked = (data.locked === 1);
+                                            }
+                                            updateLocksStatusCard(isLocked);
+
                                             if (loader) loader.style.display = 'none';
                                         })
                                         .catch(error => {
@@ -1103,6 +1136,32 @@
                                         });
                             }
                         });
+
+                        function updateLocksStatusCard(isLocked) {
+                            const cardEl = document.getElementById('locks-status-card');
+                            const iconEl = document.getElementById('locks-status-icon');
+                            const titleEl = document.getElementById('locks-status-title');
+                            const btnEl = document.getElementById('btn-locks-toggle');
+                            
+                            if (cardEl) {
+                                cardEl.style.display = 'block';
+                            }
+                            if (isLocked) {
+                                if (iconEl) iconEl.innerHTML = '<i class="fas fa-lock text-danger"></i>';
+                                if (titleEl) titleEl.innerText = 'Device is Locked';
+                                if (btnEl) {
+                                    btnEl.innerText = 'Unlock Device';
+                                    btnEl.className = 'btn btn-sm w-100 fw-bold btn-success';
+                                }
+                            } else {
+                                if (iconEl) iconEl.innerHTML = '<i class="fas fa-lock-open text-success"></i>';
+                                if (titleEl) titleEl.innerText = 'Device is Unlocked';
+                                if (btnEl) {
+                                    btnEl.innerText = 'Lock Device';
+                                    btnEl.className = 'btn btn-sm w-100 fw-bold btn-danger';
+                                }
+                            }
+                        }
          </script>
          
          <!-- SMS Modal -->

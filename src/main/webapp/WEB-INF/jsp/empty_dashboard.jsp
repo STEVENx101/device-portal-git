@@ -182,8 +182,6 @@
                     <div class="d-flex align-items-center justify-content-between mb-2 pb-1 border-bottom">
                         <div class="d-flex align-items-center gap-3">
                             <h4 class="mb-0 text-primary fw-bold" style="font-size: 1.25rem;"><i class="fas fa-chart-line me-2"></i>Device Finance Analytics Dashboard</h4>
-                            <span class="badge bg-soft-primary text-primary fw-semi-bold">Fintrex Snapshot</span>
-                            <span class="badge bg-soft-success text-success fw-semi-bold"><i class="fas fa-calendar-alt me-1"></i>Current Month</span>
                         </div>
                         <div class="d-flex align-items-center gap-3">
                             <div class="text-muted fs--2 fw-semi-bold" id="sync-time-badge" style="border-right: 1px solid rgba(226, 232, 240, 0.8); padding-right: 10px;">
@@ -793,8 +791,8 @@
                                                         formatter: (value, ctx) => {
                                                             let sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
                                                             if (sum === 0) return '';
-                                                            let percentage = (value * 100 / sum).toFixed(0);
-                                                            return percentage > 15 ? percentage + "%" : '';
+                                                            let percentage = Math.round(value * 100 / sum);
+                                                            return percentage >= 5 ? percentage + "%" : '';
                                                         },
                                                         anchor: 'center',
                                                         align: 'center'
