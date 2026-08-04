@@ -250,7 +250,7 @@
                         </div>
                     </div>
                     <!-- Device Control Status Card (Horizontal layout below Contract Information Overview) -->
-                    <div class="card shadow-none border mt-3" id="locks-status-card" style="display: none; background-color: rgba(var(--falcon-primary-rgb), 0.03);">
+                    <div class="card shadow-none border mt-2" id="locks-status-card" style="display: none; background-color: rgba(var(--falcon-primary-rgb), 0.03);">
                         <div class="card-body p-2 px-3">
                             <div class="d-flex flex-column flex-sm-row align-items-center justify-content-between gap-3">
                                 <div class="d-flex align-items-center gap-2">
@@ -260,14 +260,14 @@
                                         <div class="fs--2 text-muted" id="locks-status-desc">Use the action below to send a command to the device.</div>
                                     </div>
                                 </div>
-                                <button type="button" class="btn btn-sm fw-bold transition-all" id="btn-locks-toggle" style="border-radius: 6px; font-size: 0.72rem; padding: 3px 12px; min-width: 120px;">
+                                <button type="button" class="btn btn-sm fw-bold transition-all" id="btn-locks-toggle" style="border-radius: 4px; font-size: 0.65rem; padding: 2px 10px; min-width: 90px;">
                                     Unlock Device
                                 </button>
                             </div>
                         </div>
                     </div>
 
-                    <div class="card glass-card mt-3" id="tabsCard" style="display: none;">
+                    <div class="card glass-card mt-2" id="tabsCard" style="display: none;">
                         <div class="card-header p-0 border-bottom border-200">
                             <ul class="nav nav-tabs border-0" id="detail-tabs-list" role="tablist">
                                 <li class="nav-item">
