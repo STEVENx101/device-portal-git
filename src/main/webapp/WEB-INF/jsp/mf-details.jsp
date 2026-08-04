@@ -247,6 +247,8 @@
                                     <div class="fs--1 fw-bold val-vendor-name">-</div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
                     <!-- Device Control Status Card (Horizontal layout below Contract Information Overview) -->
                     <div class="card shadow-none border mt-3" id="locks-status-card" style="display: none; background-color: rgba(var(--falcon-primary-rgb), 0.03);">
                         <div class="card-body p-2 px-3">
