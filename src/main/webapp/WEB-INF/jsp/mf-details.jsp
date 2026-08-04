@@ -247,6 +247,21 @@
                                     <div class="fs--1 fw-bold val-vendor-name">-</div>
                                 </div>
                             </div>
+                    <!-- Device Control Status Card (Horizontal layout below Contract Information Overview) -->
+                    <div class="card shadow-none border mt-3" id="locks-status-card" style="display: none; background-color: rgba(var(--falcon-primary-rgb), 0.03);">
+                        <div class="card-body p-3">
+                            <div class="d-flex flex-column flex-sm-row align-items-center justify-content-between gap-3">
+                                <div class="d-flex align-items-center gap-3">
+                                    <span class="fs-1" id="locks-status-icon"><i class="fas fa-lock text-danger"></i></span>
+                                    <div>
+                                        <h5 class="mb-1 fw-bold" id="locks-status-title">Device is Locked</h5>
+                                        <p class="fs--2 text-muted mb-0" id="locks-status-desc">Use the action below to send a command to the device.</p>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-sm fw-bold px-4 transition-all" id="btn-locks-toggle" style="border-radius: 6px; min-width: 150px;">
+                                    Unlock Device
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -362,20 +377,6 @@
                                 </div>
                                 <!-- Lock/Unlock logs pane -->
                                 <div class="tab-pane fade" id="locks-pane" role="tabpanel" aria-labelledby="tab-locks">
-                                    
-                                    <!-- Device Control Status Card -->
-                                    <div class="card shadow-none border mb-4 mx-auto" id="locks-status-card" style="max-width: 320px; display: none; background-color: rgba(var(--falcon-primary-rgb), 0.03);">
-                                        <div class="card-body p-3 text-center">
-                                            <div class="d-flex align-items-center justify-content-center mb-2">
-                                                <span class="fs-1 me-2" id="locks-status-icon"><i class="fas fa-lock text-danger"></i></span>
-                                                <h5 class="mb-0 fw-bold" id="locks-status-title">Device is Locked</h5>
-                                            </div>
-                                            <p class="fs--2 text-muted mb-3" id="locks-status-desc">Use the action below to send a command to the device.</p>
-                                            <button type="button" class="btn btn-sm w-100 fw-bold transition-all" id="btn-locks-toggle" style="border-radius: 6px;">
-                                                Unlock Device
-                                            </button>
-                                        </div>
-                                    </div>
 
                                     <div class="table-responsive" id="standard_locks_wrapper" style="max-height: 350px; overflow-y: auto;">
                                         <table id="locks_table" class="table table-hover table-striped mb-0 fs--1 w-100">
