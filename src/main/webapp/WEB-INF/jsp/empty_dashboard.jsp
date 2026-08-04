@@ -20,7 +20,7 @@
         <script src="${pageContext.request.contextPath}/vendors/simplebar/simplebar.min.js"></script>
 
         <link rel="preconnect" href="https://fonts.gstatic.com/">
-        <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Work+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
         <link href="${pageContext.request.contextPath}/vendors/simplebar/simplebar.min.css" rel="stylesheet">
         <link href="${pageContext.request.contextPath}/assets/css/theme-rtl.min.css" rel="stylesheet" id="style-rtl">
         <link href="${pageContext.request.contextPath}/assets/css/theme.min.css" rel="stylesheet" id="style-default">
@@ -32,7 +32,7 @@
         <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
         <script>
             const isDark = document.documentElement.classList.contains('dark');
-            Chart.defaults.font.family = "'Work Sans', sans-serif";
+            Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
             Chart.defaults.font.weight = '600';
             Chart.defaults.color = isDark ? "#94a3b8" : "#475569";
 
@@ -46,7 +46,7 @@
             Chart.defaults.plugins.datalabels.align = 'end';
             Chart.defaults.plugins.datalabels.offset = 4;
             Chart.defaults.plugins.datalabels.font = {
-                family: "'Work Sans', sans-serif",
+                family: "'Plus Jakarta Sans', sans-serif",
                 weight: 'bold',
                 size: 9
             };
@@ -61,11 +61,11 @@
 
         <style>
             body, .main, p, div, span, select, input, button, textarea, .card-value, .card-detail-text, h4, h3, h5, .fs--1, .fs--2 { 
-                font-family: 'Work Sans', sans-serif !important; 
+                font-family: 'Plus Jakarta Sans', sans-serif !important; 
             }
             h1, h2, h3, h4, h5, h6, .fw-bold, .fw-extrabold, .card-title-sub, .section-title, .navbar-brand { 
-                font-family: 'Outfit', sans-serif !important; 
-                letter-spacing: -0.01em;
+                font-family: 'Plus Jakarta Sans', sans-serif !important; 
+                letter-spacing: -0.02em;
             }
             .kpi-card {
                 transition: transform 0.2s, box-shadow 0.2s;
@@ -181,7 +181,7 @@
                     <!-- Header Area -->
                     <div class="d-flex align-items-center justify-content-between mb-2 pb-1 border-bottom">
                         <div class="d-flex align-items-center gap-3">
-                            <h4 class="mb-0 text-primary fw-bold" style="font-size: 1.25rem;"><i class="fas fa-chart-line me-2"></i>Device Finance Analytics Dashboard</h4>
+                            <h4 class="mb-0 text-primary fw-bold" style="font-size: 1.25rem;">Device Finance Analytics Dashboard</h4>
                         </div>
                         <div class="d-flex align-items-center gap-3">
                             <div class="text-muted fs--2 fw-semi-bold" id="sync-time-badge" style="border-right: 1px solid rgba(226, 232, 240, 0.8); padding-right: 10px;">
@@ -754,7 +754,7 @@
                                                 ctx.restore();
                                                 const total = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
                                                 const fontSize = (chart.innerRadius / 26).toFixed(2);
-                                                ctx.font = "bold " + fontSize + "em 'Work Sans', sans-serif";
+                                                ctx.font = "bold " + fontSize + "em 'Plus Jakarta Sans', sans-serif";
                                                 ctx.textBaseline = "middle";
                                                 ctx.fillStyle = isDark ? "#f8fafc" : "#1e293b";
                                                 const text = total.toLocaleString(),
