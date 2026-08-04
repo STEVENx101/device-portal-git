@@ -249,16 +249,16 @@
                             </div>
                     <!-- Device Control Status Card (Horizontal layout below Contract Information Overview) -->
                     <div class="card shadow-none border mt-3" id="locks-status-card" style="display: none; background-color: rgba(var(--falcon-primary-rgb), 0.03);">
-                        <div class="card-body p-3">
+                        <div class="card-body p-2 px-3">
                             <div class="d-flex flex-column flex-sm-row align-items-center justify-content-between gap-3">
-                                <div class="d-flex align-items-center gap-3">
-                                    <span class="fs-1" id="locks-status-icon"><i class="fas fa-lock text-danger"></i></span>
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="fs-0" id="locks-status-icon"><i class="fas fa-lock text-danger"></i></span>
                                     <div>
-                                        <h5 class="mb-1 fw-bold" id="locks-status-title">Device is Locked</h5>
-                                        <p class="fs--2 text-muted mb-0" id="locks-status-desc">Use the action below to send a command to the device.</p>
+                                        <div class="fs--1 fw-bold" id="locks-status-title">Device is Locked</div>
+                                        <div class="fs--2 text-muted" id="locks-status-desc">Use the action below to send a command to the device.</div>
                                     </div>
                                 </div>
-                                <button type="button" class="btn btn-sm fw-bold px-4 transition-all" id="btn-locks-toggle" style="border-radius: 6px; min-width: 150px;">
+                                <button type="button" class="btn btn-sm fw-bold transition-all" id="btn-locks-toggle" style="border-radius: 6px; font-size: 0.72rem; padding: 3px 12px; min-width: 120px;">
                                     Unlock Device
                                 </button>
                             </div>
@@ -490,15 +490,24 @@
                             SmsTable('');
                             LocksTable('');
                             RemarksTable('');
+                             // Bind click handler for locks status card button toggle (UI-only mockup)
+                             $(document).on('click', '#btn-locks-toggle', function() {
+                                 const titleEl = document.getElementById('locks-status-title');
+                                 if (titleEl) {
+                                     const isLocked = titleEl.innerText.includes('Locked');
+                                     updateLocksStatusCard(!isLocked);
+                                 }
+                             });
 
-                            // Bind click handler for locks status card button toggle (UI-only mockup)
-                            $(document).on('click', '#btn-locks-toggle', function() {
-                                const titleEl = document.getElementById('locks-status-title');
-                                if (titleEl) {
-                                    const isLocked = titleEl.innerText.includes('Locked');
-                                    updateLocksStatusCard(!isLocked);
-                                }
-                            });
+                             // Tab change handler to show/hide the lock control card
+                             $('a[data-bs-toggle="tab"]').on('shown.bs.tab', function(e) {
+                                 const target = $(e.target).attr('href');
+                                 if (target === '#locks-pane' && currentFinanceNo) {
+                                     $('#locks-status-card').slideDown(200);
+                                 } else {
+                                     $('#locks-status-card').slideUp(150);
+                                 }
+                             });
 
                             const remarkForm = document.getElementById('remark-form');
                             if (remarkForm) {
@@ -1128,6 +1137,14 @@
                                             }
                                             updateLocksStatusCard(isLocked);
 
+                                            // Show/hide locks status card if the active tab is the locks tab
+                                            const activeTab = $('#detail-tabs-list .active').attr('href');
+                                            if (activeTab === '#locks-pane') {
+                                                $('#locks-status-card').show();
+                                            } else {
+                                                $('#locks-status-card').hide();
+                                            }
+
                                             if (loader) loader.style.display = 'none';
                                         })
                                         .catch(error => {
@@ -1139,20 +1156,16 @@
                         });
 
                         function updateLocksStatusCard(isLocked) {
-                            const cardEl = document.getElementById('locks-status-card');
                             const iconEl = document.getElementById('locks-status-icon');
                             const titleEl = document.getElementById('locks-status-title');
                             const btnEl = document.getElementById('btn-locks-toggle');
                             
-                            if (cardEl) {
-                                cardEl.style.display = 'block';
-                            }
                             if (isLocked) {
                                 if (iconEl) iconEl.innerHTML = '<i class="fas fa-lock text-danger"></i>';
                                 if (titleEl) titleEl.innerText = 'Device is Locked';
                                 if (btnEl) {
                                     btnEl.innerText = 'Unlock Device';
-                                    btnEl.className = 'btn btn-sm w-100 fw-bold btn-success';
+                                    btnEl.className = 'btn btn-sm fw-bold btn-success';
                                 }
                             } else {
                                 if (iconEl) iconEl.innerHTML = '<i class="fas fa-lock-open text-success"></i>';
