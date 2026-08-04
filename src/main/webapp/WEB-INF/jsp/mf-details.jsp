@@ -250,7 +250,7 @@
                         </div>
                     </div>
                     <!-- Device Control Status Card (Horizontal layout below Contract Information Overview) -->
-                    <div class="card shadow-none border mt-2" id="locks-status-card" style="display: none; background-color: rgba(var(--falcon-primary-rgb), 0.03);">
+                    <div class="card shadow-none border mt-2 mb-3" id="locks-status-card" style="display: none; background-color: rgba(var(--falcon-primary-rgb), 0.03);">
                         <div class="card-body p-2 px-3">
                             <div class="d-flex flex-column flex-sm-row align-items-center justify-content-between gap-3">
                                 <div class="d-flex align-items-center gap-2">
@@ -267,7 +267,7 @@
                         </div>
                     </div>
 
-                    <div class="card glass-card mt-2" id="tabsCard" style="display: none;">
+                    <div class="card glass-card mt-3" id="tabsCard" style="display: none;">
                         <div class="card-header p-0 border-bottom border-200">
                             <ul class="nav nav-tabs border-0" id="detail-tabs-list" role="tablist">
                                 <li class="nav-item">
@@ -1174,7 +1174,7 @@
                                 if (titleEl) titleEl.innerText = 'Device is Unlocked';
                                 if (btnEl) {
                                     btnEl.innerText = 'Lock Device';
-                                    btnEl.className = 'btn btn-sm w-100 fw-bold btn-danger';
+                                    btnEl.className = 'btn btn-sm fw-bold btn-danger';
                                 }
                             }
                         }
