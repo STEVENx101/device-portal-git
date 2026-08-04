@@ -269,50 +269,23 @@
                         </div>
                     </div>
 
-                    <!-- Row 2: Charts (Disbursements & Collections on Left, Product Business Pie on Right) -->
+                    <!-- Row 2: Charts (Month-Wise Disbursements & DPD Status on Left, Product Business Pie on Right) -->
                     <div class="row g-2 mb-2">
-                        <!-- Left: Large Charts Column (Disbursements, NPL, Collections) -->
+                        <!-- Left: Monthly trend charts -->
                         <div class="col-lg-9 col-md-8">
-                            <div class="d-flex flex-column gap-2">
-                                <!-- Top Chart Row: Monthly trend charts -->
-                                <div class="card shadow-sm">
-                                    <div class="card-body p-3">
-                                        <div class="row g-3">
-                                            <div class="col-6">
-                                                <div class="fs--2 fw-semi-bold text-muted mb-1"><i class="fas fa-chart-line me-1"></i>Month-Wise Disbursements</div>
-                                                <div style="height: 160px; position: relative; width: 100%;">
-                                                    <canvas id="businessChart"></canvas>
-                                                </div>
-                                            </div>
-                                            <div class="col-6">
-                                                <div class="fs--2 fw-semi-bold text-muted mb-1"><i class="fas fa-chart-bar me-1"></i>DPD Status (Month-Wise)</div>
-                                                <div style="height: 160px; position: relative; width: 100%;">
-                                                    <canvas id="dpdComparisonChart"></canvas>
-                                                </div>
+                            <div class="card shadow-sm h-100">
+                                <div class="card-body p-3">
+                                    <div class="row g-3">
+                                        <div class="col-6">
+                                            <div class="fs--2 fw-semi-bold text-muted mb-1"><i class="fas fa-chart-line me-1"></i>Month-Wise Disbursements</div>
+                                            <div style="height: 200px; position: relative; width: 100%;">
+                                                <canvas id="businessChart"></canvas>
                                             </div>
                                         </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- Bottom Chart Row: Collections & Daily Disbursements -->
-                                <div class="row g-2">
-                                    <div class="col-lg-6">
-                                        <div class="card shadow-sm">
-                                            <div class="card-body p-3">
-                                                <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-hand-holding-usd me-1"></i>Collections Dealer Wise (Current Month)</div>
-                                                <div style="height: 140px; position: relative; width: 100%;">
-                                                    <canvas id="collectionsDealerChart"></canvas>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-6">
-                                        <div class="card shadow-sm">
-                                            <div class="card-body p-3">
-                                                <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-money-check-alt me-1"></i>Daily Disbursements (Past 7 Days)</div>
-                                                <div style="height: 140px; position: relative; width: 100%;">
-                                                    <canvas id="vendorPaymentsChart"></canvas>
-                                                </div>
+                                        <div class="col-6">
+                                            <div class="fs--2 fw-semi-bold text-muted mb-1"><i class="fas fa-chart-bar me-1"></i>DPD Status (Month-Wise)</div>
+                                            <div style="height: 200px; position: relative; width: 100%;">
+                                                <canvas id="dpdComparisonChart"></canvas>
                                             </div>
                                         </div>
                                     </div>
@@ -320,12 +293,12 @@
                             </div>
                         </div>
 
-                        <!-- Right: Product-Wise Business Distribution Column -->
+                        <!-- Right: Product-Wise Business Distribution Column (Smaller Pie Chart) -->
                         <div class="col-lg-3 col-md-4">
                             <div class="card shadow-sm h-100">
                                 <div class="card-body p-3 d-flex flex-column justify-content-between">
                                     <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-chart-pie me-1"></i>Product Business (Current Month)</div>
-                                    <div style="height: 290px; position: relative; width: 100%;" class="d-flex align-items-center justify-content-center">
+                                    <div style="height: 180px; position: relative; width: 100%;" class="d-flex align-items-center justify-content-center">
                                         <canvas id="productBusinessChart"></canvas>
                                     </div>
                                 </div>
@@ -333,7 +306,7 @@
                         </div>
                     </div>
 
-                    <!-- Row 3: Device status & lock doughnuts -->
+                    <!-- Row 3: Device status & lock doughnuts (4 horizontal pie charts) -->
                     <div class="row g-2 mb-2" style="margin-top: 4px;">
                         <div class="col-12">
                             <div class="card shadow-sm">
@@ -367,6 +340,30 @@
                                     </div>
                                     <div class="text-center fs--2 text-muted mt-3 border-top pt-2">
                                         Device locks summary &bull; Active: <span id="sec-mobile-locked-val" class="fw-bold text-danger">0</span> Mobiles &bull; <span id="sec-laptop-locked-val" class="fw-bold text-danger">0</span> Laptops
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Row 4: Collections & Payments (Side-by-Side Horizontal Bars) -->
+                    <div class="row g-2">
+                        <div class="col-lg-6">
+                            <div class="card shadow-sm">
+                                <div class="card-body p-3">
+                                    <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-hand-holding-usd me-1"></i>Vendor-Wise Payments (Current Month)</div>
+                                    <div style="height: 140px; position: relative; width: 100%;">
+                                        <canvas id="collectionsDealerChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="card shadow-sm">
+                                <div class="card-body p-3">
+                                    <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-money-check-alt me-1"></i>Daily Disbursements (Past 7 Days)</div>
+                                    <div style="height: 140px; position: relative; width: 100%;">
+                                        <canvas id="vendorPaymentsChart"></canvas>
                                     </div>
                                 </div>
                             </div>
