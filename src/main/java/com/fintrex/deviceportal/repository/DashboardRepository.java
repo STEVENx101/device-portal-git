@@ -494,8 +494,8 @@ public class DashboardRepository {
         String sql = """
                 SELECT 
                     COALESCE(lmm.name, 'Unknown Model') AS model_name,
-                    COUNT(DISTINCT active_loans.account_no) AS npl_count,
-                    COALESCE(SUM(p.exposure), 0) AS npl_exposure
+                    COUNT(DISTINCT active_loans.account_no) AS accounts_count,
+                    COALESCE(SUM(p.exposure), 0) AS exposure
                 FROM (
                     SELECT account_no, account_series, account_no AS join_no FROM cbs.loan WHERE account_status = 'N'
                     UNION ALL
@@ -509,7 +509,7 @@ public class DashboardRepository {
                     AND p.series = active_loans.account_series
                     AND p.portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio)
                 GROUP BY model_name
-                ORDER BY npl_count DESC
+                ORDER BY accounts_count DESC
                 LIMIT 1
                 """;
         try {
@@ -517,8 +517,8 @@ public class DashboardRepository {
         } catch (Exception e) {
             Map<String, Object> empty = new HashMap<>();
             empty.put("model_name", "N/A");
-            empty.put("npl_count", 0);
-            empty.put("npl_exposure", 0);
+            empty.put("accounts_count", 0);
+            empty.put("exposure", 0);
             return empty;
         }
     }
@@ -527,8 +527,8 @@ public class DashboardRepository {
         String sql = """
                 SELECT 
                     COALESCE(v.name, 'Unknown Dealer') AS dealer_name,
-                    COUNT(DISTINCT active_loans.account_no) AS npl_count,
-                    COALESCE(SUM(p.exposure), 0) AS npl_exposure
+                    COUNT(DISTINCT active_loans.account_no) AS accounts_count,
+                    COALESCE(SUM(p.exposure), 0) AS exposure
                 FROM (
                     SELECT account_no, account_series, vendor, account_no AS join_no FROM cbs.loan WHERE account_status = 'N'
                     UNION ALL
@@ -540,7 +540,7 @@ public class DashboardRepository {
                     AND p.series = active_loans.account_series
                     AND p.portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio)
                 GROUP BY dealer_name
-                ORDER BY npl_count DESC
+                ORDER BY accounts_count DESC
                 LIMIT 1
                 """;
         try {
@@ -548,8 +548,8 @@ public class DashboardRepository {
         } catch (Exception e) {
             Map<String, Object> empty = new HashMap<>();
             empty.put("dealer_name", "N/A");
-            empty.put("npl_count", 0);
-            empty.put("npl_exposure", 0);
+            empty.put("accounts_count", 0);
+            empty.put("exposure", 0);
             return empty;
         }
     }
