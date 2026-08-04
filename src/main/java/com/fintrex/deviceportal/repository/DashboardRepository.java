@@ -254,7 +254,7 @@ public class DashboardRepository {
                         COUNT(*) AS business_count,
                         COALESCE(SUM(loan_amount), 0) AS business_amount
                     FROM cbs.loan
-                    WHERE disbursed_date >= DATE_SUB(DATE_FORMAT(CURRENT_DATE(), '%Y-%m-01'), INTERVAL 11 MONTH)
+                    WHERE disbursed_date >= DATE_SUB(DATE_FORMAT(CURRENT_DATE(), '%Y-%m-01'), INTERVAL 5 MONTH)
                       AND disbursed_date < DATE_ADD(DATE_FORMAT(CURRENT_DATE(), '%Y-%m-01'), INTERVAL 1 MONTH)
                     GROUP BY DATE_FORMAT(disbursed_date, '%b %Y'), DATE_FORMAT(disbursed_date, '%Y-%m')
                     ORDER BY month_key ASC

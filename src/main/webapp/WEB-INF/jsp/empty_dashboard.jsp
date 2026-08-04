@@ -243,15 +243,11 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- Active Contracts -->
+                        <!-- Empty summary -->
                         <div class="col-lg-2 col-md-4 col-sm-6">
-                            <div class="card kpi-card shadow-sm h-100" style="border-left: 3px solid #3b82f6 !important;">
-                                <div class="card-body p-2 d-flex flex-column justify-content-between">
-                                    <div>
-                                        <span class="card-title-sub text-muted">ACTIVE CONTRACTS</span>
-                                        <div class="card-value text-info" id="kpi-active-contracts-count">0 Accounts</div>
-                                        <div class="card-detail-text text-muted">Active contracts</div>
-                                    </div>
+                            <div class="card kpi-card shadow-sm h-100" style="border-left: 3px solid #e2e8f0 !important; background-color: transparent;">
+                                <div class="card-body p-2">
+                                    <!-- Empty KPI card -->
                                 </div>
                             </div>
                         </div>
@@ -541,10 +537,8 @@
                                     document.getElementById("kpi-settled-amount").innerText = formatLKR(data.settledAmount || 0);
                                     document.getElementById("kpi-settled-count").innerText = formatNum(data.settledCount || 0) + " Accounts";
                                     
-                                    // Highlights / Analytics Row
-                                    document.getElementById("kpi-active-contracts-count").innerText = formatNum(data.activeCount || 0) + " Accounts";
-                                })
-                                .catch(err => console.error("Error fetching dashboard statistics:", err));
+                                 })
+                                 .catch(err => console.error("Error fetching dashboard statistics:", err));
 
                             // ============ 2. Month Wise Business Chart ============
                             fetch('${pageContext.request.contextPath}/api/dashboard/business-chart')
@@ -553,41 +547,17 @@
                                     const labels = data.map(i => i.month_name);
                                     const amounts = data.map(i => i.business_amount || 0);
 
-                                    destroyChart('businessChart');
-                                    const ctx = document.getElementById("businessChart").getContext('2d');
-                                    activeCharts['businessChart'] = new Chart(ctx, {
-                                        type: 'bar',
-                                        data: {
-                                            labels: labels,
-                                            datasets: [{
-                                                label: 'Month Disbursement',
-                                                data: amounts,
-                                                backgroundColor: 'rgba(99, 102, 241, 0.85)',
-                                                borderRadius: 4
-                                            }]
-                                        },
-                                        options: {
-                                            responsive: true,
-                                            maintainAspectRatio: false,
-                                            plugins: {
-                                                legend: { display: false },
-                                                tooltip: { enabled: true },
-                                                datalabels: {
-                                                    display: true,
-                                                    align: 'top',
-                                                    color: isDark ? '#94a3b8' : '#475569',
-                                                    font: { size: 8, weight: 'bold' },
-                                                    formatter: (val) => formatLKR(val)
-                                                }
-                                            },
-                                            scales: {
-                                                x: { grid: { display: false }, ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 8, weight: 'bold' } } },
-                                                y: { grid: { color: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }, ticks: { display: false } }
-                                            }
-                                        }
-                                    });
-                                })
-                                .catch(err => console.error("Error loading month wise business:", err));
+                                     buildHorizontalBar(
+                                         'businessChart',
+                                         labels,
+                                         amounts,
+                                         isDark ? 'rgba(99, 102, 241, 0.15)' : 'rgba(99, 102, 241, 0.15)',
+                                         isDark ? 'rgba(99, 102, 241, 0.85)' : 'rgba(99, 102, 241, 0.85)',
+                                         '#6366f1',
+                                         false
+                                     );
+                                 })
+                                 .catch(err => console.error("Error loading month wise business:", err));
 
                             // ============ 3. DPD Range Wise Chart ============
                             fetch('${pageContext.request.contextPath}/api/dashboard/dpd-comparison-chart')
