@@ -136,6 +136,17 @@ public class DashboardRepository {
                 """;
         Map<String, Object> arrearsStats = jdbcTemplate.queryForMap(sqlArrearsStats);
 
+        // 8. Settled loans count and amount during the current month
+        String sqlSettledStats = """
+                    SELECT
+                        COUNT(*) AS settled_count,
+                        COALESCE(SUM(loan_amount), 0) AS settled_amount
+                    FROM cbs.loan
+                    WHERE account_status IN ('P', 'F')
+                      AND closed_date >= DATE_FORMAT(CURRENT_DATE(), '%Y-%m-01')
+                """;
+        Map<String, Object> settledStats = jdbcTemplate.queryForMap(sqlSettledStats);
+
         stats.put("nMonthCount", monthStats.get("month_count") != null ? monthStats.get("month_count") : 0);
         stats.put("nMonthAmount", monthStats.get("month_amount") != null ? monthStats.get("month_amount") : 0);
         stats.put("nYtdCount", ytdStats.get("ytd_count") != null ? ytdStats.get("ytd_count") : 0);
@@ -152,6 +163,9 @@ public class DashboardRepository {
         stats.put("activeCount", activeStats.get("active_count") != null ? activeStats.get("active_count") : 0);
         stats.put("arrearsCount", arrearsStats.get("arrears_count") != null ? arrearsStats.get("arrears_count") : 0);
         stats.put("arrearsAmount", arrearsStats.get("arrears_amount") != null ? arrearsStats.get("arrears_amount") : 0);
+
+        stats.put("settledCount", settledStats.get("settled_count") != null ? settledStats.get("settled_count") : 0);
+        stats.put("settledAmount", settledStats.get("settled_amount") != null ? settledStats.get("settled_amount") : 0);
 
         stats.put("securityStats", securityStats);
 
@@ -240,8 +254,8 @@ public class DashboardRepository {
                         COUNT(*) AS business_count,
                         COALESCE(SUM(loan_amount), 0) AS business_amount
                     FROM cbs.loan
-                    WHERE disbursed_date >= CASE WHEN MONTH(CURRENT_DATE()) >= 4 THEN DATE_FORMAT(CURRENT_DATE(), '%Y-04-01') ELSE DATE_FORMAT(DATE_SUB(CURRENT_DATE(), INTERVAL 1 YEAR), '%Y-04-01') END
-                      AND disbursed_date < CASE WHEN MONTH(CURRENT_DATE()) >= 4 THEN DATE_FORMAT(DATE_ADD(CURRENT_DATE(), INTERVAL 1 YEAR), '%Y-04-01') ELSE DATE_FORMAT(CURRENT_DATE(), '%Y-04-01') END
+                    WHERE disbursed_date >= DATE_SUB(DATE_FORMAT(CURRENT_DATE(), '%Y-%m-01'), INTERVAL 11 MONTH)
+                      AND disbursed_date < DATE_ADD(DATE_FORMAT(CURRENT_DATE(), '%Y-%m-01'), INTERVAL 1 MONTH)
                     GROUP BY DATE_FORMAT(disbursed_date, '%b %Y'), DATE_FORMAT(disbursed_date, '%Y-%m')
                     ORDER BY month_key ASC
                 """;
@@ -277,12 +291,14 @@ public class DashboardRepository {
     public List<Map<String, Object>> getVendorPaymentsChannelChart() {
         String sql = """
                 SELECT
-                    COALESCE(vendor_name, 'Unknown') AS channel_name,
-                    SUM(amount) AS total_amount
-                FROM cbs.vendor_payments
-                WHERE trx_date >= DATE_FORMAT(CURRENT_DATE(), '%Y-%m-01')
-                GROUP BY channel_name
-                ORDER BY total_amount DESC
+                    DATE_FORMAT(disbursed_date, '%d %b') AS channel_name,
+                    DATE_FORMAT(disbursed_date, '%Y-%m-%d') AS db_date,
+                    COALESCE(SUM(loan_amount), 0) AS total_amount
+                FROM cbs.loan
+                WHERE disbursed_date >= DATE_SUB(CURRENT_DATE(), INTERVAL 6 DAY)
+                  AND disbursed_date <= CURRENT_DATE()
+                GROUP BY DATE_FORMAT(disbursed_date, '%d %b'), DATE_FORMAT(disbursed_date, '%Y-%m-%d')
+                ORDER BY db_date ASC
                 """;
         return jdbcTemplate.queryForList(sql);
     }

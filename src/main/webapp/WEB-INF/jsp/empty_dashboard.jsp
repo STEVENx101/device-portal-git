@@ -231,14 +231,14 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- Arrears -->
+                        <!-- Settled During Month -->
                         <div class="col-lg-2 col-md-4 col-sm-6">
                             <div class="card kpi-card shadow-sm h-100" style="border-left: 3px solid #f59e0b !important;">
                                 <div class="card-body p-2 d-flex flex-column justify-content-between">
                                     <div>
-                                        <span class="card-title-sub text-muted">TOTAL ARREARS</span>
-                                        <div class="card-value text-warning" id="kpi-arrears-amount">LKR 0.00 Mn</div>
-                                        <div class="card-detail-text text-muted" id="kpi-arrears-count">0 Accounts</div>
+                                        <span class="card-title-sub text-muted">SETTLED MONTH</span>
+                                        <div class="card-value text-warning" id="kpi-settled-amount">LKR 0.00 Mn</div>
+                                        <div class="card-detail-text text-muted" id="kpi-settled-count">0 Accounts</div>
                                     </div>
                                 </div>
                             </div>
@@ -367,7 +367,7 @@
                         <div class="col-lg-6">
                             <div class="card shadow-sm">
                                 <div class="card-body p-3">
-                                    <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-money-check-alt me-1"></i>Vendor Payments Channel-Wise (Current Month)</div>
+                                    <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-money-check-alt me-1"></i>Daily Disbursements (Past 7 Days)</div>
                                     <div style="height: 140px; position: relative; width: 100%;">
                                         <canvas id="vendorPaymentsChart"></canvas>
                                     </div>
@@ -538,8 +538,8 @@
                                     document.getElementById("kpi-npl-exposure").innerText = formatLKR(data.nNplExposure || 0);
                                     document.getElementById("kpi-npl-count").innerText = formatNum(data.nNplCount || 0) + " Accounts";
                                     
-                                    document.getElementById("kpi-arrears-amount").innerText = formatLKR(data.arrearsAmount || 0);
-                                    document.getElementById("kpi-arrears-count").innerText = formatNum(data.arrearsCount || 0) + " Accounts";
+                                    document.getElementById("kpi-settled-amount").innerText = formatLKR(data.settledAmount || 0);
+                                    document.getElementById("kpi-settled-count").innerText = formatNum(data.settledCount || 0) + " Accounts";
                                     
                                     // Highlights / Analytics Row
                                     document.getElementById("kpi-active-contracts-count").innerText = formatNum(data.activeCount || 0) + " Accounts";
@@ -556,19 +556,14 @@
                                     destroyChart('businessChart');
                                     const ctx = document.getElementById("businessChart").getContext('2d');
                                     activeCharts['businessChart'] = new Chart(ctx, {
-                                        type: 'line',
+                                        type: 'bar',
                                         data: {
                                             labels: labels,
                                             datasets: [{
                                                 label: 'Month Disbursement',
                                                 data: amounts,
-                                                borderColor: '#6366f1',
-                                                backgroundColor: 'rgba(99, 102, 241, 0.1)',
-                                                fill: true,
-                                                tension: 0.35,
-                                                borderWidth: 2.5,
-                                                pointBackgroundColor: '#6366f1',
-                                                pointRadius: 4
+                                                backgroundColor: 'rgba(99, 102, 241, 0.85)',
+                                                borderRadius: 4
                                             }]
                                         },
                                         options: {
@@ -809,12 +804,11 @@
                                 })
                                 .catch(err => console.error("Error loading security doughnut status:", err));
 
-                            // ============ 7. Vendor Payments Channel-Wise ============
+                            // ============ 7. Daily Disbursements (Past 7 Days) ============
                             fetch('${pageContext.request.contextPath}/api/dashboard/vendor-payments-chart')
                                 .then(res => res.json())
                                 .then(data => {
-                                    let chartData = data.length > 5 ? data.slice(0, 5) : data;
-                                    chartData.reverse();
+                                    let chartData = data;
                                     buildHorizontalBar(
                                         'vendorPaymentsChart',
                                         chartData.map(i => i.channel_name),
@@ -825,7 +819,7 @@
                                         false
                                     );
                                 })
-                                .catch(err => console.error("Error loading vendor payments chart:", err));
+                                .catch(err => console.error("Error loading daily disbursements chart:", err));
 
                             // ============ 8. Collections Dealer Wise ============
                             fetch('${pageContext.request.contextPath}/api/dashboard/collections-dealer-wise')
