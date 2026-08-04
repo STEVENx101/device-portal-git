@@ -320,54 +320,53 @@
                             </div>
                         </div>
 
-                        <!-- Right Column (Product Pie on Top, Device Status Doughnuts on Bottom) -->
+                        <!-- Right: Product-Wise Business Distribution Column -->
                         <div class="col-lg-3 col-md-4">
-                            <div class="d-flex flex-column gap-2 h-100">
-                                <!-- Product Business Pie Chart -->
-                                <div class="card shadow-sm">
-                                    <div class="card-body p-2 px-3">
-                                        <div class="fs--2 fw-semi-bold text-muted mb-1"><i class="fas fa-chart-pie me-1"></i>Product Business (Current Month)</div>
-                                        <div style="height: 180px; position: relative; width: 100%;" class="d-flex align-items-center justify-content-center">
-                                            <canvas id="productBusinessChart"></canvas>
-                                        </div>
+                            <div class="card shadow-sm h-100">
+                                <div class="card-body p-3 d-flex flex-column justify-content-between">
+                                    <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-chart-pie me-1"></i>Product Business (Current Month)</div>
+                                    <div style="height: 290px; position: relative; width: 100%;" class="d-flex align-items-center justify-content-center">
+                                        <canvas id="productBusinessChart"></canvas>
                                     </div>
                                 </div>
-                                
-                                <!-- Device Security Status (2x2 Grid) -->
-                                <div class="card shadow-sm flex-fill">
-                                    <div class="card-body p-2 px-3 d-flex flex-column justify-content-between">
-                                        <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-hdd me-1"></i>Device Security Status</div>
-                                        
-                                        <div class="row g-2 text-center align-items-center flex-fill">
-                                            <div class="col-6">
-                                                <div class="fs--2 text-muted mb-1" style="font-size: 0.65rem !important;">Mobiles Perf.</div>
-                                                <div style="height: 70px; position: relative; width: 100%;">
-                                                    <canvas id="mobilePerformingChart"></canvas>
-                                                </div>
-                                            </div>
-                                            <div class="col-6">
-                                                <div class="fs--2 text-muted mb-1" style="font-size: 0.65rem !important;">Mobiles Lock</div>
-                                                <div style="height: 70px; position: relative; width: 100%;">
-                                                    <canvas id="mobileLockChart"></canvas>
-                                                </div>
-                                            </div>
-                                            <div class="col-6">
-                                                <div class="fs--2 text-muted mb-1" style="font-size: 0.65rem !important;">Laptops Perf.</div>
-                                                <div style="height: 70px; position: relative; width: 100%;">
-                                                    <canvas id="laptopPerformingChart"></canvas>
-                                                </div>
-                                            </div>
-                                            <div class="col-6">
-                                                <div class="fs--2 text-muted mb-1" style="font-size: 0.65rem !important;">Laptops Lock</div>
-                                                <div style="height: 70px; position: relative; width: 100%;">
-                                                    <canvas id="laptopLockChart"></canvas>
-                                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Row 3: Device status & lock doughnuts -->
+                    <div class="row g-2 mb-2" style="margin-top: 4px;">
+                        <div class="col-12">
+                            <div class="card shadow-sm">
+                                <div class="card-body p-3">
+                                    <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-hdd me-1"></i>Device Performance & Security Status</div>
+                                    <div class="row g-3 align-items-center text-center">
+                                        <div class="col-3">
+                                            <div class="fs--2 fw-semi-bold text-muted mb-2">Mobiles Performing</div>
+                                            <div style="height: 130px; position: relative; width: 100%;">
+                                                <canvas id="mobilePerformingChart"></canvas>
                                             </div>
                                         </div>
-                                        
-                                        <div class="text-center fs--2 text-muted mt-2 border-top pt-1" style="font-size: 0.65rem !important;">
-                                            Locked: <span id="sec-mobile-locked-val" class="fw-bold text-danger">0</span> M &bull; <span id="sec-laptop-locked-val" class="fw-bold text-danger">0</span> L
+                                        <div class="col-3">
+                                            <div class="fs--2 fw-semi-bold text-muted mb-2">Mobiles Lock</div>
+                                            <div style="height: 130px; position: relative; width: 100%;">
+                                                <canvas id="mobileLockChart"></canvas>
+                                            </div>
                                         </div>
+                                        <div class="col-3">
+                                            <div class="fs--2 fw-semi-bold text-muted mb-2">Laptops Performing</div>
+                                            <div style="height: 130px; position: relative; width: 100%;">
+                                                <canvas id="laptopPerformingChart"></canvas>
+                                            </div>
+                                        </div>
+                                        <div class="col-3">
+                                            <div class="fs--2 fw-semi-bold text-muted mb-2">Laptops Lock</div>
+                                            <div style="height: 130px; position: relative; width: 100%;">
+                                                <canvas id="laptopLockChart"></canvas>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="text-center fs--2 text-muted mt-3 border-top pt-2">
+                                        Device locks summary &bull; Active: <span id="sec-mobile-locked-val" class="fw-bold text-danger">0</span> Mobiles &bull; <span id="sec-laptop-locked-val" class="fw-bold text-danger">0</span> Laptops
                                     </div>
                                 </div>
                             </div>
