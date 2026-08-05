@@ -1115,7 +1115,7 @@
                                          options: {
                                              responsive: true,
                                              maintainAspectRatio: false,
-                                             cutout: '70%',
+                                             cutout: '72%',
                                              plugins: {
                                                  legend: {
                                                      display: true,
@@ -1123,7 +1123,19 @@
                                                      labels: { color: isDark ? '#94a3b8' : '#475569', font: { size: 9 } }
                                                  },
                                                  tooltip: { enabled: true },
-                                                 datalabels: { display: false }
+                                                 datalabels: {
+                                                      display: true,
+                                                      color: '#ffffff',
+                                                      font: { weight: 'bold', size: 9 },
+                                                      formatter: (value, context) => {
+                                                          let sum = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                                          if (sum === 0) return '';
+                                                          let percentage = Math.round(value * 100 / sum);
+                                                          return percentage >= 5 ? percentage + "%" : '';
+                                                      },
+                                                      anchor: 'center',
+                                                      align: 'center'
+                                                  }
                                              }
                                          }
                                      });
