@@ -160,6 +160,25 @@
                 height: 1px;
                 background: linear-gradient(90deg, rgba(99, 102, 241, 0.15), transparent);
             }
+            .glass-card {
+                background: rgba(255, 255, 255, 0.75) !important;
+                backdrop-filter: blur(12px) !important;
+                -webkit-backdrop-filter: blur(12px) !important;
+                border: 1px solid rgba(226, 232, 240, 0.8) !important;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03) !important;
+                transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease !important;
+                cursor: pointer;
+            }
+            html.dark .glass-card {
+                background: rgba(15, 23, 42, 0.45) !important;
+                border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25) !important;
+            }
+            .glass-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 24px rgba(99, 102, 241, 0.12) !important;
+                border-color: rgba(99, 102, 241, 0.3) !important;
+            }
         </style>
     </head>
 
@@ -276,22 +295,22 @@
                         </div>
                     </div>
 
-                    <!-- Row 2: Charts (Month-Wise Disbursements & DPD Status on Left) -->
+                    <!-- Row 2: Charts (Month-Wise Disbursements, DPD Status & Device Security) -->
                     <div class="row g-2 mb-2">
-                        <!-- Left: Monthly trend charts (Full Width) -->
-                        <div class="col-12">
+                        <!-- Left: Monthly trend charts (2/3 width) -->
+                        <div class="col-lg-8 col-12">
                             <div class="card shadow-sm h-100">
-                                <div class="card-body p-3">
-                                    <div class="row g-3">
+                                <div class="card-body p-2">
+                                    <div class="row g-2">
                                         <div class="col-6">
                                             <div class="fs--2 fw-semi-bold text-muted mb-1"><i class="fas fa-chart-line me-1"></i>Month-Wise Disbursements</div>
-                                            <div style="height: 200px; position: relative; width: 100%;">
+                                            <div style="height: 155px; position: relative; width: 100%;">
                                                 <canvas id="businessChart"></canvas>
                                             </div>
                                         </div>
                                         <div class="col-6">
                                             <div class="fs--2 fw-semi-bold text-muted mb-1"><i class="fas fa-chart-bar me-1"></i>DPD Status (Overdue Portfolio)</div>
-                                            <div style="height: 200px; position: relative; width: 100%;">
+                                            <div style="height: 155px; position: relative; width: 100%;">
                                                 <canvas id="dpdComparisonChart"></canvas>
                                             </div>
                                         </div>
@@ -299,41 +318,41 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Row 3: Device status & lock doughnuts (Dynamically shown) -->
-                    <div class="row g-2 mb-2" style="margin-top: 4px;">
-                        <div class="col-12">
-                            <div class="card shadow-sm">
-                                <div class="card-body p-3">
-                                    <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-hdd me-1"></i>Device Performance & Security Status</div>
-                                    <div class="row g-3 align-items-center text-center">
-                                        <div class="col-6 mobile-sec-col">
-                                            <div class="fs--2 fw-semi-bold text-muted mb-2">Mobiles Performing</div>
-                                            <div style="height: 130px; position: relative; width: 100%;">
-                                                <canvas id="mobilePerformingChart"></canvas>
+                        <!-- Right: Device Performance & Security Status (1/3 width) -->
+                        <div class="col-lg-4 col-12">
+                            <div class="card shadow-sm h-100">
+                                <div class="card-body p-2 d-flex flex-column justify-content-between">
+                                    <div>
+                                        <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-hdd me-1"></i>Device Security Status</div>
+                                        <div class="row g-2 align-items-center text-center">
+                                            <div class="col-6 mobile-sec-col">
+                                                <div class="fs--3 fw-semi-bold text-muted mb-1">Mobiles Performing</div>
+                                                <div style="height: 95px; position: relative; width: 100%;">
+                                                    <canvas id="mobilePerformingChart"></canvas>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="col-6 mobile-sec-col">
-                                            <div class="fs--2 fw-semi-bold text-muted mb-2">Mobiles Lock</div>
-                                            <div style="height: 130px; position: relative; width: 100%;">
-                                                <canvas id="mobileLockChart"></canvas>
+                                            <div class="col-6 mobile-sec-col">
+                                                <div class="fs--3 fw-semi-bold text-muted mb-1">Mobiles Lock</div>
+                                                <div style="height: 95px; position: relative; width: 100%;">
+                                                    <canvas id="mobileLockChart"></canvas>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="col-6 laptop-sec-col" style="display: none;">
-                                            <div class="fs--2 fw-semi-bold text-muted mb-2">Laptops Performing</div>
-                                            <div style="height: 130px; position: relative; width: 100%;">
-                                                <canvas id="laptopPerformingChart"></canvas>
+                                            <div class="col-6 laptop-sec-col" style="display: none;">
+                                                <div class="fs--3 fw-semi-bold text-muted mb-1">Laptops Performing</div>
+                                                <div style="height: 95px; position: relative; width: 100%;">
+                                                    <canvas id="laptopPerformingChart"></canvas>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="col-6 laptop-sec-col" style="display: none;">
-                                            <div class="fs--2 fw-semi-bold text-muted mb-2">Laptops Lock</div>
-                                            <div style="height: 130px; position: relative; width: 100%;">
-                                                <canvas id="laptopLockChart"></canvas>
+                                            <div class="col-6 laptop-sec-col" style="display: none;">
+                                                <div class="fs--3 fw-semi-bold text-muted mb-1">Laptops Lock</div>
+                                                <div style="height: 95px; position: relative; width: 100%;">
+                                                    <canvas id="laptopLockChart"></canvas>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="text-center fs--2 text-muted mt-3 border-top pt-2" id="device-sec-text">
+                                    <div class="text-center fs--3 text-muted mt-2 border-top pt-2" id="device-sec-text">
                                         Device locks summary &bull; Active: <span id="sec-mobile-locked-val" class="fw-bold text-danger">0</span> Mobiles
                                     </div>
                                 </div>
@@ -341,47 +360,30 @@
                         </div>
                     </div>
 
-                    <!-- Row 4: Collections & Payments (Side-by-Side Horizontal Bars) -->
-                    <div class="row g-2 mb-2">
-                        <div class="col-lg-6">
-                            <div class="card shadow-sm">
-                                <div class="card-body p-3">
-                                    <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-hand-holding-usd me-1"></i>Vendor-Wise Payments (Current Month)</div>
-                                    <div style="height: 140px; position: relative; width: 100%;">
-                                        <canvas id="collectionsDealerChart"></canvas>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-6">
-                            <div class="card shadow-sm">
-                                <div class="card-body p-3">
-                                    <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-money-check-alt me-1"></i>Daily Disbursements (Past 7 Days)</div>
-                                    <div style="height: 140px; position: relative; width: 100%;">
-                                        <canvas id="vendorPaymentsChart"></canvas>
-                                    </div>
-                                </div>
-                            </div>
+                    <!-- Section: Risk & Performance Analytics -->
+                    <div class="row g-2 mb-1" style="margin-top: 6px;">
+                        <div class="col-12">
+                            <div class="section-title"><i class="fas fa-shield-alt"></i>Portfolio Risk &amp; Contract Performance Analytics</div>
                         </div>
                     </div>
 
                     <!-- Row 5: Custom Analytical Charts (MF-Specific mobile lock/unlock & Matured/Non-matured NP) -->
                     <div class="row g-2 mb-2" style="margin-top: 4px;">
                         <div class="col-lg-6 col-12" id="mobile-lock-arrears-card">
-                            <div class="card shadow-sm h-100">
-                                <div class="card-body p-3">
+                            <div class="card glass-card h-100">
+                                <div class="card-body p-2">
                                     <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-lock me-1"></i>Mobile Portfolio Arrears Lock vs Unlock (Arrears &gt;= 200 vs &lt; 200 &amp; Due Ranges)</div>
-                                    <div style="height: 180px; position: relative; width: 100%;">
+                                    <div style="height: 140px; position: relative; width: 100%;">
                                         <canvas id="mobileLockArrearsChart"></canvas>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div class="col-lg-6 col-12" id="matured-np-card">
-                            <div class="card shadow-sm h-100">
-                                <div class="card-body p-3">
+                            <div class="card glass-card h-100">
+                                <div class="card-body p-2">
                                     <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-history me-1"></i>Matured vs Non-Matured Contracts Performance</div>
-                                    <div style="height: 180px; position: relative; width: 100%;">
+                                    <div style="height: 140px; position: relative; width: 100%;">
                                         <canvas id="maturedNpChart"></canvas>
                                     </div>
                                 </div>
@@ -392,21 +394,52 @@
                     <!-- Row 6: Outstanding Distribution & 60-90 DPD Trend -->
                     <div class="row g-2 mb-2" style="margin-top: 4px;">
                         <div class="col-lg-6 col-12">
-                            <div class="card shadow-sm h-100">
-                                <div class="card-body p-3">
+                            <div class="card glass-card h-100">
+                                <div class="card-body p-2">
                                     <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-coins me-1"></i>Outstanding Amount Distribution (Above vs Below 1000)</div>
-                                    <div style="height: 180px; position: relative; width: 100%;">
+                                    <div style="height: 140px; position: relative; width: 100%;">
                                         <canvas id="outstandingAnalysisChart"></canvas>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div class="col-lg-6 col-12">
-                            <div class="card shadow-sm h-100">
-                                <div class="card-body p-3">
+                            <div class="card glass-card h-100">
+                                <div class="card-body p-2">
                                     <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-exclamation-triangle me-1"></i>60-90 DPD Monthly Trend</div>
-                                    <div style="height: 180px; position: relative; width: 100%;">
+                                    <div style="height: 140px; position: relative; width: 100%;">
                                         <canvas id="dpd60_90Chart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section: Operational Payments & Collections -->
+                    <div class="row g-2 mb-1" style="margin-top: 8px;">
+                        <div class="col-12">
+                            <div class="section-title"><i class="fas fa-hand-holding-usd"></i>Operational Payments &amp; Collections (Scroll to Access)</div>
+                        </div>
+                    </div>
+
+                    <!-- Row 7: Collections & Payments (Side-by-Side Horizontal Bars) -->
+                    <div class="row g-2 mb-2">
+                        <div class="col-lg-6">
+                            <div class="card glass-card">
+                                <div class="card-body p-2">
+                                    <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-hand-holding-usd me-1"></i>Vendor-Wise Payments (Current Month)</div>
+                                    <div style="height: 130px; position: relative; width: 100%;">
+                                        <canvas id="collectionsDealerChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="card glass-card">
+                                <div class="card-body p-2">
+                                    <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-money-check-alt me-1"></i>Daily Disbursements (Past 7 Days)</div>
+                                    <div style="height: 130px; position: relative; width: 100%;">
+                                        <canvas id="vendorPaymentsChart"></canvas>
                                     </div>
                                 </div>
                             </div>
@@ -790,8 +823,8 @@
                                                          display: true,
                                                          color: '#ffffff',
                                                          font: { weight: 'bold', size: 9 },
-                                                         formatter: (value, ctx) => {
-                                                             let sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                                         formatter: (value, context) => {
+                                                             let sum = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
                                                              if (sum === 0) return '';
                                                              let percentage = Math.round(value * 100 / sum);
                                                              return percentage >= 5 ? percentage + "%" : '';
@@ -814,7 +847,7 @@
                                                  if (item.state_name === 'Locked') mobileLocked = item.count_val || 0;
                                              });
                                          }
-                                         document.getElementById("device-sec-text").innerHTML = `Device locks summary &bull; Active: <span class="fw-bold text-danger">${formatNum(mobileLocked)}</span> Mobiles`;
+                                         document.getElementById("device-sec-text").innerHTML = 'Device locks summary &bull; Active: <span class="fw-bold text-danger">' + formatNum(mobileLocked) + '</span> Mobiles';
 
                                          buildDoughnut('mobilePerformingChart', data.mobilePerforming || [], ['Performing', 'Non-Performing'], ['rgba(16, 185, 129, 0.85)', 'rgba(244, 63, 94, 0.85)']);
                                          buildDoughnut('mobileLockChart', data.mobileLock || [], ['Active', 'Locked'], ['rgba(99, 102, 241, 0.85)', 'rgba(245, 158, 11, 0.85)']);
@@ -828,7 +861,7 @@
                                                  if (item.state_name === 'Locked') laptopLocked = item.count_val || 0;
                                              });
                                          }
-                                         document.getElementById("device-sec-text").innerHTML = `Device locks summary &bull; Active: <span class="fw-bold text-danger">${formatNum(laptopLocked)}</span> Laptops`;
+                                         document.getElementById("device-sec-text").innerHTML = 'Device locks summary &bull; Active: <span class="fw-bold text-danger">' + formatNum(laptopLocked) + '</span> Laptops';
 
                                          buildDoughnut('laptopPerformingChart', data.laptopPerforming || [], ['Performing', 'Non-Performing'], ['rgba(16, 185, 129, 0.85)', 'rgba(244, 63, 94, 0.85)']);
                                          buildDoughnut('laptopLockChart', data.laptopLock || [], ['Active', 'Locked'], ['rgba(99, 102, 241, 0.85)', 'rgba(245, 158, 11, 0.85)']);

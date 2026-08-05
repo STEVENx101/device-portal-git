@@ -36,8 +36,8 @@ public class DashboardRepository {
                         COALESCE(SUM(l.loan_amount), 0) AS month_amount
                     FROM cbs.loan l
                     LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
-                    WHERE l.disbursed_date >= DATE_FORMAT(CURRENT_DATE(), '%Y-%m-01')
-                      AND l.disbursed_date < DATE_ADD(DATE_FORMAT(CURRENT_DATE(), '%Y-%m-01'), INTERVAL 1 MONTH)
+                    WHERE l.disbursed_date >= DATE_FORMAT(CURRENT_DATE(), '%%Y-%%m-01')
+                      AND l.disbursed_date < DATE_ADD(DATE_FORMAT(CURRENT_DATE(), '%%Y-%%m-01'), INTERVAL 1 MONTH)
                       %s
                 """, filter);
         Map<String, Object> monthStats = jdbcTemplate.queryForMap(sqlMonth);
@@ -49,8 +49,8 @@ public class DashboardRepository {
                         COALESCE(SUM(l.loan_amount), 0) AS ytd_amount
                     FROM cbs.loan l
                     LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
-                    WHERE l.disbursed_date >= CASE WHEN MONTH(CURRENT_DATE()) >= 4 THEN DATE_FORMAT(CURRENT_DATE(), '%Y-04-01') ELSE DATE_FORMAT(DATE_SUB(CURRENT_DATE(), INTERVAL 1 YEAR), '%Y-04-01') END
-                      AND l.disbursed_date < CASE WHEN MONTH(CURRENT_DATE()) >= 4 THEN DATE_FORMAT(DATE_ADD(CURRENT_DATE(), INTERVAL 1 YEAR), '%Y-04-01') ELSE DATE_FORMAT(CURRENT_DATE(), '%Y-04-01') END
+                    WHERE l.disbursed_date >= CASE WHEN MONTH(CURRENT_DATE()) >= 4 THEN DATE_FORMAT(CURRENT_DATE(), '%%Y-04-01') ELSE DATE_FORMAT(DATE_SUB(CURRENT_DATE(), INTERVAL 1 YEAR), '%%Y-04-01') END
+                      AND l.disbursed_date < CASE WHEN MONTH(CURRENT_DATE()) >= 4 THEN DATE_FORMAT(DATE_ADD(CURRENT_DATE(), INTERVAL 1 YEAR), '%%Y-04-01') ELSE DATE_FORMAT(CURRENT_DATE(), '%%Y-04-01') END
                       %s
                 """, filter);
         Map<String, Object> ytdStats = jdbcTemplate.queryForMap(sqlYtd);
@@ -176,7 +176,7 @@ public class DashboardRepository {
                     FROM cbs.loan l
                     LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
                     WHERE l.account_status IN ('P', 'F')
-                      AND l.closed_date >= DATE_FORMAT(CURRENT_DATE(), '%Y-%m-01')
+                      AND l.closed_date >= DATE_FORMAT(CURRENT_DATE(), '%%Y-%%m-01')
                       %s
                 """, filter);
         Map<String, Object> settledStats = jdbcTemplate.queryForMap(sqlSettledStats);
