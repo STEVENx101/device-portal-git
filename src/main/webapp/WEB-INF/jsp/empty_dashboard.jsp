@@ -184,6 +184,14 @@
                             <h4 class="mb-0 text-primary fw-bold" style="font-size: 1.25rem;">Device Finance Analytics Dashboard</h4>
                         </div>
                         <div class="d-flex align-items-center gap-3">
+                            <div class="d-flex align-items-center gap-2" style="border-right: 1px solid rgba(226, 232, 240, 0.8); padding-right: 10px;">
+                                <span class="text-muted fs--2 fw-semi-bold"><i class="fas fa-filter me-1"></i>Product:</span>
+                                <select class="form-select form-select-sm fw-bold text-primary" id="productFilterSelect" onchange="onProductChange()" style="font-size: 0.75rem; padding: 2px 25px 2px 10px; width: auto; border-radius: 4px; border: 1px solid #cbd5e1; cursor: pointer;">
+                                    <option value="">All Products</option>
+                                    <option value="MF">Mobile Finance (MF)</option>
+                                    <option value="LF">Laptop Finance (LF)</option>
+                                </select>
+                            </div>
                             <div class="text-muted fs--2 fw-semi-bold" id="sync-time-badge" style="border-right: 1px solid rgba(226, 232, 240, 0.8); padding-right: 10px;">
                                 Last Synced: <span class="fw-bold text-dark dark__text-white" id="last-sync-timestamp">Loading...</span>
                             </div>
@@ -374,6 +382,12 @@
                     <script>
                         // Global chart instances to allow clean redrawing without hover issues
                         const activeCharts = {};
+                        let selectedProduct = '';
+
+                        function onProductChange() {
+                            selectedProduct = document.getElementById('productFilterSelect').value;
+                            loadDashboardData();
+                        }
 
                         function destroyChart(canvasId) {
                             if (activeCharts[canvasId]) {
@@ -443,6 +457,7 @@
                         }
 
                         function loadDashboardData() {
+                            const productParam = selectedProduct ? '?product=' + encodeURIComponent(selectedProduct) : '';
                             const formatLKR = (val) => {
                                 const millions = val / 1000000;
                                 return new Intl.NumberFormat('en-LK', {
@@ -516,7 +531,7 @@
                             }
 
                             // ============ 1. Dashboard Stats (KPI Cards) ============
-                            fetch('${pageContext.request.contextPath}/api/dashboard/stats')
+                            fetch('${pageContext.request.contextPath}/api/dashboard/stats' + productParam)
                                 .then(response => {
                                     if (!response.ok) throw new Error("HTTP error " + response.status);
                                     return response.json();
@@ -539,7 +554,7 @@
                                  .catch(err => console.error("Error fetching dashboard statistics:", err));
 
                             // ============ 2. Month Wise Business Chart ============
-                            fetch('${pageContext.request.contextPath}/api/dashboard/business-chart')
+                            fetch('${pageContext.request.contextPath}/api/dashboard/business-chart' + productParam)
                                 .then(res => res.json())
                                 .then(data => {
                                     const labels = data.map(i => i.month_name);
@@ -558,7 +573,7 @@
                                  .catch(err => console.error("Error loading month wise business:", err));
 
                             // ============ 3. DPD Range Wise Chart ============
-                            fetch('${pageContext.request.contextPath}/api/dashboard/dpd-comparison-chart')
+                            fetch('${pageContext.request.contextPath}/api/dashboard/dpd-comparison-chart' + productParam)
                                 .then(res => res.json())
                                 .then(data => {
                                     const labels = data.map(i => i.month_name);
@@ -571,41 +586,59 @@
                                     destroyChart('dpdComparisonChart');
                                     const ctx = document.getElementById("dpdComparisonChart").getContext('2d');
                                     activeCharts['dpdComparisonChart'] = new Chart(ctx, {
-                                        type: 'bar',
+                                        type: 'line',
                                         data: {
                                             labels: labels,
                                             datasets: [
                                                 {
+                                                    label: 'DPD 0',
+                                                    data: dpd0,
+                                                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                                                    borderColor: '#10b981',
+                                                    borderWidth: 2,
+                                                    fill: false,
+                                                    tension: 0.15,
+                                                    pointRadius: 3
+                                                },
+                                                {
                                                     label: 'DPD 1-30',
                                                     data: dpd1_30,
-                                                    backgroundColor: 'rgba(245, 158, 11, 0.8)',
+                                                    backgroundColor: 'rgba(245, 158, 11, 0.1)',
                                                     borderColor: '#f59e0b',
-                                                    borderWidth: 1,
-                                                    borderRadius: { topLeft: 3, topRight: 3, bottomLeft: 0, bottomRight: 0 }
+                                                    borderWidth: 2,
+                                                    fill: false,
+                                                    tension: 0.15,
+                                                    pointRadius: 3
                                                 },
                                                 {
                                                     label: 'DPD 31-60',
                                                     data: dpd31_60,
-                                                    backgroundColor: 'rgba(249, 115, 22, 0.8)',
+                                                    backgroundColor: 'rgba(249, 115, 22, 0.1)',
                                                     borderColor: '#f97316',
-                                                    borderWidth: 1,
-                                                    borderRadius: { topLeft: 3, topRight: 3, bottomLeft: 0, bottomRight: 0 }
+                                                    borderWidth: 2,
+                                                    fill: false,
+                                                    tension: 0.15,
+                                                    pointRadius: 3
                                                 },
                                                 {
                                                     label: 'DPD 61-90',
                                                     data: dpd61_90,
-                                                    backgroundColor: 'rgba(239, 68, 68, 0.8)',
+                                                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
                                                     borderColor: '#ef4444',
-                                                    borderWidth: 1,
-                                                    borderRadius: { topLeft: 3, topRight: 3, bottomLeft: 0, bottomRight: 0 }
+                                                    borderWidth: 2,
+                                                    fill: false,
+                                                    tension: 0.15,
+                                                    pointRadius: 3
                                                 },
                                                 {
                                                     label: 'Over 90 DPD',
                                                     data: dpdAbove90,
-                                                    backgroundColor: isDark ? 'rgba(167, 139, 250, 0.8)' : 'rgba(30, 41, 59, 0.8)',
+                                                    backgroundColor: isDark ? 'rgba(167, 139, 250, 0.1)' : 'rgba(30, 41, 59, 0.1)',
                                                     borderColor: isDark ? '#a78bfa' : '#1e293b',
-                                                    borderWidth: 1,
-                                                    borderRadius: { topLeft: 3, topRight: 3, bottomLeft: 0, bottomRight: 0 }
+                                                    borderWidth: 2,
+                                                    fill: false,
+                                                    tension: 0.15,
+                                                    pointRadius: 3
                                                 }
                                             ]
                                         },
@@ -644,7 +677,7 @@
                                 .catch(err => console.error("Error loading monthly DPD comparison:", err));
 
                             // ============ 4. Highest NPL Model Highlight ============
-                            fetch('${pageContext.request.contextPath}/api/dashboard/highest-npl-model')
+                            fetch('${pageContext.request.contextPath}/api/dashboard/highest-npl-model' + productParam)
                                 .then(res => res.json())
                                 .then(data => {
                                     if (data && data.model_name) {
@@ -658,7 +691,7 @@
                                 .catch(err => console.error("Error loading highest NPL model:", err));
 
                             // ============ 5. Highest NPL Dealer Highlight ============
-                            fetch('${pageContext.request.contextPath}/api/dashboard/highest-npl-dealer')
+                            fetch('${pageContext.request.contextPath}/api/dashboard/highest-npl-dealer' + productParam)
                                 .then(res => res.json())
                                 .then(data => {
                                     if (data && data.dealer_name) {
@@ -672,7 +705,7 @@
                                 .catch(err => console.error("Error loading highest NPL dealer:", err));
 
                             // ============ 6. Device Status Charts ============
-                            fetch('${pageContext.request.contextPath}/api/dashboard/device-status-charts')
+                            fetch('${pageContext.request.contextPath}/api/dashboard/device-status-charts' + productParam)
                                 .then(res => res.json())
                                 .then(data => {
                                     let mobileLocked = 0;
@@ -760,7 +793,7 @@
                                 .catch(err => console.error("Error loading security doughnut status:", err));
 
                             // ============ 7. Daily Disbursements (Past 7 Days) ============
-                            fetch('${pageContext.request.contextPath}/api/dashboard/vendor-payments-chart')
+                            fetch('${pageContext.request.contextPath}/api/dashboard/vendor-payments-chart' + productParam)
                                 .then(res => res.json())
                                 .then(data => {
                                     let chartData = data;
@@ -777,7 +810,7 @@
                                 .catch(err => console.error("Error loading daily disbursements chart:", err));
 
                             // ============ 8. Collections Dealer Wise ============
-                            fetch('${pageContext.request.contextPath}/api/dashboard/collections-dealer-wise')
+                            fetch('${pageContext.request.contextPath}/api/dashboard/collections-dealer-wise' + productParam)
                                 .then(res => res.json())
                                 .then(data => {
                                     // Collections details not displayed anymore on top cards but processed for chart
@@ -797,7 +830,7 @@
                                 .catch(err => console.error("Error loading collections dealer wise:", err));
 
                             // ============ 9. Product-Wise Business Chart ============
-                            fetch('${pageContext.request.contextPath}/api/dashboard/product-business-chart')
+                            fetch('${pageContext.request.contextPath}/api/dashboard/product-business-chart' + productParam)
                                 .then(res => res.json())
                                 .then(data => {
                                     const total = data.reduce((sum, item) => sum + (item.business_amount || 0), 0);

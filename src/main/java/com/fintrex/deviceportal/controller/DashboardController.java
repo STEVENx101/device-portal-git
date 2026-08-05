@@ -20,68 +20,70 @@ public class DashboardController {
     }
 
     @GetMapping("/stats")
-    public ResponseEntity<Map<String, Object>> getDashboardStats() {
-        return ResponseEntity.ok(dashboardService.getDashboardStats());
+    public ResponseEntity<Map<String, Object>> getDashboardStats(@RequestParam(value = "product", required = false) String product) {
+        return ResponseEntity.ok(dashboardService.getDashboardStats(product));
     }
 
     @GetMapping("/dpd-chart-data")
-    public ResponseEntity<List<Map<String, Object>>> getDpdChartData(@RequestParam(value = "dimension", defaultValue = "dealer") String dimension) {
-        return ResponseEntity.ok(dashboardService.getDpdChartData(dimension));
+    public ResponseEntity<List<Map<String, Object>>> getDpdChartData(
+            @RequestParam(value = "product", required = false) String product,
+            @RequestParam(value = "dimension", defaultValue = "dealer") String dimension) {
+        return ResponseEntity.ok(dashboardService.getDpdChartData(product, dimension));
     }
 
     @GetMapping("/business-chart")
-    public ResponseEntity<List<Map<String, Object>>> getMonthWiseBusiness() {
-        return ResponseEntity.ok(dashboardService.getMonthWiseBusiness());
+    public ResponseEntity<List<Map<String, Object>>> getMonthWiseBusiness(@RequestParam(value = "product", required = false) String product) {
+        return ResponseEntity.ok(dashboardService.getMonthWiseBusiness(product));
     }
 
     @GetMapping("/dpd-comparison-chart")
-    public ResponseEntity<List<Map<String, Object>>> getMonthWiseDpdComparison() {
-        return ResponseEntity.ok(dashboardService.getMonthWiseDpdComparison());
+    public ResponseEntity<List<Map<String, Object>>> getMonthWiseDpdComparison(@RequestParam(value = "product", required = false) String product) {
+        return ResponseEntity.ok(dashboardService.getMonthWiseDpdComparison(product));
     }
 
     @GetMapping("/vendor-payments-chart")
-    public ResponseEntity<List<Map<String, Object>>> getVendorPaymentsChannelChart() {
-        return ResponseEntity.ok(dashboardService.getVendorPaymentsChannelChart());
+    public ResponseEntity<List<Map<String, Object>>> getVendorPaymentsChannelChart(@RequestParam(value = "product", required = false) String product) {
+        return ResponseEntity.ok(dashboardService.getVendorPaymentsChannelChart(product));
     }
 
     @GetMapping("/device-status-charts")
-    public ResponseEntity<Map<String, Object>> getDeviceStatusCharts() {
-        return ResponseEntity.ok(dashboardService.getDeviceStatusCharts());
+    public ResponseEntity<Map<String, Object>> getDeviceStatusCharts(@RequestParam(value = "product", required = false) String product) {
+        return ResponseEntity.ok(dashboardService.getDeviceStatusCharts(product));
     }
 
     @GetMapping("/dealer-current-month")
-    public ResponseEntity<List<Map<String, Object>>> getDealerCurrentMonthBusiness() {
-        return ResponseEntity.ok(dashboardService.getDealerCurrentMonthBusiness());
+    public ResponseEntity<List<Map<String, Object>>> getDealerCurrentMonthBusiness(@RequestParam(value = "product", required = false) String product) {
+        return ResponseEntity.ok(dashboardService.getDealerCurrentMonthBusiness(product));
     }
 
     @GetMapping("/dealer-portfolio")
-    public ResponseEntity<List<Map<String, Object>>> getDealerPortfolioBusiness() {
-        return ResponseEntity.ok(dashboardService.getDealerPortfolioBusiness());
+    public ResponseEntity<List<Map<String, Object>>> getDealerPortfolioBusiness(@RequestParam(value = "product", required = false) String product) {
+        return ResponseEntity.ok(dashboardService.getDealerPortfolioBusiness(product));
     }
 
     @GetMapping("/arrears-analysis")
-    public ResponseEntity<List<Map<String, Object>>> getArrearsAnalysis() {
-        return ResponseEntity.ok(dashboardService.getArrearsAnalysis());
+    public ResponseEntity<List<Map<String, Object>>> getArrearsAnalysis(@RequestParam(value = "product", required = false) String product) {
+        return ResponseEntity.ok(dashboardService.getArrearsAnalysis(product));
     }
 
     @GetMapping("/highest-npl-model")
-    public ResponseEntity<Map<String, Object>> getHighestNplModel() {
-        return ResponseEntity.ok(dashboardService.getHighestNplModel());
+    public ResponseEntity<Map<String, Object>> getHighestNplModel(@RequestParam(value = "product", required = false) String product) {
+        return ResponseEntity.ok(dashboardService.getHighestNplModel(product));
     }
 
     @GetMapping("/highest-npl-dealer")
-    public ResponseEntity<Map<String, Object>> getHighestNplDealer() {
-        return ResponseEntity.ok(dashboardService.getHighestNplDealer());
+    public ResponseEntity<Map<String, Object>> getHighestNplDealer(@RequestParam(value = "product", required = false) String product) {
+        return ResponseEntity.ok(dashboardService.getHighestNplDealer(product));
     }
 
     @GetMapping("/collections-dealer-wise")
-    public ResponseEntity<List<Map<String, Object>>> getCollectionsDealerWise() {
-        return ResponseEntity.ok(dashboardService.getCollectionsDealerWise());
+    public ResponseEntity<List<Map<String, Object>>> getCollectionsDealerWise(@RequestParam(value = "product", required = false) String product) {
+        return ResponseEntity.ok(dashboardService.getCollectionsDealerWise(product));
     }
 
     @GetMapping("/product-business-chart")
-    public ResponseEntity<List<Map<String, Object>>> getProductBusinessChart() {
-        return ResponseEntity.ok(dashboardService.getProductBusinessChart());
+    public ResponseEntity<List<Map<String, Object>>> getProductBusinessChart(@RequestParam(value = "product", required = false) String product) {
+        return ResponseEntity.ok(dashboardService.getProductBusinessChart(product));
     }
 
     @GetMapping("/sync-info")
@@ -98,4 +100,3 @@ public class DashboardController {
         return ResponseEntity.ok(res);
     }
 }
-

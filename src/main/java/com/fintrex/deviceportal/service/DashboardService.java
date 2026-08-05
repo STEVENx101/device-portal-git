@@ -46,32 +46,37 @@ public class DashboardService {
         try {
             System.out.println("WARMING UP/REFRESHING DASHBOARD SNAPSHOT STORE DATA...");
 
-            Map<String, Object> stats = dashboardRepository.getDashboardStats();
-            cache.put("stats", stats != null ? stats : new HashMap<>());
+            String[] products = { null, "MF", "LF" };
+            for (String product : products) {
+                String suffix = "_" + (product != null ? product.toUpperCase() : "ALL");
 
-            List<Map<String, Object>> biz = dashboardRepository.getMonthWiseBusiness();
-            cache.put("business", biz != null ? biz : new ArrayList<>());
+                Map<String, Object> stats = dashboardRepository.getDashboardStats(product);
+                cache.put("stats" + suffix, stats != null ? stats : new HashMap<>());
 
-            List<Map<String, Object>> dpd = dashboardRepository.getMonthWiseDpdComparison();
-            cache.put("dpdComparison", dpd != null ? dpd : new ArrayList<>());
+                List<Map<String, Object>> biz = dashboardRepository.getMonthWiseBusiness(product);
+                cache.put("business" + suffix, biz != null ? biz : new ArrayList<>());
 
-            Map<String, Object> status = dashboardRepository.getDeviceStatusCharts();
-            cache.put("deviceStatus", status != null ? status : new HashMap<>());
+                List<Map<String, Object>> dpd = dashboardRepository.getMonthWiseDpdComparison(product);
+                cache.put("dpdComparison" + suffix, dpd != null ? dpd : new ArrayList<>());
 
-            Map<String, Object> nplModel = dashboardRepository.getHighestNplModel();
-            cache.put("nplModel", nplModel != null ? nplModel : new HashMap<>());
+                Map<String, Object> status = dashboardRepository.getDeviceStatusCharts(product);
+                cache.put("deviceStatus" + suffix, status != null ? status : new HashMap<>());
 
-            Map<String, Object> nplDealer = dashboardRepository.getHighestNplDealer();
-            cache.put("nplDealer", nplDealer != null ? nplDealer : new HashMap<>());
+                Map<String, Object> nplModel = dashboardRepository.getHighestNplModel(product);
+                cache.put("nplModel" + suffix, nplModel != null ? nplModel : new HashMap<>());
 
-            List<Map<String, Object>> payments = dashboardRepository.getVendorPaymentsChannelChart();
-            cache.put("vendorPayments", payments != null ? payments : new ArrayList<>());
+                Map<String, Object> nplDealer = dashboardRepository.getHighestNplDealer(product);
+                cache.put("nplDealer" + suffix, nplDealer != null ? nplDealer : new HashMap<>());
 
-            List<Map<String, Object>> coll = dashboardRepository.getCollectionsDealerWise();
-            cache.put("collections", coll != null ? coll : new ArrayList<>());
+                List<Map<String, Object>> payments = dashboardRepository.getVendorPaymentsChannelChart(product);
+                cache.put("vendorPayments" + suffix, payments != null ? payments : new ArrayList<>());
 
-            List<Map<String, Object>> prodBiz = dashboardRepository.getProductBusinessChart();
-            cache.put("productBusiness", prodBiz != null ? prodBiz : new ArrayList<>());
+                List<Map<String, Object>> coll = dashboardRepository.getCollectionsDealerWise(product);
+                cache.put("collections" + suffix, coll != null ? coll : new ArrayList<>());
+
+                List<Map<String, Object>> prodBiz = dashboardRepository.getProductBusinessChart(product);
+                cache.put("productBusiness" + suffix, prodBiz != null ? prodBiz : new ArrayList<>());
+            }
 
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
             lastSyncedTime = LocalDateTime.now().format(formatter);
@@ -97,64 +102,77 @@ public class DashboardService {
         return info;
     }
 
-    @SuppressWarnings("unchecked")
-    public Map<String, Object> getDashboardStats() {
-        return (Map<String, Object>) cache.computeIfAbsent("stats", k -> dashboardRepository.getDashboardStats());
-    }
-
-    public List<Map<String, Object>> getDpdChartData(String dimension) {
-        return dashboardRepository.getDpdChartData(dimension);
+    private String getSuffix(String product) {
+        return "_" + (product != null && !product.trim().isEmpty() ? product.toUpperCase() : "ALL");
     }
 
     @SuppressWarnings("unchecked")
-    public List<Map<String, Object>> getMonthWiseBusiness() {
-        return (List<Map<String, Object>>) cache.computeIfAbsent("business", k -> dashboardRepository.getMonthWiseBusiness());
+    public Map<String, Object> getDashboardStats(String product) {
+        String suffix = getSuffix(product);
+        return (Map<String, Object>) cache.computeIfAbsent("stats" + suffix, k -> dashboardRepository.getDashboardStats(product));
+    }
+
+    public List<Map<String, Object>> getDpdChartData(String product, String dimension) {
+        return dashboardRepository.getDpdChartData(product, dimension);
     }
 
     @SuppressWarnings("unchecked")
-    public List<Map<String, Object>> getMonthWiseDpdComparison() {
-        return (List<Map<String, Object>>) cache.computeIfAbsent("dpdComparison", k -> dashboardRepository.getMonthWiseDpdComparison());
+    public List<Map<String, Object>> getMonthWiseBusiness(String product) {
+        String suffix = getSuffix(product);
+        return (List<Map<String, Object>>) cache.computeIfAbsent("business" + suffix, k -> dashboardRepository.getMonthWiseBusiness(product));
     }
 
     @SuppressWarnings("unchecked")
-    public List<Map<String, Object>> getVendorPaymentsChannelChart() {
-        return (List<Map<String, Object>>) cache.computeIfAbsent("vendorPayments", k -> dashboardRepository.getVendorPaymentsChannelChart());
+    public List<Map<String, Object>> getMonthWiseDpdComparison(String product) {
+        String suffix = getSuffix(product);
+        return (List<Map<String, Object>>) cache.computeIfAbsent("dpdComparison" + suffix, k -> dashboardRepository.getMonthWiseDpdComparison(product));
     }
 
     @SuppressWarnings("unchecked")
-    public Map<String, Object> getDeviceStatusCharts() {
-        return (Map<String, Object>) cache.computeIfAbsent("deviceStatus", k -> dashboardRepository.getDeviceStatusCharts());
-    }
-
-    public List<Map<String, Object>> getDealerCurrentMonthBusiness() {
-        return dashboardRepository.getDealerCurrentMonthBusiness();
-    }
-
-    public List<Map<String, Object>> getDealerPortfolioBusiness() {
-        return dashboardRepository.getDealerPortfolioBusiness();
-    }
-
-    public List<Map<String, Object>> getArrearsAnalysis() {
-        return dashboardRepository.getArrearsAnalysis();
+    public List<Map<String, Object>> getVendorPaymentsChannelChart(String product) {
+        String suffix = getSuffix(product);
+        return (List<Map<String, Object>>) cache.computeIfAbsent("vendorPayments" + suffix, k -> dashboardRepository.getVendorPaymentsChannelChart(product));
     }
 
     @SuppressWarnings("unchecked")
-    public Map<String, Object> getHighestNplModel() {
-        return (Map<String, Object>) cache.computeIfAbsent("nplModel", k -> dashboardRepository.getHighestNplModel());
+    public Map<String, Object> getDeviceStatusCharts(String product) {
+        String suffix = getSuffix(product);
+        return (Map<String, Object>) cache.computeIfAbsent("deviceStatus" + suffix, k -> dashboardRepository.getDeviceStatusCharts(product));
+    }
+
+    public List<Map<String, Object>> getDealerCurrentMonthBusiness(String product) {
+        return dashboardRepository.getDealerCurrentMonthBusiness(product);
+    }
+
+    public List<Map<String, Object>> getDealerPortfolioBusiness(String product) {
+        return dashboardRepository.getDealerPortfolioBusiness(product);
+    }
+
+    public List<Map<String, Object>> getArrearsAnalysis(String product) {
+        return dashboardRepository.getArrearsAnalysis(product);
     }
 
     @SuppressWarnings("unchecked")
-    public Map<String, Object> getHighestNplDealer() {
-        return (Map<String, Object>) cache.computeIfAbsent("nplDealer", k -> dashboardRepository.getHighestNplDealer());
+    public Map<String, Object> getHighestNplModel(String product) {
+        String suffix = getSuffix(product);
+        return (Map<String, Object>) cache.computeIfAbsent("nplModel" + suffix, k -> dashboardRepository.getHighestNplModel(product));
     }
 
     @SuppressWarnings("unchecked")
-    public List<Map<String, Object>> getCollectionsDealerWise() {
-        return (List<Map<String, Object>>) cache.computeIfAbsent("collections", k -> dashboardRepository.getCollectionsDealerWise());
+    public Map<String, Object> getHighestNplDealer(String product) {
+        String suffix = getSuffix(product);
+        return (Map<String, Object>) cache.computeIfAbsent("nplDealer" + suffix, k -> dashboardRepository.getHighestNplDealer(product));
     }
 
     @SuppressWarnings("unchecked")
-    public List<Map<String, Object>> getProductBusinessChart() {
-        return (List<Map<String, Object>>) cache.computeIfAbsent("productBusiness", k -> dashboardRepository.getProductBusinessChart());
+    public List<Map<String, Object>> getCollectionsDealerWise(String product) {
+        String suffix = getSuffix(product);
+        return (List<Map<String, Object>>) cache.computeIfAbsent("collections" + suffix, k -> dashboardRepository.getCollectionsDealerWise(product));
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<Map<String, Object>> getProductBusinessChart(String product) {
+        String suffix = getSuffix(product);
+        return (List<Map<String, Object>>) cache.computeIfAbsent("productBusiness" + suffix, k -> dashboardRepository.getProductBusinessChart(product));
     }
 }
