@@ -86,6 +86,21 @@ public class DashboardController {
         return ResponseEntity.ok(dashboardService.getProductBusinessChart(product));
     }
 
+    @GetMapping("/mobile-lock-arrears")
+    public ResponseEntity<Map<String, Object>> getMobileLockArrearsAnalysis() {
+        return ResponseEntity.ok(dashboardService.getMobileLockArrearsAnalysis());
+    }
+
+    @GetMapping("/matured-nonperforming")
+    public ResponseEntity<List<Map<String, Object>>> getMaturedNonPerformingAnalysis(@RequestParam(value = "product", required = false) String product) {
+        return ResponseEntity.ok(dashboardService.getMaturedNonPerformingAnalysis(product));
+    }
+
+    @GetMapping("/outstanding-analysis")
+    public ResponseEntity<List<Map<String, Object>>> getOutstandingAnalysis(@RequestParam(value = "product", required = false) String product) {
+        return ResponseEntity.ok(dashboardService.getOutstandingAnalysis(product));
+    }
+
     @GetMapping("/sync-info")
     public ResponseEntity<Map<String, Object>> getSyncInfo() {
         return ResponseEntity.ok(dashboardService.getSyncInfo());

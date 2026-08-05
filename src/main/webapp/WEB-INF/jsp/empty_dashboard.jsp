@@ -187,8 +187,7 @@
                             <div class="d-flex align-items-center gap-2" style="border-right: 1px solid rgba(226, 232, 240, 0.8); padding-right: 10px;">
                                 <span class="text-muted fs--2 fw-semi-bold"><i class="fas fa-filter me-1"></i>Product:</span>
                                 <select class="form-select form-select-sm fw-bold text-primary" id="productFilterSelect" onchange="onProductChange()" style="font-size: 0.75rem; padding: 2px 25px 2px 10px; width: auto; border-radius: 4px; border: 1px solid #cbd5e1; cursor: pointer;">
-                                    <option value="">All Products</option>
-                                    <option value="MF">Mobile Finance (MF)</option>
+                                    <option value="MF" selected>Mobile Finance (MF)</option>
                                     <option value="LF">Laptop Finance (LF)</option>
                                 </select>
                             </div>
@@ -277,10 +276,10 @@
                         </div>
                     </div>
 
-                    <!-- Row 2: Charts (Month-Wise Disbursements & DPD Status on Left, Product Business Pie on Right) -->
+                    <!-- Row 2: Charts (Month-Wise Disbursements & DPD Status on Left) -->
                     <div class="row g-2 mb-2">
-                        <!-- Left: Monthly trend charts -->
-                        <div class="col-lg-9 col-md-8">
+                        <!-- Left: Monthly trend charts (Full Width) -->
+                        <div class="col-12">
                             <div class="card shadow-sm h-100">
                                 <div class="card-body p-3">
                                     <div class="row g-3">
@@ -300,54 +299,42 @@
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Right: Product-Wise Business Distribution Column (Smaller Pie Chart) -->
-                        <div class="col-lg-3 col-md-4">
-                            <div class="card shadow-sm h-100">
-                                <div class="card-body p-3 d-flex flex-column justify-content-between">
-                                    <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-chart-pie me-1"></i>Product Business (Current Month)</div>
-                                    <div style="height: 180px; position: relative; width: 100%;" class="d-flex align-items-center justify-content-center">
-                                        <canvas id="productBusinessChart"></canvas>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
 
-                    <!-- Row 3: Device status & lock doughnuts (4 horizontal pie charts) -->
+                    <!-- Row 3: Device status & lock doughnuts (Dynamically shown) -->
                     <div class="row g-2 mb-2" style="margin-top: 4px;">
                         <div class="col-12">
                             <div class="card shadow-sm">
                                 <div class="card-body p-3">
                                     <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-hdd me-1"></i>Device Performance & Security Status</div>
                                     <div class="row g-3 align-items-center text-center">
-                                        <div class="col-3">
+                                        <div class="col-6 mobile-sec-col">
                                             <div class="fs--2 fw-semi-bold text-muted mb-2">Mobiles Performing</div>
                                             <div style="height: 130px; position: relative; width: 100%;">
                                                 <canvas id="mobilePerformingChart"></canvas>
                                             </div>
                                         </div>
-                                        <div class="col-3">
+                                        <div class="col-6 mobile-sec-col">
                                             <div class="fs--2 fw-semi-bold text-muted mb-2">Mobiles Lock</div>
                                             <div style="height: 130px; position: relative; width: 100%;">
                                                 <canvas id="mobileLockChart"></canvas>
                                             </div>
                                         </div>
-                                        <div class="col-3">
+                                        <div class="col-6 laptop-sec-col" style="display: none;">
                                             <div class="fs--2 fw-semi-bold text-muted mb-2">Laptops Performing</div>
                                             <div style="height: 130px; position: relative; width: 100%;">
                                                 <canvas id="laptopPerformingChart"></canvas>
                                             </div>
                                         </div>
-                                        <div class="col-3">
+                                        <div class="col-6 laptop-sec-col" style="display: none;">
                                             <div class="fs--2 fw-semi-bold text-muted mb-2">Laptops Lock</div>
                                             <div style="height: 130px; position: relative; width: 100%;">
                                                 <canvas id="laptopLockChart"></canvas>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="text-center fs--2 text-muted mt-3 border-top pt-2">
-                                        Device locks summary &bull; Active: <span id="sec-mobile-locked-val" class="fw-bold text-danger">0</span> Mobiles &bull; <span id="sec-laptop-locked-val" class="fw-bold text-danger">0</span> Laptops
+                                    <div class="text-center fs--2 text-muted mt-3 border-top pt-2" id="device-sec-text">
+                                        Device locks summary &bull; Active: <span id="sec-mobile-locked-val" class="fw-bold text-danger">0</span> Mobiles
                                     </div>
                                 </div>
                             </div>
@@ -355,7 +342,7 @@
                     </div>
 
                     <!-- Row 4: Collections & Payments (Side-by-Side Horizontal Bars) -->
-                    <div class="row g-2">
+                    <div class="row g-2 mb-2">
                         <div class="col-lg-6">
                             <div class="card shadow-sm">
                                 <div class="card-body p-3">
@@ -378,11 +365,59 @@
                         </div>
                     </div>
 
+                    <!-- Row 5: Custom Analytical Charts (MF-Specific mobile lock/unlock & Matured/Non-matured NP) -->
+                    <div class="row g-2 mb-2" style="margin-top: 4px;">
+                        <div class="col-lg-6 col-12" id="mobile-lock-arrears-card">
+                            <div class="card shadow-sm h-100">
+                                <div class="card-body p-3">
+                                    <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-lock me-1"></i>Mobile Portfolio Arrears Lock vs Unlock (Arrears &gt;= 200 vs &lt; 200 &amp; Due Ranges)</div>
+                                    <div style="height: 180px; position: relative; width: 100%;">
+                                        <canvas id="mobileLockArrearsChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-12" id="matured-np-card">
+                            <div class="card shadow-sm h-100">
+                                <div class="card-body p-3">
+                                    <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-history me-1"></i>Matured vs Non-Matured Contracts Performance</div>
+                                    <div style="height: 180px; position: relative; width: 100%;">
+                                        <canvas id="maturedNpChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Row 6: Outstanding Distribution & 60-90 DPD Trend -->
+                    <div class="row g-2 mb-2" style="margin-top: 4px;">
+                        <div class="col-lg-6 col-12">
+                            <div class="card shadow-sm h-100">
+                                <div class="card-body p-3">
+                                    <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-coins me-1"></i>Outstanding Amount Distribution (Above vs Below 1000)</div>
+                                    <div style="height: 180px; position: relative; width: 100%;">
+                                        <canvas id="outstandingAnalysisChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-12">
+                            <div class="card shadow-sm h-100">
+                                <div class="card-body p-3">
+                                    <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-exclamation-triangle me-1"></i>60-90 DPD Monthly Trend</div>
+                                    <div style="height: 180px; position: relative; width: 100%;">
+                                        <canvas id="dpd60_90Chart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- ======================== SCRIPTS ======================== -->
                     <script>
                         // Global chart instances to allow clean redrawing without hover issues
                         const activeCharts = {};
-                        let selectedProduct = '';
+                        let selectedProduct = 'MF';
 
                         function onProductChange() {
                             selectedProduct = document.getElementById('productFilterSelect').value;
@@ -704,93 +739,102 @@
                                 })
                                 .catch(err => console.error("Error loading highest NPL dealer:", err));
 
-                            // ============ 6. Device Status Charts ============
-                            fetch('${pageContext.request.contextPath}/api/dashboard/device-status-charts' + productParam)
-                                .then(res => res.json())
-                                .then(data => {
-                                    let mobileLocked = 0;
-                                    if (data.mobileLock) {
-                                        data.mobileLock.forEach(item => {
-                                            if (item.state_name === 'Locked') mobileLocked = item.count_val || 0;
-                                        });
-                                    }
-                                    document.getElementById("sec-mobile-locked-val").innerText = formatNum(mobileLocked);
+                             // ============ 6. Device Status Charts ============
+                             fetch('${pageContext.request.contextPath}/api/dashboard/device-status-charts' + productParam)
+                                 .then(res => res.json())
+                                 .then(data => {
+                                     // Helper function for small doughnut charts
+                                     const buildDoughnut = (canvasId, dataset, labelsList, colorsList) => {
+                                         destroyChart(canvasId);
+                                         const labels = dataset.map(item => item.state_name);
+                                         const counts = dataset.map(item => item.count_val);
 
-                                    let laptopLocked = 0;
-                                    if (data.laptopLock) {
-                                        data.laptopLock.forEach(item => {
-                                            if (item.state_name === 'Locked') laptopLocked = item.count_val || 0;
-                                        });
-                                    }
-                                    document.getElementById("sec-laptop-locked-val").innerText = formatNum(laptopLocked);
+                                         const centerTextPlugin = {
+                                             id: 'centerTextPlugin',
+                                             beforeDraw: function(chart) {
+                                                 const width = chart.width, height = chart.height, ctx = chart.ctx;
+                                                 ctx.restore();
+                                                 const total = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                                 const fontSize = (chart.innerRadius / 26).toFixed(2);
+                                                 ctx.font = "bold " + fontSize + "em 'Plus Jakarta Sans', sans-serif";
+                                                 ctx.textBaseline = "middle";
+                                                 ctx.fillStyle = isDark ? "#f8fafc" : "#1e293b";
+                                                 const text = total.toLocaleString(),
+                                                       textX = Math.round((width - ctx.measureText(text).width) / 2),
+                                                       textY = chart.chartArea.top + (chart.chartArea.bottom - chart.chartArea.top) / 2;
+                                                 ctx.fillText(text, textX, textY);
+                                                 ctx.save();
+                                             }
+                                         };
 
-                                    // Helper function for small doughnut charts
-                                    const buildDoughnut = (canvasId, dataset, labelsList, colorsList) => {
-                                        destroyChart(canvasId);
-                                        const labels = dataset.map(item => item.state_name);
-                                        const counts = dataset.map(item => item.count_val);
+                                         const ctx = document.getElementById(canvasId).getContext('2d');
+                                         activeCharts[canvasId] = new Chart(ctx, {
+                                             type: 'doughnut',
+                                             data: {
+                                                 labels: labels.length ? labels : labelsList,
+                                                 datasets: [{
+                                                     data: counts.length ? counts : [0, 0],
+                                                     backgroundColor: colorsList,
+                                                     borderWidth: 0
+                                                 }]
+                                             },
+                                             plugins: [centerTextPlugin],
+                                             options: {
+                                                 responsive: true,
+                                                 maintainAspectRatio: false,
+                                                 cutout: '72%',
+                                                 plugins: {
+                                                     legend: { display: false },
+                                                     tooltip: { enabled: true },
+                                                     datalabels: {
+                                                         display: true,
+                                                         color: '#ffffff',
+                                                         font: { weight: 'bold', size: 9 },
+                                                         formatter: (value, ctx) => {
+                                                             let sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                                             if (sum === 0) return '';
+                                                             let percentage = Math.round(value * 100 / sum);
+                                                             return percentage >= 5 ? percentage + "%" : '';
+                                                         },
+                                                         anchor: 'center',
+                                                         align: 'center'
+                                                     }
+                                                 }
+                                             }
+                                         });
+                                     };
 
-                                        const centerTextPlugin = {
-                                            id: 'centerTextPlugin',
-                                            beforeDraw: function(chart) {
-                                                const width = chart.width, height = chart.height, ctx = chart.ctx;
-                                                ctx.restore();
-                                                const total = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                                                const fontSize = (chart.innerRadius / 26).toFixed(2);
-                                                ctx.font = "bold " + fontSize + "em 'Plus Jakarta Sans', sans-serif";
-                                                ctx.textBaseline = "middle";
-                                                ctx.fillStyle = isDark ? "#f8fafc" : "#1e293b";
-                                                const text = total.toLocaleString(),
-                                                      textX = Math.round((width - ctx.measureText(text).width) / 2),
-                                                      textY = chart.chartArea.top + (chart.chartArea.bottom - chart.chartArea.top) / 2;
-                                                ctx.fillText(text, textX, textY);
-                                                ctx.save();
-                                            }
-                                        };
+                                     if (selectedProduct === 'MF') {
+                                         document.querySelectorAll('.mobile-sec-col').forEach(el => el.style.display = '');
+                                         document.querySelectorAll('.laptop-sec-col').forEach(el => el.style.display = 'none');
 
-                                        const ctx = document.getElementById(canvasId).getContext('2d');
-                                        activeCharts[canvasId] = new Chart(ctx, {
-                                            type: 'doughnut',
-                                            data: {
-                                                labels: labels.length ? labels : labelsList,
-                                                datasets: [{
-                                                    data: counts.length ? counts : [0, 0],
-                                                    backgroundColor: colorsList,
-                                                    borderWidth: 0
-                                                }]
-                                            },
-                                            plugins: [centerTextPlugin],
-                                            options: {
-                                                responsive: true,
-                                                maintainAspectRatio: false,
-                                                cutout: '72%',
-                                                plugins: {
-                                                    legend: { display: false },
-                                                    tooltip: { enabled: true },
-                                                    datalabels: {
-                                                        display: true,
-                                                        color: '#ffffff',
-                                                        font: { weight: 'bold', size: 9 },
-                                                        formatter: (value, ctx) => {
-                                                            let sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                                                            if (sum === 0) return '';
-                                                            let percentage = Math.round(value * 100 / sum);
-                                                            return percentage >= 5 ? percentage + "%" : '';
-                                                        },
-                                                        anchor: 'center',
-                                                        align: 'center'
-                                                    }
-                                                }
-                                            }
-                                        });
-                                    };
+                                         let mobileLocked = 0;
+                                         if (data.mobileLock) {
+                                             data.mobileLock.forEach(item => {
+                                                 if (item.state_name === 'Locked') mobileLocked = item.count_val || 0;
+                                             });
+                                         }
+                                         document.getElementById("device-sec-text").innerHTML = `Device locks summary &bull; Active: <span class="fw-bold text-danger">${formatNum(mobileLocked)}</span> Mobiles`;
 
-                                    buildDoughnut('mobilePerformingChart', data.mobilePerforming || [], ['Performing', 'Non-Performing'], ['rgba(16, 185, 129, 0.85)', 'rgba(244, 63, 94, 0.85)']);
-                                    buildDoughnut('mobileLockChart', data.mobileLock || [], ['Active', 'Locked'], ['rgba(99, 102, 241, 0.85)', 'rgba(245, 158, 11, 0.85)']);
-                                    buildDoughnut('laptopPerformingChart', data.laptopPerforming || [], ['Performing', 'Non-Performing'], ['rgba(16, 185, 129, 0.85)', 'rgba(244, 63, 94, 0.85)']);
-                                    buildDoughnut('laptopLockChart', data.laptopLock || [], ['Active', 'Locked'], ['rgba(99, 102, 241, 0.85)', 'rgba(245, 158, 11, 0.85)']);
-                                })
-                                .catch(err => console.error("Error loading security doughnut status:", err));
+                                         buildDoughnut('mobilePerformingChart', data.mobilePerforming || [], ['Performing', 'Non-Performing'], ['rgba(16, 185, 129, 0.85)', 'rgba(244, 63, 94, 0.85)']);
+                                         buildDoughnut('mobileLockChart', data.mobileLock || [], ['Active', 'Locked'], ['rgba(99, 102, 241, 0.85)', 'rgba(245, 158, 11, 0.85)']);
+                                     } else {
+                                         document.querySelectorAll('.mobile-sec-col').forEach(el => el.style.display = 'none');
+                                         document.querySelectorAll('.laptop-sec-col').forEach(el => el.style.display = '');
+
+                                         let laptopLocked = 0;
+                                         if (data.laptopLock) {
+                                             data.laptopLock.forEach(item => {
+                                                 if (item.state_name === 'Locked') laptopLocked = item.count_val || 0;
+                                             });
+                                         }
+                                         document.getElementById("device-sec-text").innerHTML = `Device locks summary &bull; Active: <span class="fw-bold text-danger">${formatNum(laptopLocked)}</span> Laptops`;
+
+                                         buildDoughnut('laptopPerformingChart', data.laptopPerforming || [], ['Performing', 'Non-Performing'], ['rgba(16, 185, 129, 0.85)', 'rgba(244, 63, 94, 0.85)']);
+                                         buildDoughnut('laptopLockChart', data.laptopLock || [], ['Active', 'Locked'], ['rgba(99, 102, 241, 0.85)', 'rgba(245, 158, 11, 0.85)']);
+                                     }
+                                 })
+                                 .catch(err => console.error("Error loading security doughnut status:", err));
 
                             // ============ 7. Daily Disbursements (Past 7 Days) ============
                             fetch('${pageContext.request.contextPath}/api/dashboard/vendor-payments-chart' + productParam)
@@ -829,73 +873,238 @@
                                 })
                                 .catch(err => console.error("Error loading collections dealer wise:", err));
 
-                            // ============ 9. Product-Wise Business Chart ============
-                            fetch('${pageContext.request.contextPath}/api/dashboard/product-business-chart' + productParam)
-                                .then(res => res.json())
-                                .then(data => {
-                                    const total = data.reduce((sum, item) => sum + (item.business_amount || 0), 0);
-                                    
-                                    const labels = data.map(item => item.product_name);
-                                    const amounts = data.map(item => item.business_amount || 0);
-                                    const percentages = data.map(item => total > 0 ? Math.round((item.business_amount / total) * 100) : 0);
+                             // ============ 9. Mobile Arrears Lock vs Unlock (Arrears & Due Ranges) ============
+                             const arrearsCard = document.getElementById('mobile-lock-arrears-card');
+                             const maturedCard = document.getElementById('matured-np-card');
+                             if (selectedProduct === 'LF') {
+                                 if (arrearsCard) arrearsCard.style.display = 'none';
+                                 if (maturedCard) {
+                                     maturedCard.className = 'col-12';
+                                 }
+                             } else {
+                                 if (arrearsCard) arrearsCard.style.display = '';
+                                 if (maturedCard) {
+                                     maturedCard.className = 'col-lg-6 col-12';
+                                 }
+                                 
+                                 fetch('${pageContext.request.contextPath}/api/dashboard/mobile-lock-arrears')
+                                     .then(res => res.json())
+                                     .then(data => {
+                                         destroyChart('mobileLockArrearsChart');
+                                         const ctx = document.getElementById('mobileLockArrearsChart').getContext('2d');
+                                         activeCharts['mobileLockArrearsChart'] = new Chart(ctx, {
+                                             type: 'bar',
+                                             data: {
+                                                 labels: ['Unlock (<200)', 'Lock (>=200)', 'Due 200-500', 'Due 500-1000', 'Due 1000-2000', 'Due >2000'],
+                                                 datasets: [{
+                                                     label: 'Account Count',
+                                                     data: [
+                                                         data.unlock_count || 0,
+                                                         data.lock_count || 0,
+                                                         data.due_200_500 || 0,
+                                                         data.due_500_1000 || 0,
+                                                         data.due_1000_2000 || 0,
+                                                         data.due_above_2000 || 0
+                                                     ],
+                                                     backgroundColor: [
+                                                         'rgba(16, 185, 129, 0.8)',
+                                                         'rgba(239, 68, 68, 0.8)',
+                                                         'rgba(59, 130, 246, 0.8)',
+                                                         'rgba(99, 102, 241, 0.8)',
+                                                         'rgba(245, 158, 11, 0.8)',
+                                                         'rgba(139, 92, 246, 0.8)'
+                                                     ],
+                                                     borderColor: [
+                                                         '#10b981', '#ef4444', '#3b82f6', '#6366f1', '#f59e0b', '#8b5cf6'
+                                                     ],
+                                                     borderWidth: 1.5,
+                                                     borderRadius: 4
+                                                 }]
+                                             },
+                                             options: {
+                                                 responsive: true,
+                                                 maintainAspectRatio: false,
+                                                 plugins: {
+                                                     legend: { display: false },
+                                                     tooltip: { enabled: true },
+                                                     datalabels: { display: false }
+                                                 },
+                                                 scales: {
+                                                     y: {
+                                                         beginAtZero: true,
+                                                         ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 9 } }
+                                                     },
+                                                     x: {
+                                                         ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 9, weight: 'bold' } }
+                                                     }
+                                                 }
+                                             }
+                                         });
+                                     })
+                                     .catch(err => console.error("Error loading Mobile lock arrears analysis:", err));
+                             }
 
-                                    destroyChart('productBusinessChart');
-                                    const ctx = document.getElementById("productBusinessChart").getContext('2d');
-                                    activeCharts['productBusinessChart'] = new Chart(ctx, {
-                                        type: 'pie',
-                                        data: {
-                                            labels: labels,
-                                            datasets: [{
-                                                data: amounts,
-                                                backgroundColor: [
-                                                    'rgba(99, 102, 241, 0.85)',
-                                                    'rgba(59, 130, 246, 0.85)',
-                                                    'rgba(245, 158, 11, 0.85)',
-                                                    'rgba(16, 185, 129, 0.85)',
-                                                    'rgba(239, 68, 68, 0.85)',
-                                                    'rgba(139, 92, 246, 0.85)'
-                                                ],
-                                                borderWidth: 1,
-                                                borderColor: isDark ? '#1e293b' : '#ffffff'
-                                            }]
-                                        },
-                                        options: {
-                                            responsive: true,
-                                            maintainAspectRatio: false,
-                                            plugins: {
-                                                legend: {
-                                                    position: 'bottom',
-                                                    labels: {
-                                                        color: isDark ? '#94a3b8' : '#475569',
-                                                        boxWidth: 8,
-                                                        font: { size: 8, weight: 'bold' }
-                                                    }
-                                                },
-                                                tooltip: {
-                                                    callbacks: {
-                                                        label: function(context) {
-                                                            const label = context.label || '';
-                                                            const val = context.raw || 0;
-                                                            const pct = percentages[context.dataIndex];
-                                                            return label + ': ' + formatLKR(val) + ' (' + pct + '%)';
-                                                        }
-                                                    }
-                                                },
-                                                datalabels: {
-                                                    display: true,
-                                                    color: '#ffffff',
-                                                    font: { size: 9, weight: 'bold' },
-                                                    formatter: (val, ctx) => {
-                                                        const pct = percentages[ctx.dataIndex];
-                                                        return pct >= 5 ? pct + '%' : '';
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    });
-                                })
-                                .catch(err => console.error("Error loading product business chart:", err));
-                        }
+                             // ============ 10. Matured vs Non-Matured Contracts Performance ============
+                             fetch('${pageContext.request.contextPath}/api/dashboard/matured-nonperforming' + productParam)
+                                 .then(res => res.json())
+                                 .then(data => {
+                                     let maturedPerf = 0, maturedNp = 0, nonMaturedPerf = 0, nonMaturedNp = 0;
+                                     data.forEach(item => {
+                                         const isMatured = item.maturity_status === 'Matured';
+                                         const isNp = item.performing_status === 'Non-Performing';
+                                         if (isMatured) {
+                                             if (isNp) maturedNp = item.contract_count || 0;
+                                             else maturedPerf = item.contract_count || 0;
+                                         } else {
+                                             if (isNp) nonMaturedNp = item.contract_count || 0;
+                                             else nonMaturedPerf = item.contract_count || 0;
+                                         }
+                                     });
+
+                                     destroyChart('maturedNpChart');
+                                     const ctx = document.getElementById('maturedNpChart').getContext('2d');
+                                     activeCharts['maturedNpChart'] = new Chart(ctx, {
+                                         type: 'bar',
+                                         data: {
+                                             labels: ['Matured', 'Non-Matured'],
+                                             datasets: [
+                                                 {
+                                                     label: 'Performing',
+                                                     data: [maturedPerf, nonMaturedPerf],
+                                                     backgroundColor: 'rgba(16, 185, 129, 0.85)',
+                                                     borderColor: '#10b981',
+                                                     borderWidth: 1,
+                                                     borderRadius: 4
+                                                 },
+                                                 {
+                                                     label: 'Non-Performing',
+                                                     data: [maturedNp, nonMaturedNp],
+                                                     backgroundColor: 'rgba(239, 68, 68, 0.85)',
+                                                     borderColor: '#ef4444',
+                                                     borderWidth: 1,
+                                                     borderRadius: 4
+                                                 }
+                                             ]
+                                         },
+                                         options: {
+                                             responsive: true,
+                                             maintainAspectRatio: false,
+                                             plugins: {
+                                                 legend: {
+                                                     display: true,
+                                                     position: 'top',
+                                                     labels: { color: isDark ? '#94a3b8' : '#475569', font: { size: 8 } }
+                                                 },
+                                                 tooltip: { enabled: true },
+                                                 datalabels: { display: false }
+                                             },
+                                             scales: {
+                                                 y: {
+                                                     beginAtZero: true,
+                                                     ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 9 } }
+                                                 },
+                                                 x: {
+                                                     ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 9, weight: 'bold' } }
+                                                 }
+                                             }
+                                         }
+                                     });
+                                 })
+                                 .catch(err => console.error("Error loading matured contract performance analysis:", err));
+
+                             // ============ 11. Outstanding Amount Distribution (Above vs Below 1000) ============
+                             fetch('${pageContext.request.contextPath}/api/dashboard/outstanding-analysis' + productParam)
+                                 .then(res => res.json())
+                                 .then(data => {
+                                     let above1000 = 0, below1000 = 0;
+                                     data.forEach(item => {
+                                         if (item.outstanding_bucket === 'Above 1000') {
+                                             above1000 = item.account_count || 0;
+                                         } else {
+                                             below1000 = item.account_count || 0;
+                                         }
+                                     });
+
+                                     destroyChart('outstandingAnalysisChart');
+                                     const ctx = document.getElementById('outstandingAnalysisChart').getContext('2d');
+                                     activeCharts['outstandingAnalysisChart'] = new Chart(ctx, {
+                                         type: 'doughnut',
+                                         data: {
+                                             labels: ['Above 1000', 'Below 1000'],
+                                             datasets: [{
+                                                 data: [above1000, below1000],
+                                                 backgroundColor: ['rgba(239, 68, 68, 0.85)', 'rgba(16, 185, 129, 0.85)'],
+                                                 borderWidth: 0
+                                             }]
+                                         },
+                                         options: {
+                                             responsive: true,
+                                             maintainAspectRatio: false,
+                                             cutout: '70%',
+                                             plugins: {
+                                                 legend: {
+                                                     display: true,
+                                                     position: 'bottom',
+                                                     labels: { color: isDark ? '#94a3b8' : '#475569', font: { size: 9 } }
+                                                 },
+                                                 tooltip: { enabled: true },
+                                                 datalabels: { display: false }
+                                             }
+                                         }
+                                     });
+                                 })
+                                 .catch(err => console.error("Error loading outstanding analysis:", err));
+
+                             // ============ 12. 60-90 DPD Trend Chart ============
+                             fetch('${pageContext.request.contextPath}/api/dashboard/dpd-comparison-chart' + productParam)
+                                 .then(res => res.json())
+                                 .then(data => {
+                                     const labels = data.map(i => i.month_name);
+                                     const dpd60_90 = data.map(item => Math.round((item.dpd61_90_val / 1000000) * 100) / 100);
+
+                                     destroyChart('dpd60_90Chart');
+                                     const ctx = document.getElementById('dpd60_90Chart').getContext('2d');
+                                     activeCharts['dpd60_90Chart'] = new Chart(ctx, {
+                                         type: 'line',
+                                         data: {
+                                             labels: labels,
+                                             datasets: [{
+                                                 label: '60-90 DPD Exposure',
+                                                 data: dpd60_90,
+                                                 backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                                                 borderColor: '#ef4444',
+                                                 borderWidth: 2.5,
+                                                 fill: true,
+                                                 tension: 0.2,
+                                                 pointRadius: 4
+                                             }]
+                                         },
+                                         options: {
+                                             responsive: true,
+                                             maintainAspectRatio: false,
+                                             scales: {
+                                                 y: {
+                                                     beginAtZero: true,
+                                                     ticks: {
+                                                         color: isDark ? '#94a3b8' : '#475569',
+                                                         font: { size: 9 },
+                                                         callback: function(val) { return val + ' Mn'; }
+                                                     }
+                                                 },
+                                                 x: {
+                                                     ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 9, weight: 'bold' } }
+                                                 }
+                                             },
+                                             plugins: {
+                                                 legend: { display: false },
+                                                 tooltip: { enabled: true },
+                                                 datalabels: { display: false }
+                                             }
+                                         }
+                                     });
+                                 })
+                                 .catch(err => console.error("Error loading DPD 60-90 Trend:", err));
+                         }
 
                         document.addEventListener("DOMContentLoaded", function() {
                             checkSyncStatus();

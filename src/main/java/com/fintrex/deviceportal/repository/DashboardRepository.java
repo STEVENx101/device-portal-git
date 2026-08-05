@@ -684,4 +684,75 @@ public class DashboardRepository {
                 """, filter);
         return jdbcTemplate.queryForList(sql);
     }
+
+    public Map<String, Object> getMobileLockArrearsAnalysis() {
+        String sql = """
+            SELECT
+                SUM(CASE WHEN COALESCE(p.total_due, 0) < 200 THEN 1 ELSE 0 END) AS unlock_count,
+                SUM(CASE WHEN COALESCE(p.total_due, 0) >= 200 THEN 1 ELSE 0 END) AS lock_count,
+                SUM(CASE WHEN COALESCE(p.total_due, 0) BETWEEN 200 AND 500 THEN 1 ELSE 0 END) AS due_200_500,
+                SUM(CASE WHEN COALESCE(p.total_due, 0) BETWEEN 501 AND 1000 THEN 1 ELSE 0 END) AS due_500_1000,
+                SUM(CASE WHEN COALESCE(p.total_due, 0) BETWEEN 1001 AND 2000 THEN 1 ELSE 0 END) AS due_1000_2000,
+                SUM(CASE WHEN COALESCE(p.total_due, 0) > 2000 THEN 1 ELSE 0 END) AS due_above_2000
+            FROM cbs.portfolio p
+            JOIN (
+                SELECT account_no AS finance_no, product FROM cbs.loan
+                UNION ALL
+                SELECT legacy_account_no AS finance_no, product FROM cbs.loan WHERE legacy_account_no IS NOT NULL
+            ) l ON l.finance_no = p.account_no
+            LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
+            WHERE p.portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio)
+              AND pr.product_code = 'MF'
+        """;
+        try {
+            return jdbcTemplate.queryForMap(sql);
+        } catch (Exception e) {
+            Map<String, Object> fallback = new HashMap<>();
+            fallback.put("unlock_count", 0);
+            fallback.put("lock_count", 0);
+            fallback.put("due_200_500", 0);
+            fallback.put("due_500_1000", 0);
+            fallback.put("due_1000_2000", 0);
+            fallback.put("due_above_2000", 0);
+            return fallback;
+        }
+    }
+
+    public List<Map<String, Object>> getMaturedNonPerformingAnalysis(String product) {
+        String filter = getProductFilterSql(product);
+        String sql = String.format("""
+            SELECT
+                CASE WHEN l.maturity_date <= CURRENT_DATE() THEN 'Matured' ELSE 'Non-Matured' END AS maturity_status,
+                CASE WHEN COALESCE(p.performing_status, 'Performing') = 'Non-Performing' THEN 'Non-Performing' ELSE 'Performing' END AS performing_status,
+                COUNT(DISTINCT l.account_no) AS contract_count
+            FROM cbs.loan l
+            LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
+            LEFT JOIN cbs.portfolio p ON (p.account_no = l.account_no OR p.account_no = l.legacy_account_no)
+              AND p.portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio)
+            WHERE 1=1 %s
+            GROUP BY maturity_status, performing_status
+        """, filter);
+        return jdbcTemplate.queryForList(sql);
+    }
+
+    public List<Map<String, Object>> getOutstandingAnalysis(String product) {
+        String filter = getProductFilterSql(product);
+        String sql = String.format("""
+            SELECT
+                CASE WHEN COALESCE(p.exposure, 0) > 1000 THEN 'Above 1000' ELSE 'Below 1000' END AS outstanding_bucket,
+                COUNT(DISTINCT p.account_no) AS account_count,
+                COALESCE(SUM(p.exposure), 0) AS total_exposure
+            FROM cbs.portfolio p
+            JOIN (
+                SELECT account_no AS finance_no, product FROM cbs.loan
+                UNION ALL
+                SELECT legacy_account_no AS finance_no, product FROM cbs.loan WHERE legacy_account_no IS NOT NULL
+            ) l ON l.finance_no = p.account_no
+            LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
+            WHERE p.portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio)
+              %s
+            GROUP BY outstanding_bucket
+        """, filter);
+        return jdbcTemplate.queryForList(sql);
+    }
 }

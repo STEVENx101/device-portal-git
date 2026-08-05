@@ -46,9 +46,9 @@ public class DashboardService {
         try {
             System.out.println("WARMING UP/REFRESHING DASHBOARD SNAPSHOT STORE DATA...");
 
-            String[] products = { null, "MF", "LF" };
+            String[] products = { "MF", "LF" };
             for (String product : products) {
-                String suffix = "_" + (product != null ? product.toUpperCase() : "ALL");
+                String suffix = "_" + product.toUpperCase();
 
                 Map<String, Object> stats = dashboardRepository.getDashboardStats(product);
                 cache.put("stats" + suffix, stats != null ? stats : new HashMap<>());
@@ -76,7 +76,18 @@ public class DashboardService {
 
                 List<Map<String, Object>> prodBiz = dashboardRepository.getProductBusinessChart(product);
                 cache.put("productBusiness" + suffix, prodBiz != null ? prodBiz : new ArrayList<>());
+
+                // New analysis cache
+                List<Map<String, Object>> maturedNp = dashboardRepository.getMaturedNonPerformingAnalysis(product);
+                cache.put("maturedNp" + suffix, maturedNp != null ? maturedNp : new ArrayList<>());
+
+                List<Map<String, Object>> outstanding = dashboardRepository.getOutstandingAnalysis(product);
+                cache.put("outstanding" + suffix, outstanding != null ? outstanding : new ArrayList<>());
             }
+
+            // Mobile lock arrears is specific to MF, but cached standalone or with suffix
+            Map<String, Object> mobileLockArrears = dashboardRepository.getMobileLockArrearsAnalysis();
+            cache.put("mobileLockArrears", mobileLockArrears != null ? mobileLockArrears : new HashMap<>());
 
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
             lastSyncedTime = LocalDateTime.now().format(formatter);
@@ -103,7 +114,10 @@ public class DashboardService {
     }
 
     private String getSuffix(String product) {
-        return "_" + (product != null && !product.trim().isEmpty() ? product.toUpperCase() : "ALL");
+        if (product == null || product.trim().isEmpty()) {
+            return "_MF"; // Default fallback to MF as requested
+        }
+        return "_" + product.toUpperCase();
     }
 
     @SuppressWarnings("unchecked")
@@ -174,5 +188,22 @@ public class DashboardService {
     public List<Map<String, Object>> getProductBusinessChart(String product) {
         String suffix = getSuffix(product);
         return (List<Map<String, Object>>) cache.computeIfAbsent("productBusiness" + suffix, k -> dashboardRepository.getProductBusinessChart(product));
+    }
+
+    @SuppressWarnings("unchecked")
+    public Map<String, Object> getMobileLockArrearsAnalysis() {
+        return (Map<String, Object>) cache.computeIfAbsent("mobileLockArrears", k -> dashboardRepository.getMobileLockArrearsAnalysis());
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<Map<String, Object>> getMaturedNonPerformingAnalysis(String product) {
+        String suffix = getSuffix(product);
+        return (List<Map<String, Object>>) cache.computeIfAbsent("maturedNp" + suffix, k -> dashboardRepository.getMaturedNonPerformingAnalysis(product));
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<Map<String, Object>> getOutstandingAnalysis(String product) {
+        String suffix = getSuffix(product);
+        return (List<Map<String, Object>>) cache.computeIfAbsent("outstanding" + suffix, k -> dashboardRepository.getOutstandingAnalysis(product));
     }
 }
