@@ -352,8 +352,8 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="text-center fs--3 text-muted mt-2 border-top pt-2" id="device-sec-text">
-                                        Device locks summary &bull; Active: <span id="sec-mobile-locked-val" class="fw-bold text-danger">0</span> Mobiles
+                                    <div class="text-center text-muted mt-2 border-top pt-2" id="device-sec-text" style="font-size: 0.65rem; line-height: 1.1;">
+                                         Device locks summary &bull; Active: <span id="sec-mobile-locked-val" class="fw-bold text-danger">0</span> Mobiles
                                     </div>
                                 </div>
                             </div>
@@ -365,12 +365,9 @@
                                 <div class="card-body p-2 d-flex flex-column justify-content-between">
                                     <div>
                                         <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-coins me-1"></i>Outstanding Amount</div>
-                                        <div style="height: 95px; position: relative; width: 100%;">
+                                        <div style="height: 125px; position: relative; width: 100%;">
                                             <canvas id="outstandingAnalysisChart"></canvas>
                                         </div>
-                                    </div>
-                                    <div class="text-center fs--3 text-muted mt-2 border-top pt-2">
-                                        Above vs Below 1000 LKR
                                     </div>
                                 </div>
                             </div>
@@ -396,26 +393,26 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-lg-4 col-12" id="matured-np-card">
+                        <div class="col-lg-3 col-12" id="matured-np-card">
                             <div class="card glass-card h-100">
                                 <div class="card-body p-2">
-                                    <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-history me-1"></i>Matured vs Non-Matured Contracts Performance</div>
+                                    <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-history me-1"></i>Matured vs Non-Matured</div>
                                     <div style="height: 140px; position: relative; width: 100%;">
                                         <canvas id="maturedNpChart"></canvas>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-lg-4 col-12">
-                            <div class="card glass-card h-100">
-                                <div class="card-body p-2">
-                                    <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-exclamation-triangle me-1"></i>60-90 DPD Monthly Trend</div>
-                                    <div style="height: 140px; position: relative; width: 100%;">
-                                        <canvas id="dpd60_90Chart"></canvas>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                         <div class="col-lg-5 col-12" id="dpd-trend-card">
+                             <div class="card glass-card h-100">
+                                 <div class="card-body p-2">
+                                     <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-exclamation-triangle me-1"></i>60-90 DPD Monthly Trend</div>
+                                     <div style="height: 140px; position: relative; width: 100%;">
+                                         <canvas id="dpd60_90Chart"></canvas>
+                                     </div>
+                                 </div>
+                             </div>
+                         </div>
                     </div>
 
                     <!-- Section: Operational Payments & Collections -->
@@ -912,16 +909,15 @@
                              // ============ 9. Mobile Arrears Lock vs Unlock (Arrears & Due Ranges) ============
                              const arrearsCard = document.getElementById('mobile-lock-arrears-card');
                              const maturedCard = document.getElementById('matured-np-card');
+                             const dpdTrendCard = document.getElementById('dpd-trend-card');
                              if (selectedProduct === 'LF') {
                                  if (arrearsCard) arrearsCard.style.display = 'none';
-                                 if (maturedCard) {
-                                     maturedCard.className = 'col-12';
-                                 }
+                                 if (maturedCard) maturedCard.className = 'col-lg-6 col-12';
+                                 if (dpdTrendCard) dpdTrendCard.className = 'col-lg-6 col-12';
                              } else {
                                  if (arrearsCard) arrearsCard.style.display = '';
-                                 if (maturedCard) {
-                                     maturedCard.className = 'col-lg-6 col-12';
-                                 }
+                                 if (maturedCard) maturedCard.className = 'col-lg-3 col-12';
+                                 if (dpdTrendCard) dpdTrendCard.className = 'col-lg-5 col-12';
                                  
                                  fetch('${pageContext.request.contextPath}/api/dashboard/mobile-lock-arrears')
                                      .then(res => res.json())
