@@ -1155,7 +1155,7 @@ public class CbsReportService {
                     p.exposure AS `exposure`,
                     p.dpd AS `dpd`,
                     CASE
-                        WHEN COALESCE(lm1.locked, lm2.locked) = 1 THEN 'Locked'
+                        WHEN COALESCE(lm1.locked, 0) = 1 OR COALESCE(lm2.locked, 0) = 1 OR COALESCE(dl1.locked, 0) = 1 OR COALESCE(dl2.locked, 0) = 1 THEN 'Locked'
                         ELSE 'Unlocked'
                     END AS `lock_status`,
                     p.recovery_officer AS `recovery_officer`
@@ -1166,9 +1166,11 @@ public class CbsReportService {
                 LEFT JOIN cbs.client c ON l.client = c.client_code
                 LEFT JOIN loan.mobileloan lm1 ON lm1.finance_no = l.account_no
                 LEFT JOIN loan.mobileloan lm2 ON lm2.finance_no = l.legacy_account_no
+                LEFT JOIN loan.device_loan dl1 ON dl1.finance_no = l.account_no
+                LEFT JOIN loan.device_loan dl2 ON dl2.finance_no = l.legacy_account_no
                 WHERE p.portfolio_date = :latestPortfolioDate
-                  AND p.dpd > 0
-                  AND COALESCE(lm1.locked, lm2.locked) = 0""";
+                  AND p.total_due >= 200
+                  AND NOT (COALESCE(lm1.locked, 0) = 1 OR COALESCE(lm2.locked, 0) = 1 OR COALESCE(dl1.locked, 0) = 1 OR COALESCE(dl2.locked, 0) = 1)""";
 
         if (rawFilter instanceof Map) {
             Map<?, ?> filter = (Map<?, ?>) rawFilter;
@@ -1216,16 +1218,18 @@ public class CbsReportService {
                     p.dpd AS `dpd`,
                     'Locked' AS `lock_status`,
                     p.recovery_officer AS `recovery_officer`
-                FROM loan.mobileloan lm
+                FROM cbs.portfolio p
                 INNER JOIN cbs.loan l
-                    ON l.account_no = lm.finance_no
-                    OR l.legacy_account_no = lm.finance_no
-                LEFT JOIN cbs.portfolio p
-                    ON (p.account_no = l.account_no OR p.account_no = l.legacy_account_no)
-                    AND p.series = l.account_series
-                    AND p.portfolio_date = :latestPortfolioDate
+                    ON (l.account_no = p.account_no OR l.legacy_account_no = p.account_no)
+                    AND l.account_series = p.series
                 LEFT JOIN cbs.client c ON l.client = c.client_code
-                WHERE lm.locked = 1 AND (p.dpd <= 0 OR p.dpd IS NULL)""";
+                LEFT JOIN loan.mobileloan lm1 ON lm1.finance_no = l.account_no
+                LEFT JOIN loan.mobileloan lm2 ON lm2.finance_no = l.legacy_account_no
+                LEFT JOIN loan.device_loan dl1 ON dl1.finance_no = l.account_no
+                LEFT JOIN loan.device_loan dl2 ON dl2.finance_no = l.legacy_account_no
+                WHERE p.portfolio_date = :latestPortfolioDate
+                  AND (p.total_due < 200 OR p.total_due IS NULL)
+                  AND (COALESCE(lm1.locked, 0) = 1 OR COALESCE(lm2.locked, 0) = 1 OR COALESCE(dl1.locked, 0) = 1 OR COALESCE(dl2.locked, 0) = 1)""";
 
         if (rawFilter instanceof Map) {
             Map<?, ?> filter = (Map<?, ?>) rawFilter;
