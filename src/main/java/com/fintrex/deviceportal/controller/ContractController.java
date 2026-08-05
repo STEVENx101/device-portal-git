@@ -164,9 +164,13 @@ public class ContractController {
             token = authRoot.get("token").asText();
         } else if (authRoot.has("accessToken")) {
             token = authRoot.get("accessToken").asText();
+        } else if (authRoot.has("jwt")) {
+            token = authRoot.get("jwt").asText();
         } else if (authRoot.has("data")) {
             tools.jackson.databind.JsonNode dataNode = authRoot.get("data");
-            if (dataNode.has("access_token")) {
+            if (dataNode.has("jwt")) {
+                token = dataNode.get("jwt").asText();
+            } else if (dataNode.has("access_token")) {
                 token = dataNode.get("access_token").asText();
             } else if (dataNode.has("token")) {
                 token = dataNode.get("token").asText();
