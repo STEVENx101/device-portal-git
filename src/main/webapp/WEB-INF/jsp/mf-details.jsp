@@ -812,7 +812,7 @@
                                 html += '<tr ' + rowStyle + '>' +
                                     '<td class="align-middle">' + dateFormatted + '</td>' +
                                     '<td class="align-middle">' + particulars + '</td>' +
-                                    '<td class="text-end text-danger align-middle">' + debitStr + '</td>' +
+                                    '<td class="text-end text-danger align-middle" style="color: #dc3545 !important;">' + debitStr + '</td>' +
                                     '<td class="text-end text-primary align-middle">' + creditStr + '</td>' +
                                     '<td class="text-end fw-bold text-dark align-middle">' + closingStr + '</td>' +
                                     '</tr>';

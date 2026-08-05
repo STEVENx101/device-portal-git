@@ -98,7 +98,7 @@ public class DashboardRepository {
                             SELECT MAX(portfolio_date)
                             FROM cbs.portfolio
                     )
-                    AND l.account_status='N'
+                    AND p.performing_status = 'Non-Performing'
                     %s
                 """, filter);
         Map<String, Object> nplStats = jdbcTemplate.queryForMap(sqlNplStats);
