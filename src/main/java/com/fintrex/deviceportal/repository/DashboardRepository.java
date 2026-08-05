@@ -171,13 +171,17 @@ public class DashboardRepository {
         // 8. Settled loans count and amount during the current month
         String sqlSettledStats = String.format("""
                     SELECT
-                        COUNT(*) AS settled_count,
+                        COUNT(DISTINCT l.account_no) AS settled_count,
                         COALESCE(SUM(l.loan_amount), 0) AS settled_amount
                     FROM cbs.loan l
+                    JOIN cbs.portfolio p ON p.account_no = l.account_no OR p.account_no = l.legacy_account_no
                     LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
-                    WHERE l.account_status IN ('P', 'F')
-                      AND l.closed_date >= DATE_FORMAT(CURRENT_DATE(), '%%Y-%%m-01')
-                      %s
+                    WHERE p.portfolio_date = (
+                        SELECT MAX(portfolio_date) FROM cbs.portfolio
+                    )
+                    AND p.loan_status IN ('P', 'F')
+                    AND l.closed_date >= DATE_FORMAT(CURRENT_DATE(), '%%Y-%%m-01')
+                    %s
                 """, filter);
         Map<String, Object> settledStats = jdbcTemplate.queryForMap(sqlSettledStats);
 
