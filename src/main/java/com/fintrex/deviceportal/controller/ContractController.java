@@ -133,6 +133,56 @@ public class ContractController {
         }
     }
 
+    private String statementApiToken = null;
+
+    private synchronized String getStatementToken() throws Exception {
+        if (statementApiToken != null) {
+            return statementApiToken;
+        }
+
+        String authUrl = "https://ma.fintrex.lk/mobile-banking/api/authenticate";
+        String authBody = "{\"username\": \"df\", \"password\": \"9wXE8nc9j1Uy\"}";
+
+        HttpRequest authRequest = HttpRequest.newBuilder()
+                .uri(URI.create(authUrl))
+                .header("Content-Type", "application/json")
+                .timeout(Duration.ofSeconds(15))
+                .POST(HttpRequest.BodyPublishers.ofString(authBody))
+                .build();
+
+        HttpResponse<String> authResponse = httpClient.send(authRequest, HttpResponse.BodyHandlers.ofString());
+        if (authResponse.statusCode() != 200) {
+            throw new RuntimeException("Authentication failed");
+        }
+
+        tools.jackson.databind.ObjectMapper mapper = new tools.jackson.databind.ObjectMapper();
+        tools.jackson.databind.JsonNode authRoot = mapper.readTree(authResponse.body());
+        String token = null;
+        if (authRoot.has("access_token")) {
+            token = authRoot.get("access_token").asText();
+        } else if (authRoot.has("token")) {
+            token = authRoot.get("token").asText();
+        } else if (authRoot.has("accessToken")) {
+            token = authRoot.get("accessToken").asText();
+        } else if (authRoot.has("data")) {
+            tools.jackson.databind.JsonNode dataNode = authRoot.get("data");
+            if (dataNode.has("access_token")) {
+                token = dataNode.get("access_token").asText();
+            } else if (dataNode.has("token")) {
+                token = dataNode.get("token").asText();
+            } else if (dataNode.has("accessToken")) {
+                token = dataNode.get("accessToken").asText();
+            } else if (dataNode.isTextual()) {
+                token = dataNode.asText();
+            }
+        }
+
+        if (token != null && !token.isEmpty()) {
+            statementApiToken = token;
+        }
+        return statementApiToken;
+    }
+
     @GetMapping("/statement")
     public ResponseEntity<String> getAccountStatement(
             @RequestParam("financeNo") String financeNo,
@@ -154,47 +204,12 @@ public class ContractController {
                 legacyAccountNo = mapping.get("legacy_account_no").toString();
             }
 
-            String authUrl = "https://ma.fintrex.lk/mobile-banking/api/authenticate";
-            String authBody = "{\"username\": \"df\", \"password\": \"9wXE8nc9j1Uy\"}";
-
-            HttpRequest authRequest = HttpRequest.newBuilder()
-                    .uri(URI.create(authUrl))
-                    .header("Content-Type", "application/json")
-                    .timeout(Duration.ofSeconds(15))
-                    .POST(HttpRequest.BodyPublishers.ofString(authBody))
-                    .build();
-
-            HttpResponse<String> authResponse = httpClient.send(authRequest, HttpResponse.BodyHandlers.ofString());
-            if (authResponse.statusCode() != 200) {
-                return ResponseEntity.status(500).body("{\"status\": 500, \"message\": \"Authentication failed\"}");
-            }
-
-            tools.jackson.databind.ObjectMapper mapper = new tools.jackson.databind.ObjectMapper();
-            tools.jackson.databind.JsonNode authRoot = mapper.readTree(authResponse.body());
-            String token = null;
-            if (authRoot.has("access_token")) {
-                token = authRoot.get("access_token").asText();
-            } else if (authRoot.has("token")) {
-                token = authRoot.get("token").asText();
-            } else if (authRoot.has("accessToken")) {
-                token = authRoot.get("accessToken").asText();
-            } else if (authRoot.has("data")) {
-                tools.jackson.databind.JsonNode dataNode = authRoot.get("data");
-                if (dataNode.has("access_token")) {
-                    token = dataNode.get("access_token").asText();
-                } else if (dataNode.has("token")) {
-                    token = dataNode.get("token").asText();
-                } else if (dataNode.has("accessToken")) {
-                    token = dataNode.get("accessToken").asText();
-                } else if (dataNode.isTextual()) {
-                    token = dataNode.asText();
-                }
-            }
-
+            String token = getStatementToken();
             if (token == null || token.isEmpty()) {
                 return ResponseEntity.status(500).body("{\"status\": 500, \"message\": \"Token not found\"}");
             }
 
+            tools.jackson.databind.ObjectMapper mapper = new tools.jackson.databind.ObjectMapper();
             boolean hasNext = true;
             int page = 0;
             int size = 100;
@@ -216,6 +231,23 @@ public class ContractController {
                         .build();
 
                 HttpResponse<String> stmtResponse = httpClient.send(stmtRequest, HttpResponse.BodyHandlers.ofString());
+                
+                // If token expired, clear cached token, fetch a new one and retry
+                if (stmtResponse.statusCode() == 401 || stmtResponse.statusCode() == 403) {
+                    statementApiToken = null;
+                    token = getStatementToken();
+                    if (token != null) {
+                        stmtRequest = HttpRequest.newBuilder()
+                                .uri(URI.create(statementUrl))
+                                .header("Content-Type", "application/json")
+                                .header("Authorization", "Bearer " + token)
+                                .timeout(Duration.ofSeconds(15))
+                                .POST(HttpRequest.BodyPublishers.ofString(statementBody))
+                                .build();
+                        stmtResponse = httpClient.send(stmtRequest, HttpResponse.BodyHandlers.ofString());
+                    }
+                }
+
                 if (stmtResponse.statusCode() != 200) {
                     break;
                 }
