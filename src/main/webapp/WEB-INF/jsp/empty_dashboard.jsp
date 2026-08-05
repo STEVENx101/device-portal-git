@@ -381,9 +381,9 @@
                         </div>
                     </div>
 
-                    <!-- Row 3: Risk Analytical Charts -->
+                    <!-- Row 3: 3-Column Risk Analytical Charts -->
                     <div class="row g-2 mb-2" style="margin-top: 4px;">
-                        <div class="col-lg-6 col-12" id="mobile-lock-arrears-card">
+                        <div class="col-lg-4 col-12" id="mobile-lock-arrears-card">
                             <div class="card glass-card h-100">
                                 <div class="card-body p-2">
                                     <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-lock me-1"></i>Mobile Portfolio Arrears Lock vs Unlock (Arrears &gt;= 200 vs &lt; 200)</div>
@@ -393,7 +393,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-lg-6 col-12" id="matured-np-card">
+                        <div class="col-lg-3 col-12" id="matured-np-card">
                             <div class="card glass-card h-100">
                                 <div class="card-body p-2">
                                     <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-history me-1"></i>Matured vs Non-Matured</div>
@@ -403,7 +403,7 @@
                                 </div>
                             </div>
                         </div>
-                         <div class="col-lg-12 col-12" id="dpd-trend-card">
+                         <div class="col-lg-5 col-12" id="dpd-trend-card">
                              <div class="card glass-card h-100">
                                  <div class="card-body p-2">
                                      <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-exclamation-triangle me-1"></i>60-90 DPD Monthly Trend</div>
@@ -903,10 +903,8 @@
                                  if (dpdTrendCard) dpdTrendCard.className = 'col-lg-6 col-12';
                              } else {
                                  if (arrearsCard) arrearsCard.style.display = '';
-                                 if (arrearsCard) arrearsCard.className = 'col-lg-6 col-12';
-                                 if (maturedCard) maturedCard.className = 'col-lg-6 col-12';
-                                 if (dpdTrendCard) dpdTrendCard.className = 'col-lg-12 col-12';
-                             }
+                                 if (maturedCard) maturedCard.className = 'col-lg-3 col-12';
+                                 if (dpdTrendCard) dpdTrendCard.className = 'col-lg-5 col-12';
                                  
                                   fetch('${pageContext.request.contextPath}/api/dashboard/mobile-lock-arrears')
                                       .then(res => res.json())
