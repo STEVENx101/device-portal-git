@@ -339,13 +339,13 @@
                                                 </div>
                                             </div>
                                             <div class="col-6 laptop-sec-col" style="display: none;">
-                                                <div class="fs--3 fw-semi-bold text-muted mb-1">Laptops Performing</div>
+                                                <div class="fw-semi-bold text-muted mb-1" style="font-size: 0.55rem;">Laptops Performing</div>
                                                 <div style="height: 95px; position: relative; width: 100%;">
                                                     <canvas id="laptopPerformingChart"></canvas>
                                                 </div>
                                             </div>
                                             <div class="col-6 laptop-sec-col" style="display: none;">
-                                                <div class="fs--3 fw-semi-bold text-muted mb-1">Laptops Lock</div>
+                                                <div class="fw-semi-bold text-muted mb-1" style="font-size: 0.55rem;">Laptops Lock</div>
                                                 <div style="height: 95px; position: relative; width: 100%;">
                                                     <canvas id="laptopLockChart"></canvas>
                                                 </div>
@@ -1084,7 +1084,25 @@
 
                                      destroyChart('outstandingAnalysisChart');
                                      const ctx = document.getElementById('outstandingAnalysisChart').getContext('2d');
+                                     const outstandingCenterText = {
+                                         id: 'outstandingCenterText',
+                                         beforeDraw: function(chart) {
+                                             const width = chart.width, height = chart.height, ctx = chart.ctx;
+                                             ctx.restore();
+                                             const total = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                             const fontSize = (chart.innerRadius / 26).toFixed(2);
+                                             ctx.font = "bold " + fontSize + "em 'Plus Jakarta Sans', sans-serif";
+                                             ctx.textBaseline = "middle";
+                                             ctx.fillStyle = isDark ? "#f8fafc" : "#1e293b";
+                                             const text = total.toLocaleString(),
+                                                   textX = Math.round((width - ctx.measureText(text).width) / 2),
+                                                   textY = chart.chartArea.top + (chart.chartArea.bottom - chart.chartArea.top) / 2;
+                                             ctx.fillText(text, textX, textY);
+                                             ctx.save();
+                                         }
+                                     };
                                      activeCharts['outstandingAnalysisChart'] = new Chart(ctx, {
+                                         plugins: [outstandingCenterText],
                                          type: 'doughnut',
                                          data: {
                                              labels: ['Above 1000', 'Below 1000'],

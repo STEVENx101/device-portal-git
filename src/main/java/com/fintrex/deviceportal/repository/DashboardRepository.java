@@ -719,20 +719,37 @@ public class DashboardRepository {
     }
 
     public List<Map<String, Object>> getMaturedNonPerformingAnalysis(String product) {
+        String sqlLatest = """
+                    SELECT portfolio_date
+                    FROM cbs.portfolio
+                    WHERE portfolio_date IS NOT NULL
+                    ORDER BY portfolio_date DESC
+                    LIMIT 1
+                """;
+        Object latestPortfolioDate = null;
+        try {
+            Map<String, Object> latest = jdbcTemplate.queryForMap(sqlLatest);
+            latestPortfolioDate = latest.get("portfolio_date");
+        } catch (Exception e) {
+            // fallback if no portfolio exists
+        }
+
         String filter = getProductFilterSql(product);
         String sql = String.format("""
             SELECT
                 CASE WHEN l.maturity_date <= CURRENT_DATE() THEN 'Matured' ELSE 'Non-Matured' END AS maturity_status,
-                CASE WHEN COALESCE(p.performing_status, 'Performing') = 'Non-Performing' THEN 'Non-Performing' ELSE 'Performing' END AS performing_status,
+                CASE WHEN COALESCE(p1.performing_status, p2.performing_status, 'Performing') = 'Non-Performing' THEN 'Non-Performing' ELSE 'Performing' END AS performing_status,
                 COUNT(DISTINCT l.account_no) AS contract_count
             FROM cbs.loan l
             LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
-            LEFT JOIN cbs.portfolio p ON (p.account_no = l.account_no OR p.account_no = l.legacy_account_no)
-              AND p.portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio)
+            LEFT JOIN cbs.portfolio p1 ON p1.account_no = l.account_no
+              AND p1.portfolio_date = ?
+            LEFT JOIN cbs.portfolio p2 ON p2.account_no = l.legacy_account_no AND l.legacy_account_no IS NOT NULL
+              AND p2.portfolio_date = ?
             WHERE 1=1 %s
             GROUP BY maturity_status, performing_status
         """, filter);
-        return jdbcTemplate.queryForList(sql);
+        return jdbcTemplate.queryForList(sql, latestPortfolioDate, latestPortfolioDate);
     }
 
     public List<Map<String, Object>> getOutstandingAnalysis(String product) {
