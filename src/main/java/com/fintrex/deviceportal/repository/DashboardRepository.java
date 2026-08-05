@@ -688,8 +688,8 @@ public class DashboardRepository {
     public Map<String, Object> getMobileLockArrearsAnalysis() {
         String sql = """
             SELECT
-                SUM(CASE WHEN COALESCE(p.total_due, 0) < 200 THEN 1 ELSE 0 END) AS unlock_count,
-                SUM(CASE WHEN COALESCE(p.total_due, 0) >= 200 THEN 1 ELSE 0 END) AS lock_count,
+                SUM(CASE WHEN (COALESCE(ml.locked, '') = 'yes' OR COALESCE(dl.device_status, '') = 'lock') AND COALESCE(p.total_due, 0) < 200 THEN 1 ELSE 0 END) AS lock_but_less_200,
+                SUM(CASE WHEN NOT (COALESCE(ml.locked, '') = 'yes' OR COALESCE(dl.device_status, '') = 'lock') AND COALESCE(p.total_due, 0) >= 200 THEN 1 ELSE 0 END) AS unlock_but_more_200,
                 SUM(CASE WHEN COALESCE(p.total_due, 0) BETWEEN 200 AND 500 THEN 1 ELSE 0 END) AS due_200_500,
                 SUM(CASE WHEN COALESCE(p.total_due, 0) BETWEEN 501 AND 1000 THEN 1 ELSE 0 END) AS due_500_1000,
                 SUM(CASE WHEN COALESCE(p.total_due, 0) BETWEEN 1001 AND 2000 THEN 1 ELSE 0 END) AS due_1000_2000,
@@ -701,6 +701,8 @@ public class DashboardRepository {
                 SELECT legacy_account_no AS finance_no, product FROM cbs.loan WHERE legacy_account_no IS NOT NULL
             ) l ON l.finance_no = p.account_no
             LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
+            LEFT JOIN loan.mobileloan ml ON ml.finance_no = l.finance_no
+            LEFT JOIN loan.device_loan dl ON dl.finance_no = l.finance_no
             WHERE p.portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio)
               AND pr.product_code = 'MF'
         """;
@@ -708,8 +710,8 @@ public class DashboardRepository {
             return jdbcTemplate.queryForMap(sql);
         } catch (Exception e) {
             Map<String, Object> fallback = new HashMap<>();
-            fallback.put("unlock_count", 0);
-            fallback.put("lock_count", 0);
+            fallback.put("lock_but_less_200", 0);
+            fallback.put("unlock_but_more_200", 0);
             fallback.put("due_200_500", 0);
             fallback.put("due_500_1000", 0);
             fallback.put("due_1000_2000", 0);

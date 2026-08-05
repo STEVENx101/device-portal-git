@@ -914,11 +914,11 @@
                                           activeCharts['mobileLockArrearsChart'] = new Chart(ctx, {
                                               type: 'bar',
                                               data: {
-                                                  labels: ['Unlock (<200)', 'Lock (>=200)', 'Due 200-500', 'Due 500-1000', 'Due 1000-2000', 'Due >2000'],
+                                                  labels: ['Lock (<200)', 'Unlock (>=200)', 'Due 200-500', 'Due 500-1000', 'Due 1000-2000', 'Due >2000'],
                                                   datasets: [{
                                                       data: [
-                                                          data.unlock_count || 0,
-                                                          data.lock_count || 0,
+                                                          data.lock_but_less_200 || 0,
+                                                          data.unlock_but_more_200 || 0,
                                                           data.due_200_500 || 0,
                                                           data.due_500_1000 || 0,
                                                           data.due_1000_2000 || 0,
