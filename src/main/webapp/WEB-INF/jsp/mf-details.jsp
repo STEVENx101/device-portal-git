@@ -993,7 +993,17 @@
                                         })
                                         .then(data => {
                                             document.querySelectorAll('.val-account-no').forEach(el => el.textContent = data.financeNo || '-');
-                                            document.querySelectorAll('.val-account-status').forEach(el => el.textContent = data.contractStatus || '-');
+                                            let statusDesc = data.contractStatus || '-';
+                                            if (data.contractStatus === 'A') {
+                                                statusDesc = 'Active Loan';
+                                            } else if (data.contractStatus === 'F') {
+                                                statusDesc = 'Fully Paid';
+                                            } else if (data.contractStatus === 'N') {
+                                                statusDesc = 'NPA';
+                                            } else if (data.contractStatus === 'P') {
+                                                statusDesc = 'Paid Off';
+                                            }
+                                            document.querySelectorAll('.val-account-status').forEach(el => el.textContent = statusDesc);
                                             document.querySelectorAll('.val-outstanding').forEach(el => el.textContent = data.amtToCollected !== null ? parseFloat(data.amtToCollected).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '0.00');
                                             document.querySelectorAll('.val-exposure').forEach(el => el.textContent = data.exposure !== null ? parseFloat(data.exposure).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '0.00');
                                             document.querySelectorAll('.val-performing-status').forEach(el => el.textContent = data.performingStatus || '-');
