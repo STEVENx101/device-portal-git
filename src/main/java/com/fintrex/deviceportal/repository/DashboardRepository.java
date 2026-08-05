@@ -287,16 +287,16 @@ public class DashboardRepository {
         String filter = getProductFilterSql(product);
         String sql = String.format("""
                     SELECT
-                        DATE_FORMAT(l.disbursed_date, '%b %Y') AS month_name,
-                        DATE_FORMAT(l.disbursed_date, '%Y-%m') AS month_key,
+                        DATE_FORMAT(l.disbursed_date, '%%b %%Y') AS month_name,
+                        DATE_FORMAT(l.disbursed_date, '%%Y-%%m') AS month_key,
                         COUNT(*) AS business_count,
                         COALESCE(SUM(l.loan_amount), 0) AS business_amount
                     FROM cbs.loan l
                     LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
-                    WHERE l.disbursed_date >= DATE_SUB(DATE_FORMAT(CURRENT_DATE(), '%Y-%m-01'), INTERVAL 5 MONTH)
-                      AND l.disbursed_date < DATE_ADD(DATE_FORMAT(CURRENT_DATE(), '%Y-%m-01'), INTERVAL 1 MONTH)
+                    WHERE l.disbursed_date >= DATE_SUB(DATE_FORMAT(CURRENT_DATE(), '%%Y-%%m-01'), INTERVAL 5 MONTH)
+                      AND l.disbursed_date < DATE_ADD(DATE_FORMAT(CURRENT_DATE(), '%%Y-%%m-01'), INTERVAL 1 MONTH)
                       %s
-                    GROUP BY DATE_FORMAT(l.disbursed_date, '%b %Y'), DATE_FORMAT(l.disbursed_date, '%Y-%m')
+                    GROUP BY DATE_FORMAT(l.disbursed_date, '%%b %%Y'), DATE_FORMAT(l.disbursed_date, '%%Y-%%m')
                     ORDER BY month_key ASC
                 """, filter);
         return jdbcTemplate.queryForList(sql);
@@ -306,8 +306,8 @@ public class DashboardRepository {
         String filter = getProductFilterSql(product);
         String sql = String.format("""
                     SELECT
-                        DATE_FORMAT(p.portfolio_date, '%b %Y') AS month_name,
-                        DATE_FORMAT(p.portfolio_date, '%Y-%m') AS month_key,
+                        DATE_FORMAT(p.portfolio_date, '%%b %%Y') AS month_name,
+                        DATE_FORMAT(p.portfolio_date, '%%Y-%%m') AS month_key,
                         SUM(CASE WHEN COALESCE(p.dpd, 0) = 0 THEN p.exposure ELSE 0 END) AS dpd0_val,
                         SUM(CASE WHEN COALESCE(p.dpd, 0) BETWEEN 1 AND 30 THEN p.exposure ELSE 0 END) AS dpd1_30_val,
                         SUM(CASE WHEN COALESCE(p.dpd, 0) BETWEEN 31 AND 60 THEN p.exposure ELSE 0 END) AS dpd31_60_val,
@@ -316,12 +316,12 @@ public class DashboardRepository {
                     FROM cbs.portfolio p
                     INNER JOIN (
                         SELECT
-                            DATE_FORMAT(portfolio_date, '%Y-%m') AS month_key,
+                            DATE_FORMAT(portfolio_date, '%%Y-%%m') AS month_key,
                             MAX(portfolio_date) AS max_date
                         FROM cbs.portfolio
-                        WHERE portfolio_date >= CASE WHEN MONTH(CURRENT_DATE()) >= 4 THEN DATE_FORMAT(CURRENT_DATE(), '%Y-04-01') ELSE DATE_FORMAT(DATE_SUB(CURRENT_DATE(), INTERVAL 1 YEAR), '%Y-04-01') END
-                          AND portfolio_date < CASE WHEN MONTH(CURRENT_DATE()) >= 4 THEN DATE_FORMAT(DATE_ADD(CURRENT_DATE(), INTERVAL 1 YEAR), '%Y-04-01') ELSE DATE_FORMAT(CURRENT_DATE(), '%Y-04-01') END
-                        GROUP BY DATE_FORMAT(portfolio_date, '%Y-%m')
+                        WHERE portfolio_date >= CASE WHEN MONTH(CURRENT_DATE()) >= 4 THEN DATE_FORMAT(CURRENT_DATE(), '%%Y-04-01') ELSE DATE_FORMAT(DATE_SUB(CURRENT_DATE(), INTERVAL 1 YEAR), '%%Y-04-01') END
+                          AND portfolio_date < CASE WHEN MONTH(CURRENT_DATE()) >= 4 THEN DATE_FORMAT(DATE_ADD(CURRENT_DATE(), INTERVAL 1 YEAR), '%%Y-04-01') ELSE DATE_FORMAT(CURRENT_DATE(), '%%Y-04-01') END
+                        GROUP BY DATE_FORMAT(portfolio_date, '%%Y-%%m')
                     ) m ON p.portfolio_date = m.max_date
                     JOIN (
                         SELECT account_no AS finance_no, product FROM cbs.loan
@@ -330,7 +330,7 @@ public class DashboardRepository {
                     ) l ON l.finance_no = p.account_no
                     LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
                     WHERE 1=1 %s
-                    GROUP BY p.portfolio_date, DATE_FORMAT(p.portfolio_date, '%b %Y'), DATE_FORMAT(p.portfolio_date, '%Y-%m')
+                    GROUP BY p.portfolio_date, DATE_FORMAT(p.portfolio_date, '%%b %%Y'), DATE_FORMAT(p.portfolio_date, '%%Y-%%m')
                     ORDER BY month_key ASC
                 """, filter);
         return jdbcTemplate.queryForList(sql);
@@ -340,15 +340,15 @@ public class DashboardRepository {
         String filter = getProductFilterSql(product);
         String sql = String.format("""
                 SELECT
-                    DATE_FORMAT(l.disbursed_date, '%d %b') AS channel_name,
-                    DATE_FORMAT(l.disbursed_date, '%Y-%m-%d') AS db_date,
+                    DATE_FORMAT(l.disbursed_date, '%%d %%b') AS channel_name,
+                    DATE_FORMAT(l.disbursed_date, '%%Y-%%m-%%d') AS db_date,
                     COALESCE(SUM(l.loan_amount), 0) AS total_amount
                 FROM cbs.loan l
                 LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
                 WHERE l.disbursed_date >= DATE_SUB(CURRENT_DATE(), INTERVAL 6 DAY)
                   AND l.disbursed_date <= CURRENT_DATE()
                   %s
-                GROUP BY DATE_FORMAT(l.disbursed_date, '%d %b'), DATE_FORMAT(l.disbursed_date, '%Y-%m-%d')
+                GROUP BY DATE_FORMAT(l.disbursed_date, '%%d %%b'), DATE_FORMAT(l.disbursed_date, '%%Y-%%m-%%d')
                 ORDER BY db_date ASC
                 """, filter);
         return jdbcTemplate.queryForList(sql);
@@ -677,7 +677,7 @@ public class DashboardRepository {
                     COALESCE(SUM(l.loan_amount), 0) AS business_amount
                 FROM cbs.loan l
                 LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
-                WHERE l.disbursed_date >= DATE_FORMAT(CURRENT_DATE(), '%Y-%m-01')
+                WHERE l.disbursed_date >= DATE_FORMAT(CURRENT_DATE(), '%%Y-%%m-01')
                 %s
                 GROUP BY product_name
                 ORDER BY business_amount DESC

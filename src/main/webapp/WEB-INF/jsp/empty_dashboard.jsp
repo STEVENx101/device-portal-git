@@ -295,10 +295,10 @@
                         </div>
                     </div>
 
-                    <!-- Row 2: Charts (Month-Wise Disbursements, DPD Status & Device Security) -->
+                    <!-- Row 2: Charts (Disbursements, DPD Status, Device Security & Outstanding Distribution) -->
                     <div class="row g-2 mb-2">
-                        <!-- Left: Monthly trend charts (2/3 width) -->
-                        <div class="col-lg-8 col-12">
+                        <!-- Left: Monthly trend charts (1/2 width) -->
+                        <div class="col-lg-6 col-12">
                             <div class="card shadow-sm h-100">
                                 <div class="card-body p-2">
                                     <div class="row g-2">
@@ -319,8 +319,8 @@
                             </div>
                         </div>
 
-                        <!-- Right: Device Performance & Security Status (1/3 width) -->
-                        <div class="col-lg-4 col-12">
+                        <!-- Middle: Device Performance & Security Status (1/4 width) -->
+                        <div class="col-lg-3 col-sm-6 col-12">
                             <div class="card shadow-sm h-100">
                                 <div class="card-body p-2 d-flex flex-column justify-content-between">
                                     <div>
@@ -358,6 +358,23 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Right: Outstanding Amount Distribution (1/4 width) -->
+                        <div class="col-lg-3 col-sm-6 col-12">
+                            <div class="card shadow-sm h-100">
+                                <div class="card-body p-2 d-flex flex-column justify-content-between">
+                                    <div>
+                                        <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-coins me-1"></i>Outstanding Amount</div>
+                                        <div style="height: 95px; position: relative; width: 100%;">
+                                            <canvas id="outstandingAnalysisChart"></canvas>
+                                        </div>
+                                    </div>
+                                    <div class="text-center fs--3 text-muted mt-2 border-top pt-2">
+                                        Above vs Below 1000 LKR
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Section: Risk & Performance Analytics -->
@@ -367,19 +384,19 @@
                         </div>
                     </div>
 
-                    <!-- Row 5: Custom Analytical Charts (MF-Specific mobile lock/unlock & Matured/Non-matured NP) -->
+                    <!-- Row 3: 3-Column Risk Analytical Charts -->
                     <div class="row g-2 mb-2" style="margin-top: 4px;">
-                        <div class="col-lg-6 col-12" id="mobile-lock-arrears-card">
+                        <div class="col-lg-4 col-12" id="mobile-lock-arrears-card">
                             <div class="card glass-card h-100">
                                 <div class="card-body p-2">
-                                    <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-lock me-1"></i>Mobile Portfolio Arrears Lock vs Unlock (Arrears &gt;= 200 vs &lt; 200 &amp; Due Ranges)</div>
+                                    <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-lock me-1"></i>Mobile Portfolio Arrears Lock vs Unlock (Arrears &gt;= 200 vs &lt; 200)</div>
                                     <div style="height: 140px; position: relative; width: 100%;">
                                         <canvas id="mobileLockArrearsChart"></canvas>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-lg-6 col-12" id="matured-np-card">
+                        <div class="col-lg-4 col-12" id="matured-np-card">
                             <div class="card glass-card h-100">
                                 <div class="card-body p-2">
                                     <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-history me-1"></i>Matured vs Non-Matured Contracts Performance</div>
@@ -389,21 +406,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- Row 6: Outstanding Distribution & 60-90 DPD Trend -->
-                    <div class="row g-2 mb-2" style="margin-top: 4px;">
-                        <div class="col-lg-6 col-12">
-                            <div class="card glass-card h-100">
-                                <div class="card-body p-2">
-                                    <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-coins me-1"></i>Outstanding Amount Distribution (Above vs Below 1000)</div>
-                                    <div style="height: 140px; position: relative; width: 100%;">
-                                        <canvas id="outstandingAnalysisChart"></canvas>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-6 col-12">
+                        <div class="col-lg-4 col-12">
                             <div class="card glass-card h-100">
                                 <div class="card-body p-2">
                                     <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-exclamation-triangle me-1"></i>60-90 DPD Monthly Trend</div>
