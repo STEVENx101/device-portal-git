@@ -132,4 +132,111 @@ public class ContractController {
             return ResponseEntity.internalServerError().body("[]");
         }
     }
+
+    @GetMapping("/statement")
+    public ResponseEntity<String> getAccountStatement(
+            @RequestParam("financeNo") String financeNo,
+            @RequestParam("fromDate") String fromDate,
+            @RequestParam("toDate") String toDate) {
+        try {
+            java.util.Map<String, Object> mapping = contractService.getAccountMapping(financeNo);
+            String accountNo = mapping.get("ACCOUNT_NO") != null ? mapping.get("ACCOUNT_NO").toString() : financeNo;
+            String legacyAccountNo = mapping.get("LEGACY_ACCOUNT_NO") != null ? mapping.get("LEGACY_ACCOUNT_NO").toString() : "";
+
+            String authUrl = "https://ma.fintrex.lk/mobile-banking/api/authenticate";
+            String authBody = "{\"username\": \"df\", \"password\": \"9wXE8nc9j1Uy\"}";
+
+            HttpRequest authRequest = HttpRequest.newBuilder()
+                    .uri(URI.create(authUrl))
+                    .header("Content-Type", "application/json")
+                    .timeout(Duration.ofSeconds(15))
+                    .POST(HttpRequest.BodyPublishers.ofString(authBody))
+                    .build();
+
+            HttpResponse<String> authResponse = httpClient.send(authRequest, HttpResponse.BodyHandlers.ofString());
+            if (authResponse.statusCode() != 200) {
+                return ResponseEntity.status(500).body("{\"status\": 500, \"message\": \"Authentication failed\"}");
+            }
+
+            tools.jackson.databind.ObjectMapper mapper = new tools.jackson.databind.ObjectMapper();
+            tools.jackson.databind.JsonNode authRoot = mapper.readTree(authResponse.body());
+            String token = null;
+            if (authRoot.has("token")) {
+                token = authRoot.get("token").asText();
+            } else if (authRoot.has("accessToken")) {
+                token = authRoot.get("accessToken").asText();
+            } else if (authRoot.has("data")) {
+                tools.jackson.databind.JsonNode dataNode = authRoot.get("data");
+                if (dataNode.has("token")) {
+                    token = dataNode.get("token").asText();
+                } else if (dataNode.has("accessToken")) {
+                    token = dataNode.get("accessToken").asText();
+                } else if (dataNode.isTextual()) {
+                    token = dataNode.asText();
+                }
+            }
+
+            if (token == null || token.isEmpty()) {
+                return ResponseEntity.status(500).body("{\"status\": 500, \"message\": \"Token not found\"}");
+            }
+
+            boolean hasNext = true;
+            int page = 0;
+            int size = 100;
+            tools.jackson.databind.node.ArrayNode allTransactions = mapper.createArrayNode();
+
+            while (hasNext && page < 50) {
+                String statementUrl = "https://ma.fintrex.lk/mobile-banking/api/account/statement";
+                String statementBody = String.format(
+                        "{\"type\": \"LOAN\", \"accountNo\": \"%s\", \"fromDate\": \"%s\", \"toDate\": \"%s\", \"page\": %d, \"size\": %d}",
+                        accountNo, fromDate, toDate, page, size
+                );
+
+                HttpRequest stmtRequest = HttpRequest.newBuilder()
+                        .uri(URI.create(statementUrl))
+                        .header("Content-Type", "application/json")
+                        .header("Authorization", "Bearer " + token)
+                        .timeout(Duration.ofSeconds(15))
+                        .POST(HttpRequest.BodyPublishers.ofString(statementBody))
+                        .build();
+
+                HttpResponse<String> stmtResponse = httpClient.send(stmtRequest, HttpResponse.BodyHandlers.ofString());
+                if (stmtResponse.statusCode() != 200) {
+                    break;
+                }
+
+                tools.jackson.databind.JsonNode stmtRoot = mapper.readTree(stmtResponse.body());
+                if (stmtRoot.has("data") && stmtRoot.get("data").has("transactions")) {
+                    tools.jackson.databind.JsonNode transactionsNode = stmtRoot.get("data").get("transactions");
+                    if (transactionsNode.isArray()) {
+                        for (tools.jackson.databind.JsonNode tx : transactionsNode) {
+                            allTransactions.add(tx);
+                        }
+                    }
+                }
+
+                if (stmtRoot.has("data") && stmtRoot.get("data").has("hasNext")) {
+                    hasNext = stmtRoot.get("data").get("hasNext").asBoolean();
+                } else {
+                    hasNext = false;
+                }
+
+                page++;
+            }
+
+            tools.jackson.databind.node.ObjectNode successResponse = mapper.createObjectNode();
+            successResponse.put("status", 200);
+            successResponse.put("message", "Successful");
+
+            tools.jackson.databind.node.ObjectNode dataNode = mapper.createObjectNode();
+            dataNode.set("transactions", allTransactions);
+            dataNode.put("legacyAccountNo", legacyAccountNo);
+            successResponse.set("data", dataNode);
+
+            return ResponseEntity.ok(mapper.writeValueAsString(successResponse));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body("{\"status\": 500, \"message\": \"" + e.getMessage() + "\"}");
+        }
+    }
 }

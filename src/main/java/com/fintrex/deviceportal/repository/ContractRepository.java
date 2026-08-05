@@ -6,6 +6,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 @Repository
 public class ContractRepository {
@@ -227,5 +229,17 @@ public class ContractRepository {
         }
         String sql = "INSERT INTO device_portal.contract_remark (finance_no, remark, created_by, created_date) VALUES (?, ?, ?, NOW())";
         jdbcTemplate.update(sql, resolvedFinanceNo, remark, createdBy);
+    }
+
+    public Map<String, Object> getAccountMapping(String financeNo) {
+        String sql = "SELECT account_no AS ACCOUNT_NO, legacy_account_no AS LEGACY_ACCOUNT_NO FROM cbs.loan WHERE account_no = ? OR legacy_account_no = ? LIMIT 1";
+        try {
+            return jdbcTemplate.queryForMap(sql, financeNo, financeNo);
+        } catch (Exception e) {
+            Map<String, Object> fallback = new HashMap<>();
+            fallback.put("ACCOUNT_NO", financeNo);
+            fallback.put("LEGACY_ACCOUNT_NO", financeNo);
+            return fallback;
+        }
     }
 }

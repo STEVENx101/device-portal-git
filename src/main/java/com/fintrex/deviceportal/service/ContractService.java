@@ -148,4 +148,11 @@ public class ContractService {
         }
         contractRepository.addRemark(financeNo.trim(), remark.trim(), username);
     }
+
+    public java.util.Map<String, Object> getAccountMapping(String financeNo) {
+        if (financeNo == null || financeNo.trim().isEmpty()) {
+            return java.util.Map.of("account_no", "", "legacy_account_no", "");
+        }
+        return contractRepository.getAccountMapping(financeNo.trim());
+    }
 }

@@ -342,7 +342,39 @@
                                 </div>
                                 <!-- Account Statement pane -->
                                 <div class="tab-pane fade" id="stat-pane" role="tabpanel" aria-labelledby="tab-statement">
-                                    <p class="text-muted fs--1">No statement details registered for this account.</p>
+                                    <div class="d-flex justify-content-between align-items-center mb-2 px-1">
+                                        <span class="fs--2 text-muted fw-semi-bold">
+                                            Statement Period: <span id="stmt-period-display" class="fw-bold text-dark">-</span>
+                                        </span>
+                                        <button class="btn btn-sm btn-link p-0 text-primary fw-bold text-decoration-none" id="btn-refresh-stmt" onclick="refreshStatement()" style="font-size: 0.72rem;">
+                                            <i class="fas fa-sync-alt me-1"></i>Refresh
+                                        </button>
+                                    </div>
+                                    <div class="table-responsive">
+                                        <table id="statement_table" class="table table-hover table-striped mb-0 fs--1 w-100">
+                                            <thead>
+                                                <tr>
+                                                    <th>TRX DATE</th>
+                                                    <th>PARTICULARS</th>
+                                                    <th class="text-end">DEBIT</th>
+                                                    <th class="text-end">CREDIT</th>
+                                                    <th class="text-end">CLOSING</th>
+                                                    <th>OPERATOR ID</th>
+                                                    <th>SUPER</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="statement_table_body">
+                                                <tr>
+                                                    <td colspan="7" class="text-center text-muted">No data loaded. Select a contract to load details.</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="text-center mt-3" id="stmt-load-more-container" style="display: none;">
+                                        <button class="btn btn-sm btn-outline-primary fw-bold px-4" id="btn-stmt-load-more" onclick="loadMoreStatementMonths()" style="font-size: 0.68rem; border-radius: 4px;">
+                                            <i class="fas fa-calendar-plus me-1"></i>Load Past 3 Months More
+                                        </button>
+                                    </div>
                                 </div>
                                 <!-- Payments pane -->
                                 <div class="tab-pane fade" id="pay-pane" role="tabpanel" aria-labelledby="tab-payments">
@@ -489,6 +521,7 @@
                             });
 
                             ReceiptTable('');
+                            initStatement('');
                             SmsTable('');
                             LocksTable('');
                             RemarksTable('');
@@ -547,6 +580,168 @@
                             }
                         });
 
+
+                        let currentStatementFinanceNo = '';
+                        let statementMonthsLimit = 3;
+
+                        function initStatement(financeNo) {
+                            currentStatementFinanceNo = financeNo;
+                            statementMonthsLimit = 3;
+                            loadStatementData();
+                        }
+
+                        function loadMoreStatementMonths() {
+                            statementMonthsLimit += 3;
+                            loadStatementData();
+                        }
+
+                        function refreshStatement() {
+                            loadStatementData();
+                        }
+
+                        function loadStatementData() {
+                            if (!currentStatementFinanceNo) {
+                                document.getElementById("statement_table_body").innerHTML = '<tr><td colspan="7" class="text-center text-muted">No data loaded. Select a contract to load details.</td></tr>';
+                                document.getElementById("stmt-load-more-container").style.display = 'none';
+                                document.getElementById("stmt-period-display").innerText = '-';
+                                return;
+                            }
+                            
+                            const toDateObj = new Date();
+                            const fromDateObj = new Date();
+                            fromDateObj.setMonth(toDateObj.getMonth() - statementMonthsLimit);
+                            
+                            const formatDate = (date) => {
+                                const y = date.getFullYear();
+                                const m = String(date.getMonth() + 1).padStart(2, '0');
+                                const d = String(date.getDate()).padStart(2, '0');
+                                return `${y}-${m}-${d}`;
+                            };
+                            
+                            const fromDateStr = formatDate(fromDateObj);
+                            const toDateStr = formatDate(toDateObj);
+                            
+                            const formatDisplayDate = (date) => {
+                                const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                                return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
+                            };
+                            document.getElementById("stmt-period-display").innerText = `${formatDisplayDate(fromDateObj)} to ${formatDisplayDate(toDateObj)}`;
+                            
+                            const body = document.getElementById("statement_table_body");
+                            body.innerHTML = '<tr><td colspan="7" class="text-center"><span class="spinner-border spinner-border-sm text-primary" role="status"></span> Loading statement...</td></tr>';
+                            
+                            fetch(`${contextPath}/api/contracts/statement?financeNo=${encodeURIComponent(currentStatementFinanceNo)}&fromDate=${fromDateStr}&toDate=${toDateStr}`)
+                                .then(res => res.json())
+                                .then(res => {
+                                    if (res.status !== 200 || !res.data || !res.data.transactions || res.data.transactions.length === 0) {
+                                        body.innerHTML = '<tr><td colspan="7" class="text-center text-muted">No statement details registered for this account.</td></tr>';
+                                        document.getElementById("stmt-load-more-container").style.display = 'block';
+                                        return;
+                                    }
+                                    
+                                    const txs = res.data.transactions;
+                                    const legacyAccountNo = res.data.legacyAccountNo || '';
+                                    let html = '';
+                                    
+                                    const formatTxDate = (dateStr) => {
+                                        if (!dateStr) return '';
+                                        const parts = dateStr.split(' ')[0].split('-');
+                                        if (parts.length !== 3) return dateStr;
+                                        const year = parts[0];
+                                        const monthNum = parseInt(parts[1], 10) - 1;
+                                        const day = parts[2];
+                                        const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+                                        return `${day} ${months[monthNum]} ${year}`;
+                                    };
+                                    
+                                    txs.forEach(tx => {
+                                        const isOpening = tx.remark === 'Opening Balance';
+                                        const isClosing = tx.remark === 'Closing Balance';
+                                        
+                                        let dateFormatted = formatTxDate(tx.date);
+                                        if (isOpening) {
+                                            dateFormatted = '';
+                                        }
+                                        
+                                        let particulars = tx.remark || '';
+                                        
+                                        if (isOpening) {
+                                            particulars = `Opening Balance ${formatDisplayDate(fromDateObj)}`;
+                                        } else if (isClosing) {
+                                            particulars = `Closing Balance ${formatDisplayDate(toDateObj)}`;
+                                        } else {
+                                            if (tx.entryType === 'CR') {
+                                                let subReason = 'LN_PAID_PRIN';
+                                                if (tx.remark && tx.remark.includes('INTDUE')) {
+                                                    subReason = 'LN_PAID_INTDUE';
+                                                } else if (tx.remark && tx.remark.includes('PRIN')) {
+                                                    subReason = 'LN_PAID_PRIN';
+                                                } else {
+                                                    subReason = (tx.amount < 1000) ? 'LN_PAID_INTDUE' : 'LN_PAID_PRIN';
+                                                }
+                                                particulars = `Loan Repayment From ${legacyAccountNo || tx.accountNo} : ${subReason}`;
+                                            } else if (tx.entryType === 'DR') {
+                                                particulars = `INTEREST DUE PAID ||Narration : ${tx.remark || 'LN_PAYMENT - LN_PAID_INTDUE'}`;
+                                            }
+                                        }
+                                        
+                                        let debitStr = '';
+                                        let creditStr = '';
+                                        let closingStr = tx.balance !== null ? parseFloat(tx.balance).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '0.00';
+                                        
+                                        if (isOpening) {
+                                            debitStr = '';
+                                            creditStr = '0.00';
+                                            closingStr = '0.00';
+                                        } else if (isClosing) {
+                                            let totalDebit = 0;
+                                            let totalCredit = 0;
+                                            txs.forEach(t => {
+                                                if (t.remark !== 'Opening Balance' && t.remark !== 'Closing Balance') {
+                                                    if (t.entryType === 'DR') totalDebit += (t.amount || 0);
+                                                    if (t.entryType === 'CR') totalCredit += (t.amount || 0);
+                                                }
+                                            });
+                                            debitStr = totalDebit > 0 ? `-${totalDebit.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}` : '';
+                                            creditStr = totalCredit.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                                        } else {
+                                            if (tx.entryType === 'DR') {
+                                                debitStr = tx.amount !== null ? `-${parseFloat(tx.amount).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}` : '';
+                                                creditStr = '0.00';
+                                            } else if (tx.entryType === 'CR') {
+                                                debitStr = '';
+                                                creditStr = tx.amount !== null ? parseFloat(tx.amount).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '0.00';
+                                            }
+                                        }
+                                        
+                                        const operatorId = (isOpening || isClosing) ? '' : 'SYS';
+                                        const superVal = '';
+                                        
+                                        let rowStyle = '';
+                                        if (isOpening || isClosing) {
+                                            rowStyle = 'class="bg-light fw-bold"';
+                                        }
+                                        
+                                        html += `<tr ${rowStyle}>
+                                            <td class="align-middle">${dateFormatted}</td>
+                                            <td class="align-middle">${particulars}</td>
+                                            <td class="text-end text-danger align-middle">${debitStr}</td>
+                                            <td class="text-end text-primary align-middle">${creditStr}</td>
+                                            <td class="text-end fw-bold text-dark align-middle">${closingStr}</td>
+                                            <td class="align-middle">${operatorId}</td>
+                                            <td class="align-middle">${superVal}</td>
+                                        </tr>`;
+                                    });
+                                    
+                                    body.innerHTML = html;
+                                    document.getElementById("stmt-load-more-container").style.display = 'block';
+                                })
+                                .catch(err => {
+                                    console.error("Error loading statement:", err);
+                                    body.innerHTML = '<tr><td colspan="7" class="text-center text-danger">Error loading account statement. Please try again.</td></tr>';
+                                    document.getElementById("stmt-load-more-container").style.display = 'block';
+                                });
+                        }
 
                         function ReceiptTable(financeNo) {
 
@@ -1137,6 +1332,7 @@
                                             $('#searchHoverTrigger').show();
 
                                             ReceiptTable(data.financeNo);
+                                            initStatement(data.financeNo);
                                             SmsTable(data.financeNo);
                                             LocksTable(data.financeNo, data.security, data.imeiNo);
                                             RemarksTable(data.financeNo);
