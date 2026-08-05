@@ -140,8 +140,19 @@ public class ContractController {
             @RequestParam("toDate") String toDate) {
         try {
             java.util.Map<String, Object> mapping = contractService.getAccountMapping(financeNo);
-            String accountNo = mapping.get("ACCOUNT_NO") != null ? mapping.get("ACCOUNT_NO").toString() : financeNo;
-            String legacyAccountNo = mapping.get("LEGACY_ACCOUNT_NO") != null ? mapping.get("LEGACY_ACCOUNT_NO").toString() : "";
+            String accountNo = financeNo;
+            if (mapping.get("ACCOUNT_NO") != null) {
+                accountNo = mapping.get("ACCOUNT_NO").toString();
+            } else if (mapping.get("account_no") != null) {
+                accountNo = mapping.get("account_no").toString();
+            }
+
+            String legacyAccountNo = "";
+            if (mapping.get("LEGACY_ACCOUNT_NO") != null) {
+                legacyAccountNo = mapping.get("LEGACY_ACCOUNT_NO").toString();
+            } else if (mapping.get("legacy_account_no") != null) {
+                legacyAccountNo = mapping.get("legacy_account_no").toString();
+            }
 
             String authUrl = "https://ma.fintrex.lk/mobile-banking/api/authenticate";
             String authBody = "{\"username\": \"df\", \"password\": \"9wXE8nc9j1Uy\"}";
@@ -161,13 +172,17 @@ public class ContractController {
             tools.jackson.databind.ObjectMapper mapper = new tools.jackson.databind.ObjectMapper();
             tools.jackson.databind.JsonNode authRoot = mapper.readTree(authResponse.body());
             String token = null;
-            if (authRoot.has("token")) {
+            if (authRoot.has("access_token")) {
+                token = authRoot.get("access_token").asText();
+            } else if (authRoot.has("token")) {
                 token = authRoot.get("token").asText();
             } else if (authRoot.has("accessToken")) {
                 token = authRoot.get("accessToken").asText();
             } else if (authRoot.has("data")) {
                 tools.jackson.databind.JsonNode dataNode = authRoot.get("data");
-                if (dataNode.has("token")) {
+                if (dataNode.has("access_token")) {
+                    token = dataNode.get("access_token").asText();
+                } else if (dataNode.has("token")) {
                     token = dataNode.get("token").asText();
                 } else if (dataNode.has("accessToken")) {
                     token = dataNode.get("accessToken").asText();
