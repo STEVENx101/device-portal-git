@@ -436,13 +436,11 @@
                                                                 <th class="text-end">DEBIT</th>
                                                                 <th class="text-end">CREDIT</th>
                                                                 <th class="text-end">CLOSING</th>
-                                                                <th>OPERATOR ID</th>
-                                                                <th>SUPER</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody id="statement_table_body">
                                                             <tr>
-                                                                <td colspan="7" class="text-center text-muted">No data
+                                                                <td colspan="5" class="text-center text-muted">No data
                                                                     loaded. Select a contract to load details.</td>
                                                             </tr>
                                                         </tbody>
@@ -691,10 +689,9 @@
 
                 function refreshStatement() {
                     loadStatementData();
-                }
-                function loadStatementData() {
+                }                function loadStatementData() {
                     if (!currentStatementFinanceNo) {
-                        document.getElementById("statement_table_body").innerHTML = '<tr><td colspan="7" class="text-center text-muted">No data loaded. Select a contract to load details.</td></tr>';
+                        document.getElementById("statement_table_body").innerHTML = '<tr><td colspan="5" class="text-center text-muted">No data loaded. Select a contract to load details.</td></tr>';
                         document.getElementById("stmt-load-more-container").style.display = 'none';
                         document.getElementById("stmt-period-display").innerText = '-';
                         return;
@@ -721,13 +718,13 @@
                     document.getElementById("stmt-period-display").innerText = formatDisplayDate(fromDateObj) + ' to ' + formatDisplayDate(toDateObj);
 
                     const body = document.getElementById("statement_table_body");
-                    body.innerHTML = '<tr><td colspan="7" class="text-center"><span class="spinner-border spinner-border-sm text-primary" role="status"></span> Loading statement...</td></tr>';
+                    body.innerHTML = '<tr><td colspan="5" class="text-center"><span class="spinner-border spinner-border-sm text-primary" role="status"></span> Loading statement...</td></tr>';
 
                     fetch(contextPath + '/api/contracts/statement?financeNo=' + encodeURIComponent(currentStatementFinanceNo) + '&fromDate=' + fromDateStr + '&toDate=' + toDateStr)
                         .then(res => res.json())
                         .then(res => {
                             if (res.status !== 200 || !res.data || !res.data.transactions || res.data.transactions.length === 0) {
-                                body.innerHTML = '<tr><td colspan="7" class="text-center text-muted">No statement details registered for this account.</td></tr>';
+                                body.innerHTML = '<tr><td colspan="5" class="text-center text-muted">No statement details registered for this account.</td></tr>';
                                 document.getElementById("stmt-load-more-container").style.display = 'block';
                                 return;
                             }
@@ -807,9 +804,6 @@
                                     }
                                 }
 
-                                const operatorId = (isOpening || isClosing) ? '' : 'SYS';
-                                const superVal = '';
-
                                 let rowStyle = '';
                                 if (isOpening || isClosing) {
                                     rowStyle = 'class="bg-light fw-bold"';
@@ -821,8 +815,6 @@
                                     '<td class="text-end text-danger align-middle">' + debitStr + '</td>' +
                                     '<td class="text-end text-primary align-middle">' + creditStr + '</td>' +
                                     '<td class="text-end fw-bold text-dark align-middle">' + closingStr + '</td>' +
-                                    '<td class="align-middle">' + operatorId + '</td>' +
-                                    '<td class="align-middle">' + superVal + '</td>' +
                                     '</tr>';
                             });
 
@@ -831,7 +823,7 @@
                         })
                         .catch(err => {
                             console.error("Error loading statement:", err);
-                            body.innerHTML = '<tr><td colspan="7" class="text-center text-danger">Error loading account statement. Please try again.</td></tr>';
+                            body.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Error loading account statement. Please try again.</td></tr>';
                             document.getElementById("stmt-load-more-container").style.display = 'block';
                         });
                 }

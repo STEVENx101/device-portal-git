@@ -327,13 +327,13 @@
                                         <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-hdd me-1"></i>Device Security Status</div>
                                         <div class="row g-2 align-items-center text-center">
                                             <div class="col-6 mobile-sec-col">
-                                                <div class="fs--3 fw-semi-bold text-muted mb-1">Mobiles Performing</div>
+                                                <div class="fw-semi-bold text-muted mb-1" style="font-size: 0.55rem;">Mobiles Performing</div>
                                                 <div style="height: 95px; position: relative; width: 100%;">
                                                     <canvas id="mobilePerformingChart"></canvas>
                                                 </div>
                                             </div>
                                             <div class="col-6 mobile-sec-col">
-                                                <div class="fs--3 fw-semi-bold text-muted mb-1">Mobiles Lock</div>
+                                                <div class="fw-semi-bold text-muted mb-1" style="font-size: 0.55rem;">Mobiles Lock</div>
                                                 <div style="height: 95px; position: relative; width: 100%;">
                                                     <canvas id="mobileLockChart"></canvas>
                                                 </div>
@@ -654,59 +654,44 @@
                                     destroyChart('dpdComparisonChart');
                                     const ctx = document.getElementById("dpdComparisonChart").getContext('2d');
                                     activeCharts['dpdComparisonChart'] = new Chart(ctx, {
-                                        type: 'line',
+                                        type: 'bar',
                                         data: {
                                             labels: labels,
                                             datasets: [
                                                 {
                                                     label: 'DPD 0',
                                                     data: dpd0,
-                                                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                                                    backgroundColor: '#10b981',
                                                     borderColor: '#10b981',
-                                                    borderWidth: 2,
-                                                    fill: false,
-                                                    tension: 0.15,
-                                                    pointRadius: 3
+                                                    borderWidth: 1
                                                 },
                                                 {
                                                     label: 'DPD 1-30',
                                                     data: dpd1_30,
-                                                    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                                                    backgroundColor: '#f59e0b',
                                                     borderColor: '#f59e0b',
-                                                    borderWidth: 2,
-                                                    fill: false,
-                                                    tension: 0.15,
-                                                    pointRadius: 3
+                                                    borderWidth: 1
                                                 },
                                                 {
                                                     label: 'DPD 31-60',
                                                     data: dpd31_60,
-                                                    backgroundColor: 'rgba(249, 115, 22, 0.1)',
+                                                    backgroundColor: '#f97316',
                                                     borderColor: '#f97316',
-                                                    borderWidth: 2,
-                                                    fill: false,
-                                                    tension: 0.15,
-                                                    pointRadius: 3
+                                                    borderWidth: 1
                                                 },
                                                 {
                                                     label: 'DPD 61-90',
                                                     data: dpd61_90,
-                                                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                                                    backgroundColor: '#ef4444',
                                                     borderColor: '#ef4444',
-                                                    borderWidth: 2,
-                                                    fill: false,
-                                                    tension: 0.15,
-                                                    pointRadius: 3
+                                                    borderWidth: 1
                                                 },
                                                 {
                                                     label: 'Over 90 DPD',
                                                     data: dpdAbove90,
-                                                    backgroundColor: isDark ? 'rgba(167, 139, 250, 0.1)' : 'rgba(30, 41, 59, 0.1)',
+                                                    backgroundColor: isDark ? '#a78bfa' : '#1e293b',
                                                     borderColor: isDark ? '#a78bfa' : '#1e293b',
-                                                    borderWidth: 2,
-                                                    fill: false,
-                                                    tension: 0.15,
-                                                    pointRadius: 3
+                                                    borderWidth: 1
                                                 }
                                             ]
                                         },
@@ -715,10 +700,12 @@
                                             maintainAspectRatio: false,
                                             scales: {
                                                 x: {
+                                                    stacked: true,
                                                     grid: { display: false },
                                                     ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 9, weight: 'bold' } }
                                                 },
                                                 y: {
+                                                    stacked: true,
                                                     beginAtZero: true,
                                                     grid: { color: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' },
                                                     ticks: {
