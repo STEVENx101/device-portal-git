@@ -660,7 +660,7 @@ public class DashboardRepository {
                 FROM cbs.vendor_payments vp
                 LEFT JOIN cbs.loan l ON vp.account_id = l.account_no OR vp.account_id = l.legacy_account_no
                 LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
-                WHERE vp.trx_date >= DATE_FORMAT(CURRENT_DATE(), '%Y-%m-01')
+                WHERE vp.trx_date >= DATE_FORMAT(CURRENT_DATE(), '%%Y-%%m-01')
                 %s
                 GROUP BY dealer_name
                 ORDER BY total_collected DESC

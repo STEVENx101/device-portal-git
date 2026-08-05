@@ -919,130 +919,155 @@
                                  if (maturedCard) maturedCard.className = 'col-lg-3 col-12';
                                  if (dpdTrendCard) dpdTrendCard.className = 'col-lg-5 col-12';
                                  
-                                 fetch('${pageContext.request.contextPath}/api/dashboard/mobile-lock-arrears')
-                                     .then(res => res.json())
-                                     .then(data => {
-                                         destroyChart('mobileLockArrearsChart');
-                                         const ctx = document.getElementById('mobileLockArrearsChart').getContext('2d');
-                                         activeCharts['mobileLockArrearsChart'] = new Chart(ctx, {
-                                             type: 'bar',
-                                             data: {
-                                                 labels: ['Unlock (<200)', 'Lock (>=200)', 'Due 200-500', 'Due 500-1000', 'Due 1000-2000', 'Due >2000'],
-                                                 datasets: [{
-                                                     label: 'Account Count',
-                                                     data: [
-                                                         data.unlock_count || 0,
-                                                         data.lock_count || 0,
-                                                         data.due_200_500 || 0,
-                                                         data.due_500_1000 || 0,
-                                                         data.due_1000_2000 || 0,
-                                                         data.due_above_2000 || 0
-                                                     ],
-                                                     backgroundColor: [
-                                                         'rgba(16, 185, 129, 0.8)',
-                                                         'rgba(239, 68, 68, 0.8)',
-                                                         'rgba(59, 130, 246, 0.8)',
-                                                         'rgba(99, 102, 241, 0.8)',
-                                                         'rgba(245, 158, 11, 0.8)',
-                                                         'rgba(139, 92, 246, 0.8)'
-                                                     ],
-                                                     borderColor: [
-                                                         '#10b981', '#ef4444', '#3b82f6', '#6366f1', '#f59e0b', '#8b5cf6'
-                                                     ],
-                                                     borderWidth: 1.5,
-                                                     borderRadius: 4
-                                                 }]
-                                             },
-                                             options: {
-                                                 responsive: true,
-                                                 maintainAspectRatio: false,
-                                                 plugins: {
-                                                     legend: { display: false },
-                                                     tooltip: { enabled: true },
-                                                     datalabels: { display: false }
-                                                 },
-                                                 scales: {
-                                                     y: {
-                                                         beginAtZero: true,
-                                                         ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 9 } }
-                                                     },
-                                                     x: {
-                                                         ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 9, weight: 'bold' } }
-                                                     }
-                                                 }
-                                             }
-                                         });
-                                     })
-                                     .catch(err => console.error("Error loading Mobile lock arrears analysis:", err));
-                             }
-
-                             // ============ 10. Matured vs Non-Matured Contracts Performance ============
-                             fetch('${pageContext.request.contextPath}/api/dashboard/matured-nonperforming' + productParam)
-                                 .then(res => res.json())
-                                 .then(data => {
-                                     let maturedPerf = 0, maturedNp = 0, nonMaturedPerf = 0, nonMaturedNp = 0;
-                                     data.forEach(item => {
-                                         const isMatured = item.maturity_status === 'Matured';
-                                         const isNp = item.performing_status === 'Non-Performing';
-                                         if (isMatured) {
-                                             if (isNp) maturedNp = item.contract_count || 0;
-                                             else maturedPerf = item.contract_count || 0;
-                                         } else {
-                                             if (isNp) nonMaturedNp = item.contract_count || 0;
-                                             else nonMaturedPerf = item.contract_count || 0;
-                                         }
-                                     });
-
-                                     destroyChart('maturedNpChart');
-                                     const ctx = document.getElementById('maturedNpChart').getContext('2d');
-                                     activeCharts['maturedNpChart'] = new Chart(ctx, {
-                                         type: 'bar',
-                                         data: {
-                                             labels: ['Matured', 'Non-Matured'],
-                                             datasets: [
-                                                 {
-                                                     label: 'Performing',
-                                                     data: [maturedPerf, nonMaturedPerf],
-                                                     backgroundColor: 'rgba(16, 185, 129, 0.85)',
-                                                     borderColor: '#10b981',
-                                                     borderWidth: 1,
-                                                     borderRadius: 4
-                                                 },
-                                                 {
-                                                     label: 'Non-Performing',
-                                                     data: [maturedNp, nonMaturedNp],
-                                                     backgroundColor: 'rgba(239, 68, 68, 0.85)',
-                                                     borderColor: '#ef4444',
-                                                     borderWidth: 1,
-                                                     borderRadius: 4
-                                                 }
-                                             ]
-                                         },
-                                         options: {
-                                             responsive: true,
-                                             maintainAspectRatio: false,
-                                             plugins: {
-                                                 legend: {
-                                                     display: true,
-                                                     position: 'top',
-                                                     labels: { color: isDark ? '#94a3b8' : '#475569', font: { size: 8 } }
-                                                 },
-                                                 tooltip: { enabled: true },
-                                                 datalabels: { display: false }
-                                             },
-                                             scales: {
-                                                 y: {
-                                                     beginAtZero: true,
-                                                     ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 9 } }
-                                                 },
-                                                 x: {
-                                                     ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 9, weight: 'bold' } }
-                                                 }
-                                             }
-                                         }
-                                     });
-                                 })
-                                 .catch(err => console.error("Error loading matured contract performance analysis:", err));
+                                  fetch('${pageContext.request.contextPath}/api/dashboard/mobile-lock-arrears')
+                                      .then(res => res.json())
+                                      .then(data => {
+                                          destroyChart('mobileLockArrearsChart');
+                                          const ctx = document.getElementById('mobileLockArrearsChart').getContext('2d');
+                                          activeCharts['mobileLockArrearsChart'] = new Chart(ctx, {
+                                              type: 'bar',
+                                              data: {
+                                                  labels: ['Unlock (<200)', 'Lock (>=200)', 'Due 200-500', 'Due 500-1000', 'Due 1000-2000', 'Due >2000'],
+                                                  datasets: [{
+                                                      data: [
+                                                          data.unlock_count || 0,
+                                                          data.lock_count || 0,
+                                                          data.due_200_500 || 0,
+                                                          data.due_500_1000 || 0,
+                                                          data.due_1000_2000 || 0,
+                                                          data.due_above_2000 || 0
+                                                      ],
+                                                      backgroundColor: function(context) {
+                                                          const colors = [
+                                                              'rgba(16, 185, 129, 0.85)',
+                                                              'rgba(239, 68, 68, 0.85)',
+                                                              'rgba(59, 130, 246, 0.85)',
+                                                              'rgba(99, 102, 241, 0.85)',
+                                                              'rgba(245, 158, 11, 0.85)',
+                                                              'rgba(139, 92, 246, 0.85)'
+                                                          ];
+                                                          return colors[context.dataIndex] || colors[0];
+                                                      },
+                                                      borderWidth: 0,
+                                                      borderRadius: { topRight: 4, bottomRight: 4, topLeft: 0, bottomLeft: 0 },
+                                                      barThickness: 10
+                                                  }]
+                                              },
+                                              options: {
+                                                  indexAxis: 'y',
+                                                  responsive: true,
+                                                  maintainAspectRatio: false,
+                                                  layout: {
+                                                      padding: { right: 30 }
+                                                  },
+                                                  plugins: {
+                                                      legend: { display: false },
+                                                      tooltip: { enabled: true },
+                                                      datalabels: {
+                                                          display: true,
+                                                          anchor: 'end',
+                                                          align: 'end',
+                                                          color: isDark ? '#cbd5e1' : '#1e293b',
+                                                          font: { weight: 'bold', size: 9 },
+                                                          formatter: (val) => val > 0 ? formatNum(val) : '0'
+                                                      }
+                                                  },
+                                                  scales: {
+                                                      x: {
+                                                          grid: { display: false },
+                                                          ticks: { display: false }
+                                                      },
+                                                      y: {
+                                                          grid: { display: false },
+                                                          ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 9, weight: 'bold' } }
+                                                      }
+                                                  }
+                                              }
+                                          });
+                                      })
+                                      .catch(err => console.error("Error loading Mobile lock arrears analysis:", err));
+                              }
+ 
+                              // ============ 10. Matured vs Non-Matured Contracts Performance ============
+                              fetch('${pageContext.request.contextPath}/api/dashboard/matured-nonperforming' + productParam)
+                                  .then(res => res.json())
+                                  .then(data => {
+                                      let maturedPerf = 0, maturedNp = 0, nonMaturedPerf = 0, nonMaturedNp = 0;
+                                      data.forEach(item => {
+                                          const isMatured = item.maturity_status === 'Matured';
+                                          const isNp = item.performing_status === 'Non-Performing';
+                                          if (isMatured) {
+                                              if (isNp) maturedNp = item.contract_count || 0;
+                                              else maturedPerf = item.contract_count || 0;
+                                          } else {
+                                              if (isNp) nonMaturedNp = item.contract_count || 0;
+                                              else nonMaturedPerf = item.contract_count || 0;
+                                          }
+                                      });
+ 
+                                      destroyChart('maturedNpChart');
+                                      const ctx = document.getElementById('maturedNpChart').getContext('2d');
+                                      activeCharts['maturedNpChart'] = new Chart(ctx, {
+                                          type: 'bar',
+                                          data: {
+                                              labels: ['Matured', 'Non-Matured'],
+                                              datasets: [
+                                                  {
+                                                      label: 'Performing',
+                                                      data: [maturedPerf, nonMaturedPerf],
+                                                      backgroundColor: 'rgba(16, 185, 129, 0.85)',
+                                                      borderColor: '#10b981',
+                                                      borderWidth: 0,
+                                                      borderRadius: 4,
+                                                      barThickness: 14
+                                                  },
+                                                  {
+                                                      label: 'Non-Performing',
+                                                      data: [maturedNp, nonMaturedNp],
+                                                      backgroundColor: 'rgba(239, 68, 68, 0.85)',
+                                                      borderColor: '#ef4444',
+                                                      borderWidth: 0,
+                                                      borderRadius: 4,
+                                                      barThickness: 14
+                                                  }
+                                              ]
+                                          },
+                                          options: {
+                                              indexAxis: 'y',
+                                              responsive: true,
+                                              maintainAspectRatio: false,
+                                              plugins: {
+                                                  legend: {
+                                                      display: true,
+                                                      position: 'top',
+                                                      labels: { boxWidth: 8, padding: 6, color: isDark ? '#94a3b8' : '#475569', font: { size: 8, weight: 'bold' } }
+                                                  },
+                                                  tooltip: { enabled: true },
+                                                  datalabels: {
+                                                      display: true,
+                                                      anchor: 'center',
+                                                      align: 'center',
+                                                      color: '#ffffff',
+                                                      font: { weight: 'bold', size: 9 },
+                                                      formatter: (val) => val > 0 ? formatNum(val) : ''
+                                                  }
+                                              },
+                                              scales: {
+                                                  x: {
+                                                      stacked: true,
+                                                      grid: { display: false },
+                                                      ticks: { display: false }
+                                                  },
+                                                  y: {
+                                                      stacked: true,
+                                                      grid: { display: false },
+                                                      ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 9, weight: 'bold' } }
+                                                  }
+                                              }
+                                          }
+                                      });
+                                  })
+                                  .catch(err => console.error("Error loading matured contract performance analysis:", err));
 
                              // ============ 11. Outstanding Amount Distribution (Above vs Below 1000) ============
                              fetch('${pageContext.request.contextPath}/api/dashboard/outstanding-analysis' + productParam)
