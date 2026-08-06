@@ -381,9 +381,9 @@
                         </div>
                     </div>
 
-                    <!-- Row 3: Risk Analytical Charts (Separate Lock vs Unlock and Arrears Ranges) -->
+                    <!-- Row 3: Risk Analytical Charts (All 4 cards in one line) -->
                     <div class="row g-2 mb-2" style="margin-top: 4px;">
-                        <div class="col-lg-6 col-12" id="mobile-lock-arrears-card">
+                        <div class="col-lg-3 col-md-6 col-12" id="mobile-lock-arrears-card">
                             <div class="card glass-card h-100">
                                 <div class="card-body p-2">
                                     <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-lock me-1"></i>Mobile Portfolio Arrears Lock vs Unlock (Arrears &gt;= 200 vs &lt; 200)</div>
@@ -393,7 +393,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-lg-6 col-12" id="mobile-arrears-ranges-card">
+                        <div class="col-lg-3 col-md-6 col-12" id="mobile-arrears-ranges-card">
                             <div class="card glass-card h-100">
                                 <div class="card-body p-2">
                                     <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-coins me-1"></i>Mobile Portfolio Arrears Due Ranges</div>
@@ -403,11 +403,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- Row 4: Matured and DPD Trend Charts -->
-                    <div class="row g-2 mb-2" style="margin-top: 4px;">
-                        <div class="col-lg-6 col-12" id="matured-np-card">
+                        <div class="col-lg-3 col-md-6 col-12" id="matured-np-card">
                             <div class="card glass-card h-100">
                                 <div class="card-body p-2">
                                     <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-history me-1"></i>Matured vs Non-Matured</div>
@@ -417,10 +413,10 @@
                                 </div>
                             </div>
                         </div>
-                         <div class="col-lg-6 col-12" id="dpd-trend-card">
+                         <div class="col-lg-3 col-md-6 col-12" id="dpd-trend-card">
                              <div class="card glass-card h-100">
                                  <div class="card-body p-2">
-                                     <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-exclamation-triangle me-1"></i>60-90 DPD Monthly Trend</div>
+                                     <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-exclamation-triangle me-1"></i>Variance Chart: 60-90 DPD</div>
                                      <div style="height: 140px; position: relative; width: 100%;">
                                          <canvas id="dpd60_90Chart"></canvas>
                                      </div>
@@ -1185,55 +1181,69 @@
                                  })
                                  .catch(err => console.error("Error loading outstanding analysis:", err));
 
-                             // ============ 12. 60-90 DPD Trend Chart ============
-                             fetch('${pageContext.request.contextPath}/api/dashboard/dpd-comparison-chart' + productParam)
-                                 .then(res => res.json())
-                                 .then(data => {
-                                     const labels = data.map(i => i.month_name);
-                                     const dpd60_90 = data.map(item => Math.round((item.dpd61_90_val / 1000000) * 100) / 100);
+                             // ============ 12. 60-90 DPD Variance Chart ============
+                              fetch('${pageContext.request.contextPath}/api/dashboard/dpd-comparison-chart' + productParam)
+                                  .then(res => res.json())
+                                  .then(data => {
+                                      const labels = data.map(i => i.month_name);
+                                      const dpd60_90 = data.map(item => Math.round((item.dpd61_90_val / 1000000) * 100) / 100);
 
-                                     destroyChart('dpd60_90Chart');
-                                     const ctx = document.getElementById('dpd60_90Chart').getContext('2d');
-                                     activeCharts['dpd60_90Chart'] = new Chart(ctx, {
-                                         type: 'line',
-                                         data: {
-                                             labels: labels,
-                                             datasets: [{
-                                                 label: '60-90 DPD Exposure',
-                                                 data: dpd60_90,
-                                                 backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                                                 borderColor: '#ef4444',
-                                                 borderWidth: 2.5,
-                                                 fill: true,
-                                                 tension: 0.2,
-                                                 pointRadius: 4
-                                             }]
-                                         },
-                                         options: {
-                                             responsive: true,
-                                             maintainAspectRatio: false,
-                                             scales: {
-                                                 y: {
-                                                     beginAtZero: true,
-                                                     ticks: {
-                                                         color: isDark ? '#94a3b8' : '#475569',
-                                                         font: { size: 9 },
-                                                         callback: function(val) { return val + ' Mn'; }
-                                                     }
-                                                 },
-                                                 x: {
-                                                     ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 9, weight: 'bold' } }
-                                                 }
-                                             },
-                                             plugins: {
-                                                 legend: { display: false },
-                                                 tooltip: { enabled: true },
-                                                 datalabels: { display: false }
-                                             }
-                                         }
-                                     });
-                                 })
-                                 .catch(err => console.error("Error loading DPD 60-90 Trend:", err));
+                                      // Calculate MoM variance (change from previous month)
+                                      const varianceData = [];
+                                      for (let i = 0; i < dpd60_90.length; i++) {
+                                          if (i === 0) {
+                                              varianceData.push(0);
+                                          } else {
+                                              varianceData.push(Math.round((dpd60_90[i] - dpd60_90[i - 1]) * 100) / 100);
+                                          }
+                                      }
+
+                                      destroyChart('dpd60_90Chart');
+                                      const ctx = document.getElementById('dpd60_90Chart').getContext('2d');
+                                      activeCharts['dpd60_90Chart'] = new Chart(ctx, {
+                                          type: 'bar',
+                                          data: {
+                                              labels: labels,
+                                              datasets: [{
+                                                  label: '60-90 DPD MoM Variance',
+                                                  data: varianceData,
+                                                  backgroundColor: varianceData.map(v => v <= 0 ? 'rgba(34, 197, 94, 0.25)' : 'rgba(239, 68, 68, 0.25)'),
+                                                  borderColor: varianceData.map(v => v <= 0 ? '#22c55e' : '#ef4444'),
+                                                  borderWidth: 1.5
+                                              }]
+                                          },
+                                          options: {
+                                              responsive: true,
+                                              maintainAspectRatio: false,
+                                              scales: {
+                                                  y: {
+                                                      ticks: {
+                                                          color: isDark ? '#94a3b8' : '#475569',
+                                                          font: { size: 9 },
+                                                          callback: function(val) { return (val > 0 ? '+' : '') + val + ' Mn'; }
+                                                      }
+                                                  },
+                                                  x: {
+                                                      ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 9, weight: 'bold' } }
+                                                  }
+                                              },
+                                              plugins: {
+                                                  legend: { display: false },
+                                                  tooltip: {
+                                                      enabled: true,
+                                                      callbacks: {
+                                                          label: function(context) {
+                                                              let val = context.raw;
+                                                              return 'Variance: ' + (val > 0 ? '+' : '') + val + ' Mn';
+                                                          }
+                                                      }
+                                                  },
+                                                  datalabels: { display: false }
+                                              }
+                                          }
+                                      });
+                                  })
+                                  .catch(err => console.error("Error loading DPD 60-90 Variance:", err));
                          }
 
                         document.addEventListener("DOMContentLoaded", function() {
