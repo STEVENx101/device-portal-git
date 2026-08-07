@@ -447,6 +447,78 @@
                         const activeCharts = {};
                         let selectedProduct = 'MF';
 
+                        const formatLKR = (val) => {
+                            const millions = val / 1000000;
+                            return new Intl.NumberFormat('en-LK', {
+                                style: 'currency',
+                                currency: 'LKR',
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                            }).format(millions) + " Mn";
+                        };
+
+                        const formatNum = (val) => {
+                            return new Intl.NumberFormat().format(val);
+                        };
+
+                        // Helper: build horizontal bar chart with direct data labels
+                        function buildHorizontalBar(canvasId, labels, amounts, gradientStart, gradientEnd, borderColor, isCollected) {
+                            destroyChart(canvasId);
+                            const ctx = document.getElementById(canvasId).getContext('2d');
+                            activeCharts[canvasId] = new Chart(ctx, {
+                                type: 'bar',
+                                data: {
+                                    labels: labels,
+                                    datasets: [{
+                                        data: amounts,
+                                        backgroundColor: function(context) {
+                                            const chart = context.chart;
+                                            const {ctx: canvasCtx, chartArea} = chart;
+                                            if (!chartArea) return gradientEnd;
+                                            const gradient = canvasCtx.createLinearGradient(chartArea.left, 0, chartArea.right, 0);
+                                            gradient.addColorStop(0, gradientStart);
+                                            gradient.addColorStop(1, gradientEnd);
+                                            return gradient;
+                                        },
+                                        borderColor: borderColor,
+                                        borderWidth: 1.5,
+                                        borderRadius: { topRight: 4, bottomRight: 4, topLeft: 0, bottomLeft: 0 },
+                                        barThickness: 12
+                                    }]
+                                },
+                                options: {
+                                    indexAxis: 'y',
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    layout: {
+                                        padding: { right: 40 }
+                                    },
+                                    plugins: {
+                                        legend: { display: false },
+                                        tooltip: { enabled: true },
+                                        datalabels: {
+                                            display: true,
+                                            anchor: 'end',
+                                            align: 'end',
+                                            color: isDark ? '#cbd5e1' : '#1e293b',
+                                            font: { weight: 'bold', size: 9 },
+                                            formatter: (val) => formatLKR(val)
+                                        }
+                                    },
+                                    scales: {
+                                        x: {
+                                            grid: { display: false },
+                                            ticks: { display: false }
+                                        },
+                                        y: {
+                                            grid: { display: false },
+                                            ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 9, weight: 'bold' } }
+                                        }
+                                    }
+                                }
+                            });
+                        }
+
                         function onProductChange() {
                             selectedProduct = document.getElementById('productFilterSelect').value;
                             loadDashboardData();
@@ -521,77 +593,6 @@
 
                         function loadDashboardData() {
                             const productParam = selectedProduct ? '?product=' + encodeURIComponent(selectedProduct) : '';
-                            const formatLKR = (val) => {
-                                const millions = val / 1000000;
-                                return new Intl.NumberFormat('en-LK', {
-                                    style: 'currency',
-                                    currency: 'LKR',
-                                    minimumFractionDigits: 2,
-                                    maximumFractionDigits: 2
-                                }).format(millions) + " Mn";
-                            };
-
-                            const formatNum = (val) => {
-                                return new Intl.NumberFormat().format(val);
-                            };
-
-                            // Helper: build horizontal bar chart with direct data labels
-                            function buildHorizontalBar(canvasId, labels, amounts, gradientStart, gradientEnd, borderColor, isCollected) {
-                                destroyChart(canvasId);
-                                const ctx = document.getElementById(canvasId).getContext('2d');
-                                activeCharts[canvasId] = new Chart(ctx, {
-                                    type: 'bar',
-                                    data: {
-                                        labels: labels,
-                                        datasets: [{
-                                            data: amounts,
-                                            backgroundColor: function(context) {
-                                                const chart = context.chart;
-                                                const {ctx: canvasCtx, chartArea} = chart;
-                                                if (!chartArea) return gradientEnd;
-                                                const gradient = canvasCtx.createLinearGradient(chartArea.left, 0, chartArea.right, 0);
-                                                gradient.addColorStop(0, gradientStart);
-                                                gradient.addColorStop(1, gradientEnd);
-                                                return gradient;
-                                            },
-                                            borderColor: borderColor,
-                                            borderWidth: 1.5,
-                                            borderRadius: { topRight: 4, bottomRight: 4, topLeft: 0, bottomLeft: 0 },
-                                            barThickness: 12
-                                        }]
-                                    },
-                                    options: {
-                                        indexAxis: 'y',
-                                        responsive: true,
-                                        maintainAspectRatio: false,
-                                        layout: {
-                                            padding: { right: 40 }
-                                        },
-                                        plugins: {
-                                            legend: { display: false },
-                                            tooltip: { enabled: true },
-                                            datalabels: {
-                                                display: true,
-                                                anchor: 'end',
-                                                align: 'end',
-                                                color: isDark ? '#cbd5e1' : '#1e293b',
-                                                font: { weight: 'bold', size: 9 },
-                                                formatter: (val) => formatLKR(val)
-                                            }
-                                        },
-                                        scales: {
-                                            x: {
-                                                grid: { display: false },
-                                                ticks: { display: false }
-                                            },
-                                            y: {
-                                                grid: { display: false },
-                                                ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 9, weight: 'bold' } }
-                                            }
-                                        }
-                                    }
-                                });
-                            }
 
                             // ============ 1. Dashboard Stats (KPI Cards) ============
                             fetch('${pageContext.request.contextPath}/api/dashboard/stats' + productParam)
