@@ -659,7 +659,6 @@ public class DashboardRepository {
     }
 
     public List<Map<String, Object>> getCollectionsDealerWise(String product, String startMonth, String endMonth) {
-        String filter = getProductFilterSql(product);
         String dateFilter;
         if (startMonth != null && !startMonth.trim().isEmpty() && endMonth != null && !endMonth.trim().isEmpty()) {
             dateFilter = String.format("vp.trx_date >= '%s-01' AND vp.trx_date < DATE_ADD('%s-01', INTERVAL 1 MONTH)", startMonth, endMonth);
@@ -669,19 +668,24 @@ public class DashboardRepository {
             dateFilter = "vp.trx_date >= DATE_FORMAT(CURRENT_DATE(), '%%Y-%%m-01')";
         }
 
+        String productFilter = "";
+        if ("MF".equalsIgnoreCase(product)) {
+            productFilter = "AND EXISTS (SELECT 1 FROM cbs.loan l LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val WHERE (vp.account_id = l.account_no OR vp.account_id = l.legacy_account_no) AND pr.product_code = 'MF')";
+        } else if ("LF".equalsIgnoreCase(product)) {
+            productFilter = "AND EXISTS (SELECT 1 FROM cbs.loan l LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val WHERE (vp.account_id = l.account_no OR vp.account_id = l.legacy_account_no) AND pr.product_code IN ('LF', 'laptop'))";
+        }
+
         String sql = String.format("""
                 SELECT
                     COALESCE(vp.status, 'Unknown') AS dealer_name,
                     COUNT(*) AS trx_count,
                     COALESCE(SUM(vp.amount), 0) AS total_collected
                 FROM cbs.vendor_payments vp
-                LEFT JOIN cbs.loan l ON vp.account_id = l.account_no OR vp.account_id = l.legacy_account_no
-                LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
                 WHERE %s
                 %s
-                GROUP BY dealer_name
+                GROUP BY COALESCE(vp.status, 'Unknown')
                 ORDER BY total_collected DESC
-                """, dateFilter, filter);
+                """, dateFilter, productFilter);
         return jdbcTemplate.queryForList(sql);
     }
 
