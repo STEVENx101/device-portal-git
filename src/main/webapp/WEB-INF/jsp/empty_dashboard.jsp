@@ -341,80 +341,86 @@
                         </div>
                     </div>
 
-                    <!-- Row 3: Risk & Performance Charts (All 5 cards side-by-side) -->
+                    <!-- Row 3: Risk & Performance Charts (All 5 cards side-by-side, vertical content orientation) -->
                     <div class="row g-2 mb-2" style="margin-top: 4px;">
-                        <div class="col-lg col-md-4 col-sm-6 col-12" id="mobile-lock-arrears-card">
+                        <!-- Card 1: Mobile Arrears: Lock vs Unlock -->
+                        <div class="col-lg-2 col-md-4 col-sm-6 col-12" id="mobile-lock-arrears-card">
                             <div class="card glass-card h-100">
                                 <div class="card-body p-2">
                                     <div class="fs--2 fw-semi-bold text-muted mb-2 text-truncate"><i class="fas fa-lock me-1"></i>Mobile Arrears: Lock vs Unlock</div>
-                                    <div style="height: 140px; position: relative; width: 100%;">
+                                    <div style="height: 260px; position: relative; width: 100%;">
                                         <canvas id="mobileLockArrearsChart"></canvas>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-lg col-md-4 col-sm-6 col-12" id="mobile-arrears-ranges-card">
+
+                        <!-- Card 2: Mobile Arrears: Due Ranges -->
+                        <div class="col-lg-3 col-md-4 col-sm-6 col-12" id="mobile-arrears-ranges-card">
                             <div class="card glass-card h-100">
                                 <div class="card-body p-2">
                                     <div class="fs--2 fw-semi-bold text-muted mb-2 text-truncate"><i class="fas fa-coins me-1"></i>Mobile Arrears: Due Ranges</div>
-                                    <div style="height: 140px; position: relative; width: 100%;">
+                                    <div style="height: 260px; position: relative; width: 100%;">
                                         <canvas id="mobileArrearsRangesChart"></canvas>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-lg col-md-4 col-sm-6 col-12" id="matured-np-card">
+
+                        <!-- Card 3: Matured vs Non-Matured -->
+                        <div class="col-lg-2 col-md-4 col-sm-6 col-12" id="matured-np-card">
                             <div class="card glass-card h-100">
                                 <div class="card-body p-2">
                                     <div class="fs--2 fw-semi-bold text-muted mb-2 text-truncate"><i class="fas fa-history me-1"></i>Matured vs Non-Matured</div>
-                                    <div style="height: 140px; position: relative; width: 100%;">
+                                    <div style="height: 260px; position: relative; width: 100%;">
                                         <canvas id="maturedNpChart"></canvas>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <!-- Middle: Device Performance & Security Status -->
-                        <div class="col-lg col-md-4 col-sm-6 col-12" id="device-security-status-card">
+
+                        <!-- Card 4: Device Security Status (Stacked vertically inside) -->
+                        <div class="col-lg-2 col-md-4 col-sm-6 col-12" id="device-security-status-card">
                             <div class="card glass-card h-100">
                                 <div class="card-body p-2 d-flex flex-column justify-content-between">
                                     <div>
                                         <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-hdd me-1"></i>Device Security Status</div>
-                                        <div class="row g-2 align-items-center text-center">
-                                            <div class="col-6 mobile-sec-col">
-                                                <div class="fw-semi-bold text-muted mb-1" style="font-size: 0.55rem;">Mobiles Performing</div>
-                                                <div style="height: 95px; position: relative; width: 100%;">
+                                        <div class="row g-1 align-items-center text-center">
+                                            <div class="col-12 mobile-sec-col mb-2">
+                                                <div class="fw-semi-bold text-muted" style="font-size: 0.55rem; margin-bottom: 2px;">Mobiles Performing</div>
+                                                <div style="height: 100px; position: relative; width: 100%;">
                                                     <canvas id="mobilePerformingChart"></canvas>
                                                 </div>
                                             </div>
-                                            <div class="col-6 mobile-sec-col">
-                                                <div class="fw-semi-bold text-muted mb-1" style="font-size: 0.55rem;">Mobiles Lock</div>
-                                                <div style="height: 95px; position: relative; width: 100%;">
+                                            <div class="col-12 mobile-sec-col">
+                                                <div class="fw-semi-bold text-muted" style="font-size: 0.55rem; margin-bottom: 2px;">Mobiles Lock</div>
+                                                <div style="height: 100px; position: relative; width: 100%;">
                                                     <canvas id="mobileLockChart"></canvas>
                                                 </div>
                                             </div>
-                                            <div class="col-6 laptop-sec-col" style="display: none;">
-                                                <div class="fw-semi-bold text-muted mb-1" style="font-size: 0.55rem;">Laptops Performing</div>
-                                                <div style="height: 95px; position: relative; width: 100%;">
+                                            <div class="col-12 laptop-sec-col mb-2" style="display: none;">
+                                                <div class="fw-semi-bold text-muted" style="font-size: 0.55rem; margin-bottom: 2px;">Laptops Performing</div>
+                                                <div style="height: 100px; position: relative; width: 100%;">
                                                     <canvas id="laptopPerformingChart"></canvas>
                                                 </div>
                                             </div>
-                                            <div class="col-6 laptop-sec-col" style="display: none;">
-                                                <div class="fw-semi-bold text-muted mb-1" style="font-size: 0.55rem;">Laptops Lock</div>
-                                                <div style="height: 95px; position: relative; width: 100%;">
+                                            <div class="col-12 laptop-sec-col" style="display: none;">
+                                                <div class="fw-semi-bold text-muted" style="font-size: 0.55rem; margin-bottom: 2px;">Laptops Lock</div>
+                                                <div style="height: 100px; position: relative; width: 100%;">
                                                     <canvas id="laptopLockChart"></canvas>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="text-center text-muted mt-2 border-top pt-2" id="device-sec-text" style="font-size: 0.65rem; line-height: 1.1;">
+                                    <div class="text-center text-muted mt-2 border-top pt-1" id="device-sec-text" style="font-size: 0.65rem; line-height: 1.1;">
                                          Device locks summary &bull; Active: <span id="sec-mobile-locked-val" class="fw-bold text-danger">0</span> Mobiles
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Right: Payments Status-Wise -->
-                        <div class="col-lg col-md-4 col-sm-6 col-12">
+                        <!-- Card 5: Payments Status-Wise -->
+                        <div class="col-lg-3 col-md-4 col-sm-6 col-12" id="payments-status-wise-card">
                             <div class="card glass-card h-100">
                                 <div class="card-body p-2 d-flex flex-column justify-content-between">
                                     <div>
@@ -426,7 +432,7 @@
                                                  <select id="paymentEndMonthFilter" class="form-select form-select-sm py-0 px-1" style="width: auto; font-size: 0.65rem;" onchange="loadPaymentsStatusChart()"></select>
                                              </div>
                                          </div>
-                                        <div style="height: 140px; position: relative; width: 100%;">
+                                        <div style="height: 260px; position: relative; width: 100%;">
                                             <canvas id="collectionsDealerChart"></canvas>
                                         </div>
                                     </div>
@@ -1038,8 +1044,12 @@
                                                         anchor: 'center',
                                                         align: 'center',
                                                         color: '#ffffff',
-                                                        font: { weight: 'bold', size: 9 },
-                                                        formatter: (val) => val > 0 ? formatNum(val) : ''
+                                                        font: { weight: 'bold', size: 8 },
+                                                        formatter: (val) => val > 0 ? formatNum(val) : '',
+                                                        overflow: 'allow',
+                                                        clip: false,
+                                                        textStrokeColor: 'rgba(0, 0, 0, 0.6)',
+                                                        textStrokeWidth: 2
                                                     }
                                                 },
                                                 scales: {
