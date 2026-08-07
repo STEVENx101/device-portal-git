@@ -297,35 +297,37 @@
 
                     <!-- Row 2: Charts (Disbursements, DPD Status, and Daily Disbursements) -->
                     <div class="row g-2 mb-2">
-                        <!-- Left: Monthly trend charts (1/2 width) -->
-                        <div class="col-lg-6 col-12">
+                        <!-- Left: Month-Wise Disbursements (1/3 width) -->
+                        <div class="col-lg-4 col-12">
                             <div class="card shadow-sm h-100">
                                 <div class="card-body p-2">
-                                    <div class="row g-2">
-                                        <div class="col-6">
-                                            <div class="fs--2 fw-semi-bold text-muted mb-1"><i class="fas fa-chart-line me-1"></i>Month-Wise Disbursements</div>
-                                            <div style="height: 155px; position: relative; width: 100%;">
-                                                <canvas id="businessChart"></canvas>
-                                            </div>
-                                        </div>
-                                        <div class="col-6">
-                                            <div class="fs--2 fw-semi-bold text-muted mb-1"><i class="fas fa-chart-bar me-1"></i>DPD Status (Overdue Portfolio)</div>
-                                            <div style="height: 155px; position: relative; width: 100%;">
-                                                <canvas id="dpdComparisonChart"></canvas>
-                                            </div>
-                                        </div>
+                                    <div class="fs--2 fw-semi-bold text-muted mb-1"><i class="fas fa-chart-line me-1"></i>Month-Wise Disbursements</div>
+                                    <div style="height: 155px; position: relative; width: 100%;">
+                                        <canvas id="businessChart"></canvas>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Right: Daily Disbursements (Past 7 Days) (1/2 width next to Month-Wise Disbursements) -->
-                        <div class="col-lg-6 col-12">
+                        <!-- Middle: Daily Disbursements (Past 7 Days) (1/3 width) -->
+                        <div class="col-lg-4 col-12">
                             <div class="card shadow-sm h-100">
                                 <div class="card-body p-2">
                                     <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-money-check-alt me-1"></i>Daily Disbursements (Past 7 Days)</div>
                                     <div style="height: 155px; position: relative; width: 100%;">
                                         <canvas id="vendorPaymentsChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right: DPD Status (Overdue Portfolio) (1/3 width) -->
+                        <div class="col-lg-4 col-12">
+                            <div class="card shadow-sm h-100">
+                                <div class="card-body p-2">
+                                    <div class="fs--2 fw-semi-bold text-muted mb-1"><i class="fas fa-chart-bar me-1"></i>DPD Status (Overdue Portfolio)</div>
+                                    <div style="height: 155px; position: relative; width: 100%;">
+                                        <canvas id="dpdComparisonChart"></canvas>
                                     </div>
                                 </div>
                             </div>
@@ -1047,73 +1049,6 @@
                                   .catch(err => console.error("Error loading matured contract performance analysis:", err));
 
                              // ============ 11. Outstanding Amount Distribution (Above vs Below 1000) ============
-                             fetch('${pageContext.request.contextPath}/api/dashboard/outstanding-analysis' + productParam)
-                                 .then(res => res.json())
-                                 .then(data => {
-                                     let above1000 = 0, below1000 = 0;
-                                     data.forEach(item => {
-                                         if (item.outstanding_bucket === 'Above 1000') {
-                                             above1000 = item.account_count || 0;
-                                         } else {
-                                             below1000 = item.account_count || 0;
-                                         }
-                                     });
-
-                                     destroyChart('outstandingAnalysisChart');
-                                     const ctx = document.getElementById('outstandingAnalysisChart').getContext('2d');
-                                     const outstandingCenterText = {
-                                         id: 'outstandingCenterText',
-                                         beforeDraw: function(chart) {
-                                             const width = chart.width, height = chart.height, ctx = chart.ctx;
-                                             ctx.restore();
-                                             const total = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                                             const fontSize = (chart.innerRadius / 26).toFixed(2);
-                                             ctx.font = "bold " + fontSize + "em 'Plus Jakarta Sans', sans-serif";
-                                             ctx.textBaseline = "middle";
-                                             ctx.fillStyle = isDark ? "#f8fafc" : "#1e293b";
-                                             const text = total.toLocaleString(),
-                                                   textX = Math.round((width - ctx.measureText(text).width) / 2),
-                                                   textY = chart.chartArea.top + (chart.chartArea.bottom - chart.chartArea.top) / 2;
-                                             ctx.fillText(text, textX, textY);
-                                             ctx.save();
-                                         }
-                                     };
-                                     activeCharts['outstandingAnalysisChart'] = new Chart(ctx, {
-                                         plugins: [outstandingCenterText],
-                                         type: 'doughnut',
-                                         data: {
-                                             labels: ['Above 1000', 'Below 1000'],
-                                             datasets: [{
-                                                 data: [above1000, below1000],
-                                                 backgroundColor: ['rgba(239, 68, 68, 0.85)', 'rgba(16, 185, 129, 0.85)'],
-                                                 borderWidth: 0
-                                             }]
-                                         },
-                                         options: {
-                                             responsive: true,
-                                             maintainAspectRatio: false,
-                                             cutout: '72%',
-                                             plugins: {
-                                                 legend: {
-                                                     display: true,
-                                                     position: 'bottom',
-                                                     labels: { color: isDark ? '#94a3b8' : '#475569', font: { size: 9 } }
-                                                 },
-                                                 tooltip: { enabled: true },
-                                                 datalabels: {
-                                                      display: true,
-                                                      color: '#ffffff',
-                                                      font: { weight: 'bold', size: 9 },
-                                                      formatter: (value, context) => {
-                                                          let sum = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                                                          if (sum === 0) return '';
-                                                          let percentage = Math.round(value * 100 / sum);
-                                                          return percentage >= 5 ? percentage + "%" : '';
-                                                      },
-                                                      anchor: 'center',
-                                                      align: 'center'
-                         }
-
                         document.addEventListener("DOMContentLoaded", function() {
                             checkSyncStatus();
                             loadDashboardData();
