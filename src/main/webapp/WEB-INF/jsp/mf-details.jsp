@@ -426,7 +426,7 @@
                                                         <i class="fas fa-sync-alt me-1"></i>Refresh
                                                     </button>
                                                 </div>
-                                                <div class="table-responsive">
+                                                <div class="table-responsive" style="max-height: 350px; overflow-y: auto;">
                                                     <table id="statement_table"
                                                         class="table table-hover table-striped mb-0 fs--1 w-100">
                                                         <thead>
@@ -458,7 +458,7 @@
                                             <!-- Payments pane -->
                                             <div class="tab-pane fade" id="pay-pane" role="tabpanel"
                                                 aria-labelledby="tab-payments">
-                                                <div class="table-responsive">
+                                                <div class="table-responsive" style="max-height: 350px; overflow-y: auto;">
                                                     <table id="receipt_table"
                                                         class="table table-hover table-striped mb-0 fs--1 w-100">
                                                         <thead>
@@ -477,7 +477,7 @@
                                             <!-- SMS pane -->
                                             <div class="tab-pane fade" id="sms-pane" role="tabpanel"
                                                 aria-labelledby="tab-sms">
-                                                <div class="table-responsive">
+                                                <div class="table-responsive" style="max-height: 350px; overflow-y: auto;">
                                                     <table id="sms_table"
                                                         class="table table-hover table-striped mb-0 fs--1 w-100">
                                                         <thead>
@@ -543,7 +543,7 @@
                                                         </div>
                                                     </form>
                                                 </div>
-                                                <div class="table-responsive">
+                                                <div class="table-responsive" style="max-height: 350px; overflow-y: auto;">
                                                     <table id="remarks_table"
                                                         class="table table-hover table-striped mb-0 fs--1 w-100">
                                                         <thead>
