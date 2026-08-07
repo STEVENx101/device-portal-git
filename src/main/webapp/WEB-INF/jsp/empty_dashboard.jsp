@@ -383,40 +383,40 @@
 
                     <!-- Row 3: Risk Analytical Charts (All 4 cards in one line) -->
                     <div class="row g-2 mb-2" style="margin-top: 4px;">
-                        <div class="col-lg-3 col-md-6 col-12" id="mobile-lock-arrears-card">
+                        <div class="col-lg-3 col-md-3 col-sm-6 col-12" id="mobile-lock-arrears-card">
                             <div class="card glass-card h-100">
                                 <div class="card-body p-2">
-                                    <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-lock me-1"></i>Mobile Portfolio Arrears Lock vs Unlock (Arrears &gt;= 200 vs &lt; 200)</div>
+                                    <div class="fs--2 fw-semi-bold text-muted mb-2 text-truncate"><i class="fas fa-lock me-1"></i>Mobile Arrears: Lock vs Unlock</div>
                                     <div style="height: 140px; position: relative; width: 100%;">
                                         <canvas id="mobileLockArrearsChart"></canvas>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-lg-3 col-md-6 col-12" id="mobile-arrears-ranges-card">
+                        <div class="col-lg-3 col-md-3 col-sm-6 col-12" id="mobile-arrears-ranges-card">
                             <div class="card glass-card h-100">
                                 <div class="card-body p-2">
-                                    <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-coins me-1"></i>Mobile Portfolio Arrears Due Ranges</div>
+                                    <div class="fs--2 fw-semi-bold text-muted mb-2 text-truncate"><i class="fas fa-coins me-1"></i>Mobile Arrears: Due Ranges</div>
                                     <div style="height: 140px; position: relative; width: 100%;">
                                         <canvas id="mobileArrearsRangesChart"></canvas>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-lg-3 col-md-6 col-12" id="matured-np-card">
+                        <div class="col-lg-3 col-md-3 col-sm-6 col-12" id="matured-np-card">
                             <div class="card glass-card h-100">
                                 <div class="card-body p-2">
-                                    <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-history me-1"></i>Matured vs Non-Matured</div>
+                                    <div class="fs--2 fw-semi-bold text-muted mb-2 text-truncate"><i class="fas fa-history me-1"></i>Matured vs Non-Matured</div>
                                     <div style="height: 140px; position: relative; width: 100%;">
                                         <canvas id="maturedNpChart"></canvas>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                         <div class="col-lg-3 col-md-6 col-12" id="dpd-trend-card">
+                         <div class="col-lg-3 col-md-3 col-sm-6 col-12" id="dpd-trend-card">
                              <div class="card glass-card h-100">
                                  <div class="card-body p-2">
-                                     <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-exclamation-triangle me-1"></i>Variance Chart: 60-90 DPD</div>
+                                     <div class="fs--2 fw-semi-bold text-muted mb-2 text-truncate"><i class="fas fa-exclamation-triangle me-1"></i>Variance Chart: 60-90 DPD</div>
                                      <div style="height: 140px; position: relative; width: 100%;">
                                          <canvas id="dpd60_90Chart"></canvas>
                                      </div>
@@ -908,19 +908,19 @@
                              const arrearsRangesCard = document.getElementById('mobile-arrears-ranges-card');
                              const maturedCard = document.getElementById('matured-np-card');
                              const dpdTrendCard = document.getElementById('dpd-trend-card');
-                             if (selectedProduct === 'LF') {
-                                 if (arrearsCard) arrearsCard.style.display = 'none';
-                                 if (arrearsRangesCard) arrearsRangesCard.style.display = 'none';
-                                 if (maturedCard) maturedCard.className = 'col-lg-6 col-12';
-                                 if (dpdTrendCard) dpdTrendCard.className = 'col-lg-6 col-12';
-                             } else {
-                                 if (arrearsCard) arrearsCard.style.display = '';
-                                 if (arrearsRangesCard) arrearsRangesCard.style.display = '';
-                                 if (arrearsCard) arrearsCard.className = 'col-lg-6 col-12';
-                                 if (arrearsRangesCard) arrearsRangesCard.className = 'col-lg-6 col-12';
-                                 if (maturedCard) maturedCard.className = 'col-lg-6 col-12';
-                                 if (dpdTrendCard) dpdTrendCard.className = 'col-lg-6 col-12';
-                                 
+                              if (selectedProduct === 'LF') {
+                                  if (arrearsCard) arrearsCard.style.display = 'none';
+                                  if (arrearsRangesCard) arrearsRangesCard.style.display = 'none';
+                                  if (maturedCard) maturedCard.className = 'col-lg-6 col-md-6 col-12';
+                                  if (dpdTrendCard) dpdTrendCard.className = 'col-lg-6 col-md-6 col-12';
+                              } else {
+                                  if (arrearsCard) arrearsCard.style.display = '';
+                                  if (arrearsRangesCard) arrearsRangesCard.style.display = '';
+                                  if (arrearsCard) arrearsCard.className = 'col-lg-3 col-md-3 col-sm-6 col-12';
+                                  if (arrearsRangesCard) arrearsRangesCard.className = 'col-lg-3 col-md-3 col-sm-6 col-12';
+                                  if (maturedCard) maturedCard.className = 'col-lg-3 col-md-3 col-sm-6 col-12';
+                                  if (dpdTrendCard) dpdTrendCard.className = 'col-lg-3 col-md-3 col-sm-6 col-12';
+                                  
                                   fetch('${pageContext.request.contextPath}/api/dashboard/mobile-lock-arrears')
                                       .then(res => res.json())
                                       .then(data => {
