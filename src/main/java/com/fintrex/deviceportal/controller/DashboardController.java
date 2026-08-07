@@ -77,8 +77,11 @@ public class DashboardController {
     }
 
     @GetMapping("/collections-dealer-wise")
-    public ResponseEntity<List<Map<String, Object>>> getCollectionsDealerWise(@RequestParam(value = "product", required = false) String product) {
-        return ResponseEntity.ok(dashboardService.getCollectionsDealerWise(product));
+    public ResponseEntity<List<Map<String, Object>>> getCollectionsDealerWise(
+            @RequestParam(value = "product", required = false) String product,
+            @RequestParam(value = "startMonth", required = false) String startMonth,
+            @RequestParam(value = "endMonth", required = false) String endMonth) {
+        return ResponseEntity.ok(dashboardService.getCollectionsDealerWise(product, startMonth, endMonth));
     }
 
     @GetMapping("/product-business-chart")

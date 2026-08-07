@@ -180,8 +180,16 @@ public class DashboardService {
 
     @SuppressWarnings("unchecked")
     public List<Map<String, Object>> getCollectionsDealerWise(String product) {
+        return getCollectionsDealerWise(product, null, null);
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<Map<String, Object>> getCollectionsDealerWise(String product, String startMonth, String endMonth) {
+        if ((startMonth != null && !startMonth.trim().isEmpty()) || (endMonth != null && !endMonth.trim().isEmpty())) {
+            return dashboardRepository.getCollectionsDealerWise(product, startMonth, endMonth);
+        }
         String suffix = getSuffix(product);
-        return (List<Map<String, Object>>) cache.computeIfAbsent("collections" + suffix, k -> dashboardRepository.getCollectionsDealerWise(product));
+        return (List<Map<String, Object>>) cache.computeIfAbsent("collections" + suffix, k -> dashboardRepository.getCollectionsDealerWise(product, null, null));
     }
 
     @SuppressWarnings("unchecked")

@@ -341,85 +341,92 @@
                         </div>
                     </div>
 
-                    <!-- Row 3: Risk Analytical Charts (All cards split into 3 vertical columns) -->
+                    <!-- Row 3: Risk & Performance Charts (All 5 cards side-by-side) -->
                     <div class="row g-2 mb-2" style="margin-top: 4px;">
-                        <!-- Left: Stacked vertical cards (1/3 width) -->
-                        <div class="col-lg-4 col-12" id="left-risk-stack">
-                            <div class="d-flex flex-column gap-2 h-100">
-                                <div class="card glass-card flex-fill" id="mobile-lock-arrears-card">
-                                    <div class="card-body p-2 d-flex flex-column justify-content-center">
-                                        <div class="fs--2 fw-semi-bold text-muted mb-1 text-truncate"><i class="fas fa-lock me-1"></i>Mobile Arrears: Lock vs Unlock</div>
-                                        <div style="height: 80px; position: relative; width: 100%;">
-                                            <canvas id="mobileLockArrearsChart"></canvas>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="card glass-card flex-fill" id="mobile-arrears-ranges-card">
-                                    <div class="card-body p-2 d-flex flex-column justify-content-center">
-                                        <div class="fs--2 fw-semi-bold text-muted mb-1 text-truncate"><i class="fas fa-coins me-1"></i>Mobile Arrears: Due Ranges</div>
-                                        <div style="height: 80px; position: relative; width: 100%;">
-                                            <canvas id="mobileArrearsRangesChart"></canvas>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="card glass-card flex-fill" id="matured-np-card">
-                                    <div class="card-body p-2 d-flex flex-column justify-content-center">
-                                        <div class="fs--2 fw-semi-bold text-muted mb-1 text-truncate"><i class="fas fa-history me-1"></i>Matured vs Non-Matured</div>
-                                        <div style="height: 80px; position: relative; width: 100%;">
-                                            <canvas id="maturedNpChart"></canvas>
-                                        </div>
+                        <div class="col-lg col-md-4 col-sm-6 col-12" id="mobile-lock-arrears-card">
+                            <div class="card glass-card h-100">
+                                <div class="card-body p-2">
+                                    <div class="fs--2 fw-semi-bold text-muted mb-2 text-truncate"><i class="fas fa-lock me-1"></i>Mobile Arrears: Lock vs Unlock</div>
+                                    <div style="height: 140px; position: relative; width: 100%;">
+                                        <canvas id="mobileLockArrearsChart"></canvas>
                                     </div>
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Middle: Device Performance & Security Status (1/3 width) -->
-                        <div class="col-lg-4 col-12" id="device-security-status-card">
+                        <div class="col-lg col-md-4 col-sm-6 col-12" id="mobile-arrears-ranges-card">
+                            <div class="card glass-card h-100">
+                                <div class="card-body p-2">
+                                    <div class="fs--2 fw-semi-bold text-muted mb-2 text-truncate"><i class="fas fa-coins me-1"></i>Mobile Arrears: Due Ranges</div>
+                                    <div style="height: 140px; position: relative; width: 100%;">
+                                        <canvas id="mobileArrearsRangesChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg col-md-4 col-sm-6 col-12" id="matured-np-card">
+                            <div class="card glass-card h-100">
+                                <div class="card-body p-2">
+                                    <div class="fs--2 fw-semi-bold text-muted mb-2 text-truncate"><i class="fas fa-history me-1"></i>Matured vs Non-Matured</div>
+                                    <div style="height: 140px; position: relative; width: 100%;">
+                                        <canvas id="maturedNpChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Middle: Device Performance & Security Status -->
+                        <div class="col-lg col-md-4 col-sm-6 col-12" id="device-security-status-card">
                             <div class="card glass-card h-100">
                                 <div class="card-body p-2 d-flex flex-column justify-content-between">
                                     <div>
                                         <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-hdd me-1"></i>Device Security Status</div>
-                                        <div class="row g-2 align-items-center text-center mt-3">
+                                        <div class="row g-2 align-items-center text-center">
                                             <div class="col-6 mobile-sec-col">
                                                 <div class="fw-semi-bold text-muted mb-1" style="font-size: 0.55rem;">Mobiles Performing</div>
-                                                <div style="height: 110px; position: relative; width: 100%;">
+                                                <div style="height: 95px; position: relative; width: 100%;">
                                                     <canvas id="mobilePerformingChart"></canvas>
                                                 </div>
                                             </div>
                                             <div class="col-6 mobile-sec-col">
                                                 <div class="fw-semi-bold text-muted mb-1" style="font-size: 0.55rem;">Mobiles Lock</div>
-                                                <div style="height: 110px; position: relative; width: 100%;">
+                                                <div style="height: 95px; position: relative; width: 100%;">
                                                     <canvas id="mobileLockChart"></canvas>
                                                 </div>
                                             </div>
                                             <div class="col-6 laptop-sec-col" style="display: none;">
                                                 <div class="fw-semi-bold text-muted mb-1" style="font-size: 0.55rem;">Laptops Performing</div>
-                                                <div style="height: 110px; position: relative; width: 100%;">
+                                                <div style="height: 95px; position: relative; width: 100%;">
                                                     <canvas id="laptopPerformingChart"></canvas>
                                                 </div>
                                             </div>
                                             <div class="col-6 laptop-sec-col" style="display: none;">
                                                 <div class="fw-semi-bold text-muted mb-1" style="font-size: 0.55rem;">Laptops Lock</div>
-                                                <div style="height: 110px; position: relative; width: 100%;">
+                                                <div style="height: 95px; position: relative; width: 100%;">
                                                     <canvas id="laptopLockChart"></canvas>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="text-center text-muted mt-3 border-top pt-2" id="device-sec-text" style="font-size: 0.65rem; line-height: 1.1;">
+                                    <div class="text-center text-muted mt-2 border-top pt-2" id="device-sec-text" style="font-size: 0.65rem; line-height: 1.1;">
                                          Device locks summary &bull; Active: <span id="sec-mobile-locked-val" class="fw-bold text-danger">0</span> Mobiles
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Right: Vendor-Wise Payments (Current Month) (1/3 width) -->
-                        <div class="col-lg-4 col-12">
+                        <!-- Right: Payments Status-Wise -->
+                        <div class="col-lg col-md-4 col-sm-6 col-12">
                             <div class="card glass-card h-100">
                                 <div class="card-body p-2 d-flex flex-column justify-content-between">
                                     <div>
-                                        <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-hand-holding-usd me-1"></i>Payments Status-Wise (Current Month)</div>
-                                        <div style="height: 260px; position: relative; width: 100%;" class="mt-2">
+                                         <div class="d-flex justify-content-between align-items-center mb-2">
+                                             <div class="fs--2 fw-semi-bold text-muted"><i class="fas fa-hand-holding-usd me-1"></i>Payments Status-Wise</div>
+                                             <div class="d-flex align-items-center gap-1">
+                                                 <select id="paymentStartMonthFilter" class="form-select form-select-sm py-0 px-1" style="width: auto; font-size: 0.65rem;" onchange="loadPaymentsStatusChart()"></select>
+                                                 <span style="font-size: 0.65rem;" class="text-muted">to</span>
+                                                 <select id="paymentEndMonthFilter" class="form-select form-select-sm py-0 px-1" style="width: auto; font-size: 0.65rem;" onchange="loadPaymentsStatusChart()"></select>
+                                             </div>
+                                         </div>
+                                        <div style="height: 140px; position: relative; width: 100%;">
                                             <canvas id="collectionsDealerChart"></canvas>
                                         </div>
                                     </div>
@@ -427,7 +434,7 @@
                             </div>
                         </div>
                     </div>
-
+                    
                     <!-- ======================== SCRIPTS ======================== -->
                     <script>
                         // Global chart instances to allow clean redrawing without hover issues
@@ -855,23 +862,10 @@
                                 })
                                 .catch(err => console.error("Error loading daily disbursements chart:", err));
 
-                             // ============ 8. Collections Dealer Wise (Vendor-Wise Payments Current Month) ============
-                             fetch('${pageContext.request.contextPath}/api/dashboard/collections-dealer-wise' + productParam)
-                                 .then(res => res.json())
-                                 .then(data => {
-                                     let chartData = data.length > 5 ? data.slice(0, 5) : data;
-                                     chartData.reverse();
-                                     buildHorizontalBar(
-                                         'collectionsDealerChart',
-                                         chartData.map(i => i.dealer_name),
-                                         chartData.map(i => i.total_collected || 0),
-                                         isDark ? 'rgba(245, 158, 11, 0.15)' : 'rgba(245, 158, 11, 0.15)',
-                                         isDark ? 'rgba(245, 158, 11, 0.85)' : 'rgba(245, 158, 11, 0.85)',
-                                         '#f59e0b',
-                                         true
-                                     );
-                                 })
-                                 .catch(err => console.error("Error loading collections dealer wise:", err));
+                            // ============ 8. Payments Status-Wise Chart ============
+                            loadPaymentsStatusChart();
+
+                             
 
                               // ============ 9. Mobile Arrears Lock vs Unlock (Arrears & Due Ranges) ============
                               const arrearsCard = document.getElementById('mobile-lock-arrears-card');
@@ -881,16 +875,12 @@
                                if (selectedProduct === 'LF') {
                                    if (arrearsCard) arrearsCard.style.display = 'none';
                                    if (arrearsRangesCard) arrearsRangesCard.style.display = 'none';
-                                   if (maturedCard) maturedCard.className = 'col-lg-6 col-md-6 col-12';
-                                   if (deviceSecCard) deviceSecCard.className = 'col-lg-6 col-md-6 col-12';
                                } else {
                                    if (arrearsCard) arrearsCard.style.display = '';
                                    if (arrearsRangesCard) arrearsRangesCard.style.display = '';
-                                   if (arrearsCard) arrearsCard.className = 'col-lg-3 col-md-3 col-sm-6 col-12';
-                                   if (arrearsRangesCard) arrearsRangesCard.className = 'col-lg-3 col-md-3 col-sm-6 col-12';
-                                   if (maturedCard) maturedCard.className = 'col-lg-3 col-md-3 col-sm-6 col-12';
-                                   if (deviceSecCard) deviceSecCard.className = 'col-lg-3 col-md-3 col-sm-6 col-12';
-                                   
+                               }
+                               
+                               if (selectedProduct !== 'LF') {
                                    fetch('${pageContext.request.contextPath}/api/dashboard/mobile-lock-arrears')
                                        .then(res => res.json())
                                        .then(data => {
@@ -911,33 +901,29 @@
                                                            'rgba(16, 185, 129, 0.85)'
                                                        ],
                                                        borderWidth: 0,
-                                                       borderRadius: { topRight: 4, bottomRight: 4, topLeft: 0, bottomLeft: 0 },
+                                                       borderRadius: 4,
                                                        barThickness: 18
                                                    }]
                                                },
                                                options: {
-                                                   indexAxis: 'y',
                                                    responsive: true,
                                                    maintainAspectRatio: false,
-                                                   layout: { padding: { right: 30 } },
+                                                   layout: { padding: { top: 20 } },
                                                    plugins: {
                                                        legend: { display: false },
                                                        tooltip: { enabled: true },
                                                        datalabels: {
                                                            display: true,
                                                            anchor: 'end',
-                                                           align: 'end',
+                                                           align: 'top',
                                                            color: isDark ? '#cbd5e1' : '#1e293b',
                                                            font: { weight: 'bold', size: 9 },
                                                            formatter: (val) => val > 0 ? formatNum(val) : '0'
                                                        }
                                                    },
                                                    scales: {
-                                                       x: { display: false, grid: { display: false } },
-                                                       y: {
-                                                           grid: { display: false },
-                                                           ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 9, weight: 'bold' } }
-                                                       }
+                                                       x: { grid: { display: false }, ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 9, weight: 'bold' } } },
+                                                       y: { display: false, grid: { display: false } }
                                                    }
                                                }
                                            });
@@ -963,33 +949,29 @@
                                                            'rgba(139, 92, 246, 0.85)'
                                                        ],
                                                        borderWidth: 0,
-                                                       borderRadius: { topRight: 4, bottomRight: 4, topLeft: 0, bottomLeft: 0 },
+                                                       borderRadius: 4,
                                                        barThickness: 12
                                                    }]
                                                },
                                                options: {
-                                                   indexAxis: 'y',
                                                    responsive: true,
                                                    maintainAspectRatio: false,
-                                                   layout: { padding: { right: 30 } },
+                                                   layout: { padding: { top: 20 } },
                                                    plugins: {
                                                        legend: { display: false },
                                                        tooltip: { enabled: true },
                                                        datalabels: {
                                                            display: true,
                                                            anchor: 'end',
-                                                           align: 'end',
+                                                           align: 'top',
                                                            color: isDark ? '#cbd5e1' : '#1e293b',
                                                            font: { weight: 'bold', size: 9 },
                                                            formatter: (val) => val > 0 ? formatNum(val) : '0'
                                                        }
                                                    },
                                                    scales: {
-                                                       x: { display: false, grid: { display: false } },
-                                                       y: {
-                                                           grid: { display: false },
-                                                           ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 9, weight: 'bold' } }
-                                                       }
+                                                       x: { grid: { display: false }, ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 8, weight: 'bold' } } },
+                                                       y: { display: false, grid: { display: false } }
                                                    }
                                                }
                                            });
@@ -1017,72 +999,125 @@
                                       destroyChart('maturedNpChart');
                                       const ctx = document.getElementById('maturedNpChart').getContext('2d');
                                       activeCharts['maturedNpChart'] = new Chart(ctx, {
-                                          type: 'bar',
-                                          data: {
-                                              labels: ['Matured', 'Non-Matured'],
-                                              datasets: [
-                                                  {
-                                                      label: 'Performing',
-                                                      data: [maturedPerf, nonMaturedPerf],
-                                                      backgroundColor: 'rgba(16, 185, 129, 0.85)',
-                                                      borderColor: '#10b981',
-                                                      borderWidth: 0,
-                                                      borderRadius: 4,
-                                                      barThickness: 14
-                                                  },
-                                                  {
-                                                      label: 'Non-Performing',
-                                                      data: [maturedNp, nonMaturedNp],
-                                                      backgroundColor: 'rgba(239, 68, 68, 0.85)',
-                                                      borderColor: '#ef4444',
-                                                      borderWidth: 0,
-                                                      borderRadius: 4,
-                                                      barThickness: 14
-                                                  }
-                                              ]
-                                          },
-                                          options: {
-                                              indexAxis: 'y',
-                                              responsive: true,
-                                              maintainAspectRatio: false,
-                                              plugins: {
-                                                  legend: {
-                                                      display: true,
-                                                      position: 'top',
-                                                      labels: { boxWidth: 8, padding: 6, color: isDark ? '#94a3b8' : '#475569', font: { size: 8, weight: 'bold' } }
-                                                  },
-                                                  tooltip: { enabled: true },
-                                                  datalabels: {
-                                                      display: true,
-                                                      anchor: 'center',
-                                                      align: 'center',
-                                                      color: '#ffffff',
-                                                      font: { weight: 'bold', size: 9 },
-                                                      formatter: (val) => val > 0 ? formatNum(val) : ''
-                                                  }
-                                              },
-                                              scales: {
-                                                  x: {
-                                                      stacked: true,
-                                                      grid: { display: false },
-                                                      ticks: { display: false }
-                                                  },
-                                                  y: {
-                                                      stacked: true,
-                                                      grid: { display: false },
-                                                      ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 9, weight: 'bold' } }
-                                                  }
-                                              }
-                                          }
-                                      });
+                                           type: 'bar',
+                                           data: {
+                                               labels: ['Matured', 'Non-Matured'],
+                                               datasets: [
+                                                   {
+                                                       label: 'Performing',
+                                                       data: [maturedPerf, nonMaturedPerf],
+                                                       backgroundColor: 'rgba(16, 185, 129, 0.85)',
+                                                       borderColor: '#10b981',
+                                                       borderWidth: 0,
+                                                       borderRadius: 4,
+                                                       barThickness: 14
+                                                   },
+                                                   {
+                                                       label: 'Non-Performing',
+                                                       data: [maturedNp, nonMaturedNp],
+                                                       backgroundColor: 'rgba(239, 68, 68, 0.85)',
+                                                       borderColor: '#ef4444',
+                                                       borderWidth: 0,
+                                                       borderRadius: 4,
+                                                       barThickness: 14
+                                                   }
+                                               ]
+                                           },
+                                           options: {
+                                                responsive: true,
+                                                maintainAspectRatio: false,
+                                                plugins: {
+                                                    legend: {
+                                                        display: true,
+                                                        position: 'top',
+                                                        labels: { boxWidth: 8, padding: 6, color: isDark ? '#94a3b8' : '#475569', font: { size: 8, weight: 'bold' } }
+                                                    },
+                                                    tooltip: { enabled: true },
+                                                    datalabels: {
+                                                        display: true,
+                                                        anchor: 'center',
+                                                        align: 'center',
+                                                        color: '#ffffff',
+                                                        font: { weight: 'bold', size: 9 },
+                                                        formatter: (val) => val > 0 ? formatNum(val) : ''
+                                                    }
+                                                },
+                                                scales: {
+                                                    x: {
+                                                        stacked: true,
+                                                        grid: { display: false },
+                                                        ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 9, weight: 'bold' } }
+                                                    },
+                                                    y: {
+                                                        stacked: true,
+                                                        display: false,
+                                                        grid: { display: false }
+                                                    }
+                                                }
+                                            }
+                                       });
                                   })
                                    .catch(err => console.error("Error loading matured contract performance analysis:", err));
                          }
  
+                        
+                        function populateMonthFilters() {
+                            const startSelect = document.getElementById('paymentStartMonthFilter');
+                            const endSelect = document.getElementById('paymentEndMonthFilter');
+                            if (!startSelect || !endSelect) return;
+                            startSelect.innerHTML = '';
+                            endSelect.innerHTML = '';
+                            
+                            const now = new Date();
+                            for (let i = 0; i < 6; i++) {
+                                const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                                const value = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+                                const label = d.toLocaleString('en-US', { month: 'short', year: 'numeric' });
+                                
+                                const optStart = document.createElement('option');
+                                optStart.value = value;
+                                optStart.textContent = label;
+                                if (i === 0) optStart.selected = true;
+                                startSelect.appendChild(optStart);
+                                
+                                const optEnd = document.createElement('option');
+                                optEnd.value = value;
+                                optEnd.textContent = label;
+                                if (i === 0) optEnd.selected = true;
+                                endSelect.appendChild(optEnd);
+                            }
+                        }
+
+                        function loadPaymentsStatusChart() {
+                            const startVal = document.getElementById('paymentStartMonthFilter')?.value || '';
+                            const endVal = document.getElementById('paymentEndMonthFilter')?.value || '';
+                            const productParam = selectedProduct ? 'product=' + encodeURIComponent(selectedProduct) : '';
+                            const startParam = startVal ? 'startMonth=' + encodeURIComponent(startVal) : '';
+                            const endParam = endVal ? 'endMonth=' + encodeURIComponent(endVal) : '';
+                            const queryStr = '?' + [productParam, startParam, endParam].filter(Boolean).join('&');
+                            
+                            fetch('${pageContext.request.contextPath}/api/dashboard/collections-dealer-wise' + queryStr)
+                                .then(res => res.json())
+                                .then(data => {
+                                    buildHorizontalBar(
+                                        'collectionsDealerChart',
+                                        data.map(i => i.dealer_name),
+                                        data.map(i => i.total_collected || 0),
+                                        isDark ? 'rgba(245, 158, 11, 0.15)' : 'rgba(245, 158, 11, 0.15)',
+                                        isDark ? 'rgba(245, 158, 11, 0.85)' : 'rgba(245, 158, 11, 0.85)',
+                                        '#f59e0b',
+                                        true
+                                    );
+                                })
+                                .catch(err => console.error("Error loading payments status:", err));
+                        }
+
                         document.addEventListener("DOMContentLoaded", function() {
+                            populateMonthFilters();
                             checkSyncStatus();
                             loadDashboardData();
                         });
+
                     </script>
                 </div>
             </div>

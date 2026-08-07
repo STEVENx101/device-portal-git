@@ -655,7 +655,20 @@ public class DashboardRepository {
     }
 
     public List<Map<String, Object>> getCollectionsDealerWise(String product) {
+        return getCollectionsDealerWise(product, null, null);
+    }
+
+    public List<Map<String, Object>> getCollectionsDealerWise(String product, String startMonth, String endMonth) {
         String filter = getProductFilterSql(product);
+        String dateFilter;
+        if (startMonth != null && !startMonth.trim().isEmpty() && endMonth != null && !endMonth.trim().isEmpty()) {
+            dateFilter = String.format("vp.trx_date >= '%s-01' AND vp.trx_date < DATE_ADD('%s-01', INTERVAL 1 MONTH)", startMonth, endMonth);
+        } else if (startMonth != null && !startMonth.trim().isEmpty()) {
+            dateFilter = String.format("vp.trx_date >= '%s-01'", startMonth);
+        } else {
+            dateFilter = "vp.trx_date >= DATE_FORMAT(CURRENT_DATE(), '%%Y-%%m-01')";
+        }
+
         String sql = String.format("""
                 SELECT
                     COALESCE(vp.status, 'Unknown') AS dealer_name,
@@ -664,11 +677,11 @@ public class DashboardRepository {
                 FROM cbs.vendor_payments vp
                 LEFT JOIN cbs.loan l ON vp.account_id = l.account_no OR vp.account_id = l.legacy_account_no
                 LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
-                WHERE vp.trx_date >= DATE_FORMAT(CURRENT_DATE(), '%%Y-%%m-01')
+                WHERE %s
                 %s
                 GROUP BY dealer_name
                 ORDER BY total_collected DESC
-                """, filter);
+                """, dateFilter, filter);
         return jdbcTemplate.queryForList(sql);
     }
 
