@@ -1046,9 +1046,9 @@
                                           }
                                       });
                                   })
-                                  .catch(err => console.error("Error loading matured contract performance analysis:", err));
-
-                             // ============ 11. Outstanding Amount Distribution (Above vs Below 1000) ============
+                                   .catch(err => console.error("Error loading matured contract performance analysis:", err));
+                         }
+ 
                         document.addEventListener("DOMContentLoaded", function() {
                             checkSyncStatus();
                             loadDashboardData();
