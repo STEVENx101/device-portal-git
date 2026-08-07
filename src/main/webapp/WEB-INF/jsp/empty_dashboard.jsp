@@ -295,7 +295,7 @@
                         </div>
                     </div>
 
-                    <!-- Row 2: Charts (Disbursements, DPD Status, Device Security & Outstanding Distribution) -->
+                    <!-- Row 2: Charts (Disbursements, DPD Status, and Daily Disbursements) -->
                     <div class="row g-2 mb-2">
                         <!-- Left: Monthly trend charts (1/2 width) -->
                         <div class="col-lg-6 col-12">
@@ -319,55 +319,13 @@
                             </div>
                         </div>
 
-                        <!-- Middle: Device Performance & Security Status (1/4 width) -->
-                        <div class="col-lg-3 col-sm-6 col-12">
+                        <!-- Right: Daily Disbursements (Past 7 Days) (1/2 width next to Month-Wise Disbursements) -->
+                        <div class="col-lg-6 col-12">
                             <div class="card shadow-sm h-100">
-                                <div class="card-body p-2 d-flex flex-column justify-content-between">
-                                    <div>
-                                        <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-hdd me-1"></i>Device Security Status</div>
-                                        <div class="row g-2 align-items-center text-center">
-                                            <div class="col-6 mobile-sec-col">
-                                                <div class="fw-semi-bold text-muted mb-1" style="font-size: 0.55rem;">Mobiles Performing</div>
-                                                <div style="height: 95px; position: relative; width: 100%;">
-                                                    <canvas id="mobilePerformingChart"></canvas>
-                                                </div>
-                                            </div>
-                                            <div class="col-6 mobile-sec-col">
-                                                <div class="fw-semi-bold text-muted mb-1" style="font-size: 0.55rem;">Mobiles Lock</div>
-                                                <div style="height: 95px; position: relative; width: 100%;">
-                                                    <canvas id="mobileLockChart"></canvas>
-                                                </div>
-                                            </div>
-                                            <div class="col-6 laptop-sec-col" style="display: none;">
-                                                <div class="fw-semi-bold text-muted mb-1" style="font-size: 0.55rem;">Laptops Performing</div>
-                                                <div style="height: 95px; position: relative; width: 100%;">
-                                                    <canvas id="laptopPerformingChart"></canvas>
-                                                </div>
-                                            </div>
-                                            <div class="col-6 laptop-sec-col" style="display: none;">
-                                                <div class="fw-semi-bold text-muted mb-1" style="font-size: 0.55rem;">Laptops Lock</div>
-                                                <div style="height: 95px; position: relative; width: 100%;">
-                                                    <canvas id="laptopLockChart"></canvas>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="text-center text-muted mt-2 border-top pt-2" id="device-sec-text" style="font-size: 0.65rem; line-height: 1.1;">
-                                         Device locks summary &bull; Active: <span id="sec-mobile-locked-val" class="fw-bold text-danger">0</span> Mobiles
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Right: Outstanding Amount Distribution (1/4 width) -->
-                        <div class="col-lg-3 col-sm-6 col-12">
-                            <div class="card shadow-sm h-100">
-                                <div class="card-body p-2 d-flex flex-column justify-content-between">
-                                    <div>
-                                        <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-coins me-1"></i>Outstanding Amount</div>
-                                        <div style="height: 125px; position: relative; width: 100%;">
-                                            <canvas id="outstandingAnalysisChart"></canvas>
-                                        </div>
+                                <div class="card-body p-2">
+                                    <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-money-check-alt me-1"></i>Daily Disbursements (Past 7 Days)</div>
+                                    <div style="height: 155px; position: relative; width: 100%;">
+                                        <canvas id="vendorPaymentsChart"></canvas>
                                     </div>
                                 </div>
                             </div>
@@ -413,43 +371,41 @@
                                 </div>
                             </div>
                         </div>
-                         <div class="col-lg-3 col-md-3 col-sm-6 col-12" id="dpd-trend-card">
-                             <div class="card glass-card h-100">
-                                 <div class="card-body p-2">
-                                     <div class="fs--2 fw-semi-bold text-muted mb-2 text-truncate"><i class="fas fa-exclamation-triangle me-1"></i>Variance Chart: 60-90 DPD</div>
-                                     <div style="height: 140px; position: relative; width: 100%;">
-                                         <canvas id="dpd60_90Chart"></canvas>
-                                     </div>
-                                 </div>
-                             </div>
-                         </div>
-                    </div>
-
-                    <!-- Section: Operational Payments & Collections -->
-                    <div class="row g-2 mb-1" style="margin-top: 8px;">
-                        <div class="col-12">
-                            <div class="section-title"><i class="fas fa-hand-holding-usd"></i>Operational Payments &amp; Collections (Scroll to Access)</div>
-                        </div>
-                    </div>
-
-                    <!-- Row 7: Collections & Payments (Side-by-Side Horizontal Bars) -->
-                    <div class="row g-2 mb-2">
-                        <div class="col-lg-6">
-                            <div class="card glass-card">
-                                <div class="card-body p-2">
-                                    <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-hand-holding-usd me-1"></i>Vendor-Wise Payments (Current Month)</div>
-                                    <div style="height: 130px; position: relative; width: 100%;">
-                                        <canvas id="collectionsDealerChart"></canvas>
+                        <!-- Right: Device Performance & Security Status (Moved to Row 3) -->
+                        <div class="col-lg-3 col-md-3 col-sm-6 col-12" id="device-security-status-card">
+                            <div class="card glass-card h-100">
+                                <div class="card-body p-2 d-flex flex-column justify-content-between">
+                                    <div>
+                                        <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-hdd me-1"></i>Device Security Status</div>
+                                        <div class="row g-2 align-items-center text-center">
+                                            <div class="col-6 mobile-sec-col">
+                                                <div class="fw-semi-bold text-muted mb-1" style="font-size: 0.55rem;">Mobiles Performing</div>
+                                                <div style="height: 95px; position: relative; width: 100%;">
+                                                    <canvas id="mobilePerformingChart"></canvas>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 mobile-sec-col">
+                                                <div class="fw-semi-bold text-muted mb-1" style="font-size: 0.55rem;">Mobiles Lock</div>
+                                                <div style="height: 95px; position: relative; width: 100%;">
+                                                    <canvas id="mobileLockChart"></canvas>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 laptop-sec-col" style="display: none;">
+                                                <div class="fw-semi-bold text-muted mb-1" style="font-size: 0.55rem;">Laptops Performing</div>
+                                                <div style="height: 95px; position: relative; width: 100%;">
+                                                    <canvas id="laptopPerformingChart"></canvas>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 laptop-sec-col" style="display: none;">
+                                                <div class="fw-semi-bold text-muted mb-1" style="font-size: 0.55rem;">Laptops Lock</div>
+                                                <div style="height: 95px; position: relative; width: 100%;">
+                                                    <canvas id="laptopLockChart"></canvas>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-6">
-                            <div class="card glass-card">
-                                <div class="card-body p-2">
-                                    <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-money-check-alt me-1"></i>Daily Disbursements (Past 7 Days)</div>
-                                    <div style="height: 130px; position: relative; width: 100%;">
-                                        <canvas id="vendorPaymentsChart"></canvas>
+                                    <div class="text-center text-muted mt-2 border-top pt-2" id="device-sec-text" style="font-size: 0.65rem; line-height: 1.1;">
+                                         Device locks summary &bull; Active: <span id="sec-mobile-locked-val" class="fw-bold text-danger">0</span> Mobiles
                                     </div>
                                 </div>
                             </div>
@@ -883,149 +839,131 @@
                                 })
                                 .catch(err => console.error("Error loading daily disbursements chart:", err));
 
-                            // ============ 8. Collections Dealer Wise ============
-                            fetch('${pageContext.request.contextPath}/api/dashboard/collections-dealer-wise' + productParam)
-                                .then(res => res.json())
-                                .then(data => {
-                                    // Collections details not displayed anymore on top cards but processed for chart
 
-                                    let chartData = data.length > 5 ? data.slice(0, 5) : data;
-                                    chartData.reverse();
-                                    buildHorizontalBar(
-                                        'collectionsDealerChart',
-                                        chartData.map(i => i.dealer_name),
-                                        chartData.map(i => i.total_collected || 0),
-                                        isDark ? 'rgba(245, 158, 11, 0.15)' : 'rgba(245, 158, 11, 0.15)',
-                                        isDark ? 'rgba(245, 158, 11, 0.85)' : 'rgba(245, 158, 11, 0.85)',
-                                        '#f59e0b',
-                                        true
-                                    );
-                                })
-                                .catch(err => console.error("Error loading collections dealer wise:", err));
 
-                             // ============ 9. Mobile Arrears Lock vs Unlock (Arrears & Due Ranges) ============
-                             const arrearsCard = document.getElementById('mobile-lock-arrears-card');
-                             const arrearsRangesCard = document.getElementById('mobile-arrears-ranges-card');
-                             const maturedCard = document.getElementById('matured-np-card');
-                             const dpdTrendCard = document.getElementById('dpd-trend-card');
-                              if (selectedProduct === 'LF') {
-                                  if (arrearsCard) arrearsCard.style.display = 'none';
-                                  if (arrearsRangesCard) arrearsRangesCard.style.display = 'none';
-                                  if (maturedCard) maturedCard.className = 'col-lg-6 col-md-6 col-12';
-                                  if (dpdTrendCard) dpdTrendCard.className = 'col-lg-6 col-md-6 col-12';
-                              } else {
-                                  if (arrearsCard) arrearsCard.style.display = '';
-                                  if (arrearsRangesCard) arrearsRangesCard.style.display = '';
-                                  if (arrearsCard) arrearsCard.className = 'col-lg-3 col-md-3 col-sm-6 col-12';
-                                  if (arrearsRangesCard) arrearsRangesCard.className = 'col-lg-3 col-md-3 col-sm-6 col-12';
-                                  if (maturedCard) maturedCard.className = 'col-lg-3 col-md-3 col-sm-6 col-12';
-                                  if (dpdTrendCard) dpdTrendCard.className = 'col-lg-3 col-md-3 col-sm-6 col-12';
-                                  
-                                  fetch('${pageContext.request.contextPath}/api/dashboard/mobile-lock-arrears')
-                                      .then(res => res.json())
-                                      .then(data => {
-                                          // 1. Mobile Lock vs Unlock Chart
-                                          destroyChart('mobileLockArrearsChart');
-                                          const ctx1 = document.getElementById('mobileLockArrearsChart').getContext('2d');
-                                          activeCharts['mobileLockArrearsChart'] = new Chart(ctx1, {
-                                              type: 'bar',
-                                              data: {
-                                                  labels: ['Lock (<200)', 'Unlock (>=200)'],
-                                                  datasets: [{
-                                                      data: [
-                                                          data.lock_but_less_200 || 0,
-                                                          data.unlock_but_more_200 || 0
-                                                      ],
-                                                      backgroundColor: [
-                                                          'rgba(239, 68, 68, 0.85)',
-                                                          'rgba(16, 185, 129, 0.85)'
-                                                      ],
-                                                      borderWidth: 0,
-                                                      borderRadius: { topRight: 4, bottomRight: 4, topLeft: 0, bottomLeft: 0 },
-                                                      barThickness: 18
-                                                  }]
-                                              },
-                                              options: {
-                                                  indexAxis: 'y',
-                                                  responsive: true,
-                                                  maintainAspectRatio: false,
-                                                  layout: { padding: { right: 30 } },
-                                                  plugins: {
-                                                      legend: { display: false },
-                                                      tooltip: { enabled: true },
-                                                      datalabels: {
-                                                          display: true,
-                                                          anchor: 'end',
-                                                          align: 'end',
-                                                          color: isDark ? '#cbd5e1' : '#1e293b',
-                                                          font: { weight: 'bold', size: 9 },
-                                                          formatter: (val) => val > 0 ? formatNum(val) : '0'
-                                                      }
-                                                  },
-                                                  scales: {
-                                                      x: { display: false, grid: { display: false } },
-                                                      y: {
-                                                          grid: { display: false },
-                                                          ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 9, weight: 'bold' } }
-                                                      }
-                                                  }
-                                              }
-                                          });
+                              // ============ 9. Mobile Arrears Lock vs Unlock (Arrears & Due Ranges) ============
+                              const arrearsCard = document.getElementById('mobile-lock-arrears-card');
+                              const arrearsRangesCard = document.getElementById('mobile-arrears-ranges-card');
+                              const maturedCard = document.getElementById('matured-np-card');
+                              const deviceSecCard = document.getElementById('device-security-status-card');
+                               if (selectedProduct === 'LF') {
+                                   if (arrearsCard) arrearsCard.style.display = 'none';
+                                   if (arrearsRangesCard) arrearsRangesCard.style.display = 'none';
+                                   if (maturedCard) maturedCard.className = 'col-lg-6 col-md-6 col-12';
+                                   if (deviceSecCard) deviceSecCard.className = 'col-lg-6 col-md-6 col-12';
+                               } else {
+                                   if (arrearsCard) arrearsCard.style.display = '';
+                                   if (arrearsRangesCard) arrearsRangesCard.style.display = '';
+                                   if (arrearsCard) arrearsCard.className = 'col-lg-3 col-md-3 col-sm-6 col-12';
+                                   if (arrearsRangesCard) arrearsRangesCard.className = 'col-lg-3 col-md-3 col-sm-6 col-12';
+                                   if (maturedCard) maturedCard.className = 'col-lg-3 col-md-3 col-sm-6 col-12';
+                                   if (deviceSecCard) deviceSecCard.className = 'col-lg-3 col-md-3 col-sm-6 col-12';
+                                   
+                                   fetch('${pageContext.request.contextPath}/api/dashboard/mobile-lock-arrears')
+                                       .then(res => res.json())
+                                       .then(data => {
+                                           // 1. Mobile Lock vs Unlock Chart
+                                           destroyChart('mobileLockArrearsChart');
+                                           const ctx1 = document.getElementById('mobileLockArrearsChart').getContext('2d');
+                                           activeCharts['mobileLockArrearsChart'] = new Chart(ctx1, {
+                                               type: 'bar',
+                                               data: {
+                                                   labels: ['Lock (<200)', 'Unlock (>=200)'],
+                                                   datasets: [{
+                                                       data: [
+                                                           data.lock_but_less_200 || 0,
+                                                           data.unlock_but_more_200 || 0
+                                                       ],
+                                                       backgroundColor: [
+                                                           'rgba(239, 68, 68, 0.85)',
+                                                           'rgba(16, 185, 129, 0.85)'
+                                                       ],
+                                                       borderWidth: 0,
+                                                       borderRadius: { topRight: 4, bottomRight: 4, topLeft: 0, bottomLeft: 0 },
+                                                       barThickness: 18
+                                                   }]
+                                               },
+                                               options: {
+                                                   indexAxis: 'y',
+                                                   responsive: true,
+                                                   maintainAspectRatio: false,
+                                                   layout: { padding: { right: 30 } },
+                                                   plugins: {
+                                                       legend: { display: false },
+                                                       tooltip: { enabled: true },
+                                                       datalabels: {
+                                                           display: true,
+                                                           anchor: 'end',
+                                                           align: 'end',
+                                                           color: isDark ? '#cbd5e1' : '#1e293b',
+                                                           font: { weight: 'bold', size: 9 },
+                                                           formatter: (val) => val > 0 ? formatNum(val) : '0'
+                                                       }
+                                                   },
+                                                   scales: {
+                                                       x: { display: false, grid: { display: false } },
+                                                       y: {
+                                                           grid: { display: false },
+                                                           ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 9, weight: 'bold' } }
+                                                       }
+                                                   }
+                                               }
+                                           });
 
-                                          // 2. Mobile Arrears Ranges Chart
-                                          destroyChart('mobileArrearsRangesChart');
-                                          const ctx2 = document.getElementById('mobileArrearsRangesChart').getContext('2d');
-                                          activeCharts['mobileArrearsRangesChart'] = new Chart(ctx2, {
-                                              type: 'bar',
-                                              data: {
-                                                  labels: ['Due 200-500', 'Due 500-1000', 'Due 1000-2000', 'Due >2000'],
-                                                  datasets: [{
-                                                      data: [
-                                                          data.due_200_500 || 0,
-                                                          data.due_500_1000 || 0,
-                                                          data.due_1000_2000 || 0,
-                                                          data.due_above_2000 || 0
-                                                      ],
-                                                      backgroundColor: [
-                                                          'rgba(59, 130, 246, 0.85)',
-                                                          'rgba(99, 102, 241, 0.85)',
-                                                          'rgba(245, 158, 11, 0.85)',
-                                                          'rgba(139, 92, 246, 0.85)'
-                                                      ],
-                                                      borderWidth: 0,
-                                                      borderRadius: { topRight: 4, bottomRight: 4, topLeft: 0, bottomLeft: 0 },
-                                                      barThickness: 12
-                                                  }]
-                                              },
-                                              options: {
-                                                  indexAxis: 'y',
-                                                  responsive: true,
-                                                  maintainAspectRatio: false,
-                                                  layout: { padding: { right: 30 } },
-                                                  plugins: {
-                                                      legend: { display: false },
-                                                      tooltip: { enabled: true },
-                                                      datalabels: {
-                                                          display: true,
-                                                          anchor: 'end',
-                                                          align: 'end',
-                                                          color: isDark ? '#cbd5e1' : '#1e293b',
-                                                          font: { weight: 'bold', size: 9 },
-                                                          formatter: (val) => val > 0 ? formatNum(val) : '0'
-                                                      }
-                                                  },
-                                                  scales: {
-                                                      x: { display: false, grid: { display: false } },
-                                                      y: {
-                                                          grid: { display: false },
-                                                          ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 9, weight: 'bold' } }
-                                                      }
-                                                  }
-                                              }
-                                          });
-                                      })
-                                      .catch(err => console.error("Error loading Mobile lock arrears analysis:", err));
-                              }
+                                           // 2. Mobile Arrears Ranges Chart
+                                           destroyChart('mobileArrearsRangesChart');
+                                           const ctx2 = document.getElementById('mobileArrearsRangesChart').getContext('2d');
+                                           activeCharts['mobileArrearsRangesChart'] = new Chart(ctx2, {
+                                               type: 'bar',
+                                               data: {
+                                                   labels: ['Due 200-500', 'Due 500-1000', 'Due 1000-2000', 'Due >2000'],
+                                                   datasets: [{
+                                                       data: [
+                                                           data.due_200_500 || 0,
+                                                           data.due_500_1000 || 0,
+                                                           data.due_1000_2000 || 0,
+                                                           data.due_above_2000 || 0
+                                                       ],
+                                                       backgroundColor: [
+                                                           'rgba(59, 130, 246, 0.85)',
+                                                           'rgba(99, 102, 241, 0.85)',
+                                                           'rgba(245, 158, 11, 0.85)',
+                                                           'rgba(139, 92, 246, 0.85)'
+                                                       ],
+                                                       borderWidth: 0,
+                                                       borderRadius: { topRight: 4, bottomRight: 4, topLeft: 0, bottomLeft: 0 },
+                                                       barThickness: 12
+                                                   }]
+                                               },
+                                               options: {
+                                                   indexAxis: 'y',
+                                                   responsive: true,
+                                                   maintainAspectRatio: false,
+                                                   layout: { padding: { right: 30 } },
+                                                   plugins: {
+                                                       legend: { display: false },
+                                                       tooltip: { enabled: true },
+                                                       datalabels: {
+                                                           display: true,
+                                                           anchor: 'end',
+                                                           align: 'end',
+                                                           color: isDark ? '#cbd5e1' : '#1e293b',
+                                                           font: { weight: 'bold', size: 9 },
+                                                           formatter: (val) => val > 0 ? formatNum(val) : '0'
+                                                       }
+                                                   },
+                                                   scales: {
+                                                       x: { display: false, grid: { display: false } },
+                                                       y: {
+                                                           grid: { display: false },
+                                                           ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 9, weight: 'bold' } }
+                                                       }
+                                                   }
+                                               }
+                                           });
+                                       })
+                                       .catch(err => console.error("Error loading Mobile lock arrears analysis:", err));
+                               }
  
                               // ============ 10. Matured vs Non-Matured Contracts Performance ============
                               fetch('${pageContext.request.contextPath}/api/dashboard/matured-nonperforming' + productParam)
@@ -1174,76 +1112,6 @@
                                                       },
                                                       anchor: 'center',
                                                       align: 'center'
-                                                  }
-                                             }
-                                         }
-                                     });
-                                 })
-                                 .catch(err => console.error("Error loading outstanding analysis:", err));
-
-                             // ============ 12. 60-90 DPD Variance Chart ============
-                              fetch('${pageContext.request.contextPath}/api/dashboard/dpd-comparison-chart' + productParam)
-                                  .then(res => res.json())
-                                  .then(data => {
-                                      const labels = data.map(i => i.month_name);
-                                      const dpd60_90 = data.map(item => Math.round((item.dpd61_90_val / 1000000) * 100) / 100);
-
-                                      // Calculate MoM variance (change from previous month)
-                                      const varianceData = [];
-                                      for (let i = 0; i < dpd60_90.length; i++) {
-                                          if (i === 0) {
-                                              varianceData.push(0);
-                                          } else {
-                                              varianceData.push(Math.round((dpd60_90[i] - dpd60_90[i - 1]) * 100) / 100);
-                                          }
-                                      }
-
-                                      destroyChart('dpd60_90Chart');
-                                      const ctx = document.getElementById('dpd60_90Chart').getContext('2d');
-                                      activeCharts['dpd60_90Chart'] = new Chart(ctx, {
-                                          type: 'bar',
-                                          data: {
-                                              labels: labels,
-                                              datasets: [{
-                                                  label: '60-90 DPD MoM Variance',
-                                                  data: varianceData,
-                                                  backgroundColor: varianceData.map(v => v <= 0 ? 'rgba(34, 197, 94, 0.25)' : 'rgba(239, 68, 68, 0.25)'),
-                                                  borderColor: varianceData.map(v => v <= 0 ? '#22c55e' : '#ef4444'),
-                                                  borderWidth: 1.5
-                                              }]
-                                          },
-                                          options: {
-                                              responsive: true,
-                                              maintainAspectRatio: false,
-                                              scales: {
-                                                  y: {
-                                                      ticks: {
-                                                          color: isDark ? '#94a3b8' : '#475569',
-                                                          font: { size: 9 },
-                                                          callback: function(val) { return (val > 0 ? '+' : '') + val + ' Mn'; }
-                                                      }
-                                                  },
-                                                  x: {
-                                                      ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 9, weight: 'bold' } }
-                                                  }
-                                              },
-                                              plugins: {
-                                                  legend: { display: false },
-                                                  tooltip: {
-                                                      enabled: true,
-                                                      callbacks: {
-                                                          label: function(context) {
-                                                              let val = context.raw;
-                                                              return 'Variance: ' + (val > 0 ? '+' : '') + val + ' Mn';
-                                                          }
-                                                      }
-                                                  },
-                                                  datalabels: { display: false }
-                                              }
-                                          }
-                                      });
-                                  })
-                                  .catch(err => console.error("Error loading DPD 60-90 Variance:", err));
                          }
 
                         document.addEventListener("DOMContentLoaded", function() {
