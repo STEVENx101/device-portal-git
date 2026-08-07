@@ -458,7 +458,7 @@
                                             <!-- Payments pane -->
                                             <div class="tab-pane fade" id="pay-pane" role="tabpanel"
                                                 aria-labelledby="tab-payments">
-                                                <div class="table-responsive" style="max-height: 350px; overflow-y: auto;">
+                                                <div class="table-responsive">
                                                     <table id="receipt_table"
                                                         class="table table-hover table-striped mb-0 fs--1 w-100">
                                                         <thead>
@@ -477,7 +477,7 @@
                                             <!-- SMS pane -->
                                             <div class="tab-pane fade" id="sms-pane" role="tabpanel"
                                                 aria-labelledby="tab-sms">
-                                                <div class="table-responsive" style="max-height: 350px; overflow-y: auto;">
+                                                <div class="table-responsive">
                                                     <table id="sms_table"
                                                         class="table table-hover table-striped mb-0 fs--1 w-100">
                                                         <thead>
@@ -491,13 +491,7 @@
                                                         <tbody></tbody>
                                                     </table>
                                                 </div>
-                                            </div>
-                                            <!-- Lock/Unlock logs pane -->
-                                            <div class="tab-pane fade" id="locks-pane" role="tabpanel"
-                                                aria-labelledby="tab-locks">
-
-                                                <div class="table-responsive" id="standard_locks_wrapper"
-                                                    style="max-height: 350px; overflow-y: auto;">
+                                                <div class="table-responsive" id="standard_locks_wrapper">
                                                     <table id="locks_table"
                                                         class="table table-hover table-striped mb-0 fs--1 w-100">
                                                         <thead>
@@ -510,9 +504,7 @@
                                                         </thead>
                                                         <tbody></tbody>
                                                     </table>
-                                                </div>
-                                                <div class="table-responsive" id="datacultr_locks_wrapper"
-                                                    style="display: none; max-height: 350px; overflow-y: auto;">
+                                                </div>                                                <div class="table-responsive" id="datacultr_locks_wrapper" style="display: none;">
                                                     <table id="datacultr_locks_table"
                                                         class="table table-hover table-striped mb-0 fs--1 w-100">
                                                         <thead>
@@ -634,6 +626,7 @@
                         } else {
                             $('#locks-status-card').slideUp(150);
                         }
+                        $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
                     });
 
                     const remarkForm = document.getElementById('remark-form');
@@ -847,6 +840,8 @@
                         autoWidth: false,
                         processing: true,
                         serverSide: true,
+                        scrollY: "300px",
+                        scrollCollapse: true,
 
                         ajax: {
                             url: contextPath + '/api/contracts/fetchreceiptdata',
@@ -931,6 +926,8 @@
                         autoWidth: false,
                         processing: true,
                         serverSide: true,
+                        scrollY: "300px",
+                        scrollCollapse: true,
 
                         ajax: {
                             url: contextPath + '/api/contracts/fetchsmsdata',
@@ -1018,6 +1015,8 @@
                             autoWidth: false,
                             processing: true,
                             serverSide: false,
+                            scrollY: "300px",
+                            scrollCollapse: true,
                             ajax: {
                                 url: contextPath + '/api/contracts/datacultr-logs?imei=' + encodeURIComponent(imei || ''),
                                 type: 'GET',
@@ -1082,6 +1081,8 @@
                             autoWidth: false,
                             processing: true,
                             serverSide: true,
+                            scrollY: "300px",
+                            scrollCollapse: true,
                             ajax: {
                                 url: contextPath + '/api/contracts/fetchlockdata',
                                 type: 'POST',

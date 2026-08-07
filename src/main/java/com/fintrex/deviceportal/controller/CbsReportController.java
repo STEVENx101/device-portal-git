@@ -410,7 +410,10 @@ public class CbsReportController {
 
         setDownloadTokenCookie(response, downloadToken);
         List<Map<String, Object>> data = cbsReportService.getSettledReportData(asAt);
-        writeExceptionLockCsv(response, "settled_and_early_settled_report.csv", data);
+        String xlsxFilename = "settled_and_early_settled_report.xlsx";
+        String[] headers = {"Account No","Series","Legacy Account No","NIC/ID No","Mobile No","Address","Loan Amount","Rental","Disbursed Date","Closed Date","Account Status","Customer Name"};
+        String[] keys = {"account_no","series","legacy_account_no","client_nic","client_mobile","client_address","loan_amount","rental","disbursed_date","closed_date","account_status","client_name"};
+        writeExcel(response, xlsxFilename, headers, keys, data);
     }
 
     @PostMapping("/multiple-payments-report")
