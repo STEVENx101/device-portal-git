@@ -334,12 +334,7 @@
                         </div>
                     </div>
 
-                    <!-- Section: Risk & Performance Analytics -->
-                    <div class="row g-2 mb-1" style="margin-top: 6px;">
-                        <div class="col-12">
-                            <div class="section-title"><i class="fas fa-shield-alt"></i>Portfolio Risk &amp; Contract Performance Analytics</div>
-                        </div>
-                    </div>
+
 
                     <!-- Row 3: Risk & Performance Charts (All 5 cards side-by-side, vertical content orientation) -->
                     <div class="row g-2 mb-2" style="margin-top: 4px;">
