@@ -433,12 +433,12 @@ public class DashboardRepository {
                 INNER JOIN (
                     SELECT legacy_account_no AS finance_no, product
                     FROM cbs.loan
-                    WHERE account_status = 'A'
+                    WHERE account_status IN ('A', 'N')
                       AND legacy_account_no IS NOT NULL
                     UNION
                     SELECT account_no AS finance_no, product
                     FROM cbs.loan
-                    WHERE account_status = 'A'
+                    WHERE account_status IN ('A', 'N')
                       AND legacy_account_no IS NULL
                 ) active_loans
                     ON active_loans.finance_no = ml.finance_no
@@ -459,12 +459,12 @@ public class DashboardRepository {
                 INNER JOIN (
                     SELECT legacy_account_no AS finance_no, product
                     FROM cbs.loan
-                    WHERE account_status = 'A'
+                    WHERE account_status IN ('A', 'N')
                       AND legacy_account_no IS NOT NULL
                     UNION
                     SELECT account_no AS finance_no, product
                     FROM cbs.loan
-                    WHERE account_status = 'A'
+                    WHERE account_status IN ('A', 'N')
                       AND legacy_account_no IS NULL
                 ) active_loans
                     ON active_loans.finance_no = dl.finance_no
