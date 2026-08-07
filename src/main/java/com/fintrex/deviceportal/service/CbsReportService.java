@@ -1280,9 +1280,10 @@ public class CbsReportService {
         return executePagedReport(request, sql, params);
     }
 
-    public List<Map<String, Object>> getSettledReportData(String asAt) {
+    public List<Map<String, Object>> getSettledReportData(String fromDate, String toDate) {
         Map<String, Object> filterMap = new HashMap<>();
-        filterMap.put("asAt", asAt);
+        filterMap.put("fromDate", fromDate);
+        filterMap.put("toDate", toDate);
         Map<String, Object> params = new HashMap<>();
         String sql = buildSettledReportQuery(filterMap, params);
         return executeDownloadReport(sql, params);
@@ -1400,10 +1401,15 @@ public class CbsReportService {
 
         if (rawFilter instanceof Map) {
             Map<?, ?> filter = (Map<?, ?>) rawFilter;
-            String asAt = (String) filter.get("asAt");
-            if (asAt != null && !asAt.trim().isEmpty()) {
-                subQuery += " AND l.closed_date < DATE_ADD(:asAt, INTERVAL 1 DAY)";
-                params.put("asAt", asAt.trim());
+            String fromDate = (String) filter.get("fromDate");
+            String toDate = (String) filter.get("toDate");
+            if (fromDate != null && !fromDate.trim().isEmpty()) {
+                subQuery += " AND l.closed_date >= :fromDate";
+                params.put("fromDate", fromDate.trim());
+            }
+            if (toDate != null && !toDate.trim().isEmpty()) {
+                subQuery += " AND l.closed_date < DATE_ADD(:toDate, INTERVAL 1 DAY)";
+                params.put("toDate", toDate.trim());
             }
         }
 

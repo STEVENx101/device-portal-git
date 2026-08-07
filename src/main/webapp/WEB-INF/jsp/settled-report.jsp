@@ -99,20 +99,24 @@
                         <div class="card-body">
                             <form id="filterForm">
                                 <div class="row g-3 align-items-end">
-                                    <div class="col-md-3">
-                                        <label class="form-label text-700 fw-semi-bold" for="asAtDate">As at Closed Date</label>
-                                        <input class="form-control" type="date" id="asAtDate" value="">
-                                    </div>
-                                    <div class="col-md-9 d-flex align-items-end justify-content-end gap-2">
-                                        <button class="btn btn-primary btn-sm" type="button" id="applyFiltersBtn">
-                                            <span class="fas fa-search me-1"></span> Load Data
-                                        </button>
-                                        <% if (canDownloadReports) { %>
-                                        <button class="btn btn-success btn-sm" type="button" id="downloadExcelBtn">
-                                            <span class="fas fa-file-excel me-1"></span> Download Excel
-                                        </button>
-                                        <% } %>
-                                    </div>
+                                     <div class="col-md-3">
+                                         <label class="form-label text-700 fw-semi-bold" for="fromDate">From Date</label>
+                                         <input class="form-control" type="date" id="fromDate" value="">
+                                     </div>
+                                     <div class="col-md-3">
+                                         <label class="form-label text-700 fw-semi-bold" for="toDate">To Date</label>
+                                         <input class="form-control" type="date" id="toDate" value="">
+                                     </div>
+                                     <div class="col-md-6 d-flex align-items-end justify-content-end gap-2">
+                                         <button class="btn btn-primary btn-sm" type="button" id="applyFiltersBtn">
+                                             <span class="fas fa-search me-1"></span> Load Data
+                                         </button>
+                                         <% if (canDownloadReports) { %>
+                                         <button class="btn btn-success btn-sm" type="button" id="downloadExcelBtn">
+                                             <span class="fas fa-file-excel me-1"></span> Download Excel
+                                         </button>
+                                         <% } %>
+                                     </div>
                                 </div>
                             </form>
                         </div>
@@ -174,7 +178,8 @@
 
             function getFilters() {
                 return {
-                    asAt: $('#asAtDate').val()
+                    fromDate: $('#fromDate').val(),
+                    toDate: $('#toDate').val()
                 };
             }
 
@@ -186,7 +191,8 @@
 
             $(document).ready(function() {
                 const today = new Date().toISOString().split('T')[0];
-                $('#asAtDate').val(today);
+                $('#fromDate').val(today);
+                $('#toDate').val(today);
 
                 dtReport = $('#tableSettled').DataTable({
                     processing: false,
@@ -247,7 +253,8 @@
                         let downloadUrl = '${pageContext.request.contextPath}/api/cbs/settled-report/download';
 
                         const queryParams = new URLSearchParams();
-                        queryParams.append('asAt', filters.asAt);
+                        queryParams.append('fromDate', filters.fromDate);
+                        queryParams.append('toDate', filters.toDate);
 
                         const token = new Date().getTime();
                         queryParams.append('downloadToken', token);

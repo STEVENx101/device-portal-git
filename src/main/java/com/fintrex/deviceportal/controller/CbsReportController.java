@@ -398,18 +398,19 @@ public class CbsReportController {
 
     @GetMapping("/settled-report/download")
     public void downloadSettledReport(
-            @RequestParam(value = "asAt", required = false) String asAt,
+            @RequestParam(value = "fromDate", required = false) String fromDate,
+            @RequestParam(value = "toDate", required = false) String toDate,
             @RequestParam(value = "downloadToken", required = false) String downloadToken,
             HttpSession session,
             HttpServletResponse response) throws Exception {
         verifyDownloadPermission(session, response);
         com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");
         String username = currentUser != null ? currentUser.getUsername() : "system";
-        String filtersStr = String.format("asAt=%s", asAt);
+        String filtersStr = String.format("fromDate=%s, toDate=%s", fromDate, toDate);
         cbsReportService.logReportActivity(username, "Settled & Early Settled Exception Report", "DOWNLOAD", filtersStr);
 
         setDownloadTokenCookie(response, downloadToken);
-        List<Map<String, Object>> data = cbsReportService.getSettledReportData(asAt);
+        List<Map<String, Object>> data = cbsReportService.getSettledReportData(fromDate, toDate);
         String xlsxFilename = "settled_and_early_settled_report.xlsx";
         String[] headers = {"Account No","Series","Legacy Account No","NIC/ID No","Mobile No","Address","Loan Amount","Rental","Disbursed Date","Closed Date","Account Status","Customer Name"};
         String[] keys = {"account_no","series","legacy_account_no","client_nic","client_mobile","client_address","loan_amount","rental","disbursed_date","closed_date","account_status","client_name"};

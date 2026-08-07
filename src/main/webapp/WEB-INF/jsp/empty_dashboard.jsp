@@ -644,81 +644,96 @@
 
                                     destroyChart('dpdComparisonChart');
                                     const ctx = document.getElementById("dpdComparisonChart").getContext('2d');
-                                    activeCharts['dpdComparisonChart'] = new Chart(ctx, {
-                                        type: 'bar',
-                                        data: {
-                                            labels: labels,
-                                            datasets: [
-                                                {
-                                                    label: 'DPD 0',
-                                                    data: dpd0,
-                                                    backgroundColor: '#10b981',
-                                                    borderColor: '#10b981',
-                                                    borderWidth: 1
-                                                },
-                                                {
-                                                    label: 'DPD 1-30',
-                                                    data: dpd1_30,
-                                                    backgroundColor: '#f59e0b',
-                                                    borderColor: '#f59e0b',
-                                                    borderWidth: 1
-                                                },
-                                                {
-                                                    label: 'DPD 31-60',
-                                                    data: dpd31_60,
-                                                    backgroundColor: '#f97316',
-                                                    borderColor: '#f97316',
-                                                    borderWidth: 1
-                                                },
-                                                {
-                                                    label: 'DPD 61-90',
-                                                    data: dpd61_90,
-                                                    backgroundColor: '#ef4444',
-                                                    borderColor: '#ef4444',
-                                                    borderWidth: 1
-                                                },
-                                                {
-                                                    label: 'Over 90 DPD',
-                                                    data: dpdAbove90,
-                                                    backgroundColor: isDark ? '#a78bfa' : '#1e293b',
-                                                    borderColor: isDark ? '#a78bfa' : '#1e293b',
-                                                    borderWidth: 1
-                                                }
-                                            ]
-                                        },
-                                        options: {
-                                            responsive: true,
-                                            maintainAspectRatio: false,
-                                            scales: {
-                                                x: {
-                                                    stacked: true,
-                                                    grid: { display: false },
-                                                    ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 9, weight: 'bold' } }
-                                                },
-                                                y: {
-                                                    stacked: true,
-                                                    beginAtZero: true,
-                                                    grid: { color: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' },
-                                                    ticks: {
-                                                        color: isDark ? '#94a3b8' : '#475569',
-                                                        font: { size: 9 },
-                                                        callback: function(value) {
-                                                            return value + ' Mn';
-                                                        }
-                                                    }
-                                                }
-                                            },
-                                            plugins: {
-                                                legend: {
-                                                    display: true,
-                                                    position: 'top',
-                                                    labels: { boxWidth: 10, padding: 8, font: { size: 9, weight: 'bold' } }
-                                                },
-                                                tooltip: { enabled: true },
-                                                datalabels: { display: false }
-                                            }
-                                        }
-                                    });
+                                     activeCharts['dpdComparisonChart'] = new Chart(ctx, {
+                                         type: 'line',
+                                         data: {
+                                             labels: labels,
+                                             datasets: [
+                                                 {
+                                                     label: 'DPD 0',
+                                                     data: dpd0,
+                                                     borderColor: '#10b981',
+                                                     backgroundColor: 'rgba(16, 185, 129, 0.05)',
+                                                     borderWidth: 2,
+                                                     tension: 0.2,
+                                                     pointRadius: 3,
+                                                     fill: false
+                                                 },
+                                                 {
+                                                     label: 'DPD 1-30',
+                                                     data: dpd1_30,
+                                                     borderColor: '#f59e0b',
+                                                     backgroundColor: 'rgba(245, 158, 11, 0.05)',
+                                                     borderWidth: 2,
+                                                     tension: 0.2,
+                                                     pointRadius: 3,
+                                                     fill: false
+                                                 },
+                                                 {
+                                                     label: 'DPD 31-60',
+                                                     data: dpd31_60,
+                                                     borderColor: '#f97316',
+                                                     backgroundColor: 'rgba(249, 115, 22, 0.05)',
+                                                     borderWidth: 2,
+                                                     tension: 0.2,
+                                                     pointRadius: 3,
+                                                     fill: false
+                                                 },
+                                                 {
+                                                     label: 'DPD 61-90',
+                                                     data: dpd61_90,
+                                                     borderColor: '#ef4444',
+                                                     backgroundColor: 'rgba(239, 68, 68, 0.05)',
+                                                     borderWidth: 2,
+                                                     tension: 0.2,
+                                                     pointRadius: 3,
+                                                     fill: false
+                                                 },
+                                                 {
+                                                     label: 'Over 90 DPD',
+                                                     data: dpdAbove90,
+                                                     borderColor: isDark ? '#a78bfa' : '#1e293b',
+                                                     backgroundColor: isDark ? 'rgba(167, 139, 250, 0.05)' : 'rgba(30, 41, 59, 0.05)',
+                                                     borderWidth: 2,
+                                                     tension: 0.2,
+                                                     pointRadius: 3,
+                                                     fill: false
+                                                 }
+                                             ]
+                                         },
+                                         options: {
+                                             responsive: true,
+                                             maintainAspectRatio: false,
+                                             scales: {
+                                                 x: {
+                                                     stacked: false,
+                                                     grid: { display: false },
+                                                     ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 9, weight: 'bold' } }
+                                                 },
+                                                 y: {
+                                                     stacked: false,
+                                                     beginAtZero: true,
+                                                     grid: { color: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' },
+                                                     ticks: {
+                                                         color: isDark ? '#94a3b8' : '#475569',
+                                                         font: { size: 9 },
+                                                         callback: function(value) {
+                                                             return value + ' Mn';
+                                                         }
+                                                     }
+                                                 }
+                                             },
+                                             plugins: {
+                                                 legend: {
+                                                     display: true,
+                                                     position: 'top',
+                                                     labels: { boxWidth: 10, padding: 8, font: { size: 9, weight: 'bold' } }
+                                                 },
+                                                 tooltip: { enabled: true },
+                                                 datalabels: { display: false }
+                                             }
+                                         }
+                                     });
                                 })
                                 .catch(err => console.error("Error loading monthly DPD comparison:", err));
 
