@@ -341,73 +341,87 @@
                         </div>
                     </div>
 
-                    <!-- Row 3: Risk Analytical Charts (All 4 cards in one line) -->
+                    <!-- Row 3: Risk Analytical Charts (All cards split into 3 vertical columns) -->
                     <div class="row g-2 mb-2" style="margin-top: 4px;">
-                        <div class="col-lg-3 col-md-3 col-sm-6 col-12" id="mobile-lock-arrears-card">
-                            <div class="card glass-card h-100">
-                                <div class="card-body p-2">
-                                    <div class="fs--2 fw-semi-bold text-muted mb-2 text-truncate"><i class="fas fa-lock me-1"></i>Mobile Arrears: Lock vs Unlock</div>
-                                    <div style="height: 140px; position: relative; width: 100%;">
-                                        <canvas id="mobileLockArrearsChart"></canvas>
+                        <!-- Left: Stacked vertical cards (1/3 width) -->
+                        <div class="col-lg-4 col-12" id="left-risk-stack">
+                            <div class="d-flex flex-column gap-2 h-100">
+                                <div class="card glass-card flex-fill" id="mobile-lock-arrears-card">
+                                    <div class="card-body p-2 d-flex flex-column justify-content-center">
+                                        <div class="fs--2 fw-semi-bold text-muted mb-1 text-truncate"><i class="fas fa-lock me-1"></i>Mobile Arrears: Lock vs Unlock</div>
+                                        <div style="height: 80px; position: relative; width: 100%;">
+                                            <canvas id="mobileLockArrearsChart"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card glass-card flex-fill" id="mobile-arrears-ranges-card">
+                                    <div class="card-body p-2 d-flex flex-column justify-content-center">
+                                        <div class="fs--2 fw-semi-bold text-muted mb-1 text-truncate"><i class="fas fa-coins me-1"></i>Mobile Arrears: Due Ranges</div>
+                                        <div style="height: 80px; position: relative; width: 100%;">
+                                            <canvas id="mobileArrearsRangesChart"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card glass-card flex-fill" id="matured-np-card">
+                                    <div class="card-body p-2 d-flex flex-column justify-content-center">
+                                        <div class="fs--2 fw-semi-bold text-muted mb-1 text-truncate"><i class="fas fa-history me-1"></i>Matured vs Non-Matured</div>
+                                        <div style="height: 80px; position: relative; width: 100%;">
+                                            <canvas id="maturedNpChart"></canvas>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-lg-3 col-md-3 col-sm-6 col-12" id="mobile-arrears-ranges-card">
-                            <div class="card glass-card h-100">
-                                <div class="card-body p-2">
-                                    <div class="fs--2 fw-semi-bold text-muted mb-2 text-truncate"><i class="fas fa-coins me-1"></i>Mobile Arrears: Due Ranges</div>
-                                    <div style="height: 140px; position: relative; width: 100%;">
-                                        <canvas id="mobileArrearsRangesChart"></canvas>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-3 col-md-3 col-sm-6 col-12" id="matured-np-card">
-                            <div class="card glass-card h-100">
-                                <div class="card-body p-2">
-                                    <div class="fs--2 fw-semi-bold text-muted mb-2 text-truncate"><i class="fas fa-history me-1"></i>Matured vs Non-Matured</div>
-                                    <div style="height: 140px; position: relative; width: 100%;">
-                                        <canvas id="maturedNpChart"></canvas>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Right: Device Performance & Security Status (Moved to Row 3) -->
-                        <div class="col-lg-3 col-md-3 col-sm-6 col-12" id="device-security-status-card">
+
+                        <!-- Middle: Device Performance & Security Status (1/3 width) -->
+                        <div class="col-lg-4 col-12" id="device-security-status-card">
                             <div class="card glass-card h-100">
                                 <div class="card-body p-2 d-flex flex-column justify-content-between">
                                     <div>
                                         <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-hdd me-1"></i>Device Security Status</div>
-                                        <div class="row g-2 align-items-center text-center">
+                                        <div class="row g-2 align-items-center text-center mt-3">
                                             <div class="col-6 mobile-sec-col">
                                                 <div class="fw-semi-bold text-muted mb-1" style="font-size: 0.55rem;">Mobiles Performing</div>
-                                                <div style="height: 95px; position: relative; width: 100%;">
+                                                <div style="height: 110px; position: relative; width: 100%;">
                                                     <canvas id="mobilePerformingChart"></canvas>
                                                 </div>
                                             </div>
                                             <div class="col-6 mobile-sec-col">
                                                 <div class="fw-semi-bold text-muted mb-1" style="font-size: 0.55rem;">Mobiles Lock</div>
-                                                <div style="height: 95px; position: relative; width: 100%;">
+                                                <div style="height: 110px; position: relative; width: 100%;">
                                                     <canvas id="mobileLockChart"></canvas>
                                                 </div>
                                             </div>
                                             <div class="col-6 laptop-sec-col" style="display: none;">
                                                 <div class="fw-semi-bold text-muted mb-1" style="font-size: 0.55rem;">Laptops Performing</div>
-                                                <div style="height: 95px; position: relative; width: 100%;">
+                                                <div style="height: 110px; position: relative; width: 100%;">
                                                     <canvas id="laptopPerformingChart"></canvas>
                                                 </div>
                                             </div>
                                             <div class="col-6 laptop-sec-col" style="display: none;">
                                                 <div class="fw-semi-bold text-muted mb-1" style="font-size: 0.55rem;">Laptops Lock</div>
-                                                <div style="height: 95px; position: relative; width: 100%;">
+                                                <div style="height: 110px; position: relative; width: 100%;">
                                                     <canvas id="laptopLockChart"></canvas>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="text-center text-muted mt-2 border-top pt-2" id="device-sec-text" style="font-size: 0.65rem; line-height: 1.1;">
+                                    <div class="text-center text-muted mt-3 border-top pt-2" id="device-sec-text" style="font-size: 0.65rem; line-height: 1.1;">
                                          Device locks summary &bull; Active: <span id="sec-mobile-locked-val" class="fw-bold text-danger">0</span> Mobiles
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right: Vendor-Wise Payments (Current Month) (1/3 width) -->
+                        <div class="col-lg-4 col-12">
+                            <div class="card glass-card h-100">
+                                <div class="card-body p-2 d-flex flex-column justify-content-between">
+                                    <div>
+                                        <div class="fs--2 fw-semi-bold text-muted mb-2"><i class="fas fa-hand-holding-usd me-1"></i>Payments Status-Wise (Current Month)</div>
+                                        <div style="height: 260px; position: relative; width: 100%;" class="mt-2">
+                                            <canvas id="collectionsDealerChart"></canvas>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -841,7 +855,23 @@
                                 })
                                 .catch(err => console.error("Error loading daily disbursements chart:", err));
 
-
+                             // ============ 8. Collections Dealer Wise (Vendor-Wise Payments Current Month) ============
+                             fetch('${pageContext.request.contextPath}/api/dashboard/collections-dealer-wise' + productParam)
+                                 .then(res => res.json())
+                                 .then(data => {
+                                     let chartData = data.length > 5 ? data.slice(0, 5) : data;
+                                     chartData.reverse();
+                                     buildHorizontalBar(
+                                         'collectionsDealerChart',
+                                         chartData.map(i => i.dealer_name),
+                                         chartData.map(i => i.total_collected || 0),
+                                         isDark ? 'rgba(245, 158, 11, 0.15)' : 'rgba(245, 158, 11, 0.15)',
+                                         isDark ? 'rgba(245, 158, 11, 0.85)' : 'rgba(245, 158, 11, 0.85)',
+                                         '#f59e0b',
+                                         true
+                                     );
+                                 })
+                                 .catch(err => console.error("Error loading collections dealer wise:", err));
 
                               // ============ 9. Mobile Arrears Lock vs Unlock (Arrears & Due Ranges) ============
                               const arrearsCard = document.getElementById('mobile-lock-arrears-card');

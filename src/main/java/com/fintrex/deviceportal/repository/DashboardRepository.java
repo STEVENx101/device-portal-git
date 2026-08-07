@@ -658,7 +658,7 @@ public class DashboardRepository {
         String filter = getProductFilterSql(product);
         String sql = String.format("""
                 SELECT
-                    COALESCE(vp.vendor_name, 'Unknown') AS dealer_name,
+                    COALESCE(vp.status, 'Unknown') AS dealer_name,
                     COUNT(*) AS trx_count,
                     COALESCE(SUM(vp.amount), 0) AS total_collected
                 FROM cbs.vendor_payments vp
