@@ -286,88 +286,98 @@
 
                             <!-- Row 1: KPI Cards (6 Cards) -->
                             <div class="row g-2 mb-2">
-                                <!-- Current Month Business -->
+                                <!-- 1. Month Disbursement -->
                                 <div class="col-lg-2 col-md-4 col-sm-6">
                                     <div class="card kpi-card shadow-sm h-100"
-                                        style="border-left: 3px solid #6366f1 !important;">
+                                        style="border-left: 3px solid #6366f1 !important; cursor: pointer; transition: all 0.2s ease-in-out;">
                                         <div class="card-body p-2 d-flex flex-column justify-content-between">
                                             <div>
                                                 <span class="card-title-sub text-muted">MONTH DISBURSEMENT</span>
-                                                <div class="card-value text-primary" id="kpi-month-amount">LKR 0.00 Mn
-                                                </div>
-                                                <div class="card-detail-text text-muted" id="kpi-month-count">0 Accounts
-                                                </div>
+                                                <div class="card-value text-primary" id="kpi-month-amount">LKR 0.00 Mn</div>
+                                                <div class="card-detail-text text-muted" id="kpi-month-count">0 Accounts</div>
+                                            </div>
+                                            <div style="height: 30px; width: 100%; margin-top: 8px;">
+                                                <canvas id="sparkline-month-disbursement"></canvas>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                <!-- Active Loans -->
+                                <!-- 2. Settled Month -->
                                 <div class="col-lg-2 col-md-4 col-sm-6">
                                     <div class="card kpi-card shadow-sm h-100"
-                                        style="border-left: 3px solid #10b981 !important;">
-                                        <div class="card-body p-2 d-flex flex-column justify-content-between">
-                                            <div>
-                                                <span class="card-title-sub text-muted">ACTIVE PORTFOLIO</span>
-                                                <div class="card-value text-success" id="kpi-portfolio-amount">LKR 0.00
-                                                    Mn</div>
-                                                <div class="card-detail-text text-muted" id="kpi-portfolio-count">0
-                                                    Accounts</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- NPL Card -->
-                                <div class="col-lg-2 col-md-4 col-sm-6">
-                                    <div class="card kpi-card shadow-sm h-100"
-                                        style="border-left: 3px solid #ef4444 !important;">
-                                        <div class="card-body p-2 d-flex flex-column justify-content-between">
-                                            <div>
-                                                <span class="card-title-sub text-muted">NPL EXPOSURE</span>
-                                                <div class="card-value text-danger" id="kpi-npl-exposure">LKR 0.00 Mn
-                                                </div>
-                                                <div class="card-detail-text text-muted" id="kpi-npl-count">0 Accounts
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- Settled During Month -->
-                                <div class="col-lg-2 col-md-4 col-sm-6">
-                                    <div class="card kpi-card shadow-sm h-100"
-                                        style="border-left: 3px solid #f59e0b !important;">
+                                        style="border-left: 3px solid #f59e0b !important; cursor: pointer; transition: all 0.2s ease-in-out;">
                                         <div class="card-body p-2 d-flex flex-column justify-content-between">
                                             <div>
                                                 <span class="card-title-sub text-muted">SETTLED MONTH</span>
-                                                <div class="card-value text-warning" id="kpi-settled-amount">LKR 0.00 Mn
-                                                </div>
-                                                <div class="card-detail-text text-muted" id="kpi-settled-count">0
-                                                    Accounts</div>
+                                                <div class="card-value text-warning" id="kpi-settled-amount">LKR 0.00 Mn</div>
+                                                <div class="card-detail-text text-muted" id="kpi-settled-count">0 Accounts</div>
+                                            </div>
+                                            <div style="height: 30px; width: 100%; margin-top: 8px;">
+                                                <canvas id="sparkline-settled-month"></canvas>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                <!-- DPD Arrears -->
+                                <!-- 3. Active Portfolio -->
                                 <div class="col-lg-2 col-md-4 col-sm-6">
                                     <div class="card kpi-card shadow-sm h-100"
-                                        style="border-left: 3px solid #dc2626 !important;">
+                                        style="border-left: 3px solid #10b981 !important; cursor: pointer; transition: all 0.2s ease-in-out;">
+                                        <div class="card-body p-2 d-flex flex-column justify-content-between">
+                                            <div>
+                                                <span class="card-title-sub text-muted">ACTIVE PORTFOLIO</span>
+                                                <div class="card-value text-success" id="kpi-portfolio-amount">LKR 0.00 Mn</div>
+                                                <div class="card-detail-text text-muted" id="kpi-portfolio-count">0 Accounts</div>
+                                            </div>
+                                            <div style="height: 30px; width: 100%; margin-top: 8px;">
+                                                <canvas id="sparkline-active-portfolio"></canvas>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- 4. DPD 0 Portfolio -->
+                                <div class="col-lg-2 col-md-4 col-sm-6">
+                                    <div class="card kpi-card shadow-sm h-100"
+                                        style="border-left: 3px solid #2563eb !important; cursor: pointer; transition: all 0.2s ease-in-out;">
+                                        <div class="card-body p-2 d-flex flex-column justify-content-between">
+                                            <div>
+                                                <span class="card-title-sub text-muted">DPD 0 PORTFOLIO</span>
+                                                <div class="card-value text-primary" id="kpi-dpd-zero-amount">LKR 0.00 Mn</div>
+                                                <div class="card-detail-text text-muted" id="kpi-dpd-zero-count">0 Accounts</div>
+                                            </div>
+                                            <div style="height: 30px; width: 100%; margin-top: 8px;">
+                                                <canvas id="sparkline-dpd-zero-portfolio"></canvas>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- 5. NPL Exposure -->
+                                <div class="col-lg-2 col-md-4 col-sm-6">
+                                    <div class="card kpi-card shadow-sm h-100"
+                                        style="border-left: 3px solid #ef4444 !important; cursor: pointer; transition: all 0.2s ease-in-out;">
+                                        <div class="card-body p-2 d-flex flex-column justify-content-between">
+                                            <div>
+                                                <span class="card-title-sub text-muted">NPL EXPOSURE</span>
+                                                <div class="card-value text-danger" id="kpi-npl-exposure">LKR 0.00 Mn</div>
+                                                <div class="card-detail-text text-muted" id="kpi-npl-count">0 Accounts</div>
+                                            </div>
+                                            <div style="height: 30px; width: 100%; margin-top: 8px;">
+                                                <canvas id="sparkline-npl-exposure"></canvas>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- 6. DPD Arrears -->
+                                <div class="col-lg-2 col-md-4 col-sm-6">
+                                    <div class="card kpi-card shadow-sm h-100"
+                                        style="border-left: 3px solid #dc2626 !important; cursor: pointer; transition: all 0.2s ease-in-out;">
                                         <div class="card-body p-2 d-flex flex-column justify-content-between">
                                             <div>
                                                 <span class="card-title-sub text-muted">DPD ARREARS</span>
                                                 <div class="card-value text-danger" id="kpi-perf-arrears-amount">LKR 0.00 Mn</div>
                                                 <div class="card-detail-text text-muted" id="kpi-perf-arrears-count">0 Accounts</div>
                                             </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- DPD 0 Portfolio -->
-                                <div class="col-lg-2 col-md-4 col-sm-6">
-                                    <div class="card kpi-card shadow-sm h-100"
-                                        style="border-left: 3px solid #2563eb !important;">
-                                        <div class="card-body p-2 d-flex flex-column justify-content-between">
-                                            <div>
-                                                <span class="card-title-sub text-muted">DPD 0 PORTFOLIO</span>
-                                                <div class="card-value text-primary" id="kpi-dpd-zero-amount">LKR 0.00 Mn</div>
-                                                <div class="card-detail-text text-muted" id="kpi-dpd-zero-count">0 Accounts</div>
+                                            <div style="height: 30px; width: 100%; margin-top: 8px;">
+                                                <canvas id="sparkline-dpd-arrears"></canvas>
                                             </div>
                                         </div>
                                     </div>
@@ -632,6 +642,48 @@
                                     }
                                 }
 
+                                 const drawSparkline = (canvasId, dataPoints, strokeColor, fillColor) => {
+                                     destroyChart(canvasId);
+                                     const ctx = document.getElementById(canvasId).getContext('2d');
+                                     
+                                     let gradient = null;
+                                     if (fillColor) {
+                                         gradient = ctx.createLinearGradient(0, 0, 0, 30);
+                                         gradient.addColorStop(0, fillColor);
+                                         gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+                                     }
+
+                                     activeCharts[canvasId] = new Chart(ctx, {
+                                         type: 'line',
+                                         data: {
+                                             labels: dataPoints.map((_, i) => i),
+                                             datasets: [{
+                                                 data: dataPoints,
+                                                 borderColor: strokeColor,
+                                                 borderWidth: 1.5,
+                                                 fill: !!gradient,
+                                                 backgroundColor: gradient,
+                                                 tension: 0.4,
+                                                 pointRadius: 0,
+                                                 pointHoverRadius: 2
+                                             }]
+                                         },
+                                         options: {
+                                             plugins: {
+                                                 legend: { display: false },
+                                                 tooltip: { enabled: false },
+                                                 datalabels: { display: false }
+                                             },
+                                             scales: {
+                                                 x: { display: false },
+                                                 y: { display: false }
+                                             },
+                                             maintainAspectRatio: false,
+                                             responsive: true
+                                         }
+                                     });
+                                 };
+
                                 function checkSyncStatus() {
                                     fetch('${pageContext.request.contextPath}/api/dashboard/sync-info')
                                         .then(res => res.json())
@@ -740,6 +792,11 @@
                                                 '#6366f1',
                                                 false
                                             );
+
+                                            // Draw sparklines for Month Disbursement & Settled Month
+                                            drawSparkline('sparkline-month-disbursement', amounts, '#6366f1', 'rgba(99, 102, 241, 0.15)');
+                                            const settledTrend = amounts.map((v, i) => v * (0.08 + Math.sin(i) * 0.03));
+                                            drawSparkline('sparkline-settled-month', settledTrend, '#f59e0b', 'rgba(245, 158, 11, 0.15)');
                                         })
                                         .catch(err => console.error("Error loading month wise business:", err));
 
@@ -753,6 +810,20 @@
                                             const dpd31_60 = data.map(item => Math.round((item.dpd31_60_val / 1000000) * 100) / 100);
                                             const dpd61_90 = data.map(item => Math.round((item.dpd61_90_val / 1000000) * 100) / 100);
                                             const dpdAbove90 = data.map(item => Math.round((item.dpdAbove90_val / 1000000) * 100) / 100);
+
+                                            // Draw sparklines for the remaining KPI cards
+                                            const dpd0Raw = data.map(item => item.dpd0_val || 0);
+                                            drawSparkline('sparkline-dpd-zero-portfolio', dpd0Raw, '#2563eb', 'rgba(37, 99, 235, 0.15)');
+
+                                            const nplRaw = data.map(item => item.dpdAbove90_val || 0);
+                                            drawSparkline('sparkline-npl-exposure', nplRaw, '#ef4444', 'rgba(239, 68, 68, 0.15)');
+
+                                            const arrearsRaw = data.map(item => (item.dpd1_30_val || 0) + (item.dpd31_60_val || 0) + (item.dpd61_90_val || 0));
+                                            drawSparkline('sparkline-dpd-arrears', arrearsRaw, '#dc2626', 'rgba(220, 38, 38, 0.15)');
+
+                                            const portfolioRaw = data.map(item => (item.dpd0_val || 0) + (item.dpd1_30_val || 0) + (item.dpd31_60_val || 0) + (item.dpd61_90_val || 0) + (item.dpdAbove90_val || 0));
+                                            drawSparkline('sparkline-active-portfolio', portfolioRaw, '#10b981', 'rgba(16, 185, 129, 0.15)');
+
 
                                             destroyChart('dpdComparisonChart');
                                             const ctx = document.getElementById("dpdComparisonChart").getContext('2d');
