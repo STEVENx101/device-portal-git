@@ -180,6 +180,47 @@ public class DashboardRepository {
                 """, filter);
         Map<String, Object> settledStats = jdbcTemplate.queryForMap(sqlSettledStats);
 
+        // 9. Performing Arrears (0-90 DPD, performing_status = Performing)
+        String sqlPerfArrears = String.format("""
+                    SELECT
+                        COUNT(DISTINCT p.account_no) AS count_val,
+                        COALESCE(SUM(p.total_due), 0) AS amount_val
+                    FROM cbs.portfolio p
+                    JOIN (
+                        SELECT account_no AS finance_no, product FROM cbs.loan
+                        UNION ALL
+                        SELECT legacy_account_no AS finance_no, product FROM cbs.loan WHERE legacy_account_no IS NOT NULL
+                    ) l ON l.finance_no = p.account_no
+                    LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
+                    WHERE p.portfolio_date = (
+                        SELECT MAX(portfolio_date) FROM cbs.portfolio
+                    )
+                    AND p.dpd BETWEEN 0 AND 90
+                    AND p.performing_status = 'Performing'
+                    %s
+                """, filter);
+        Map<String, Object> perfArrearsStats = jdbcTemplate.queryForMap(sqlPerfArrears);
+
+        // 10. DPD 0 Portfolio (dpd = 0)
+        String sqlDpdZeroPortfolio = String.format("""
+                    SELECT
+                        COUNT(DISTINCT p.account_no) AS count_val,
+                        COALESCE(SUM(p.exposure), 0) AS amount_val
+                    FROM cbs.portfolio p
+                    JOIN (
+                        SELECT account_no AS finance_no, product FROM cbs.loan
+                        UNION ALL
+                        SELECT legacy_account_no AS finance_no, product FROM cbs.loan WHERE legacy_account_no IS NOT NULL
+                    ) l ON l.finance_no = p.account_no
+                    LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
+                    WHERE p.portfolio_date = (
+                        SELECT MAX(portfolio_date) FROM cbs.portfolio
+                    )
+                    AND p.dpd = 0
+                    %s
+                """, filter);
+        Map<String, Object> dpdZeroPortfolioStats = jdbcTemplate.queryForMap(sqlDpdZeroPortfolio);
+
         stats.put("nMonthCount", monthStats.get("month_count") != null ? monthStats.get("month_count") : 0);
         stats.put("nMonthAmount", monthStats.get("month_amount") != null ? monthStats.get("month_amount") : 0);
         stats.put("nYtdCount", ytdStats.get("ytd_count") != null ? ytdStats.get("ytd_count") : 0);
@@ -199,6 +240,11 @@ public class DashboardRepository {
 
         stats.put("settledCount", settledStats.get("settled_count") != null ? settledStats.get("settled_count") : 0);
         stats.put("settledAmount", settledStats.get("settled_amount") != null ? settledStats.get("settled_amount") : 0);
+
+        stats.put("perfArrearsCount", perfArrearsStats.get("count_val") != null ? perfArrearsStats.get("count_val") : 0);
+        stats.put("perfArrearsAmount", perfArrearsStats.get("amount_val") != null ? perfArrearsStats.get("amount_val") : 0);
+        stats.put("dpdZeroPortfolioCount", dpdZeroPortfolioStats.get("count_val") != null ? dpdZeroPortfolioStats.get("count_val") : 0);
+        stats.put("dpdZeroPortfolioAmount", dpdZeroPortfolioStats.get("amount_val") != null ? dpdZeroPortfolioStats.get("amount_val") : 0);
 
         stats.put("securityStats", securityStats);
 
@@ -579,81 +625,6 @@ public class DashboardRepository {
         return jdbcTemplate.queryForList(sql);
     }
 
-    public Map<String, Object> getHighestNplModel(String product) {
-        String filter = getProductFilterSql(product);
-        String sql = String.format("""
-                SELECT 
-                    COALESCE(lmm.name, 'Unknown Model') AS model_name,
-                    COUNT(DISTINCT active_loans.account_no) AS accounts_count,
-                    COALESCE(SUM(p.total_due), 0) AS arrears,
-                    COALESCE(SUM(p.total_due), 0) AS exposure
-                FROM (
-                    SELECT account_no, account_series, product, account_no AS join_no FROM cbs.loan
-                    UNION ALL
-                    SELECT account_no, account_series, product, legacy_account_no AS join_no FROM cbs.loan WHERE legacy_account_no IS NOT NULL
-                ) active_loans
-                LEFT JOIN loan.mobileloan lm ON lm.finance_no = active_loans.join_no
-                LEFT JOIN loan.device_loan dl ON dl.finance_no = active_loans.join_no
-                LEFT JOIN loan.mobileloan_model lmm ON lmm.id = COALESCE(lm.model, dl.model)
-                LEFT JOIN cbs.product pr ON CAST(active_loans.product AS UNSIGNED) = pr.code_val
-                LEFT JOIN cbs.portfolio p 
-                    ON p.account_no = active_loans.join_no 
-                    AND p.series = active_loans.account_series
-                    AND p.portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio)
-                WHERE p.dpd BETWEEN 0 AND 90
-                  AND p.performing_status = 'Performing'
-                  %s
-                GROUP BY model_name
-                ORDER BY arrears DESC
-                LIMIT 1
-                """, filter);
-        try {
-            return jdbcTemplate.queryForMap(sql);
-        } catch (Exception e) {
-            Map<String, Object> empty = new HashMap<>();
-            empty.put("model_name", "N/A");
-            empty.put("accounts_count", 0);
-            empty.put("arrears", 0);
-            empty.put("exposure", 0);
-            return empty;
-        }
-    }
-
-    public Map<String, Object> getHighestNplDealer(String product) {
-        String filter = getProductFilterSql(product);
-        String sql = String.format("""
-                SELECT 
-                    COALESCE(v.name, 'Unknown Dealer') AS dealer_name,
-                    COUNT(DISTINCT active_loans.account_no) AS accounts_count,
-                    COALESCE(SUM(p.exposure), 0) AS exposure
-                FROM (
-                    SELECT account_no, account_series, vendor, product, account_no AS join_no FROM cbs.loan
-                    UNION ALL
-                    SELECT account_no, account_series, vendor, product, legacy_account_no AS join_no FROM cbs.loan WHERE legacy_account_no IS NOT NULL
-                ) active_loans
-                LEFT JOIN cbs.vendor v ON active_loans.vendor = v.code
-                LEFT JOIN cbs.product pr ON CAST(active_loans.product AS UNSIGNED) = pr.code_val
-                LEFT JOIN cbs.portfolio p 
-                    ON p.account_no = active_loans.join_no 
-                    AND p.series = active_loans.account_series
-                    AND p.portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio)
-                WHERE p.performing_status = 'Non-Performing'
-                  AND p.dpd > 0
-                  %s
-                GROUP BY dealer_name
-                ORDER BY accounts_count DESC
-                LIMIT 1
-                """, filter);
-        try {
-            return jdbcTemplate.queryForMap(sql);
-        } catch (Exception e) {
-            Map<String, Object> empty = new HashMap<>();
-            empty.put("dealer_name", "N/A");
-            empty.put("accounts_count", 0);
-            empty.put("exposure", 0);
-            return empty;
-        }
-    }
 
     public List<Map<String, Object>> getCollectionsDealerWise(String product) {
         return getCollectionsDealerWise(product, null, null);

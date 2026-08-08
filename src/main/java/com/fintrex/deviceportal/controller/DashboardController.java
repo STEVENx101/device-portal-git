@@ -66,15 +66,6 @@ public class DashboardController {
         return ResponseEntity.ok(dashboardService.getArrearsAnalysis(product));
     }
 
-    @GetMapping("/highest-npl-model")
-    public ResponseEntity<Map<String, Object>> getHighestNplModel(@RequestParam(value = "product", required = false) String product) {
-        return ResponseEntity.ok(dashboardService.getHighestNplModel(product));
-    }
-
-    @GetMapping("/highest-npl-dealer")
-    public ResponseEntity<Map<String, Object>> getHighestNplDealer(@RequestParam(value = "product", required = false) String product) {
-        return ResponseEntity.ok(dashboardService.getHighestNplDealer(product));
-    }
 
     @GetMapping("/collections-dealer-wise")
     public ResponseEntity<List<Map<String, Object>>> getCollectionsDealerWise(

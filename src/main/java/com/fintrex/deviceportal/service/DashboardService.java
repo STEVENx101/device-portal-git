@@ -62,11 +62,6 @@ public class DashboardService {
                 Map<String, Object> status = dashboardRepository.getDeviceStatusCharts(product);
                 cache.put("deviceStatus" + suffix, status != null ? status : new HashMap<>());
 
-                Map<String, Object> nplModel = dashboardRepository.getHighestNplModel(product);
-                cache.put("nplModel" + suffix, nplModel != null ? nplModel : new HashMap<>());
-
-                Map<String, Object> nplDealer = dashboardRepository.getHighestNplDealer(product);
-                cache.put("nplDealer" + suffix, nplDealer != null ? nplDealer : new HashMap<>());
 
                 List<Map<String, Object>> payments = dashboardRepository.getVendorPaymentsChannelChart(product);
                 cache.put("vendorPayments" + suffix, payments != null ? payments : new ArrayList<>());
@@ -164,18 +159,6 @@ public class DashboardService {
 
     public List<Map<String, Object>> getArrearsAnalysis(String product) {
         return dashboardRepository.getArrearsAnalysis(product);
-    }
-
-    @SuppressWarnings("unchecked")
-    public Map<String, Object> getHighestNplModel(String product) {
-        String suffix = getSuffix(product);
-        return (Map<String, Object>) cache.computeIfAbsent("nplModel" + suffix, k -> dashboardRepository.getHighestNplModel(product));
-    }
-
-    @SuppressWarnings("unchecked")
-    public Map<String, Object> getHighestNplDealer(String product) {
-        String suffix = getSuffix(product);
-        return (Map<String, Object>) cache.computeIfAbsent("nplDealer" + suffix, k -> dashboardRepository.getHighestNplDealer(product));
     }
 
     @SuppressWarnings("unchecked")
