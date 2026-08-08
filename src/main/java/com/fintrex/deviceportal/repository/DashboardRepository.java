@@ -585,11 +585,12 @@ public class DashboardRepository {
                 SELECT 
                     COALESCE(lmm.name, 'Unknown Model') AS model_name,
                     COUNT(DISTINCT active_loans.account_no) AS accounts_count,
-                    COALESCE(SUM(p.exposure), 0) AS exposure
+                    COALESCE(SUM(p.total_due), 0) AS arrears,
+                    COALESCE(SUM(p.total_due), 0) AS exposure
                 FROM (
-                    SELECT account_no, account_series, product, account_no AS join_no FROM cbs.loan WHERE account_status = 'N'
+                    SELECT account_no, account_series, product, account_no AS join_no FROM cbs.loan
                     UNION ALL
-                    SELECT account_no, account_series, product, legacy_account_no AS join_no FROM cbs.loan WHERE account_status = 'N' AND legacy_account_no IS NOT NULL
+                    SELECT account_no, account_series, product, legacy_account_no AS join_no FROM cbs.loan WHERE legacy_account_no IS NOT NULL
                 ) active_loans
                 LEFT JOIN loan.mobileloan lm ON lm.finance_no = active_loans.join_no
                 LEFT JOIN loan.device_loan dl ON dl.finance_no = active_loans.join_no
@@ -599,9 +600,11 @@ public class DashboardRepository {
                     ON p.account_no = active_loans.join_no 
                     AND p.series = active_loans.account_series
                     AND p.portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio)
-                WHERE 1=1 %s
+                WHERE p.dpd BETWEEN 0 AND 90
+                  AND p.performing_status = 'Performing'
+                  %s
                 GROUP BY model_name
-                ORDER BY accounts_count DESC
+                ORDER BY arrears DESC
                 LIMIT 1
                 """, filter);
         try {
@@ -610,6 +613,7 @@ public class DashboardRepository {
             Map<String, Object> empty = new HashMap<>();
             empty.put("model_name", "N/A");
             empty.put("accounts_count", 0);
+            empty.put("arrears", 0);
             empty.put("exposure", 0);
             return empty;
         }
@@ -623,9 +627,9 @@ public class DashboardRepository {
                     COUNT(DISTINCT active_loans.account_no) AS accounts_count,
                     COALESCE(SUM(p.exposure), 0) AS exposure
                 FROM (
-                    SELECT account_no, account_series, vendor, product, account_no AS join_no FROM cbs.loan WHERE account_status = 'N'
+                    SELECT account_no, account_series, vendor, product, account_no AS join_no FROM cbs.loan
                     UNION ALL
-                    SELECT account_no, account_series, vendor, product, legacy_account_no AS join_no FROM cbs.loan WHERE account_status = 'N' AND legacy_account_no IS NOT NULL
+                    SELECT account_no, account_series, vendor, product, legacy_account_no AS join_no FROM cbs.loan WHERE legacy_account_no IS NOT NULL
                 ) active_loans
                 LEFT JOIN cbs.vendor v ON active_loans.vendor = v.code
                 LEFT JOIN cbs.product pr ON CAST(active_loans.product AS UNSIGNED) = pr.code_val
@@ -633,7 +637,9 @@ public class DashboardRepository {
                     ON p.account_no = active_loans.join_no 
                     AND p.series = active_loans.account_series
                     AND p.portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio)
-                WHERE 1=1 %s
+                WHERE p.performing_status = 'Non-Performing'
+                  AND p.dpd > 0
+                  %s
                 GROUP BY dealer_name
                 ORDER BY accounts_count DESC
                 LIMIT 1

@@ -274,7 +274,7 @@
                             <div class="card kpi-card shadow-sm h-100" style="border-left: 3px solid #ef4444 !important;">
                                 <div class="card-body p-2 d-flex flex-column justify-content-between">
                                     <div>
-                                        <span class="card-title-sub text-muted">HIGHEST NPL MODEL</span>
+                                        <span class="card-title-sub text-muted">HIGHEST ARREARS MODEL</span>
                                         <div class="card-value text-danger" id="npl-model-name" style="font-size: 0.85rem;">Loading...</div>
                                         <div class="card-detail-text text-muted" id="npl-model-count">0 Accounts</div>
                                     </div>
@@ -743,7 +743,7 @@
                                 .then(data => {
                                     if (data && data.model_name) {
                                         document.getElementById("npl-model-name").innerText = data.model_name;
-                                        document.getElementById("npl-model-count").innerText = formatNum(data.accounts_count || 0) + " Accounts \u2022 Exposure: " + formatLKR(data.exposure || 0);
+                                        document.getElementById("npl-model-count").innerText = formatNum(data.accounts_count || 0) + " Accounts \u2022 Arrears: " + formatLKR(data.arrears || 0);
                                     } else {
                                         document.getElementById("npl-model-name").innerText = 'Unknown Model';
                                         document.getElementById("npl-model-count").innerText = '0 Accounts';
