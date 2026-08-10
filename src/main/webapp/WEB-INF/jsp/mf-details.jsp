@@ -107,6 +107,19 @@
                     border-color: #f59e0b !important;
                     box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.25), 0 4px 25px rgba(245, 158, 11, 0.2) !important;
                 }
+
+                /* Force page-level and tab card-level natural vertical scrolling on this screen */
+                html, body, .main, [data-layout="container"], .container-fluid, .content {
+                    height: auto !important;
+                    max-height: none !important;
+                    overflow: visible !important;
+                }
+                #tabsCard, #tabsCard .card-body, #tabsCard .tab-content {
+                    height: auto !important;
+                    max-height: none !important;
+                    overflow: visible !important;
+                    flex: none !important;
+                }
             </style>
         </head>
 
@@ -492,6 +505,10 @@
                                                         <tbody></tbody>
                                                     </table>
                                                 </div>
+                                            </div>
+                                            <!-- Locks pane -->
+                                            <div class="tab-pane fade" id="locks-pane" role="tabpanel"
+                                                aria-labelledby="tab-locks">
                                                 <div class="table-responsive" id="standard_locks_wrapper">
                                                     <table id="locks_table"
                                                         class="table table-hover table-striped mb-0 fs--1 w-100">
