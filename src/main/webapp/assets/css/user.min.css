@@ -225,7 +225,7 @@ body {
     display: block !important;
 }
 
-.content.facility-content #tabsCard {
+.content.facility-content #tabsCard:not([style*="display: none"]) {
     flex: none !important;
     overflow: visible !important;
     display: block !important;
