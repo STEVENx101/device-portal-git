@@ -426,7 +426,7 @@
                                                         <i class="fas fa-sync-alt me-1"></i>Refresh
                                                     </button>
                                                 </div>
-                                                <div class="table-responsive" style="max-height: 350px; overflow-y: auto;">
+                                                <div class="table-responsive">
                                                     <table id="statement_table"
                                                         class="table table-hover table-striped mb-0 fs--1 w-100">
                                                         <thead>
@@ -535,7 +535,7 @@
                                                         </div>
                                                     </form>
                                                 </div>
-                                                <div class="table-responsive" style="max-height: 350px; overflow-y: auto;">
+                                                <div class="table-responsive">
                                                     <table id="remarks_table"
                                                         class="table table-hover table-striped mb-0 fs--1 w-100">
                                                         <thead>
@@ -840,8 +840,6 @@
                         autoWidth: false,
                         processing: true,
                         serverSide: true,
-                        scrollY: "300px",
-                        scrollCollapse: true,
 
                         ajax: {
                             url: contextPath + '/api/contracts/fetchreceiptdata',
@@ -926,8 +924,6 @@
                         autoWidth: false,
                         processing: true,
                         serverSide: true,
-                        scrollY: "300px",
-                        scrollCollapse: true,
 
                         ajax: {
                             url: contextPath + '/api/contracts/fetchsmsdata',
@@ -1015,8 +1011,6 @@
                             autoWidth: false,
                             processing: true,
                             serverSide: false,
-                            scrollY: "300px",
-                            scrollCollapse: true,
                             ajax: {
                                 url: contextPath + '/api/contracts/datacultr-logs?imei=' + encodeURIComponent(imei || ''),
                                 type: 'GET',
@@ -1081,8 +1075,6 @@
                             autoWidth: false,
                             processing: true,
                             serverSide: true,
-                            scrollY: "300px",
-                            scrollCollapse: true,
                             ajax: {
                                 url: contextPath + '/api/contracts/fetchlockdata',
                                 type: 'POST',
