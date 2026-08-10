@@ -214,3 +214,31 @@ body {
     background: url('../img/chatgpt_bg.png') no-repeat center center fixed !important;
     background-size: cover !important;
 }
+
+/* Facility-specific override: allow scrolling for facility details page */
+.content.facility-content {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    height: calc(100vh - 85px) !important;
+    max-height: calc(100vh - 85px) !important;
+    padding-bottom: 40px !important;
+    display: block !important;
+}
+
+.content.facility-content #tabsCard {
+    flex: none !important;
+    overflow: visible !important;
+    display: block !important;
+}
+
+.content.facility-content #tabsCard .card-body {
+    flex: none !important;
+    overflow: visible !important;
+    display: block !important;
+}
+
+.content.facility-content #tabsCard .tab-content {
+    flex: none !important;
+    overflow-y: visible !important;
+}
+

@@ -138,7 +138,7 @@
                             </a>
                         </nav>
 
-                        <div class="content">
+                        <div class="content facility-content">
                             <%@include file="../jspf/topbar.jspf" %>
 
                                 <script>
