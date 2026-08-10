@@ -446,6 +446,7 @@
                                                         </tbody>
                                                     </table>
                                                 </div>
+
                                                 <div class="text-center mt-3" id="stmt-load-more-container"
                                                     style="display: none;">
                                                     <button class="btn btn-sm btn-outline-primary fw-bold px-4"
@@ -504,7 +505,9 @@
                                                         </thead>
                                                         <tbody></tbody>
                                                     </table>
-                                                </div>                                                <div class="table-responsive" id="datacultr_locks_wrapper" style="display: none;">
+                                                </div>
+                                                <div class="table-responsive" id="datacultr_locks_wrapper"
+                                                    style="display: none;">
                                                     <table id="datacultr_locks_table"
                                                         class="table table-hover table-striped mb-0 fs--1 w-100">
                                                         <thead>
@@ -682,7 +685,7 @@
 
                 function refreshStatement() {
                     loadStatementData();
-                }                function loadStatementData() {
+                } function loadStatementData() {
                     if (!currentStatementFinanceNo) {
                         document.getElementById("statement_table_body").innerHTML = '<tr><td colspan="5" class="text-center text-muted">No data loaded. Select a contract to load details.</td></tr>';
                         document.getElementById("stmt-load-more-container").style.display = 'none';
