@@ -773,12 +773,6 @@
                                     dateFormatted = '';
                                 }
 
-                                let entryType = tx.entryType;
-                                const remarkUpper = (tx.remark || '').toUpperCase();
-                                if (remarkUpper.includes('LN_PAYMENT') || remarkUpper.includes('PAID') || remarkUpper.includes('REPAYMENT')) {
-                                    entryType = 'CR';
-                                }
-
                                 let particulars = tx.remark;
 
                                 if (isOpening) {
@@ -800,22 +794,17 @@
                                     let totalCredit = 0;
                                     txs.forEach(t => {
                                         if (t.remark !== 'Opening Balance' && t.remark !== 'Closing Balance') {
-                                            let tEntryType = t.entryType;
-                                            const tRemarkUpper = (t.remark || '').toUpperCase();
-                                            if (tRemarkUpper.includes('LN_PAYMENT') || tRemarkUpper.includes('PAID') || tRemarkUpper.includes('REPAYMENT')) {
-                                                tEntryType = 'CR';
-                                            }
-                                            if (tEntryType === 'DR') totalDebit += (t.amount || 0);
-                                            if (tEntryType === 'CR') totalCredit += (t.amount || 0);
+                                            if (t.entryType === 'DR') totalDebit += (t.amount || 0);
+                                            if (t.entryType === 'CR') totalCredit += (t.amount || 0);
                                         }
                                     });
                                     debitStr = totalDebit > 0 ? '-' + totalDebit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '';
                                     creditStr = totalCredit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
                                 } else {
-                                    if (entryType === 'DR') {
+                                    if (tx.entryType === 'DR') {
                                         debitStr = tx.amount !== null ? '-' + parseFloat(tx.amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '';
                                         creditStr = '0.00';
-                                    } else if (entryType === 'CR') {
+                                    } else if (tx.entryType === 'CR') {
                                         debitStr = '';
                                         creditStr = tx.amount !== null ? parseFloat(tx.amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00';
                                     }
