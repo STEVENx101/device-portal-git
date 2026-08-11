@@ -773,26 +773,18 @@
                                     dateFormatted = '';
                                 }
 
-                                let particulars = tx.remark || '';
+                                let entryType = tx.entryType;
+                                const remarkUpper = (tx.remark || '').toUpperCase();
+                                if (remarkUpper.includes('LN_PAYMENT') || remarkUpper.includes('PAID') || remarkUpper.includes('REPAYMENT')) {
+                                    entryType = 'CR';
+                                }
+
+                                let particulars = tx.remark;
 
                                 if (isOpening) {
                                     particulars = 'Opening Balance ' + formatDisplayDate(fromDateObj);
                                 } else if (isClosing) {
                                     particulars = 'Closing Balance ' + formatDisplayDate(toDateObj);
-                                } else {
-                                    if (tx.entryType === 'CR') {
-                                        let subReason = 'LN_PAID_PRIN';
-                                        if (tx.remark && tx.remark.includes('INTDUE')) {
-                                            subReason = 'LN_PAID_INTDUE';
-                                        } else if (tx.remark && tx.remark.includes('PRIN')) {
-                                            subReason = 'LN_PAID_PRIN';
-                                        } else {
-                                            subReason = (tx.amount < 1000) ? 'LN_PAID_INTDUE' : 'LN_PAID_PRIN';
-                                        }
-                                        particulars = 'Loan Repayment From ' + (legacyAccountNo || tx.accountNo) + ' : ' + subReason;
-                                    } else if (tx.entryType === 'DR') {
-                                        particulars = 'INTEREST DUE PAID ||Narration : ' + (tx.remark || 'LN_PAYMENT - LN_PAID_INTDUE');
-                                    }
                                 }
 
                                 let debitStr = '';
@@ -808,17 +800,22 @@
                                     let totalCredit = 0;
                                     txs.forEach(t => {
                                         if (t.remark !== 'Opening Balance' && t.remark !== 'Closing Balance') {
-                                            if (t.entryType === 'DR') totalDebit += (t.amount || 0);
-                                            if (t.entryType === 'CR') totalCredit += (t.amount || 0);
+                                            let tEntryType = t.entryType;
+                                            const tRemarkUpper = (t.remark || '').toUpperCase();
+                                            if (tRemarkUpper.includes('LN_PAYMENT') || tRemarkUpper.includes('PAID') || tRemarkUpper.includes('REPAYMENT')) {
+                                                tEntryType = 'CR';
+                                            }
+                                            if (tEntryType === 'DR') totalDebit += (t.amount || 0);
+                                            if (tEntryType === 'CR') totalCredit += (t.amount || 0);
                                         }
                                     });
                                     debitStr = totalDebit > 0 ? '-' + totalDebit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '';
                                     creditStr = totalCredit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
                                 } else {
-                                    if (tx.entryType === 'DR') {
+                                    if (entryType === 'DR') {
                                         debitStr = tx.amount !== null ? '-' + parseFloat(tx.amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '';
                                         creditStr = '0.00';
-                                    } else if (tx.entryType === 'CR') {
+                                    } else if (entryType === 'CR') {
                                         debitStr = '';
                                         creditStr = tx.amount !== null ? parseFloat(tx.amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00';
                                     }
