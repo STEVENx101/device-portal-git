@@ -714,6 +714,13 @@
                     const fromDateObj = new Date();
                     fromDateObj.setMonth(toDateObj.getMonth() - statementMonthsLimit);
 
+                    const earliestDateObj = new Date(toDateObj.getFullYear(), 5, 1); // June is month index 5
+                    let shouldHideLoadMore = false;
+                    if (fromDateObj < earliestDateObj) {
+                        fromDateObj.setTime(earliestDateObj.getTime());
+                        shouldHideLoadMore = true;
+                    }
+
                     const formatDate = (date) => {
                         const y = date.getFullYear();
                         const m = String(date.getMonth() + 1).padStart(2, '0');
@@ -738,7 +745,7 @@
                         .then(res => {
                             if (res.status !== 200 || !res.data || !res.data.transactions || res.data.transactions.length === 0) {
                                 body.innerHTML = '<tr><td colspan="5" class="text-center text-muted">No statement details registered for this account.</td></tr>';
-                                document.getElementById("stmt-load-more-container").style.display = 'block';
+                                document.getElementById("stmt-load-more-container").style.display = shouldHideLoadMore ? 'none' : 'block';
                                 return;
                             }
 
@@ -832,12 +839,12 @@
                             });
 
                             body.innerHTML = html;
-                            document.getElementById("stmt-load-more-container").style.display = 'block';
+                            document.getElementById("stmt-load-more-container").style.display = shouldHideLoadMore ? 'none' : 'block';
                         })
                         .catch(err => {
                             console.error("Error loading statement:", err);
                             body.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Error loading account statement. Please try again.</td></tr>';
-                            document.getElementById("stmt-load-more-container").style.display = 'block';
+                            document.getElementById("stmt-load-more-container").style.display = shouldHideLoadMore ? 'none' : 'block';
                         });
                 }
 

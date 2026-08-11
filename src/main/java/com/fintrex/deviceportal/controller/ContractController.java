@@ -126,10 +126,10 @@ public class ContractController {
             if (response.statusCode() == 200) {
                 return ResponseEntity.ok(response.body());
             } else {
-                return ResponseEntity.status(response.statusCode()).body(response.body());
+                return ResponseEntity.ok("[]");
             }
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().body("[]");
+            return ResponseEntity.ok("[]");
         }
     }
 
