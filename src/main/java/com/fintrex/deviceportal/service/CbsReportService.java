@@ -41,6 +41,7 @@ public class CbsReportService {
         initDownloadScreen();
         initAgreementScreen();
         initRecoveryScreens();
+        initVendorPaymentScreens();
 
         try {
             jdbc.getJdbcTemplate()
@@ -819,6 +820,46 @@ public class CbsReportService {
                     """);
         } catch (Exception e) {
             log.error("Report configuration database operation failed", e);
+        }
+    }
+
+    private void initVendorPaymentScreens() {
+        try {
+            // Vendor Payments Report
+            jdbc.getJdbcTemplate().execute("""
+                        INSERT INTO device_portal.screen (name, path, icon, group_name)
+                        SELECT 'Vendor Payments', '/vendor-payments', 'fas fa-file-invoice-dollar', 'Reports'
+                        WHERE NOT EXISTS (SELECT 1 FROM device_portal.screen WHERE path = '/vendor-payments')
+                    """);
+            jdbc.getJdbcTemplate().execute("""
+                        INSERT INTO device_portal.user_type_screen (user_type_id, screen_id)
+                        SELECT ut.id, s.id
+                        FROM device_portal.user_type ut, device_portal.screen s
+                        WHERE s.path = '/vendor-payments'
+                        AND NOT EXISTS (
+                            SELECT 1 FROM device_portal.user_type_screen uts
+                            WHERE uts.screen_id = s.id
+                        )
+                    """);
+
+            // Vendor Payments Exception Report
+            jdbc.getJdbcTemplate().execute("""
+                        INSERT INTO device_portal.screen (name, path, icon, group_name)
+                        SELECT 'Vendor Payments Exception', '/vendor-payments-exception', 'fas fa-exclamation-circle', 'Reports'
+                        WHERE NOT EXISTS (SELECT 1 FROM device_portal.screen WHERE path = '/vendor-payments-exception')
+                    """);
+            jdbc.getJdbcTemplate().execute("""
+                        INSERT INTO device_portal.user_type_screen (user_type_id, screen_id)
+                        SELECT ut.id, s.id
+                        FROM device_portal.user_type ut, device_portal.screen s
+                        WHERE s.path = '/vendor-payments-exception'
+                        AND NOT EXISTS (
+                            SELECT 1 FROM device_portal.user_type_screen uts
+                            WHERE uts.screen_id = s.id
+                        )
+                    """);
+        } catch (Exception e) {
+            log.error("Report configuration database operation failed for Vendor Payments", e);
         }
     }
 
