@@ -193,6 +193,11 @@ public class ContractController {
             @RequestParam("fromDate") String fromDate,
             @RequestParam("toDate") String toDate) {
         try {
+            String earliestDate = java.time.LocalDate.now().getYear() + "-06-01";
+            if (fromDate != null && fromDate.compareTo(earliestDate) < 0) {
+                fromDate = earliestDate;
+            }
+
             java.util.Map<String, Object> mapping = contractService.getAccountMapping(financeNo);
             String accountNo = financeNo;
             if (mapping.get("ACCOUNT_NO") != null) {

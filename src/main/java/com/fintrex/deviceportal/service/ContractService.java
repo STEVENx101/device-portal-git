@@ -111,7 +111,7 @@ public class ContractService {
             return resp;
         }
 
-        String innerQuery = """
+        String query = """
                 SELECT
                     l.status,
                     l.date,
@@ -121,18 +121,9 @@ public class ContractService {
                 JOIN cbs.loan cl ON l.finance_no = cl.account_no
                 WHERE cl.account_no = '""" + finNo + """
                 ' OR cl.legacy_account_no = '""" + finNo + """
-                '
-                ORDER BY l.date DESC""";
+                '""";
 
-        String finalQuery = """
-                SELECT
-                    t.status,
-                    t.date,
-                    t.changed_by,
-                    t.reason
-                FROM (""" + innerQuery + ") t WHERE TRUE";
-
-        return datatable.dataTable(req, finalQuery);
+        return datatable.dataTable(req, query);
     }
 
     public List<java.util.Map<String, Object>> getRemarks(String financeNo) {
