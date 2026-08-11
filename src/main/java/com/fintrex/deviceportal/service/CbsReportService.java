@@ -64,7 +64,7 @@ public class CbsReportService {
                         WHERE s.path = '/agreement'
                         AND NOT EXISTS (
                             SELECT 1 FROM device_portal.user_type_screen uts
-                            WHERE uts.screen_id = s.id
+                            WHERE uts.user_type_id = ut.id AND uts.screen_id = s.id
                         )
                     """);
             jdbc.getJdbcTemplate().execute("""
@@ -79,7 +79,7 @@ public class CbsReportService {
                         WHERE s.path = '/report-logs'
                         AND NOT EXISTS (
                             SELECT 1 FROM device_portal.user_type_screen uts
-                            WHERE uts.screen_id = s.id
+                            WHERE uts.user_type_id = ut.id AND uts.screen_id = s.id
                         )
                     """);
         } catch (Exception e) {
@@ -639,7 +639,7 @@ public class CbsReportService {
                         WHERE s.path = '/arrears-report'
                         AND NOT EXISTS (
                             SELECT 1 FROM device_portal.user_type_screen uts
-                            WHERE uts.screen_id = s.id
+                            WHERE uts.user_type_id = ut.id AND uts.screen_id = s.id
                         )
                     """);
 
@@ -656,7 +656,7 @@ public class CbsReportService {
                         WHERE s.path = '/npa-report'
                         AND NOT EXISTS (
                             SELECT 1 FROM device_portal.user_type_screen uts
-                            WHERE uts.screen_id = s.id
+                            WHERE uts.user_type_id = ut.id AND uts.screen_id = s.id
                         )
                     """);
 
@@ -673,7 +673,7 @@ public class CbsReportService {
                         WHERE s.path = '/nearing-npa-report'
                         AND NOT EXISTS (
                             SELECT 1 FROM device_portal.user_type_screen uts
-                            WHERE uts.screen_id = s.id
+                            WHERE uts.user_type_id = ut.id AND uts.screen_id = s.id
                         )
                     """);
 
@@ -690,7 +690,7 @@ public class CbsReportService {
                         WHERE s.path = '/duplicate-loans-report'
                         AND NOT EXISTS (
                             SELECT 1 FROM device_portal.user_type_screen uts
-                            WHERE uts.screen_id = s.id
+                            WHERE uts.user_type_id = ut.id AND uts.screen_id = s.id
                         )
                     """);
 
@@ -707,7 +707,7 @@ public class CbsReportService {
                         WHERE s.path = '/unlock-arrears-report'
                         AND NOT EXISTS (
                             SELECT 1 FROM device_portal.user_type_screen uts
-                            WHERE uts.screen_id = s.id
+                            WHERE uts.user_type_id = ut.id AND uts.screen_id = s.id
                         )
                     """);
 
@@ -724,7 +724,7 @@ public class CbsReportService {
                         WHERE s.path = '/lock-no-arrears-report'
                         AND NOT EXISTS (
                             SELECT 1 FROM device_portal.user_type_screen uts
-                            WHERE uts.screen_id = s.id
+                            WHERE uts.user_type_id = ut.id AND uts.screen_id = s.id
                         )
                     """);
 
@@ -746,7 +746,7 @@ public class CbsReportService {
                         WHERE s.path = '/one-rental-report'
                         AND NOT EXISTS (
                             SELECT 1 FROM device_portal.user_type_screen uts
-                            WHERE uts.screen_id = s.id
+                            WHERE uts.user_type_id = ut.id AND uts.screen_id = s.id
                         )
                     """);
 
@@ -763,7 +763,7 @@ public class CbsReportService {
                         WHERE s.path = '/matured-low-balance-report'
                         AND NOT EXISTS (
                             SELECT 1 FROM device_portal.user_type_screen uts
-                            WHERE uts.screen_id = s.id
+                            WHERE uts.user_type_id = ut.id AND uts.screen_id = s.id
                         )
                     """);
 
@@ -780,7 +780,7 @@ public class CbsReportService {
                         WHERE s.path = '/dpd-bucket-report'
                         AND NOT EXISTS (
                             SELECT 1 FROM device_portal.user_type_screen uts
-                            WHERE uts.screen_id = s.id
+                            WHERE uts.user_type_id = ut.id AND uts.screen_id = s.id
                         )
                     """);
 
@@ -797,7 +797,7 @@ public class CbsReportService {
                         WHERE s.path = '/settled-report'
                         AND NOT EXISTS (
                             SELECT 1 FROM device_portal.user_type_screen uts
-                            WHERE uts.screen_id = s.id
+                            WHERE uts.user_type_id = ut.id AND uts.screen_id = s.id
                         )
                     """);
 
@@ -814,7 +814,7 @@ public class CbsReportService {
                         WHERE s.path = '/multiple-payments-report'
                         AND NOT EXISTS (
                             SELECT 1 FROM device_portal.user_type_screen uts
-                            WHERE uts.screen_id = s.id
+                            WHERE uts.user_type_id = ut.id AND uts.screen_id = s.id
                         )
                     """);
         } catch (Exception e) {
@@ -1154,19 +1154,23 @@ public class CbsReportService {
                     p.total_due AS `total_due`,
                     p.exposure AS `exposure`,
                     p.dpd AS `dpd`,
-                    'Unlocked' AS `lock_status`,
+                    CASE
+                        WHEN COALESCE(lm1.locked, 0) = 1 OR COALESCE(lm2.locked, 0) = 1 OR COALESCE(dl1.locked, 0) = 1 OR COALESCE(dl2.locked, 0) = 1 THEN 'Locked'
+                        ELSE 'Unlocked'
+                    END AS `lock_status`,
                     p.recovery_officer AS `recovery_officer`
-                FROM cbs.loan l
-                JOIN cbs.portfolio p
-                    ON p.account_no = l.account_no AND l.account_series = p.series
+                FROM cbs.portfolio p
+                INNER JOIN cbs.loan l
+                    ON (l.account_no = p.account_no OR l.legacy_account_no = p.account_no)
+                    AND l.account_series = p.series
                 LEFT JOIN cbs.client c ON l.client = c.client_code
-                JOIN loan.mobileloan ml
-                    ON ml.finance_no = COALESCE(l.legacy_account_no, l.account_no)
-                LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
+                LEFT JOIN loan.mobileloan lm1 ON lm1.finance_no = l.account_no
+                LEFT JOIN loan.mobileloan lm2 ON lm2.finance_no = l.legacy_account_no
+                LEFT JOIN loan.device_loan dl1 ON dl1.finance_no = l.account_no
+                LEFT JOIN loan.device_loan dl2 ON dl2.finance_no = l.legacy_account_no
                 WHERE p.portfolio_date = :latestPortfolioDate
-                  AND pr.product_code = 'MF'
-                  AND ml.locked = 0
-                  AND p.total_due >= 200""";
+                  AND p.total_due >= 200
+                  AND NOT (COALESCE(lm1.locked, 0) = 1 OR COALESCE(lm2.locked, 0) = 1 OR COALESCE(dl1.locked, 0) = 1 OR COALESCE(dl2.locked, 0) = 1)""";
 
         if (rawFilter instanceof Map) {
             Map<?, ?> filter = (Map<?, ?>) rawFilter;
@@ -1214,17 +1218,18 @@ public class CbsReportService {
                     p.dpd AS `dpd`,
                     'Locked' AS `lock_status`,
                     p.recovery_officer AS `recovery_officer`
-                FROM cbs.loan l
-                JOIN cbs.portfolio p
-                    ON p.account_no = l.account_no AND l.account_series = p.series
+                FROM cbs.portfolio p
+                INNER JOIN cbs.loan l
+                    ON (l.account_no = p.account_no OR l.legacy_account_no = p.account_no)
+                    AND l.account_series = p.series
                 LEFT JOIN cbs.client c ON l.client = c.client_code
-                JOIN loan.mobileloan ml
-                    ON ml.finance_no = COALESCE(l.legacy_account_no, l.account_no)
-                LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
+                LEFT JOIN loan.mobileloan lm1 ON lm1.finance_no = l.account_no
+                LEFT JOIN loan.mobileloan lm2 ON lm2.finance_no = l.legacy_account_no
+                LEFT JOIN loan.device_loan dl1 ON dl1.finance_no = l.account_no
+                LEFT JOIN loan.device_loan dl2 ON dl2.finance_no = l.legacy_account_no
                 WHERE p.portfolio_date = :latestPortfolioDate
-                  AND pr.product_code = 'MF'
-                  AND ml.locked = 1
-                  AND (p.total_due < 200 OR p.total_due IS NULL)""";
+                  AND (p.total_due < 200 OR p.total_due IS NULL)
+                  AND (COALESCE(lm1.locked, 0) = 1 OR COALESCE(lm2.locked, 0) = 1 OR COALESCE(dl1.locked, 0) = 1 OR COALESCE(dl2.locked, 0) = 1)""";
 
         if (rawFilter instanceof Map) {
             Map<?, ?> filter = (Map<?, ?>) rawFilter;
