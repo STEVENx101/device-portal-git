@@ -52,7 +52,6 @@
             if (s.getPath().equalsIgnoreCase("/download-reports")) canDownloadReports = true;
         }
     }
-    if (!hasVendorPaymentsReport && (hasTransactionReport || hasPortfolio)) hasVendorPaymentsReport = true;
     if (!hasVendorPaymentsExceptionReport && (hasDuplicateLoansReport || hasMaturedLowBalanceReport)) hasVendorPaymentsExceptionReport = true;
     User navbarUser = (User) session.getAttribute("currentUser");
     String navUserName = (navbarUser != null) ? navbarUser.getFullName() : "Guest User";
