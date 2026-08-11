@@ -95,6 +95,16 @@ public class DashboardController {
         return ResponseEntity.ok(dashboardService.getOutstandingAnalysis(product));
     }
 
+    @GetMapping("/transaction-channel-chart")
+    public ResponseEntity<List<Map<String, Object>>> getTransactionChannelChart(@RequestParam(value = "product", required = false) String product) {
+        return ResponseEntity.ok(dashboardService.getTransactionChannelChartData(product));
+    }
+
+    @GetMapping("/payments-status-chart")
+    public ResponseEntity<List<Map<String, Object>>> getPaymentsStatusChart(@RequestParam(value = "product", required = false) String product) {
+        return ResponseEntity.ok(dashboardService.getPaymentsStatusChart(product));
+    }
+
     @GetMapping("/sync-info")
     public ResponseEntity<Map<String, Object>> getSyncInfo() {
         return ResponseEntity.ok(dashboardService.getSyncInfo());

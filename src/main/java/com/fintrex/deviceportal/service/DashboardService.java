@@ -63,7 +63,7 @@ public class DashboardService {
                 cache.put("deviceStatus" + suffix, status != null ? status : new HashMap<>());
 
 
-                List<Map<String, Object>> payments = dashboardRepository.getVendorPaymentsChannelChart(product);
+                 List<Map<String, Object>> payments = dashboardRepository.getVendorPaymentsChannelChart(product);
                 cache.put("vendorPayments" + suffix, payments != null ? payments : new ArrayList<>());
 
                 List<Map<String, Object>> coll = dashboardRepository.getCollectionsDealerWise(product);
@@ -78,6 +78,12 @@ public class DashboardService {
 
                 List<Map<String, Object>> outstanding = dashboardRepository.getOutstandingAnalysis(product);
                 cache.put("outstanding" + suffix, outstanding != null ? outstanding : new ArrayList<>());
+
+                List<Map<String, Object>> txnChannel = dashboardRepository.getTransactionChannelChartData(product);
+                cache.put("txnChannel" + suffix, txnChannel != null ? txnChannel : new ArrayList<>());
+
+                List<Map<String, Object>> pmtsStatus = dashboardRepository.getPaymentsStatusChart(product);
+                cache.put("paymentsStatus" + suffix, pmtsStatus != null ? pmtsStatus : new ArrayList<>());
             }
 
             // Mobile lock arrears is specific to MF, but cached standalone or with suffix
@@ -196,5 +202,17 @@ public class DashboardService {
     public List<Map<String, Object>> getOutstandingAnalysis(String product) {
         String suffix = getSuffix(product);
         return (List<Map<String, Object>>) cache.computeIfAbsent("outstanding" + suffix, k -> dashboardRepository.getOutstandingAnalysis(product));
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<Map<String, Object>> getTransactionChannelChartData(String product) {
+        String suffix = getSuffix(product);
+        return (List<Map<String, Object>>) cache.computeIfAbsent("txnChannel" + suffix, k -> dashboardRepository.getTransactionChannelChartData(product));
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<Map<String, Object>> getPaymentsStatusChart(String product) {
+        String suffix = getSuffix(product);
+        return (List<Map<String, Object>>) cache.computeIfAbsent("paymentsStatus" + suffix, k -> dashboardRepository.getPaymentsStatusChart(product));
     }
 }

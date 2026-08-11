@@ -284,87 +284,87 @@
                                 </div>
                             </div>
 
-                            <!-- Row 1: KPI Cards (6 Cards) -->
-                            <div class="row g-2 mb-2">
-                                <!-- 1. Month Disbursement -->
-                                <div class="col-lg-2 col-md-4 col-sm-6">
-                                    <div class="card kpi-card shadow-sm h-100"
-                                        style="border-left: 3px solid #6366f1 !important; cursor: pointer; transition: all 0.2s ease-in-out;">
-                                        <div class="card-body p-2 d-flex flex-column justify-content-between">
-                                            <div>
-                                                <span class="card-title-sub text-muted">MONTH DISBURSEMENT</span>
-                                                <div class="card-value text-primary" id="kpi-month-amount">LKR 0.00 Mn</div>
-                                                <div class="card-detail-text text-muted" id="kpi-month-count">0 Accounts</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- 2. Settled Month -->
-                                <div class="col-lg-2 col-md-4 col-sm-6">
-                                    <div class="card kpi-card shadow-sm h-100"
-                                        style="border-left: 3px solid #f59e0b !important; cursor: pointer; transition: all 0.2s ease-in-out;">
-                                        <div class="card-body p-2 d-flex flex-column justify-content-between">
-                                            <div>
-                                                <span class="card-title-sub text-muted">SETTLED MONTH</span>
-                                                <div class="card-value text-warning" id="kpi-settled-amount">LKR 0.00 Mn</div>
-                                                <div class="card-detail-text text-muted" id="kpi-settled-count">0 Accounts</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- 3. Active Portfolio -->
-                                <div class="col-lg-2 col-md-4 col-sm-6">
-                                    <div class="card kpi-card shadow-sm h-100"
-                                        style="border-left: 3px solid #10b981 !important; cursor: pointer; transition: all 0.2s ease-in-out;">
-                                        <div class="card-body p-2 d-flex flex-column justify-content-between">
-                                            <div>
-                                                <span class="card-title-sub text-muted">ACTIVE PORTFOLIO</span>
-                                                <div class="card-value text-success" id="kpi-portfolio-amount">LKR 0.00 Mn</div>
-                                                <div class="card-detail-text text-muted" id="kpi-portfolio-count">0 Accounts</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- 4. DPD 0 Portfolio -->
-                                <div class="col-lg-2 col-md-4 col-sm-6">
-                                    <div class="card kpi-card shadow-sm h-100"
-                                        style="border-left: 3px solid #2563eb !important; cursor: pointer; transition: all 0.2s ease-in-out;">
-                                        <div class="card-body p-2 d-flex flex-column justify-content-between">
-                                            <div>
-                                                <span class="card-title-sub text-muted">DPD 0 PORTFOLIO</span>
-                                                <div class="card-value text-primary" id="kpi-dpd-zero-amount">LKR 0.00 Mn</div>
-                                                <div class="card-detail-text text-muted" id="kpi-dpd-zero-count">0 Accounts</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- 5. NPL Exposure -->
-                                <div class="col-lg-2 col-md-4 col-sm-6">
-                                    <div class="card kpi-card shadow-sm h-100"
-                                        style="border-left: 3px solid #ef4444 !important; cursor: pointer; transition: all 0.2s ease-in-out;">
-                                        <div class="card-body p-2 d-flex flex-column justify-content-between">
-                                            <div>
-                                                <span class="card-title-sub text-muted">NPL EXPOSURE</span>
-                                                <div class="card-value text-danger" id="kpi-npl-exposure">LKR 0.00 Mn</div>
-                                                <div class="card-detail-text text-muted" id="kpi-npl-count">0 Accounts</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- 6. DPD Arrears -->
-                                <div class="col-lg-2 col-md-4 col-sm-6">
-                                    <div class="card kpi-card shadow-sm h-100"
-                                        style="border-left: 3px solid #dc2626 !important; cursor: pointer; transition: all 0.2s ease-in-out;">
-                                        <div class="card-body p-2 d-flex flex-column justify-content-between">
-                                            <div>
-                                                <span class="card-title-sub text-muted">DPD ARREARS</span>
-                                                <div class="card-value text-danger" id="kpi-perf-arrears-amount">LKR 0.00 Mn</div>
-                                                <div class="card-detail-text text-muted" id="kpi-perf-arrears-count">0 Accounts</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                             <!-- Row 1: KPI Cards (6 Cards) -->
+                             <div class="row g-2 mb-2">
+                                 <!-- 1. Month Disbursement -->
+                                 <div class="col-lg-2 col-md-4 col-sm-6">
+                                     <div class="card kpi-card shadow-sm h-100"
+                                         style="border-left: 3px solid #6366f1 !important; cursor: pointer; transition: all 0.2s ease-in-out;">
+                                         <div class="card-body p-2 d-flex flex-column justify-content-between">
+                                             <div>
+                                                 <span class="card-title-sub text-muted">MONTH DISBURSEMENT</span>
+                                                 <div class="card-value text-primary" id="kpi-month-amount">LKR 0.00 Mn</div>
+                                                 <div class="card-detail-text text-muted" id="kpi-month-count">0 Accounts</div>
+                                             </div>
+                                         </div>
+                                     </div>
+                                 </div>
+                                 <!-- 2. Active Portfolio -->
+                                 <div class="col-lg-2 col-md-4 col-sm-6">
+                                     <div class="card kpi-card shadow-sm h-100"
+                                         style="border-left: 3px solid #10b981 !important; cursor: pointer; transition: all 0.2s ease-in-out;">
+                                         <div class="card-body p-2 d-flex flex-column justify-content-between">
+                                             <div>
+                                                 <span class="card-title-sub text-muted">ACTIVE PORTFOLIO</span>
+                                                 <div class="card-value text-success" id="kpi-portfolio-amount">LKR 0.00 Mn</div>
+                                                 <div class="card-detail-text text-muted" id="kpi-portfolio-count">0 Accounts</div>
+                                             </div>
+                                         </div>
+                                     </div>
+                                 </div>
+                                 <!-- 3. DPD 0 Portfolio -->
+                                 <div class="col-lg-2 col-md-4 col-sm-6">
+                                     <div class="card kpi-card shadow-sm h-100"
+                                         style="border-left: 3px solid #2563eb !important; cursor: pointer; transition: all 0.2s ease-in-out;">
+                                         <div class="card-body p-2 d-flex flex-column justify-content-between">
+                                             <div>
+                                                 <span class="card-title-sub text-muted">DPD 0 PORTFOLIO</span>
+                                                 <div class="card-value text-primary" id="kpi-dpd-zero-amount">LKR 0.00 Mn</div>
+                                                 <div class="card-detail-text text-muted" id="kpi-dpd-zero-count">0 Accounts</div>
+                                             </div>
+                                         </div>
+                                     </div>
+                                 </div>
+                                 <!-- 4. Arrears Portfolio (was DPD Arrears) -->
+                                 <div class="col-lg-2 col-md-4 col-sm-6">
+                                     <div class="card kpi-card shadow-sm h-100"
+                                         style="border-left: 3px solid #dc2626 !important; cursor: pointer; transition: all 0.2s ease-in-out;">
+                                         <div class="card-body p-2 d-flex flex-column justify-content-between">
+                                             <div>
+                                                 <span class="card-title-sub text-muted">Arrears Portfolio</span>
+                                                 <div class="card-value text-danger" id="kpi-perf-arrears-amount">LKR 0.00 Mn</div>
+                                                 <div class="card-detail-text text-muted" id="kpi-perf-arrears-count">0 Accounts</div>
+                                             </div>
+                                         </div>
+                                     </div>
+                                 </div>
+                                 <!-- 5. NPL Exposure -->
+                                 <div class="col-lg-2 col-md-4 col-sm-6">
+                                     <div class="card kpi-card shadow-sm h-100"
+                                         style="border-left: 3px solid #ef4444 !important; cursor: pointer; transition: all 0.2s ease-in-out;">
+                                         <div class="card-body p-2 d-flex flex-column justify-content-between">
+                                             <div>
+                                                 <span class="card-title-sub text-muted">NPL EXPOSURE</span>
+                                                 <div class="card-value text-danger" id="kpi-npl-exposure">LKR 0.00 Mn</div>
+                                                 <div class="card-detail-text text-muted" id="kpi-npl-count">0 Accounts</div>
+                                             </div>
+                                         </div>
+                                     </div>
+                                 </div>
+                                 <!-- 6. Settled Month -->
+                                 <div class="col-lg-2 col-md-4 col-sm-6">
+                                     <div class="card kpi-card shadow-sm h-100"
+                                         style="border-left: 3px solid #f59e0b !important; cursor: pointer; transition: all 0.2s ease-in-out;">
+                                         <div class="card-body p-2 d-flex flex-column justify-content-between">
+                                             <div>
+                                                 <span class="card-title-sub text-muted">SETTLED MONTH</span>
+                                                 <div class="card-value text-warning" id="kpi-settled-amount">LKR 0.00 Mn</div>
+                                                 <div class="card-detail-text text-muted" id="kpi-settled-count">0 Accounts</div>
+                                             </div>
+                                         </div>
+                                     </div>
+                                 </div>
+                             </div>
 
 
                             <!-- Row 2: Charts (Disbursements, DPD Status, and Daily Disbursements) -->
@@ -428,14 +428,14 @@
                                     </div>
                                 </div>
 
-                                <!-- Card 2: Mobile Arrears: Due Ranges -->
-                                <div class="col-lg-3 col-md-4 col-sm-6 col-12" id="mobile-arrears-ranges-card">
+                                <!-- Card 2: Transaction Channels -->
+                                <div class="col-lg-3 col-md-4 col-sm-6 col-12" id="transaction-channels-card">
                                     <div class="card glass-card h-100">
                                         <div class="card-body p-2">
                                             <div class="fs--2 fw-semi-bold text-muted mb-2 text-truncate"><i
-                                                    class="fas fa-coins me-1"></i>Mobile Arrears: Due Ranges</div>
+                                                    class="fas fa-chart-pie me-1"></i>Transaction Channels</div>
                                             <div style="height: 260px; position: relative; width: 100%;">
-                                                <canvas id="mobileArrearsRangesChart"></canvas>
+                                                <canvas id="transactionChannelChart"></canvas>
                                             </div>
                                         </div>
                                     </div>
@@ -514,17 +514,6 @@
                                                     <div class="fs--2 fw-semi-bold text-muted"><i
                                                             class="fas fa-hand-holding-usd me-1"></i>Payments
                                                         Status-Wise</div>
-                                                    <div class="d-flex align-items-center gap-1">
-                                                        <select id="paymentStartMonthFilter"
-                                                            class="form-select form-select-sm py-0 px-1"
-                                                            style="width: auto; font-size: 0.65rem;"
-                                                            onchange="loadPaymentsStatusChart()"></select>
-                                                        <span style="font-size: 0.65rem;" class="text-muted">to</span>
-                                                        <select id="paymentEndMonthFilter"
-                                                            class="form-select form-select-sm py-0 px-1"
-                                                            style="width: auto; font-size: 0.65rem;"
-                                                            onchange="loadPaymentsStatusChart()"></select>
-                                                    </div>
                                                 </div>
                                                 <div style="height: 260px; position: relative; width: 100%;">
                                                     <canvas id="collectionsDealerChart"></canvas>
@@ -1007,17 +996,12 @@
 
 
 
-                                    // ============ 9. Mobile Arrears Lock vs Unlock (Arrears & Due Ranges) ============
+                                    // ============ 9. Mobile Arrears Lock vs Unlock ============
                                     const arrearsCard = document.getElementById('mobile-lock-arrears-card');
-                                    const arrearsRangesCard = document.getElementById('mobile-arrears-ranges-card');
-                                    const maturedCard = document.getElementById('matured-np-card');
-                                    const deviceSecCard = document.getElementById('device-security-status-card');
                                     if (selectedProduct === 'LF') {
                                         if (arrearsCard) arrearsCard.style.display = 'none';
-                                        if (arrearsRangesCard) arrearsRangesCard.style.display = 'none';
                                     } else {
                                         if (arrearsCard) arrearsCard.style.display = '';
-                                        if (arrearsRangesCard) arrearsRangesCard.style.display = '';
                                     }
 
                                     if (selectedProduct !== 'LF') {
@@ -1067,57 +1051,63 @@
                                                         }
                                                     }
                                                 });
-
-                                                // 2. Mobile Arrears Ranges Chart
-                                                destroyChart('mobileArrearsRangesChart');
-                                                const ctx2 = document.getElementById('mobileArrearsRangesChart').getContext('2d');
-                                                activeCharts['mobileArrearsRangesChart'] = new Chart(ctx2, {
-                                                    type: 'bar',
-                                                    data: {
-                                                        labels: ['Due 200-500', 'Due 500-1000', 'Due 1000-2000', 'Due >2000'],
-                                                        datasets: [{
-                                                            data: [
-                                                                data.due_200_500 || 0,
-                                                                data.due_500_1000 || 0,
-                                                                data.due_1000_2000 || 0,
-                                                                data.due_above_2000 || 0
-                                                            ],
-                                                            backgroundColor: [
-                                                                'rgba(59, 130, 246, 0.85)',
-                                                                'rgba(99, 102, 241, 0.85)',
-                                                                'rgba(245, 158, 11, 0.85)',
-                                                                'rgba(139, 92, 246, 0.85)'
-                                                            ],
-                                                            borderWidth: 0,
-                                                            borderRadius: 4,
-                                                            barThickness: 12
-                                                        }]
-                                                    },
-                                                    options: {
-                                                        responsive: true,
-                                                        maintainAspectRatio: false,
-                                                        layout: { padding: { top: 20 } },
-                                                        plugins: {
-                                                            legend: { display: false },
-                                                            tooltip: { enabled: true },
-                                                            datalabels: {
-                                                                display: true,
-                                                                anchor: 'end',
-                                                                align: 'top',
-                                                                color: isDark ? '#cbd5e1' : '#1e293b',
-                                                                font: { weight: 'bold', size: 9 },
-                                                                formatter: (val) => val > 0 ? formatNum(val) : '0'
-                                                            }
-                                                        },
-                                                        scales: {
-                                                            x: { grid: { display: false }, ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 8, weight: 'bold' } } },
-                                                            y: { display: false, grid: { display: false } }
-                                                        }
-                                                    }
-                                                });
                                             })
                                             .catch(err => console.error("Error loading Mobile lock arrears analysis:", err));
                                     }
+
+                                    // ============ 9.1 Transaction Channels Pie Chart ============
+                                    fetch('${pageContext.request.contextPath}/api/dashboard/transaction-channel-chart' + productParam)
+                                        .then(res => res.json())
+                                        .then(data => {
+                                            destroyChart('transactionChannelChart');
+                                            const labels = data.map(i => i.channel_name);
+                                            const amounts = data.map(i => i.total_amount);
+                                            const ctx2 = document.getElementById('transactionChannelChart').getContext('2d');
+                                            activeCharts['transactionChannelChart'] = new Chart(ctx2, {
+                                                type: 'pie',
+                                                data: {
+                                                    labels: labels,
+                                                    datasets: [{
+                                                        data: amounts,
+                                                        backgroundColor: [
+                                                            'rgba(16, 185, 129, 0.85)',
+                                                            'rgba(59, 130, 246, 0.85)',
+                                                            'rgba(245, 158, 11, 0.85)',
+                                                            'rgba(239, 68, 68, 0.85)',
+                                                            'rgba(139, 92, 246, 0.85)'
+                                                        ],
+                                                        borderWidth: 1,
+                                                        borderColor: isDark ? '#1e293b' : '#ffffff'
+                                                    }]
+                                                },
+                                                options: {
+                                                    responsive: true,
+                                                    maintainAspectRatio: false,
+                                                    plugins: {
+                                                        legend: {
+                                                            display: true,
+                                                            position: 'bottom',
+                                                            labels: {
+                                                                boxWidth: 8,
+                                                                padding: 4,
+                                                                color: isDark ? '#94a3b8' : '#475569',
+                                                                font: { size: 8, weight: 'bold' }
+                                                            }
+                                                        },
+                                                        tooltip: { enabled: true },
+                                                        datalabels: {
+                                                            display: true,
+                                                            color: '#ffffff',
+                                                            font: { weight: 'bold', size: 8 },
+                                                            formatter: (val) => val > 0 ? formatLKR(val) : '',
+                                                            textStrokeColor: 'rgba(0, 0, 0, 0.6)',
+                                                            textStrokeWidth: 2
+                                                        }
+                                                    }
+                                                }
+                                            });
+                                        })
+                                        .catch(err => console.error("Error loading transaction channels pie chart:", err));
 
                                     // ============ 10. Matured vs Non-Matured Contracts Performance ============
                                     fetch('${pageContext.request.contextPath}/api/dashboard/matured-nonperforming' + productParam)
@@ -1141,22 +1131,16 @@
                                             activeCharts['maturedNpChart'] = new Chart(ctx, {
                                                 type: 'bar',
                                                 data: {
-                                                    labels: ['Matured', 'Non-Matured'],
+                                                    labels: ['Mat Perf', 'Mat NP', 'Non-Mat Perf', 'Non-Mat NP'],
                                                     datasets: [
                                                         {
-                                                            label: 'Performing',
-                                                            data: [maturedPerf, nonMaturedPerf],
-                                                            backgroundColor: 'rgba(16, 185, 129, 0.85)',
-                                                            borderColor: '#10b981',
-                                                            borderWidth: 0,
-                                                            borderRadius: 4,
-                                                            barThickness: 14
-                                                        },
-                                                        {
-                                                            label: 'Non-Performing',
-                                                            data: [maturedNp, nonMaturedNp],
-                                                            backgroundColor: 'rgba(239, 68, 68, 0.85)',
-                                                            borderColor: '#ef4444',
+                                                            data: [maturedPerf, maturedNp, nonMaturedPerf, nonMaturedNp],
+                                                            backgroundColor: [
+                                                                'rgba(16, 185, 129, 0.85)',
+                                                                'rgba(239, 68, 68, 0.85)',
+                                                                'rgba(16, 185, 129, 0.85)',
+                                                                'rgba(239, 68, 68, 0.85)'
+                                                            ],
                                                             borderWidth: 0,
                                                             borderRadius: 4,
                                                             barThickness: 14
@@ -1168,32 +1152,26 @@
                                                     maintainAspectRatio: false,
                                                     plugins: {
                                                         legend: {
-                                                            display: true,
-                                                            position: 'top',
-                                                            labels: { boxWidth: 8, padding: 6, color: isDark ? '#94a3b8' : '#475569', font: { size: 8, weight: 'bold' } }
+                                                            display: false
                                                         },
                                                         tooltip: { enabled: true },
                                                         datalabels: {
                                                             display: true,
-                                                            anchor: 'center',
-                                                            align: 'center',
-                                                            color: '#ffffff',
+                                                            anchor: 'end',
+                                                            align: 'top',
+                                                            color: isDark ? '#cbd5e1' : '#1e293b',
                                                             font: { weight: 'bold', size: 8 },
                                                             formatter: (val) => val > 0 ? formatNum(val) : '',
                                                             overflow: 'allow',
-                                                            clip: false,
-                                                            textStrokeColor: 'rgba(0, 0, 0, 0.6)',
-                                                            textStrokeWidth: 2
+                                                            clip: false
                                                         }
                                                     },
                                                     scales: {
                                                         x: {
-                                                            stacked: true,
                                                             grid: { display: false },
-                                                            ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 9, weight: 'bold' } }
+                                                            ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 7, weight: 'bold' } }
                                                         },
                                                         y: {
-                                                            stacked: true,
                                                             display: false,
                                                             grid: { display: false }
                                                         }
@@ -1205,62 +1183,97 @@
                                 }
 
 
-                                function populateMonthFilters() {
-                                    const startSelect = document.getElementById('paymentStartMonthFilter');
-                                    const endSelect = document.getElementById('paymentEndMonthFilter');
-                                    if (!startSelect || !endSelect) return;
-                                    startSelect.innerHTML = '';
-                                    endSelect.innerHTML = '';
+                                 function loadPaymentsStatusChart() {
+                                     const productParam = selectedProduct ? '?product=' + encodeURIComponent(selectedProduct) : '';
+                                     fetch('${pageContext.request.contextPath}/api/dashboard/payments-status-chart' + productParam)
+                                         .then(res => res.json())
+                                         .then(data => {
+                                             const months = [...new Set(data.map(i => i.month_name))];
+                                             
+                                             const completedData = months.map(m => {
+                                                 const found = data.find(i => i.month_name === m && i.status_name.toLowerCase() === 'completed');
+                                                 return found ? found.count_val : 0;
+                                             });
+                                             const pendingData = months.map(m => {
+                                                 const found = data.find(i => i.month_name === m && i.status_name.toLowerCase() === 'pending');
+                                                 return found ? found.count_val : 0;
+                                             });
+                                             const failedData = months.map(m => {
+                                                 const found = data.find(i => i.month_name === m && i.status_name.toLowerCase() === 'failed');
+                                                 return found ? found.count_val : 0;
+                                             });
 
-                                    const now = new Date();
-                                    for (let i = 0; i < 6; i++) {
-                                        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-                                        const value = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
-                                        const label = d.toLocaleString('en-US', { month: 'short', year: 'numeric' });
+                                             destroyChart('collectionsDealerChart');
+                                             const ctx = document.getElementById('collectionsDealerChart').getContext('2d');
+                                             activeCharts['collectionsDealerChart'] = new Chart(ctx, {
+                                                 type: 'bar',
+                                                 data: {
+                                                     labels: months,
+                                                     datasets: [
+                                                         {
+                                                             label: 'Completed',
+                                                             data: completedData,
+                                                             backgroundColor: 'rgba(16, 185, 129, 0.85)',
+                                                             borderRadius: 4,
+                                                             barThickness: 10
+                                                         },
+                                                         {
+                                                             label: 'Pending',
+                                                             data: pendingData,
+                                                             backgroundColor: 'rgba(245, 158, 11, 0.85)',
+                                                             borderRadius: 4,
+                                                             barThickness: 10
+                                                         },
+                                                         {
+                                                             label: 'Failed',
+                                                             data: failedData,
+                                                             backgroundColor: 'rgba(239, 68, 68, 0.85)',
+                                                             borderRadius: 4,
+                                                             barThickness: 10
+                                                         }
+                                                     ]
+                                                 },
+                                                 options: {
+                                                     responsive: true,
+                                                     maintainAspectRatio: false,
+                                                     plugins: {
+                                                         legend: {
+                                                             display: true,
+                                                             position: 'top',
+                                                             labels: { boxWidth: 8, padding: 6, color: isDark ? '#94a3b8' : '#475569', font: { size: 8, weight: 'bold' } }
+                                                         },
+                                                         tooltip: { enabled: true },
+                                                         datalabels: {
+                                                             display: true,
+                                                             anchor: 'end',
+                                                             align: 'top',
+                                                             color: isDark ? '#cbd5e1' : '#1e293b',
+                                                             font: { weight: 'bold', size: 8 },
+                                                             formatter: (val) => val > 0 ? formatNum(val) : '',
+                                                             overflow: 'allow',
+                                                             clip: false
+                                                         }
+                                                     },
+                                                     scales: {
+                                                         x: {
+                                                             grid: { display: false },
+                                                             ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 8, weight: 'bold' } }
+                                                         },
+                                                         y: {
+                                                             display: false,
+                                                             grid: { display: false }
+                                                         }
+                                                     }
+                                                 }
+                                             });
+                                         })
+                                         .catch(err => console.error("Error loading payments status:", err));
+                                 }
 
-                                        const optStart = document.createElement('option');
-                                        optStart.value = value;
-                                        optStart.textContent = label;
-                                        if (i === 0) optStart.selected = true;
-                                        startSelect.appendChild(optStart);
-
-                                        const optEnd = document.createElement('option');
-                                        optEnd.value = value;
-                                        optEnd.textContent = label;
-                                        if (i === 0) optEnd.selected = true;
-                                        endSelect.appendChild(optEnd);
-                                    }
-                                }
-
-                                function loadPaymentsStatusChart() {
-                                    const startVal = document.getElementById('paymentStartMonthFilter')?.value || '';
-                                    const endVal = document.getElementById('paymentEndMonthFilter')?.value || '';
-                                    const productParam = selectedProduct ? 'product=' + encodeURIComponent(selectedProduct) : '';
-                                    const startParam = startVal ? 'startMonth=' + encodeURIComponent(startVal) : '';
-                                    const endParam = endVal ? 'endMonth=' + encodeURIComponent(endVal) : '';
-                                    const queryStr = '?' + [productParam, startParam, endParam].filter(Boolean).join('&');
-
-                                    fetch('${pageContext.request.contextPath}/api/dashboard/collections-dealer-wise' + queryStr)
-                                        .then(res => res.json())
-                                        .then(data => {
-                                            buildHorizontalBar(
-                                                'collectionsDealerChart',
-                                                data.map(i => i.dealer_name),
-                                                data.map(i => i.total_collected || 0),
-                                                isDark ? 'rgba(245, 158, 11, 0.15)' : 'rgba(245, 158, 11, 0.15)',
-                                                isDark ? 'rgba(245, 158, 11, 0.85)' : 'rgba(245, 158, 11, 0.85)',
-                                                '#f59e0b',
-                                                true
-                                            );
-                                        })
-                                        .catch(err => console.error("Error loading payments status:", err));
-                                }
-
-                                document.addEventListener("DOMContentLoaded", function () {
-                                    populateMonthFilters();
-                                    checkSyncStatus();
-                                    loadDashboardData();
-                                });
+                                 document.addEventListener("DOMContentLoaded", function () {
+                                     checkSyncStatus();
+                                     loadDashboardData();
+                                 });
 
                             </script>
                     </div>

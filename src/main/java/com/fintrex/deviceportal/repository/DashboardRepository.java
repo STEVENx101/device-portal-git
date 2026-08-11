@@ -781,4 +781,58 @@ public class DashboardRepository {
         """, filter);
         return jdbcTemplate.queryForList(sql);
     }
+
+    public List<Map<String, Object>> getPaymentsStatusChart(String product) {
+        String productFilter = "";
+        if ("MF".equalsIgnoreCase(product)) {
+            productFilter = "AND EXISTS (SELECT 1 FROM cbs.loan l LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val WHERE (vp.account_id = l.account_no OR vp.account_id = l.legacy_account_no) AND pr.product_code = 'MF')";
+        } else if ("LF".equalsIgnoreCase(product)) {
+            productFilter = "AND EXISTS (SELECT 1 FROM cbs.loan l LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val WHERE (vp.account_id = l.account_no OR vp.account_id = l.legacy_account_no) AND pr.product_code IN ('LF', 'laptop'))";
+        }
+
+        String sql = String.format("""
+                SELECT
+                    DATE_FORMAT(vp.trx_date, '%%Y-%%m') AS month_key,
+                    DATE_FORMAT(vp.trx_date, '%%b %%Y') AS month_name,
+                    COALESCE(vp.status, 'Unknown') AS status_name,
+                    COUNT(*) AS count_val,
+                    COALESCE(SUM(vp.amount), 0) AS total_amount
+                FROM cbs.vendor_payments vp
+                WHERE vp.trx_date >= DATE_SUB(DATE_FORMAT(CURRENT_DATE(), '%%Y-%%m-01'), INTERVAL 2 MONTH)
+                %s
+                GROUP BY month_key, month_name, status_name
+                ORDER BY month_key ASC, status_name ASC
+                """, productFilter);
+        try {
+            return jdbcTemplate.queryForList(sql);
+        } catch (Exception e) {
+            return new ArrayList<>();
+        }
+    }
+
+    public List<Map<String, Object>> getTransactionChannelChartData(String product) {
+        String productFilter = "";
+        if ("MF".equalsIgnoreCase(product)) {
+            productFilter = "AND EXISTS (SELECT 1 FROM cbs.loan l LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val WHERE (t.account_no = l.account_no OR t.legacy_account_no = l.legacy_account_no) AND pr.product_code = 'MF')";
+        } else if ("LF".equalsIgnoreCase(product)) {
+            productFilter = "AND EXISTS (SELECT 1 FROM cbs.loan l LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val WHERE (t.account_no = l.account_no OR t.legacy_account_no = l.legacy_account_no) AND pr.product_code IN ('LF', 'laptop'))";
+        }
+
+        String sql = String.format("""
+                SELECT 
+                    CASE 
+                        WHEN narration LIKE 'Receipt | %%' THEN SUBSTRING_INDEX(SUBSTRING_INDEX(narration, ' | ', 2), ' | ', -1)
+                        WHEN narration LIKE 'CEFT | %%' THEN 'CEFT'
+                        WHEN narration LIKE 'Cash Deposit%%' THEN 'CASH DEPOSIT'
+                        ELSE 'OTHER'
+                    END AS channel_name,
+                    COUNT(*) AS tx_count,
+                    COALESCE(SUM(amount), 0) AS total_amount
+                FROM cbs.transaction t
+                WHERE 1=1 %s
+                GROUP BY channel_name
+                ORDER BY total_amount DESC
+                """, productFilter);
+        return jdbcTemplate.queryForList(sql);
+    }
 }
