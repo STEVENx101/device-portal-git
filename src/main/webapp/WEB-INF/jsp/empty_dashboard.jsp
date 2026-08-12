@@ -1038,7 +1038,7 @@
                                                             ],
                                                             borderWidth: 0,
                                                             borderRadius: 4,
-                                                            barThickness: 18
+                                                            barThickness: 36
                                                         }]
                                                     },
                                                     options: {
@@ -1153,7 +1153,7 @@
                                                             ],
                                                             borderWidth: 0,
                                                             borderRadius: 4,
-                                                            barThickness: 14
+                                                            barThickness: 28
                                                         }
                                                     ]
                                                 },
@@ -1225,21 +1225,21 @@
                                                              data: completedData,
                                                              backgroundColor: 'rgba(16, 185, 129, 0.85)',
                                                              borderRadius: 4,
-                                                             barThickness: 18
+                                                             barThickness: 28
                                                          },
                                                          {
                                                              label: 'Pending',
                                                              data: pendingData,
                                                              backgroundColor: 'rgba(245, 158, 11, 0.85)',
                                                              borderRadius: 4,
-                                                             barThickness: 18
+                                                             barThickness: 28
                                                          },
                                                          {
                                                              label: 'Failed',
                                                              data: failedData,
                                                              backgroundColor: 'rgba(239, 68, 68, 0.85)',
                                                              borderRadius: 4,
-                                                             barThickness: 18
+                                                             barThickness: 28
                                                          }
                                                      ]
                                                  },
