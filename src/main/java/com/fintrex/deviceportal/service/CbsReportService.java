@@ -60,29 +60,9 @@ public class CbsReportService {
                         WHERE NOT EXISTS (SELECT 1 FROM device_portal.screen WHERE path = '/agreement')
                     """);
             jdbc.getJdbcTemplate().execute("""
-                        INSERT INTO device_portal.user_type_screen (user_type_id, screen_id)
-                        SELECT ut.id, s.id
-                        FROM device_portal.user_type ut, device_portal.screen s
-                        WHERE s.path = '/agreement'
-                        AND NOT EXISTS (
-                            SELECT 1 FROM device_portal.user_type_screen uts
-                            WHERE uts.screen_id = s.id
-                        )
-                    """);
-            jdbc.getJdbcTemplate().execute("""
                         INSERT INTO device_portal.screen (name, path, icon, group_name)
                         SELECT 'Report Logs', '/report-logs', 'fas fa-history', 'Reports'
                         WHERE NOT EXISTS (SELECT 1 FROM device_portal.screen WHERE path = '/report-logs')
-                    """);
-            jdbc.getJdbcTemplate().execute("""
-                        INSERT INTO device_portal.user_type_screen (user_type_id, screen_id)
-                        SELECT ut.id, s.id
-                        FROM device_portal.user_type ut, device_portal.screen s
-                        WHERE s.path = '/report-logs'
-                        AND NOT EXISTS (
-                            SELECT 1 FROM device_portal.user_type_screen uts
-                            WHERE uts.screen_id = s.id
-                        )
                     """);
         } catch (Exception e) {
             log.error("Report configuration database operation failed", e);
@@ -634,32 +614,12 @@ public class CbsReportService {
                         SELECT 'Arrears Report', '/arrears-report', 'fas fa-clock', 'Reports'
                         WHERE NOT EXISTS (SELECT 1 FROM device_portal.screen WHERE path = '/arrears-report')
                     """);
-            jdbc.getJdbcTemplate().execute("""
-                        INSERT INTO device_portal.user_type_screen (user_type_id, screen_id)
-                        SELECT ut.id, s.id
-                        FROM device_portal.user_type ut, device_portal.screen s
-                        WHERE s.path = '/arrears-report'
-                        AND NOT EXISTS (
-                            SELECT 1 FROM device_portal.user_type_screen uts
-                            WHERE uts.screen_id = s.id
-                        )
-                    """);
 
             // NPA Report
             jdbc.getJdbcTemplate().execute("""
                         INSERT INTO device_portal.screen (name, path, icon, group_name)
                         SELECT 'NPA Report', '/npa-report', 'fas fa-exclamation-triangle', 'Reports'
                         WHERE NOT EXISTS (SELECT 1 FROM device_portal.screen WHERE path = '/npa-report')
-                    """);
-            jdbc.getJdbcTemplate().execute("""
-                        INSERT INTO device_portal.user_type_screen (user_type_id, screen_id)
-                        SELECT ut.id, s.id
-                        FROM device_portal.user_type ut, device_portal.screen s
-                        WHERE s.path = '/npa-report'
-                        AND NOT EXISTS (
-                            SELECT 1 FROM device_portal.user_type_screen uts
-                            WHERE uts.screen_id = s.id
-                        )
                     """);
 
             // Nearing NPA Report
@@ -668,32 +628,12 @@ public class CbsReportService {
                         SELECT 'Nearing NPA Report', '/nearing-npa-report', 'fas fa-hourglass-half', 'Reports'
                         WHERE NOT EXISTS (SELECT 1 FROM device_portal.screen WHERE path = '/nearing-npa-report')
                     """);
-            jdbc.getJdbcTemplate().execute("""
-                        INSERT INTO device_portal.user_type_screen (user_type_id, screen_id)
-                        SELECT ut.id, s.id
-                        FROM device_portal.user_type ut, device_portal.screen s
-                        WHERE s.path = '/nearing-npa-report'
-                        AND NOT EXISTS (
-                            SELECT 1 FROM device_portal.user_type_screen uts
-                            WHERE uts.screen_id = s.id
-                        )
-                    """);
 
             // Duplicate Loans Report (Exception Reports)
             jdbc.getJdbcTemplate().execute("""
                         INSERT INTO device_portal.screen (name, path, icon, group_name)
                         SELECT 'Duplicate Loans', '/duplicate-loans-report', 'fas fa-copy', 'Reports'
                         WHERE NOT EXISTS (SELECT 1 FROM device_portal.screen WHERE path = '/duplicate-loans-report')
-                    """);
-            jdbc.getJdbcTemplate().execute("""
-                        INSERT INTO device_portal.user_type_screen (user_type_id, screen_id)
-                        SELECT ut.id, s.id
-                        FROM device_portal.user_type ut, device_portal.screen s
-                        WHERE s.path = '/duplicate-loans-report'
-                        AND NOT EXISTS (
-                            SELECT 1 FROM device_portal.user_type_screen uts
-                            WHERE uts.screen_id = s.id
-                        )
                     """);
 
             // Unlock with Arrears Report
@@ -702,32 +642,12 @@ public class CbsReportService {
                         SELECT 'Unlock with Arrears', '/unlock-arrears-report', 'fas fa-lock-open', 'Reports'
                         WHERE NOT EXISTS (SELECT 1 FROM device_portal.screen WHERE path = '/unlock-arrears-report')
                     """);
-            jdbc.getJdbcTemplate().execute("""
-                        INSERT INTO device_portal.user_type_screen (user_type_id, screen_id)
-                        SELECT ut.id, s.id
-                        FROM device_portal.user_type ut, device_portal.screen s
-                        WHERE s.path = '/unlock-arrears-report'
-                        AND NOT EXISTS (
-                            SELECT 1 FROM device_portal.user_type_screen uts
-                            WHERE uts.screen_id = s.id
-                        )
-                    """);
 
             // Lock with No Arrears Report
             jdbc.getJdbcTemplate().execute("""
                         INSERT INTO device_portal.screen (name, path, icon, group_name)
                         SELECT 'Lock with No Arrears', '/lock-no-arrears-report', 'fas fa-lock', 'Reports'
                         WHERE NOT EXISTS (SELECT 1 FROM device_portal.screen WHERE path = '/lock-no-arrears-report')
-                    """);
-            jdbc.getJdbcTemplate().execute("""
-                        INSERT INTO device_portal.user_type_screen (user_type_id, screen_id)
-                        SELECT ut.id, s.id
-                        FROM device_portal.user_type ut, device_portal.screen s
-                        WHERE s.path = '/lock-no-arrears-report'
-                        AND NOT EXISTS (
-                            SELECT 1 FROM device_portal.user_type_screen uts
-                            WHERE uts.screen_id = s.id
-                        )
                     """);
 
             // Last Rental Remaining Report
@@ -741,32 +661,12 @@ public class CbsReportService {
                         SET name = 'Last Rental Remaining'
                         WHERE path = '/one-rental-report' AND name = 'One Rental Left'
                     """);
-            jdbc.getJdbcTemplate().execute("""
-                        INSERT INTO device_portal.user_type_screen (user_type_id, screen_id)
-                        SELECT ut.id, s.id
-                        FROM device_portal.user_type ut, device_portal.screen s
-                        WHERE s.path = '/one-rental-report'
-                        AND NOT EXISTS (
-                            SELECT 1 FROM device_portal.user_type_screen uts
-                            WHERE uts.screen_id = s.id
-                        )
-                    """);
 
             // Matured Low Balance Report
             jdbc.getJdbcTemplate().execute("""
                         INSERT INTO device_portal.screen (name, path, icon, group_name)
                         SELECT 'Matured Low Balance', '/matured-low-balance-report', 'fas fa-calendar-check', 'Reports'
                         WHERE NOT EXISTS (SELECT 1 FROM device_portal.screen WHERE path = '/matured-low-balance-report')
-                    """);
-            jdbc.getJdbcTemplate().execute("""
-                        INSERT INTO device_portal.user_type_screen (user_type_id, screen_id)
-                        SELECT ut.id, s.id
-                        FROM device_portal.user_type ut, device_portal.screen s
-                        WHERE s.path = '/matured-low-balance-report'
-                        AND NOT EXISTS (
-                            SELECT 1 FROM device_portal.user_type_screen uts
-                            WHERE uts.screen_id = s.id
-                        )
                     """);
 
             // DPD Bucket Report
@@ -775,16 +675,6 @@ public class CbsReportService {
                         SELECT 'DPD Bucket Report', '/dpd-bucket-report', 'fas fa-chart-bar', 'Reports'
                         WHERE NOT EXISTS (SELECT 1 FROM device_portal.screen WHERE path = '/dpd-bucket-report')
                     """);
-            jdbc.getJdbcTemplate().execute("""
-                        INSERT INTO device_portal.user_type_screen (user_type_id, screen_id)
-                        SELECT ut.id, s.id
-                        FROM device_portal.user_type ut, device_portal.screen s
-                        WHERE s.path = '/dpd-bucket-report'
-                        AND NOT EXISTS (
-                            SELECT 1 FROM device_portal.user_type_screen uts
-                            WHERE uts.screen_id = s.id
-                        )
-                    """);
 
             // Settled & Early Settled Report
             jdbc.getJdbcTemplate().execute("""
@@ -792,32 +682,12 @@ public class CbsReportService {
                         SELECT 'Settled & Early Settled', '/settled-report', 'fas fa-check-circle', 'Reports'
                         WHERE NOT EXISTS (SELECT 1 FROM device_portal.screen WHERE path = '/settled-report')
                     """);
-            jdbc.getJdbcTemplate().execute("""
-                        INSERT INTO device_portal.user_type_screen (user_type_id, screen_id)
-                        SELECT ut.id, s.id
-                        FROM device_portal.user_type ut, device_portal.screen s
-                        WHERE s.path = '/settled-report'
-                        AND NOT EXISTS (
-                            SELECT 1 FROM device_portal.user_type_screen uts
-                            WHERE uts.screen_id = s.id
-                        )
-                    """);
 
             // Multiple Payments Report
             jdbc.getJdbcTemplate().execute("""
                         INSERT INTO device_portal.screen (name, path, icon, group_name)
                         SELECT 'Multiple Payments', '/multiple-payments-report', 'fas fa-history', 'Reports'
                         WHERE NOT EXISTS (SELECT 1 FROM device_portal.screen WHERE path = '/multiple-payments-report')
-                    """);
-            jdbc.getJdbcTemplate().execute("""
-                        INSERT INTO device_portal.user_type_screen (user_type_id, screen_id)
-                        SELECT ut.id, s.id
-                        FROM device_portal.user_type ut, device_portal.screen s
-                        WHERE s.path = '/multiple-payments-report'
-                        AND NOT EXISTS (
-                            SELECT 1 FROM device_portal.user_type_screen uts
-                            WHERE uts.screen_id = s.id
-                        )
                     """);
         } catch (Exception e) {
             log.error("Report configuration database operation failed", e);
@@ -832,32 +702,12 @@ public class CbsReportService {
                         SELECT 'Vendor Payments', '/vendor-payments', 'fas fa-file-invoice-dollar', 'Reports'
                         WHERE NOT EXISTS (SELECT 1 FROM device_portal.screen WHERE path = '/vendor-payments')
                     """);
-            jdbc.getJdbcTemplate().execute("""
-                        INSERT INTO device_portal.user_type_screen (user_type_id, screen_id)
-                        SELECT ut.id, s.id
-                        FROM device_portal.user_type ut, device_portal.screen s
-                        WHERE s.path = '/vendor-payments'
-                        AND NOT EXISTS (
-                            SELECT 1 FROM device_portal.user_type_screen uts
-                            WHERE uts.screen_id = s.id
-                        )
-                    """);
 
             // Vendor Payments Exception Report
             jdbc.getJdbcTemplate().execute("""
                         INSERT INTO device_portal.screen (name, path, icon, group_name)
                         SELECT 'Vendor Payments Exception', '/vendor-payments-exception', 'fas fa-exclamation-circle', 'Reports'
                         WHERE NOT EXISTS (SELECT 1 FROM device_portal.screen WHERE path = '/vendor-payments-exception')
-                    """);
-            jdbc.getJdbcTemplate().execute("""
-                        INSERT INTO device_portal.user_type_screen (user_type_id, screen_id)
-                        SELECT ut.id, s.id
-                        FROM device_portal.user_type ut, device_portal.screen s
-                        WHERE s.path = '/vendor-payments-exception'
-                        AND NOT EXISTS (
-                            SELECT 1 FROM device_portal.user_type_screen uts
-                            WHERE uts.screen_id = s.id
-                        )
                     """);
         } catch (Exception e) {
             log.error("Report configuration database operation failed for Vendor Payments", e);
