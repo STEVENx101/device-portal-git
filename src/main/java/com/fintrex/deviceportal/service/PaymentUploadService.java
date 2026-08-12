@@ -55,7 +55,7 @@ public class PaymentUploadService {
     }
 
     public DataTableResponse bulkDetail(DataTableRequest request) {
-        return this.dataTableRepo.dataTable(request, "SELECT d.id, d.payment_id, d.account_no, d.amount, d.narration, d.status, d.pushed, d.ended FROM device_portal.bulk_upload_detail d WHERE d.bulk_id=?1", new Object[]{request.getData()});
+        return this.dataTableRepo.dataTable(request, "SELECT d.id, d.payment_id, d.account_no, d.amount, d.narration, d.status, d.pushed, d.ended FROM device_portal.bulk_upload_detail d WHERE d.bulk_id=?", new Object[]{request.getData()});
     }
 
     public void uploadBulkPayments(MultipartFile paymentFile, String service, String comment, String username) {
