@@ -23,6 +23,7 @@
     boolean hasMaturedLowBalanceReport = false;
     boolean hasMultiplePaymentsReport = false;
     boolean hasDpdBucketReport = false;
+    boolean hasVendorPaymentsReport = false;
     boolean hasVendorPaymentsExceptionReport = false;
     boolean canDownloadReports = false;
     boolean hasBulkUpload = false;
