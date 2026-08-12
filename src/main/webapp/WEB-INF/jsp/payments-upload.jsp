@@ -125,8 +125,8 @@
                                             <label class="form-label fw-semi-bold text-700" for="commentInput">Comment</label>
                                             <textarea class="form-control" id="commentInput" name="comment" rows="2" placeholder="Describe the upload..."></textarea>
                                         </div>
-                                        <button class="btn btn-primary w-100" type="submit" id="uploadBtn">
-                                            <span class="fas fa-cloud-upload-alt me-1"></span> Upload Staged Payments
+                                        <button class="btn btn-primary w-100" type="button" id="showInstructionsBtn">
+                                            <span class="fas fa-cloud-upload-alt me-1"></span> Upload Payments
                                         </button>
                                     </form>
                                 </div>
@@ -196,6 +196,60 @@
                     </div>
                     <div class="modal-footer p-2">
                         <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Instructions Modal -->
+        <div class="modal fade" id="instructionsModal" tabindex="-1" aria-labelledby="instructionsModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content glass-card border-0">
+                    <div class="modal-header bg-warning text-white p-3">
+                        <h5 class="modal-title text-white" id="instructionsModalLabel"><i class="fas fa-exclamation-triangle me-2"></i>Upload Instructions</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <ul class="text-900 fs--1 lh-lg mb-4">
+                            <li>Only Excel (.xlsx) Files can be uploaded.</li>
+                            <li>Make sure you choose the correct service.</li>
+                            <li>Make sure to use the correct request id to avoid duplicate payments.</li>
+                            <li>Please Include the full amounts, Commisions will be reduced from CBS.</li>
+                        </ul>
+                        
+                        <h6 class="text-700 fw-bold mb-2">Below is a sample Template:</h6>
+                        <div class="table-responsive scrollbar">
+                            <table class="table table-bordered table-striped fs--1 mb-0">
+                                <thead class="bg-200 text-900">
+                                    <tr>
+                                        <th>Payment ID</th>
+                                        <th>Account No</th>
+                                        <th>Amount</th>
+                                        <th>Narration</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>20264895978</td>
+                                        <td>5800125087247</td>
+                                        <td>5000</td>
+                                        <td>Payment 1</td>
+                                    </tr>
+                                    <tr>
+                                        <td>20256895978</td>
+                                        <td>5800125032159</td>
+                                        <td>10000</td>
+                                        <td>Payment 2</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer p-2">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary btn-sm" id="confirmUploadBtn">
+                            <i class="fas fa-cloud-upload-alt me-1"></i>Proceed with Upload
+                        </button>
                     </div>
                 </div>
             </div>
@@ -297,10 +351,24 @@
                     $('#detailsModal').modal('show');
                 });
 
+                $('#showInstructionsBtn').on('click', function() {
+                    var form = $('#uploadForm')[0];
+                    if (!form.checkValidity()) {
+                        form.reportValidity();
+                        return;
+                    }
+                    $('#instructionsModal').modal('show');
+                });
+
+                $('#confirmUploadBtn').on('click', function() {
+                    $('#instructionsModal').modal('hide');
+                    $('#uploadForm').submit();
+                });
+
                 $('#uploadForm').on('submit', function(e) {
                     e.preventDefault();
                     var formData = new FormData(this);
-                    $('#uploadBtn').prop('disabled', true).text('Uploading...');
+                    $('#showInstructionsBtn').prop('disabled', true).text('Uploading...');
 
                     $.ajax({
                         url: '${pageContext.request.contextPath}/api/payments/upload',
@@ -321,7 +389,7 @@
                             alert(errMsg);
                         },
                         complete: function() {
-                            $('#uploadBtn').prop('disabled', false).html('<span class="fas fa-cloud-upload-alt me-1"></span> Upload Staged Payments');
+                            $('#showInstructionsBtn').prop('disabled', false).html('<span class="fas fa-cloud-upload-alt me-1"></span> Upload Payments');
                         }
                     });
                 });
