@@ -1256,8 +1256,12 @@
                                                          datalabels: {
                                                              display: true,
                                                              color: isDark ? '#cbd5e1' : '#1e293b',
-                                                             font: { weight: 'bold', size: 9 },
-                                                             formatter: (val) => val > 0 ? formatLKR(val) : ''
+                                                             anchor: 'end',
+                                                             align: 'top',
+                                                             font: { weight: 'bold', size: 8 },
+                                                             formatter: (val) => val > 0 ? formatNum(val) : '',
+                                                             overflow: 'allow',
+                                                             clip: false
                                                          }
                                                      },
                                                      scales: {

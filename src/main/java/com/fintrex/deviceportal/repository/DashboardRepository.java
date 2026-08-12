@@ -195,7 +195,7 @@ public class DashboardRepository {
                     WHERE p.portfolio_date = (
                         SELECT MAX(portfolio_date) FROM cbs.portfolio
                     )
-                    AND p.dpd BETWEEN 0 AND 90
+                    AND p.dpd BETWEEN 1 AND 90
                     AND p.performing_status = 'Performing'
                     %s
                 """, filter);
