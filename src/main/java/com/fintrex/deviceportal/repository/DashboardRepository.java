@@ -184,7 +184,7 @@ public class DashboardRepository {
         String sqlPerfArrears = String.format("""
                     SELECT
                         COUNT(DISTINCT p.account_no) AS count_val,
-                        COALESCE(SUM(p.total_due), 0) AS amount_val
+                        COALESCE(SUM(p.exposure), 0) AS amount_val
                     FROM cbs.portfolio p
                     JOIN (
                         SELECT account_no AS finance_no, product FROM cbs.loan

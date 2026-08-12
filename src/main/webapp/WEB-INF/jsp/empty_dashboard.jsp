@@ -287,83 +287,83 @@
                              <!-- Row 1: KPI Cards (6 Cards) -->
                              <div class="row g-2 mb-2">
                                  <!-- 1. Month Disbursement -->
-                                 <div class="col-lg-2 col-md-4 col-sm-6">
-                                     <div class="card kpi-card shadow-sm h-100"
-                                         style="border-left: 3px solid #6366f1 !important; cursor: pointer; transition: all 0.2s ease-in-out;">
-                                         <div class="card-body p-2 d-flex flex-column justify-content-between">
-                                             <div>
-                                                 <span class="card-title-sub text-muted">MONTH DISBURSEMENT</span>
-                                                 <div class="card-value text-primary" id="kpi-month-amount">LKR 0.00 Mn</div>
-                                                 <div class="card-detail-text text-muted" id="kpi-month-count">0 Accounts</div>
-                                             </div>
-                                         </div>
-                                     </div>
-                                 </div>
-                                 <!-- 2. Active Portfolio -->
-                                 <div class="col-lg-2 col-md-4 col-sm-6">
-                                     <div class="card kpi-card shadow-sm h-100"
-                                         style="border-left: 3px solid #10b981 !important; cursor: pointer; transition: all 0.2s ease-in-out;">
-                                         <div class="card-body p-2 d-flex flex-column justify-content-between">
-                                             <div>
-                                                 <span class="card-title-sub text-muted">ACTIVE PORTFOLIO</span>
-                                                 <div class="card-value text-success" id="kpi-portfolio-amount">LKR 0.00 Mn</div>
-                                                 <div class="card-detail-text text-muted" id="kpi-portfolio-count">0 Accounts</div>
-                                             </div>
-                                         </div>
-                                     </div>
-                                 </div>
-                                 <!-- 3. DPD 0 Portfolio -->
-                                 <div class="col-lg-2 col-md-4 col-sm-6">
-                                     <div class="card kpi-card shadow-sm h-100"
-                                         style="border-left: 3px solid #2563eb !important; cursor: pointer; transition: all 0.2s ease-in-out;">
-                                         <div class="card-body p-2 d-flex flex-column justify-content-between">
-                                             <div>
-                                                 <span class="card-title-sub text-muted">DPD 0 PORTFOLIO</span>
-                                                 <div class="card-value text-primary" id="kpi-dpd-zero-amount">LKR 0.00 Mn</div>
-                                                 <div class="card-detail-text text-muted" id="kpi-dpd-zero-count">0 Accounts</div>
-                                             </div>
-                                         </div>
-                                     </div>
-                                 </div>
-                                 <!-- 4. Arrears Portfolio (was DPD Arrears) -->
-                                 <div class="col-lg-2 col-md-4 col-sm-6">
-                                     <div class="card kpi-card shadow-sm h-100"
-                                         style="border-left: 3px solid #dc2626 !important; cursor: pointer; transition: all 0.2s ease-in-out;">
-                                         <div class="card-body p-2 d-flex flex-column justify-content-between">
-                                             <div>
-                                                 <span class="card-title-sub text-muted">Arrears Portfolio</span>
-                                                 <div class="card-value text-danger" id="kpi-perf-arrears-amount">LKR 0.00 Mn</div>
-                                                 <div class="card-detail-text text-muted" id="kpi-perf-arrears-count">0 Accounts</div>
-                                             </div>
-                                         </div>
-                                     </div>
-                                 </div>
-                                 <!-- 5. NPL Exposure -->
-                                 <div class="col-lg-2 col-md-4 col-sm-6">
-                                     <div class="card kpi-card shadow-sm h-100"
-                                         style="border-left: 3px solid #ef4444 !important; cursor: pointer; transition: all 0.2s ease-in-out;">
-                                         <div class="card-body p-2 d-flex flex-column justify-content-between">
-                                             <div>
-                                                 <span class="card-title-sub text-muted">NPL EXPOSURE</span>
-                                                 <div class="card-value text-danger" id="kpi-npl-exposure">LKR 0.00 Mn</div>
-                                                 <div class="card-detail-text text-muted" id="kpi-npl-count">0 Accounts</div>
-                                             </div>
-                                         </div>
-                                     </div>
-                                 </div>
-                                 <!-- 6. Settled Month -->
-                                 <div class="col-lg-2 col-md-4 col-sm-6">
-                                     <div class="card kpi-card shadow-sm h-100"
-                                         style="border-left: 3px solid #f59e0b !important; cursor: pointer; transition: all 0.2s ease-in-out;">
-                                         <div class="card-body p-2 d-flex flex-column justify-content-between">
-                                             <div>
-                                                 <span class="card-title-sub text-muted">SETTLED MONTH</span>
-                                                 <div class="card-value text-warning" id="kpi-settled-amount">LKR 0.00 Mn</div>
-                                                 <div class="card-detail-text text-muted" id="kpi-settled-count">0 Accounts</div>
-                                             </div>
-                                         </div>
-                                     </div>
-                                 </div>
+                                  <div class="col-lg-2 col-md-4 col-sm-6">
+                                      <div class="card kpi-card shadow-sm h-100"
+                                          style="border-left: 3px solid #6366f1 !important; cursor: pointer; transition: all 0.2s ease-in-out;">
+                                          <div class="card-body p-2 d-flex flex-column justify-content-between">
+                                              <div>
+                                                  <span class="card-title-sub text-muted">MONTH DISBURSEMENT</span>
+                                                  <div class="card-value text-primary" id="kpi-month-amount">0.00 Mn</div>
+                                                  <div class="card-detail-text text-muted" id="kpi-month-count">0 Accounts</div>
+                                              </div>
+                                          </div>
+                                      </div>
+                                  </div>
+                                  <!-- 2. Active Portfolio -->
+                                  <div class="col-lg-2 col-md-4 col-sm-6">
+                                      <div class="card kpi-card shadow-sm h-100"
+                                          style="border-left: 3px solid #10b981 !important; cursor: pointer; transition: all 0.2s ease-in-out;">
+                                          <div class="card-body p-2 d-flex flex-column justify-content-between">
+                                              <div>
+                                                  <span class="card-title-sub text-muted">ACTIVE PORTFOLIO</span>
+                                                  <div class="card-value text-success" id="kpi-portfolio-amount">0.00 Mn</div>
+                                                  <div class="card-detail-text text-muted" id="kpi-portfolio-count">0 Accounts</div>
+                                              </div>
+                                          </div>
+                                      </div>
+                                  </div>
+                                  <!-- 3. DPD 0 Portfolio -->
+                                  <div class="col-lg-2 col-md-4 col-sm-6">
+                                      <div class="card kpi-card shadow-sm h-100"
+                                          style="border-left: 3px solid #2563eb !important; cursor: pointer; transition: all 0.2s ease-in-out;">
+                                          <div class="card-body p-2 d-flex flex-column justify-content-between">
+                                              <div>
+                                                  <span class="card-title-sub text-muted">DPD 0 PORTFOLIO</span>
+                                                  <div class="card-value text-primary" id="kpi-dpd-zero-amount">0.00 Mn</div>
+                                                  <div class="card-detail-text text-muted" id="kpi-dpd-zero-count">0 Accounts</div>
+                                              </div>
+                                          </div>
+                                      </div>
+                                  </div>
+                                  <!-- 4. Arrears Portfolio (was DPD Arrears) -->
+                                  <div class="col-lg-2 col-md-4 col-sm-6">
+                                      <div class="card kpi-card shadow-sm h-100"
+                                          style="border-left: 3px solid #dc2626 !important; cursor: pointer; transition: all 0.2s ease-in-out;">
+                                          <div class="card-body p-2 d-flex flex-column justify-content-between">
+                                              <div>
+                                                  <span class="card-title-sub text-muted">Arrears Portfolio</span>
+                                                  <div class="card-value text-danger" id="kpi-perf-arrears-amount">0.00 Mn</div>
+                                                  <div class="card-detail-text text-muted" id="kpi-perf-arrears-count">0 Accounts</div>
+                                              </div>
+                                          </div>
+                                      </div>
+                                  </div>
+                                  <!-- 5. NPL Exposure -->
+                                  <div class="col-lg-2 col-md-4 col-sm-6">
+                                      <div class="card kpi-card shadow-sm h-100"
+                                          style="border-left: 3px solid #ef4444 !important; cursor: pointer; transition: all 0.2s ease-in-out;">
+                                          <div class="card-body p-2 d-flex flex-column justify-content-between">
+                                              <div>
+                                                  <span class="card-title-sub text-muted">NPL PORTFOLIO</span>
+                                                  <div class="card-value text-danger" id="kpi-npl-exposure">0.00 Mn</div>
+                                                  <div class="card-detail-text text-muted" id="kpi-npl-count">0 Accounts</div>
+                                              </div>
+                                          </div>
+                                      </div>
+                                  </div>
+                                  <!-- 6. Settled Month -->
+                                  <div class="col-lg-2 col-md-4 col-sm-6">
+                                      <div class="card kpi-card shadow-sm h-100"
+                                          style="border-left: 3px solid #f59e0b !important; cursor: pointer; transition: all 0.2s ease-in-out;">
+                                          <div class="card-body p-2 d-flex flex-column justify-content-between">
+                                              <div>
+                                                  <span class="card-title-sub text-muted">SETTLED MONTH</span>
+                                                  <div class="card-value text-warning" id="kpi-settled-amount">0.00 Mn</div>
+                                                  <div class="card-detail-text text-muted" id="kpi-settled-count">0 Accounts</div>
+                                              </div>
+                                          </div>
+                                      </div>
+                                  </div>
                              </div>
 
 
@@ -532,9 +532,7 @@
 
                                 const formatLKR = (val) => {
                                     const millions = val / 1000000;
-                                    return new Intl.NumberFormat('en-LK', {
-                                        style: 'currency',
-                                        currency: 'LKR',
+                                    return new Intl.NumberFormat('en-US', {
                                         minimumFractionDigits: 2,
                                         maximumFractionDigits: 2
                                     }).format(millions) + " Mn";
@@ -882,40 +880,54 @@
                                         .then(res => res.json())
                                         .then(data => {
                                             // Helper function for small doughnut charts
-                                            const buildDoughnut = (canvasId, dataset, labelsList, colorsList) => {
-                                                destroyChart(canvasId);
-                                                const labels = dataset.map(item => item.state_name);
-                                                const counts = dataset.map(item => item.count_val);
+                                             const buildDoughnut = (canvasId, dataset, labelsList, colorsList) => {
+                                                 destroyChart(canvasId);
+                                                 const labels = dataset.map(item => item.state_name);
+                                                 const counts = dataset.map(item => item.count_val);
+ 
+                                                 let finalColors = colorsList;
+                                                 if (labels.length) {
+                                                     finalColors = labels.map(label => {
+                                                         const lowerLabel = label.toLowerCase();
+                                                         if (lowerLabel === 'performing' || lowerLabel === 'unlocked' || lowerLabel === 'active' || lowerLabel === 'un-locked') {
+                                                             return 'rgba(16, 185, 129, 0.85)'; // Green
+                                                         }
+                                                         if (lowerLabel === 'non-performing' || lowerLabel === 'locked') {
+                                                             return 'rgba(239, 68, 68, 0.85)'; // Red
+                                                         }
+                                                         return 'rgba(156, 163, 175, 0.85)'; // Gray fallback
+                                                     });
+                                                 }
 
-                                                const centerTextPlugin = {
-                                                    id: 'centerTextPlugin',
-                                                    beforeDraw: function (chart) {
-                                                        const width = chart.width, height = chart.height, ctx = chart.ctx;
-                                                        ctx.restore();
-                                                        const total = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                                                        const fontSize = (chart.innerRadius / 26).toFixed(2);
-                                                        ctx.font = "bold " + fontSize + "em 'Plus Jakarta Sans', sans-serif";
-                                                        ctx.textBaseline = "middle";
-                                                        ctx.fillStyle = isDark ? "#f8fafc" : "#1e293b";
-                                                        const text = total.toLocaleString(),
-                                                            textX = Math.round((width - ctx.measureText(text).width) / 2),
-                                                            textY = chart.chartArea.top + (chart.chartArea.bottom - chart.chartArea.top) / 2;
-                                                        ctx.fillText(text, textX, textY);
-                                                        ctx.save();
-                                                    }
-                                                };
-
-                                                const ctx = document.getElementById(canvasId).getContext('2d');
-                                                activeCharts[canvasId] = new Chart(ctx, {
-                                                    type: 'doughnut',
-                                                    data: {
-                                                        labels: labels.length ? labels : labelsList,
-                                                        datasets: [{
-                                                            data: counts.length ? counts : [0, 0],
-                                                            backgroundColor: colorsList,
-                                                            borderWidth: 0
-                                                        }]
-                                                    },
+                                                 const centerTextPlugin = {
+                                                     id: 'centerTextPlugin',
+                                                     beforeDraw: function (chart) {
+                                                         const width = chart.width, height = chart.height, ctx = chart.ctx;
+                                                         ctx.restore();
+                                                         const total = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                                         const fontSize = (chart.innerRadius / 26).toFixed(2);
+                                                         ctx.font = "bold " + fontSize + "em 'Plus Jakarta Sans', sans-serif";
+                                                         ctx.textBaseline = "middle";
+                                                         ctx.fillStyle = isDark ? "#f8fafc" : "#1e293b";
+                                                         const text = total.toLocaleString(),
+                                                             textX = Math.round((width - ctx.measureText(text).width) / 2),
+                                                             textY = chart.chartArea.top + (chart.chartArea.bottom - chart.chartArea.top) / 2;
+                                                         ctx.fillText(text, textX, textY);
+                                                         ctx.save();
+                                                     }
+                                                 };
+ 
+                                                 const ctx = document.getElementById(canvasId).getContext('2d');
+                                                 activeCharts[canvasId] = new Chart(ctx, {
+                                                     type: 'doughnut',
+                                                     data: {
+                                                         labels: labels.length ? labels : labelsList,
+                                                         datasets: [{
+                                                             data: counts.length ? counts : [0, 0],
+                                                             backgroundColor: finalColors,
+                                                             borderWidth: 0
+                                                         }]
+                                                     },
                                                     plugins: [centerTextPlugin],
                                                     options: {
                                                         responsive: true,
@@ -1097,11 +1109,9 @@
                                                         tooltip: { enabled: true },
                                                         datalabels: {
                                                             display: true,
-                                                            color: '#ffffff',
-                                                            font: { weight: 'bold', size: 8 },
-                                                            formatter: (val) => val > 0 ? formatLKR(val) : '',
-                                                            textStrokeColor: 'rgba(0, 0, 0, 0.6)',
-                                                            textStrokeWidth: 2
+                                                            color: isDark ? '#cbd5e1' : '#1e293b',
+                                                            font: { weight: 'bold', size: 9 },
+                                                            formatter: (val) => val > 0 ? formatLKR(val) : ''
                                                         }
                                                     }
                                                 }
@@ -1215,21 +1225,21 @@
                                                              data: completedData,
                                                              backgroundColor: 'rgba(16, 185, 129, 0.85)',
                                                              borderRadius: 4,
-                                                             barThickness: 10
+                                                             barThickness: 18
                                                          },
                                                          {
                                                              label: 'Pending',
                                                              data: pendingData,
                                                              backgroundColor: 'rgba(245, 158, 11, 0.85)',
                                                              borderRadius: 4,
-                                                             barThickness: 10
+                                                             barThickness: 18
                                                          },
                                                          {
                                                              label: 'Failed',
                                                              data: failedData,
                                                              backgroundColor: 'rgba(239, 68, 68, 0.85)',
                                                              borderRadius: 4,
-                                                             barThickness: 10
+                                                             barThickness: 18
                                                          }
                                                      ]
                                                  },
@@ -1245,13 +1255,9 @@
                                                          tooltip: { enabled: true },
                                                          datalabels: {
                                                              display: true,
-                                                             anchor: 'end',
-                                                             align: 'top',
                                                              color: isDark ? '#cbd5e1' : '#1e293b',
-                                                             font: { weight: 'bold', size: 8 },
-                                                             formatter: (val) => val > 0 ? formatNum(val) : '',
-                                                             overflow: 'allow',
-                                                             clip: false
+                                                             font: { weight: 'bold', size: 9 },
+                                                             formatter: (val) => val > 0 ? formatLKR(val) : ''
                                                          }
                                                      },
                                                      scales: {
