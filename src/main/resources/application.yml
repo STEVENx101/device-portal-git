@@ -14,3 +14,9 @@ server:
   port: 3478
   servlet:
     context-path: /device-portal
+
+api:
+  nimble:
+    url: "https://api.nimble.example.com"
+    username: "deviceportal_user"
+    password: "deviceportal_password"

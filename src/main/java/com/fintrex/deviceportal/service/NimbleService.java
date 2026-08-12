@@ -17,11 +17,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class NimbleService {
-    @Value("${api.nimble.url}")
+    @Value("${api.nimble.url:https://api.nimble.example.com}")
     private String rootUrl;
-    @Value("${api.nimble.username}")
+    @Value("${api.nimble.username:deviceportal_user}")
     private String username;
-    @Value("${api.nimble.password}")
+    @Value("${api.nimble.password:deviceportal_password}")
     private String password;
     private final ObjectMapper mapper = new ObjectMapper();
     private String jwtToken = "";
