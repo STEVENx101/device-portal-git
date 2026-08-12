@@ -42,6 +42,7 @@ public class CbsReportService {
         initAgreementScreen();
         initRecoveryScreens();
         initVendorPaymentScreens();
+        initPaymentUploadScreens();
 
         try {
             jdbc.getJdbcTemplate()
@@ -2037,5 +2038,56 @@ public class CbsReportService {
         val = val * factor;
         long tmp = Math.round(val);
         return (double) tmp / factor;
+    }
+
+    private void initPaymentUploadScreens() {
+        try {
+            // Create bulk_upload table
+            jdbc.getJdbcTemplate().execute("""
+                CREATE TABLE IF NOT EXISTS device_portal.bulk_upload (
+                    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                    date DATETIME,
+                    user VARCHAR(100),
+                    service VARCHAR(50),
+                    status VARCHAR(50),
+                    approved_user VARCHAR(100),
+                    comment TEXT,
+                    approved_on DATETIME
+                )
+            """);
+
+            // Create bulk_upload_detail table
+            jdbc.getJdbcTemplate().execute("""
+                CREATE TABLE IF NOT EXISTS device_portal.bulk_upload_detail (
+                    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                    bulk_id BIGINT,
+                    payment_id VARCHAR(100),
+                    account_no VARCHAR(100),
+                    amount DOUBLE,
+                    narration VARCHAR(255),
+                    pushed DATETIME,
+                    ended DATETIME,
+                    status VARCHAR(50),
+                    response TEXT,
+                    CONSTRAINT fk_bulk_upload FOREIGN KEY (bulk_id) REFERENCES device_portal.bulk_upload(id) ON DELETE CASCADE
+                )
+            """);
+
+            // Insert Screen for Upload
+            jdbc.getJdbcTemplate().execute("""
+                INSERT INTO device_portal.screen (name, path, icon, group_name)
+                SELECT 'Bulk Payments Upload', '/payments/upload', 'fas fa-upload', 'Payments'
+                WHERE NOT EXISTS (SELECT 1 FROM device_portal.screen WHERE path = '/payments/upload')
+            """);
+
+            // Insert Screen for Approve
+            jdbc.getJdbcTemplate().execute("""
+                INSERT INTO device_portal.screen (name, path, icon, group_name)
+                SELECT 'Bulk Payments Approve', '/payments/approve', 'fas fa-check-double', 'Payments'
+                WHERE NOT EXISTS (SELECT 1 FROM device_portal.screen WHERE path = '/payments/approve')
+            """);
+        } catch (Exception e) {
+            log.error("Payment Staging configuration database operation failed", e);
+        }
     }
 }
