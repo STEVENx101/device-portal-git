@@ -225,16 +225,16 @@
                         }
                     },
                     columns: [
-                        { data: '0' },
-                        { data: '1' },
-                        { data: '2' },
-                        { data: '3' },
-                        { data: '4' },
-                        { data: '5' },
-                        { data: '6' },
-                        { data: '7' },
+                        { data: 'id' },
+                        { data: 'date' },
+                        { data: 'uploaded' },
+                        { data: 'approver' },
+                        { data: 'service' },
+                        { data: 'total' },
+                        { data: 'success' },
+                        { data: 'failed' },
                         { 
-                            data: '8',
+                            data: 'status',
                             render: function(data) {
                                 var badgeClass = 'bg-secondary';
                                 if (data === 'Complete') badgeClass = 'bg-success';
@@ -245,7 +245,7 @@
                             }
                         },
                         {
-                            data: '0',
+                            data: 'id',
                             orderable: false,
                             render: function(data) {
                                 return '<button class="btn btn-primary btn-xs view-details-btn" data-id="' + data + '"><i class="fas fa-eye me-1"></i>View</button>';
@@ -269,13 +269,13 @@
                         }
                     },
                     columns: [
-                        { data: '0' },
-                        { data: '1' },
-                        { data: '2' },
-                        { data: '3' },
-                        { data: '4' },
+                        { data: 'id' },
+                        { data: 'payment_id' },
+                        { data: 'account_no' },
+                        { data: 'amount' },
+                        { data: 'narration' },
                         { 
-                            data: '5',
+                            data: 'status',
                             render: function(data) {
                                 var badgeClass = 'bg-secondary';
                                 if (data === 'Success') badgeClass = 'bg-success';
@@ -284,8 +284,8 @@
                                 return '<span class="badge ' + badgeClass + '">' + data + '</span>';
                             }
                         },
-                        { data: '6' },
-                        { data: '7' }
+                        { data: 'pushed' },
+                        { data: 'ended' }
                     ]
                 });
 

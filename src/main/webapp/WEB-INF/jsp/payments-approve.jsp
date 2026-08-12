@@ -154,6 +154,9 @@
                     </div>
                     <div class="modal-footer p-2">
                         <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-success btn-sm" id="modalApproveBtn">
+                            <i class="fas fa-check me-1"></i>Approve & Post Payments
+                        </button>
                     </div>
                 </div>
             </div>
@@ -183,20 +186,17 @@
                         }
                     },
                     columns: [
-                        { data: '0' },
-                        { data: '1' },
-                        { data: '2' },
-                        { data: '3' },
-                        { data: '4' },
-                        { data: '5' },
+                        { data: 'id' },
+                        { data: 'date' },
+                        { data: 'uploaded' },
+                        { data: 'service' },
+                        { data: 'comment' },
+                        { data: 'total' },
                         {
-                            data: '0',
+                            data: 'id',
                             orderable: false,
                             render: function(data) {
-                                return '<div class="d-flex gap-2">' +
-                                       '<button class="btn btn-primary btn-xs view-details-btn" data-id="' + data + '"><i class="fas fa-eye me-1"></i>View Details</button>' +
-                                       '<button class="btn btn-success btn-xs approve-btn" data-id="' + data + '"><i class="fas fa-check me-1"></i>Approve & Post</button>' +
-                                       '</div>';
+                                return '<button class="btn btn-primary btn-xs view-details-btn" data-id="' + data + '"><i class="fas fa-eye me-1"></i>View Details</button>';
                             }
                         }
                     ],
@@ -217,13 +217,13 @@
                         }
                     },
                     columns: [
-                        { data: '0' },
-                        { data: '1' },
-                        { data: '2' },
-                        { data: '3' },
-                        { data: '4' },
+                        { data: 'id' },
+                        { data: 'payment_id' },
+                        { data: 'account_no' },
+                        { data: 'amount' },
+                        { data: 'narration' },
                         { 
-                            data: '5',
+                            data: 'status',
                             render: function(data) {
                                 var badgeClass = 'bg-secondary';
                                 if (data === 'Success') badgeClass = 'bg-success';
@@ -232,8 +232,8 @@
                                 return '<span class="badge ' + badgeClass + '">' + data + '</span>';
                             }
                         },
-                        { data: '6' },
-                        { data: '7' }
+                        { data: 'pushed' },
+                        { data: 'ended' }
                     ]
                 });
 
@@ -245,14 +245,14 @@
                     $('#detailsModal').modal('show');
                 });
 
-                $('#tablePendingApprovals').on('click', '.approve-btn', function() {
-                    var bulkId = $(this).data('id');
-                    if (confirm('Are you sure you want to approve bulk upload ID: ' + bulkId + '? This will process and post payments.')) {
+                $('#modalApproveBtn').on('click', function() {
+                    if (currentBulkId && confirm('Are you sure you want to approve bulk upload ID: ' + currentBulkId + '? This will process and post payments.')) {
                         var btn = $(this);
                         btn.prop('disabled', true).text('Approving...');
-                        $.post('${pageContext.request.contextPath}/api/payments/approve', { bulkId: bulkId })
+                        $.post('${pageContext.request.contextPath}/api/payments/approve', { bulkId: currentBulkId })
                             .done(function(response) {
                                 alert(response.message);
+                                $('#detailsModal').modal('hide');
                                 tablePending.ajax.reload();
                             })
                             .fail(function(xhr) {
@@ -261,7 +261,9 @@
                                     errMsg = xhr.responseJSON.message;
                                 }
                                 alert(errMsg);
-                                btn.prop('disabled', false).html('<i class="fas fa-check me-1"></i>Approve & Post');
+                            })
+                            .always(function() {
+                                btn.prop('disabled', false).html('<i class="fas fa-check me-1"></i>Approve & Post Payments');
                             });
                     }
                 });
