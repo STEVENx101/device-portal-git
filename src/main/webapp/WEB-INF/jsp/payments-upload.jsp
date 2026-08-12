@@ -1,4 +1,6 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@page import="java.util.List"%>
+<%@page import="java.util.Map"%>
 <!DOCTYPE html>
 <html lang="en-US" dir="ltr">
 
@@ -100,8 +102,18 @@
                                             <label class="form-label fw-semi-bold text-700" for="serviceSelect">Service Code</label>
                                             <select class="form-select" id="serviceSelect" name="service" required>
                                                 <option value="" disabled selected>Select service...</option>
-                                                <option value="MF">Mobile Finance (MF)</option>
-                                                <option value="LF">Laptop Finance (LF)</option>
+                                                <%
+                                                    List<Map<String, Object>> services = (List<Map<String, Object>>) request.getAttribute("services");
+                                                    if (services != null) {
+                                                        for (Map<String, Object> srv : services) {
+                                                            String code = (String) srv.get("code");
+                                                            String name = (String) srv.get("name");
+                                                %>
+                                                <option value="<%= code %>"><%= name %> (<%= code %>)</option>
+                                                <%
+                                                        }
+                                                    }
+                                                %>
                                             </select>
                                         </div>
                                         <div class="mb-3">

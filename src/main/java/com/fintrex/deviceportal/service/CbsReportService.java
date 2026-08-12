@@ -2073,6 +2073,32 @@ public class CbsReportService {
                 )
             """);
 
+            // Create payment_service table
+            jdbc.getJdbcTemplate().execute("""
+                CREATE TABLE IF NOT EXISTS device_portal.payment_service (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    code VARCHAR(50) UNIQUE NOT NULL,
+                    name VARCHAR(100) NOT NULL
+                )
+            """);
+
+            // Seed initial service codes
+            jdbc.getJdbcTemplate().execute("""
+                INSERT INTO device_portal.payment_service (code, name)
+                SELECT 'MF', 'Mobile Finance'
+                WHERE NOT EXISTS (SELECT 1 FROM device_portal.payment_service WHERE code = 'MF')
+            """);
+            jdbc.getJdbcTemplate().execute("""
+                INSERT INTO device_portal.payment_service (code, name)
+                SELECT 'LF', 'Laptop Finance'
+                WHERE NOT EXISTS (SELECT 1 FROM device_portal.payment_service WHERE code = 'LF')
+            """);
+            jdbc.getJdbcTemplate().execute("""
+                INSERT INTO device_portal.payment_service (code, name)
+                SELECT 'EZCASH', 'EzCash'
+                WHERE NOT EXISTS (SELECT 1 FROM device_portal.payment_service WHERE code = 'EZCASH')
+            """);
+
             // Insert Screen for Upload
             jdbc.getJdbcTemplate().execute("""
                 INSERT INTO device_portal.screen (name, path, icon, group_name)

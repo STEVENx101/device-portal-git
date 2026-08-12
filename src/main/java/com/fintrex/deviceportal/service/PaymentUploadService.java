@@ -27,16 +27,23 @@ public class PaymentUploadService {
     private final BulkUploadDetailRepository bulkUploadDetailRepository;
     private final DataTableRepo dataTableRepo;
     private final NimbleService nimbleService;
+    private final org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate jdbc;
     private final DataFormatter FORMATTER = new DataFormatter();
 
     public PaymentUploadService(BulkUploadRepository bulkUploadRepository, 
                                 BulkUploadDetailRepository bulkUploadDetailRepository, 
                                 DataTableRepo dataTableRepo, 
-                                NimbleService nimbleService) {
+                                NimbleService nimbleService,
+                                org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate jdbc) {
         this.bulkUploadRepository = bulkUploadRepository;
         this.bulkUploadDetailRepository = bulkUploadDetailRepository;
         this.dataTableRepo = dataTableRepo;
         this.nimbleService = nimbleService;
+        this.jdbc = jdbc;
+    }
+
+    public java.util.List<java.util.Map<String, Object>> getActiveServices() {
+        return this.jdbc.getJdbcTemplate().queryForList("SELECT code, name FROM device_portal.payment_service ORDER BY name ASC");
     }
 
     public DataTableResponse paymentUploadHistory(DataTableRequest request) {

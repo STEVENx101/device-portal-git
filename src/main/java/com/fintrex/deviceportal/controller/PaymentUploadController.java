@@ -21,7 +21,8 @@ public class PaymentUploadController {
     }
 
     @GetMapping("/payments/upload")
-    public String uploadPage() {
+    public String uploadPage(org.springframework.ui.Model model) {
+        model.addAttribute("services", paymentUploadService.getActiveServices());
         return "payments-upload";
     }
 
