@@ -23,13 +23,12 @@ public class NimbleService {
     private String username;
     @Value("${api.nimble.password}")
     private String password;
-    private final ObjectMapper mapper;
+    private final ObjectMapper mapper = new ObjectMapper();
     private String jwtToken = "";
     private final Logger logger = LoggerFactory.getLogger(NimbleService.class);
     private final HttpClient client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10L)).build();
 
-    public NimbleService(ObjectMapper mapper) {
-        this.mapper = mapper;
+    public NimbleService() {
     }
 
     public HttpResponse<String> updatePayment(String requestId, String referenceNo, double amount, String narration, String serviceCode) throws Exception {
