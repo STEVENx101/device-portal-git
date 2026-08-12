@@ -255,6 +255,7 @@
             </div>
         </div>
 
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script src="${pageContext.request.contextPath}/vendors/bootstrap/bootstrap.min.js"></script>
         <script src="${pageContext.request.contextPath}/vendors/anchorjs/anchor.min.js"></script>
         <script src="${pageContext.request.contextPath}/vendors/is/is.min.js"></script>
@@ -362,12 +363,26 @@
 
                 $('#confirmUploadBtn').on('click', function() {
                     $('#instructionsModal').modal('hide');
-                    $('#uploadForm').submit();
+                    var selectedServiceText = $('#serviceSelect option:selected').text();
+                    
+                    Swal.fire({
+                        title: 'Confirm Upload',
+                        text: 'Are you sure you want to upload this Excel sheet for service: ' + selectedServiceText + '?',
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#6366f1',
+                        cancelButtonColor: '#aaa',
+                        confirmButtonText: 'Yes, Upload'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            submitUploadForm();
+                        }
+                    });
                 });
 
-                $('#uploadForm').on('submit', function(e) {
-                    e.preventDefault();
-                    var formData = new FormData(this);
+                function submitUploadForm() {
+                    var form = $('#uploadForm')[0];
+                    var formData = new FormData(form);
                     $('#showInstructionsBtn').prop('disabled', true).text('Uploading...');
 
                     $.ajax({
@@ -377,8 +392,13 @@
                         processData: false,
                         contentType: false,
                         success: function(response) {
-                            alert(response.message);
-                            $('#uploadForm')[0].reset();
+                            Swal.fire({
+                                title: 'Success!',
+                                text: response.message,
+                                icon: 'success',
+                                confirmButtonColor: '#6366f1'
+                            });
+                            form.reset();
                             tableHistory.ajax.reload();
                         },
                         error: function(xhr) {
@@ -386,13 +406,18 @@
                             if (xhr.responseJSON && xhr.responseJSON.message) {
                                 errMsg = xhr.responseJSON.message;
                             }
-                            alert(errMsg);
+                            Swal.fire({
+                                title: 'Error!',
+                                text: errMsg,
+                                icon: 'error',
+                                confirmButtonColor: '#ef4444'
+                            });
                         },
                         complete: function() {
                             $('#showInstructionsBtn').prop('disabled', false).html('<span class="fas fa-cloud-upload-alt me-1"></span> Upload Payments');
                         }
                     });
-                });
+                }
             });
         </script>
 

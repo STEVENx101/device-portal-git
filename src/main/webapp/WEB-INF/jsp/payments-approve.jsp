@@ -162,6 +162,7 @@
             </div>
         </div>
 
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script src="${pageContext.request.contextPath}/vendors/bootstrap/bootstrap.min.js"></script>
         <script src="${pageContext.request.contextPath}/vendors/anchorjs/anchor.min.js"></script>
         <script src="${pageContext.request.contextPath}/vendors/is/is.min.js"></script>
@@ -246,26 +247,49 @@
                 });
 
                 $('#modalApproveBtn').on('click', function() {
-                    if (currentBulkId && confirm('Are you sure you want to approve bulk upload ID: ' + currentBulkId + '? This will process and post payments.')) {
-                        var btn = $(this);
-                        btn.prop('disabled', true).text('Approving...');
-                        $.post('${pageContext.request.contextPath}/api/payments/approve', { bulkId: currentBulkId })
-                            .done(function(response) {
-                                alert(response.message);
-                                $('#detailsModal').modal('hide');
-                                tablePending.ajax.reload();
-                            })
-                            .fail(function(xhr) {
-                                var errMsg = 'Approval failed!';
-                                if (xhr.responseJSON && xhr.responseJSON.message) {
-                                    errMsg = xhr.responseJSON.message;
-                                }
-                                alert(errMsg);
-                            })
-                            .always(function() {
-                                btn.prop('disabled', false).html('<i class="fas fa-check me-1"></i>Approve & Post Payments');
-                            });
-                    }
+                    if (!currentBulkId) return;
+
+                    Swal.fire({
+                        title: 'Confirm Approval',
+                        text: 'Are you sure you want to approve bulk upload ID: ' + currentBulkId + '? This will process and post payments.',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#10b981',
+                        cancelButtonColor: '#aaa',
+                        confirmButtonText: 'Yes, Approve'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            var btn = $('#modalApproveBtn');
+                            btn.prop('disabled', true).text('Approving...');
+                            
+                            $.post('${pageContext.request.contextPath}/api/payments/approve', { bulkId: currentBulkId })
+                                .done(function(response) {
+                                    Swal.fire({
+                                        title: 'Success!',
+                                        text: response.message,
+                                        icon: 'success',
+                                        confirmButtonColor: '#10b981'
+                                    });
+                                    $('#detailsModal').modal('hide');
+                                    tablePending.ajax.reload();
+                                })
+                                .fail(function(xhr) {
+                                    var errMsg = 'Approval failed!';
+                                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                                        errMsg = xhr.responseJSON.message;
+                                    }
+                                    Swal.fire({
+                                        title: 'Error!',
+                                        text: errMsg,
+                                        icon: 'error',
+                                        confirmButtonColor: '#ef4444'
+                                    });
+                                })
+                                .always(function() {
+                                    btn.prop('disabled', false).html('<i class="fas fa-check me-1"></i>Approve & Post Payments');
+                                });
+                        }
+                    });
                 });
             });
         </script>
