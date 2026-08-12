@@ -415,31 +415,20 @@ public class DashboardRepository {
         Object latestPortfolioDate = latest.get("portfolio_date");
 
         // Mobile Performing vs Non-Performing
-        String mobilePerfSql = String.format("""
+        String mobilePerfSql = """
                     SELECT
-                        CASE
-                            WHEN COALESCE(p1.performing_status, p2.performing_status) = 'Non-Performing'
-                                THEN 'Non-Performing'
-                            ELSE 'Performing'
-                        END AS state_name,
+                        p.performing_status AS state_name,
                         COUNT(*) AS count_val
                     FROM cbs.loan l
-                    INNER JOIN cbs.product pr
-                        ON CAST(l.product AS UNSIGNED) = pr.code_val
-                    LEFT JOIN cbs.portfolio p1
-                        ON p1.account_no = l.account_no
-                        AND p1.series = l.account_series
-                        AND p1.portfolio_date = ?
-                    LEFT JOIN cbs.portfolio p2
-                        ON p2.account_no = l.legacy_account_no
-                        AND p2.series = l.account_series
-                        AND p2.portfolio_date = ?
-                    WHERE pr.product_code = 'MF' %s
-                    GROUP BY state_name
+                    JOIN cbs.portfolio p ON l.account_no = p.account_no
+                    AND l.account_series = p.series
+                    AND p.portfolio_date = CURDATE()
+                    WHERE l.product = '005'
+                    GROUP BY p.performing_status
                     ORDER BY state_name
-                """, filter);
+                """;
         List<Map<String, Object>> mobilePerf = "LF".equalsIgnoreCase(product) ? new ArrayList<>() :
-                jdbcTemplate.queryForList(mobilePerfSql, latestPortfolioDate, latestPortfolioDate);
+                jdbcTemplate.queryForList(mobilePerfSql);
 
         // Laptop Performing vs Non-Performing
         String laptopPerfSql = String.format("""
