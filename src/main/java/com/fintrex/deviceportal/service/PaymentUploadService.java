@@ -116,7 +116,7 @@ public class PaymentUploadService {
             for (BulkUploadDetail bulkDetail : bulkDetails) {
                 bulkDetail.setPushed(LocalDateTime.now());
                 try {
-                    HttpResponse<String> resp = this.nimbleService.updatePayment(bulkDetail.getPaymentId(), bulkDetail.getAccountNo(), bulkDetail.getAmount(), bulkDetail.getNarration(), bulkUpload.getService());
+                    HttpResponse<String> resp = this.nimbleService.updatePayment(bulkDetail.getPaymentId(), bulkDetail.getAccountNo(), bulkDetail.getAmount(), bulkDetail.getNarration(), bulkUpload.getService(), approvedUser);
                     bulkDetail.setEnded(LocalDateTime.now());
                     if (resp.statusCode() == 200) {
                         bulkDetail.setStatus("Success");

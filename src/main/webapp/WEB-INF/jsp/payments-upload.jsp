@@ -91,7 +91,7 @@
 
                     <div class="row g-3">
                         <!-- Upload Form -->
-                        <div class="col-lg-4 col-12">
+                        <div class="col-lg-3 col-12">
                             <div class="card glass-card">
                                 <div class="card-header card-header-gradient p-3">
                                     <h6 class="mb-0 text-white"><i class="fas fa-file-excel me-2"></i>Upload Payments File</h6>
@@ -134,7 +134,7 @@
                         </div>
 
                         <!-- Upload History Table -->
-                        <div class="col-lg-8 col-12">
+                        <div class="col-lg-9 col-12">
                             <div class="card glass-card">
                                 <div class="card-header p-3 border-bottom">
                                     <h6 class="mb-0 text-primary"><i class="fas fa-history me-2"></i>Upload History</h6>

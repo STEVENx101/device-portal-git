@@ -2073,6 +2073,20 @@ public class CbsReportService {
                 )
             """);
 
+            // Create api_log table
+            jdbc.getJdbcTemplate().execute("""
+                CREATE TABLE IF NOT EXISTS device_portal.api_log (
+                    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                    url VARCHAR(255) NOT NULL,
+                    method VARCHAR(10) NOT NULL,
+                    request_payload TEXT,
+                    response_status INT,
+                    response_payload TEXT,
+                    created_date DATETIME NOT NULL,
+                    username VARCHAR(100)
+                )
+            """);
+
             // Create payment_service table
             jdbc.getJdbcTemplate().execute("""
                 CREATE TABLE IF NOT EXISTS device_portal.payment_service (
@@ -2082,21 +2096,16 @@ public class CbsReportService {
                 )
             """);
 
-            // Seed initial service codes
-            jdbc.getJdbcTemplate().execute("""
-                INSERT INTO device_portal.payment_service (code, name)
-                SELECT 'MF', 'Mobile Finance'
-                WHERE NOT EXISTS (SELECT 1 FROM device_portal.payment_service WHERE code = 'MF')
-            """);
-            jdbc.getJdbcTemplate().execute("""
-                INSERT INTO device_portal.payment_service (code, name)
-                SELECT 'LF', 'Laptop Finance'
-                WHERE NOT EXISTS (SELECT 1 FROM device_portal.payment_service WHERE code = 'LF')
-            """);
+            // Seed initial service codes (Only EzCash)
             jdbc.getJdbcTemplate().execute("""
                 INSERT INTO device_portal.payment_service (code, name)
                 SELECT 'EZCASH', 'EzCash'
                 WHERE NOT EXISTS (SELECT 1 FROM device_portal.payment_service WHERE code = 'EZCASH')
+            """);
+            
+            // Clean up MF and LF codes if they exist from previous runs
+            jdbc.getJdbcTemplate().execute("""
+                DELETE FROM device_portal.payment_service WHERE code IN ('MF', 'LF')
             """);
 
             // Insert Screen for Upload

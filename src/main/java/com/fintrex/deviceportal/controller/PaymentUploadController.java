@@ -4,6 +4,7 @@ import com.fintrex.deviceportal.config.DataTableRequest;
 import com.fintrex.deviceportal.config.DataTableResponse;
 import com.fintrex.deviceportal.dto.User;
 import com.fintrex.deviceportal.service.PaymentUploadService;
+import com.fintrex.deviceportal.service.CbsReportService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -15,9 +16,11 @@ import java.util.Map;
 public class PaymentUploadController {
 
     private final PaymentUploadService paymentUploadService;
+    private final CbsReportService cbsReportService;
 
-    public PaymentUploadController(PaymentUploadService paymentUploadService) {
+    public PaymentUploadController(PaymentUploadService paymentUploadService, CbsReportService cbsReportService) {
         this.paymentUploadService = paymentUploadService;
+        this.cbsReportService = cbsReportService;
     }
 
     @GetMapping("/payments/upload")
@@ -60,6 +63,7 @@ public class PaymentUploadController {
             User currentUser = (User) session.getAttribute("currentUser");
             String username = (currentUser != null) ? currentUser.getUsername() : "system";
             paymentUploadService.uploadBulkPayments(file, service, comment, username);
+            cbsReportService.logReportActivity(username, "Bulk Payment Upload", "UPLOAD", "service=" + service + ", comment=" + comment + ", file=" + file.getOriginalFilename());
             return ResponseEntity.ok(Map.of("success", true, "message", "File uploaded successfully. Pending approval."));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("success", false, "message", e.getMessage()));
@@ -75,6 +79,7 @@ public class PaymentUploadController {
             User currentUser = (User) session.getAttribute("currentUser");
             String username = (currentUser != null) ? currentUser.getUsername() : "system";
             paymentUploadService.approveAndUploadPayments(bulkId, username);
+            cbsReportService.logReportActivity(username, "Bulk Payment Approval", "APPROVE", "bulkId=" + bulkId);
             return ResponseEntity.ok(Map.of("success", true, "message", "Approval successful. Payments posting processing in background."));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("success", false, "message", e.getMessage()));
