@@ -40,15 +40,15 @@ public class PaymentUploadService {
     }
 
     public DataTableResponse paymentUploadHistory(DataTableRequest request) {
-        return this.dataTableRepo.dataTable(request, "SELECT b.id, CONCAT(b.date) as date, b.user as uploaded, b.approvedUser as approver, b.service, COUNT(d) as total, SUM(CASE WHEN d.status = 'Success' THEN 1 ELSE 0 END) as success, SUM(CASE WHEN d.status != 'Success' THEN 1 ELSE 0 END) as failed, b.status FROM BulkUpload b LEFT JOIN BulkUploadDetail d ON d.bulkId=b GROUP BY b.id, b.date, b.user, b.approvedUser, b.service, b.status", new Object[0]);
+        return this.dataTableRepo.dataTable(request, "SELECT b.id, CONCAT(b.date) as date, b.user as uploaded, b.approved_user as approver, b.service, COUNT(d.id) as total, SUM(CASE WHEN d.status = 'Success' THEN 1 ELSE 0 END) as success, SUM(CASE WHEN d.status != 'Success' THEN 1 ELSE 0 END) as failed, b.status FROM device_portal.bulk_upload b LEFT JOIN device_portal.bulk_upload_detail d ON d.bulk_id=b.id GROUP BY b.id, b.date, b.user, b.approved_user, b.service, b.status", new Object[0]);
     }
 
     public DataTableResponse pendingApprovals(DataTableRequest request) {
-        return this.dataTableRepo.dataTable(request, "SELECT b.id, CONCAT(b.date) as date, b.user as uploaded, b.service, b.comment, COUNT(d) as total FROM BulkUpload b LEFT JOIN BulkUploadDetail d ON d.bulkId=b WHERE b.status='Pending Approval' GROUP BY b.id, b.date, b.user, b.service, b.comment", new Object[0]);
+        return this.dataTableRepo.dataTable(request, "SELECT b.id, CONCAT(b.date) as date, b.user as uploaded, b.service, b.comment, COUNT(d.id) as total FROM device_portal.bulk_upload b LEFT JOIN device_portal.bulk_upload_detail d ON d.bulk_id=b.id WHERE b.status='Pending Approval' GROUP BY b.id, b.date, b.user, b.service, b.comment", new Object[0]);
     }
 
     public DataTableResponse bulkDetail(DataTableRequest request) {
-        return this.dataTableRepo.dataTable(request, "SELECT d.id, d.paymentId, d.accountNo, d.amount, d.narration, d.status, d.pushed, d.ended FROM BulkUploadDetail d WHERE d.bulkId.id=?1", new Object[]{request.getData()});
+        return this.dataTableRepo.dataTable(request, "SELECT d.id, d.payment_id, d.account_no, d.amount, d.narration, d.status, d.pushed, d.ended FROM device_portal.bulk_upload_detail d WHERE d.bulk_id=?1", new Object[]{request.getData()});
     }
 
     public void uploadBulkPayments(MultipartFile paymentFile, String service, String comment, String username) {
