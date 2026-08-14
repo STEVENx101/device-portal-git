@@ -270,3 +270,53 @@ table.dataTable thead th {
     background-color: rgba(220, 252, 231, 0.6) !important; /* Soft lightgreen background */
 }
 
+/* Dashboard Tables optimization to fit inside cards without horizontal scroll */
+#transactionChannelTable,
+#paymentsStatusTable {
+    table-layout: fixed;
+    width: 100% !important;
+}
+
+#transactionChannelTable th,
+#transactionChannelTable td,
+#paymentsStatusTable th,
+#paymentsStatusTable td {
+    white-space: normal !important; /* Allow wrapping */
+    word-break: break-word;
+    padding-left: 2px !important;
+    padding-right: 2px !important;
+    font-size: 0.68rem !important;
+}
+
+/* Set specific column widths for Transaction Channels */
+#transactionChannelTable th:nth-child(1),
+#transactionChannelTable td:nth-child(1) {
+    width: 45%; /* Channel name */
+}
+#transactionChannelTable th:nth-child(2),
+#transactionChannelTable td:nth-child(2) {
+    width: 20%; /* PaymentsCount */
+}
+#transactionChannelTable th:nth-child(3),
+#transactionChannelTable td:nth-child(3) {
+    width: 35%; /* Amount */
+}
+
+/* Set specific column widths for Payments Status-Wise */
+#paymentsStatusTable th:nth-child(1),
+#paymentsStatusTable td:nth-child(1) {
+    width: 31%; /* Month */
+}
+#paymentsStatusTable th:nth-child(2),
+#paymentsStatusTable td:nth-child(2) {
+    width: 23%; /* Success */
+}
+#paymentsStatusTable th:nth-child(3),
+#paymentsStatusTable td:nth-child(3) {
+    width: 23%; /* Pending */
+}
+#paymentsStatusTable th:nth-child(4),
+#paymentsStatusTable td:nth-child(4) {
+    width: 23%; /* Failed */
+}
+
