@@ -285,7 +285,7 @@
                             </div>
 
                             <!-- Row 1: KPI Cards (6 Cards) -->
-                            <div class="row g-2 mb-2">
+                            <div class="row g-1 mb-1">
                                 <!-- 1. Month Disbursement -->
                                 <div class="col-lg col-md-3 col-sm-6">
                                     <div class="card kpi-card shadow-sm h-100"
@@ -407,7 +407,7 @@
 
 
                             <!-- Row 2: Charts (Disbursements, DPD Status, and Daily Disbursements) -->
-                            <div class="row g-2 mb-2">
+                            <div class="row g-1 mb-1">
                                 <!-- Left: Month-Wise Disbursements (1/3 width) -->
                                 <div class="col-lg-4 col-12">
                                     <div class="card shadow-sm h-100">
@@ -453,7 +453,7 @@
 
 
                             <!-- Row 3: Risk & Performance Charts (All 5 cards side-by-side, vertical content orientation) -->
-                            <div class="row g-2 mb-2" style="margin-top: 4px;">
+                            <div class="row g-1 mb-1" style="margin-top: 2px;">
                                 <!-- Card 1: Mobile Arrears: Lock vs Unlock -->
                                 <div class="col-lg-2 col-md-4 col-sm-6 col-12" id="mobile-lock-arrears-card">
                                     <div class="card glass-card h-100">

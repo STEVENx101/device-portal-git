@@ -291,15 +291,15 @@ table.dataTable thead th {
 /* Set specific column widths for Transaction Channels */
 #transactionChannelTable th:nth-child(1),
 #transactionChannelTable td:nth-child(1) {
-    width: 45%; /* Channel name */
+    width: 28%; /* Channel name */
 }
 #transactionChannelTable th:nth-child(2),
 #transactionChannelTable td:nth-child(2) {
-    width: 20%; /* PaymentsCount */
+    width: 32%; /* PaymentsCount */
 }
 #transactionChannelTable th:nth-child(3),
 #transactionChannelTable td:nth-child(3) {
-    width: 35%; /* Amount */
+    width: 40%; /* Amount */
 }
 
 /* Set specific column widths for Payments Status-Wise */
