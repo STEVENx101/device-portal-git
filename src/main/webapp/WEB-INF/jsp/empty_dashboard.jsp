@@ -1113,62 +1113,56 @@
                                 }
                             });
 
-                            destroyChart('maturedNpChart');
-                            const ctx = document.getElementById('maturedNpChart').getContext('2d');
-                            activeCharts['maturedNpChart'] = new Chart(ctx, {
-                                type: 'bar',
-                                data: {
-                                    labels: ['Mat Perf', 'Mat NP', 'Non-Mat Perf', 'Non-Mat NP'],
-                                    datasets: [
-                                        {
-                                            data: [maturedPerf, maturedNp, nonMaturedPerf, nonMaturedNp],
-                                            backgroundColor: [
-                                                'rgba(16, 185, 129, 0.85)',
-                                                'rgba(239, 68, 68, 0.85)',
-                                                'rgba(16, 185, 129, 0.85)',
-                                                'rgba(239, 68, 68, 0.85)'
-                                            ],
-                                            borderWidth: 0,
-                                            borderRadius: 4,
-                                            barThickness: 28
-                                        }
-                                    ]
-                                },
-                                options: {
-                                    responsive: true,
-                                    maintainAspectRatio: false,
-                                    plugins: {
-                                        legend: {
-                                            display: false
-                                        },
-                                        tooltip: { enabled: true },
-                                        datalabels: {
-                                            display: true,
-                                            anchor: 'end',
-                                            align: 'top',
-                                            color: isDark ? '#cbd5e1' : '#1e293b',
-                                            font: { weight: 'bold', size: 8 },
-                                            formatter: (val) => val > 0 ? formatNum(val) : '',
-                                            overflow: 'allow',
-                                            clip: false
-                                        }
-                                    },
-                                    scales: {
-                                        x: {
-                                            grid: { display: false },
-                                            ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 7, weight: 'bold' } }
-                                        },
-                                        y: {
-                                            display: false,
-                                            grid: { display: false }
-                                        }
-                                    }
-                                }
-                            });
-                        })
-                        .catch(err => console.error("Error loading matured contract performance analysis:", err));
-                }
+                            destroyChart('maturedChart');
+                            destroyChart('nonMaturedChart');
 
+                            const buildPie = (canvasId, dataVal, labelText) => {
+                                const ctx = document.getElementById(canvasId).getContext('2d');
+                                activeCharts[canvasId] = new Chart(ctx, {
+                                    type: 'doughnut',
+                                    data: {
+                                        labels: ['Perf', 'NP'],
+                                        datasets: [{
+                                            data: dataVal,
+                                            backgroundColor: ['rgba(16, 185, 129, 0.85)', 'rgba(239, 68, 68, 0.85)'],
+                                            borderWidth: 1,
+                                            borderColor: isDark ? '#1e293b' : '#ffffff'
+                                        }]
+                                    },
+                                    options: {
+                                        responsive: true,
+                                        maintainAspectRatio: false,
+                                        plugins: {
+                                            legend: { display: false },
+                                            tooltip: { enabled: true },
+                                            datalabels: { display: false }
+                                        },
+                                        cutout: '65%'
+                                    },
+                                    plugins: [{
+                                        id: 'centerText',
+                                        beforeDraw: function (chart) {
+                                            const width = chart.width, height = chart.height, ctx = chart.ctx;
+                                            ctx.restore();
+                                            const total = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                            ctx.font = "bold 0.85em 'Plus Jakarta Sans', sans-serif";
+                                            ctx.textBaseline = "middle";
+                                            ctx.fillStyle = isDark ? "#f8fafc" : "#1e293b";
+                                            const text = total.toLocaleString(),
+                                                textX = Math.round((width - ctx.measureText(text).width) / 2),
+                                                textY = chart.chartArea.top + (chart.chartArea.bottom - chart.chartArea.top) / 2;
+                                            ctx.fillText(text, textX, textY);
+                                            ctx.save();
+                                        }
+                                    }]
+                                });
+                            };
+
+                            buildPie('maturedChart', [maturedPerf, maturedNp], 'Matured');
+                            buildPie('nonMaturedChart', [nonMaturedPerf, nonMaturedNp], 'Non-Matured');
+                        })
+                        .catch(err => console.error("Error loading matured vs non-matured analysis:", err));
+                }
 
                 function loadPaymentsStatusChart() {
                     const productParam = selectedProduct ? '?product=' + encodeURIComponent(selectedProduct) : '';
