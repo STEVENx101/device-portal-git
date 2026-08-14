@@ -284,113 +284,126 @@
                                 </div>
                             </div>
 
-                             <!-- Row 1: KPI Cards (6 Cards) -->
-                             <div class="row g-2 mb-2">
-                                 <!-- 1. Month Disbursement -->
-                                  <div class="col-lg col-md-3 col-sm-6">
-                                      <div class="card kpi-card shadow-sm h-100"
-                                          style="border-left: 3px solid #6366f1 !important; cursor: pointer; transition: all 0.2s ease-in-out;">
-                                          <div class="card-body p-2 d-flex flex-column justify-content-between">
-                                              <div>
-                                                  <span class="card-title-sub text-muted">MONTH DISBURSEMENT</span>
-                                                  <div class="card-value text-primary" id="kpi-month-amount">0.00 Mn</div>
-                                                  <div class="card-detail-text text-muted" id="kpi-month-count">0 Accounts</div>
-                                              </div>
-                                          </div>
-                                      </div>
-                                  </div>
-                                  <!-- YTD Business KPI Card -->
-                                  <div class="col-lg col-md-3 col-sm-6">
-                                      <div class="card kpi-card shadow-sm h-100"
-                                          style="border-left: 3px solid #3b82f6 !important; cursor: pointer; transition: all 0.2s ease-in-out;">
-                                          <div class="card-body p-2 d-flex flex-column justify-content-between">
-                                              <div>
-                                                  <span class="card-title-sub text-muted">YTD BUSINESS</span>
-                                                  <div class="card-value text-info" id="kpi-ytd-amount">0.00 Mn</div>
-                                                  <div class="card-detail-text text-muted" id="kpi-ytd-count">0 Accounts</div>
-                                              </div>
-                                          </div>
-                                      </div>
-                                  </div>
-                                  <!-- Overall Business KPI Card -->
-                                  <div class="col-lg col-md-3 col-sm-6">
-                                      <div class="card kpi-card shadow-sm h-100"
-                                          style="border-left: 3px solid #8b5cf6 !important; cursor: pointer; transition: all 0.2s ease-in-out;">
-                                          <div class="card-body p-2 d-flex flex-column justify-content-between">
-                                              <div>
-                                                  <span class="card-title-sub text-muted">OVERALL BUSINESS</span>
-                                                  <div class="card-value text-secondary" id="kpi-overall-amount">0.00 Mn</div>
-                                                  <div class="card-detail-text text-muted" id="kpi-overall-count">0 Accounts</div>
-                                              </div>
-                                          </div>
-                                      </div>
-                                  </div>
-                                  <!-- 2. Active Portfolio -->
-                                  <div class="col-lg col-md-3 col-sm-6">
-                                      <div class="card kpi-card shadow-sm h-100"
-                                          style="border-left: 3px solid #10b981 !important; cursor: pointer; transition: all 0.2s ease-in-out;">
-                                          <div class="card-body p-2 d-flex flex-column justify-content-between">
-                                              <div>
-                                                  <span class="card-title-sub text-muted">ACTIVE PORTFOLIO</span>
-                                                  <div class="card-value text-success" id="kpi-portfolio-amount">0.00 Mn</div>
-                                                  <div class="card-detail-text text-muted" id="kpi-portfolio-count">0 Accounts</div>
-                                              </div>
-                                          </div>
-                                      </div>
-                                  </div>
-                                  <!-- 3. DPD 0 Portfolio -->
-                                  <div class="col-lg col-md-3 col-sm-6">
-                                      <div class="card kpi-card shadow-sm h-100"
-                                          style="border-left: 3px solid #2563eb !important; cursor: pointer; transition: all 0.2s ease-in-out;">
-                                          <div class="card-body p-2 d-flex flex-column justify-content-between">
-                                              <div>
-                                                  <span class="card-title-sub text-muted">DPD 0 PORTFOLIO</span>
-                                                  <div class="card-value text-primary" id="kpi-dpd-zero-amount">0.00 Mn</div>
-                                                  <div class="card-detail-text text-muted" id="kpi-dpd-zero-count">0 Accounts</div>
-                                              </div>
-                                          </div>
-                                      </div>
-                                  </div>
-                                  <!-- 4. Arrears Portfolio (was DPD Arrears) -->
-                                  <div class="col-lg col-md-3 col-sm-6">
-                                      <div class="card kpi-card shadow-sm h-100"
-                                          style="border-left: 3px solid #dc2626 !important; cursor: pointer; transition: all 0.2s ease-in-out;">
-                                          <div class="card-body p-2 d-flex flex-column justify-content-between">
-                                              <div>
-                                                  <span class="card-title-sub text-muted">Arrears Portfolio</span>
-                                                  <div class="card-value text-danger" id="kpi-perf-arrears-amount">0.00 Mn</div>
-                                                  <div class="card-detail-text text-muted" id="kpi-perf-arrears-count">0 Accounts</div>
-                                              </div>
-                                          </div>
-                                      </div>
-                                  </div>
-                                  <!-- 5. NPL Exposure -->
-                                  <div class="col-lg col-md-3 col-sm-6">
-                                      <div class="card kpi-card shadow-sm h-100"
-                                          style="border-left: 3px solid #ef4444 !important; cursor: pointer; transition: all 0.2s ease-in-out;">
-                                          <div class="card-body p-2 d-flex flex-column justify-content-between">
-                                              <div>
-                                                  <span class="card-title-sub text-muted">NPL PORTFOLIO</span>
-                                                  <div class="card-value text-danger" id="kpi-npl-exposure">0.00 Mn</div>
-                                                  <div class="card-detail-text text-muted" id="kpi-npl-count">0 Accounts</div>
-                                              </div>
-                                          </div>
-                                      </div>
-                                  </div>
-                                  <!-- 6. Settled Month -->
-                                  <div class="col-lg col-md-3 col-sm-6">
-                                      <div class="card kpi-card shadow-sm h-100"
-                                          style="border-left: 3px solid #f59e0b !important; cursor: pointer; transition: all 0.2s ease-in-out;">
-                                          <div class="card-body p-2 d-flex flex-column justify-content-between">
-                                              <div>
-                                                  <span class="card-title-sub text-muted">SETTLED MONTH</span>
-                                                  <div class="card-value text-warning" id="kpi-settled-amount">0.00 Mn</div>
-                                                  <div class="card-detail-text text-muted" id="kpi-settled-count">0 Accounts</div>
-                                              </div>
-                                          </div>
-                                      </div>
-                                  </div>
-                             </div>
+                            <!-- Row 1: KPI Cards (6 Cards) -->
+                            <div class="row g-2 mb-2">
+                                <!-- 1. Month Disbursement -->
+                                <div class="col-lg col-md-3 col-sm-6">
+                                    <div class="card kpi-card shadow-sm h-100"
+                                        style="border-left: 3px solid #6366f1 !important; cursor: pointer; transition: all 0.2s ease-in-out;">
+                                        <div class="card-body p-2 d-flex flex-column justify-content-between">
+                                            <div>
+                                                <span class="card-title-sub text-muted">MONTH DISBURSEMENT</span>
+                                                <div class="card-value text-primary" id="kpi-month-amount">0.00 Mn</div>
+                                                <div class="card-detail-text text-muted" id="kpi-month-count">0 Accounts
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- YTD Business KPI Card -->
+                                <div class="col-lg col-md-3 col-sm-6">
+                                    <div class="card kpi-card shadow-sm h-100"
+                                        style="border-left: 3px solid #3b82f6 !important; cursor: pointer; transition: all 0.2s ease-in-out;">
+                                        <div class="card-body p-2 d-flex flex-column justify-content-between">
+                                            <div>
+                                                <span class="card-title-sub text-muted">YTD BUSINESS</span>
+                                                <div class="card-value text-info" id="kpi-ytd-amount">0.00 Mn</div>
+                                                <div class="card-detail-text text-muted" id="kpi-ytd-count">0 Accounts
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Overall Business KPI Card -->
+                                <div class="col-lg col-md-3 col-sm-6">
+                                    <div class="card kpi-card shadow-sm h-100"
+                                        style="border-left: 3px solid #8b5cf6 !important; cursor: pointer; transition: all 0.2s ease-in-out;">
+                                        <div class="card-body p-2 d-flex flex-column justify-content-between">
+                                            <div>
+                                                <span class="card-title-sub text-muted">OVERALL BUSINESS</span>
+                                                <div class="card-value text-secondary" id="kpi-overall-amount">0.00 Mn
+                                                </div>
+                                                <div class="card-detail-text text-muted" id="kpi-overall-count">0
+                                                    Accounts</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- 2. Active Portfolio -->
+                                <div class="col-lg col-md-3 col-sm-6">
+                                    <div class="card kpi-card shadow-sm h-100"
+                                        style="border-left: 3px solid #10b981 !important; cursor: pointer; transition: all 0.2s ease-in-out;">
+                                        <div class="card-body p-2 d-flex flex-column justify-content-between">
+                                            <div>
+                                                <span class="card-title-sub text-muted">ACTIVE PORTFOLIO</span>
+                                                <div class="card-value text-success" id="kpi-portfolio-amount">0.00 Mn
+                                                </div>
+                                                <div class="card-detail-text text-muted" id="kpi-portfolio-count">0
+                                                    Accounts</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- 3. DPD 0 Portfolio -->
+                                <div class="col-lg col-md-3 col-sm-6">
+                                    <div class="card kpi-card shadow-sm h-100"
+                                        style="border-left: 3px solid #2563eb !important; cursor: pointer; transition: all 0.2s ease-in-out;">
+                                        <div class="card-body p-2 d-flex flex-column justify-content-between">
+                                            <div>
+                                                <span class="card-title-sub text-muted">DPD 0 PORTFOLIO</span>
+                                                <div class="card-value text-primary" id="kpi-dpd-zero-amount">0.00 Mn
+                                                </div>
+                                                <div class="card-detail-text text-muted" id="kpi-dpd-zero-count">0
+                                                    Accounts</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- 4. Arrears Portfolio (was DPD Arrears) -->
+                                <div class="col-lg col-md-3 col-sm-6">
+                                    <div class="card kpi-card shadow-sm h-100"
+                                        style="border-left: 3px solid #dc2626 !important; cursor: pointer; transition: all 0.2s ease-in-out;">
+                                        <div class="card-body p-2 d-flex flex-column justify-content-between">
+                                            <div>
+                                                <span class="card-title-sub text-muted">Arrears Portfolio</span>
+                                                <div class="card-value text-danger" id="kpi-perf-arrears-amount">0.00 Mn
+                                                </div>
+                                                <div class="card-detail-text text-muted" id="kpi-perf-arrears-count">0
+                                                    Accounts</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- 5. NPL Exposure -->
+                                <div class="col-lg col-md-3 col-sm-6">
+                                    <div class="card kpi-card shadow-sm h-100"
+                                        style="border-left: 3px solid #ef4444 !important; cursor: pointer; transition: all 0.2s ease-in-out;">
+                                        <div class="card-body p-2 d-flex flex-column justify-content-between">
+                                            <div>
+                                                <span class="card-title-sub text-muted">NPL PORTFOLIO</span>
+                                                <div class="card-value text-danger" id="kpi-npl-exposure">0.00 Mn</div>
+                                                <div class="card-detail-text text-muted" id="kpi-npl-count">0 Accounts
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- 6. Settled Month -->
+                                <div class="col-lg col-md-3 col-sm-6">
+                                    <div class="card kpi-card shadow-sm h-100"
+                                        style="border-left: 3px solid #f59e0b !important; cursor: pointer; transition: all 0.2s ease-in-out;">
+                                        <div class="card-body p-2 d-flex flex-column justify-content-between">
+                                            <div>
+                                                <span class="card-title-sub text-muted">SETTLED MONTH</span>
+                                                <div class="card-value text-warning" id="kpi-settled-amount">0.00 Mn
+                                                </div>
+                                                <div class="card-detail-text text-muted" id="kpi-settled-count">0
+                                                    Accounts</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
 
 
                             <!-- Row 2: Charts (Disbursements, DPD Status, and Daily Disbursements) -->
@@ -455,56 +468,65 @@
                                 </div>
 
                                 <!-- Card 2: Transaction Channels -->
-                                 <div class="col-lg-3 col-md-4 col-sm-6 col-12" id="transaction-channels-card">
-                                     <div class="card glass-card h-100">
-                                         <div class="card-body p-2">
-                                             <div class="fs--2 fw-semi-bold text-muted mb-2 text-truncate"><i
-                                                     class="fas fa-list me-1"></i>Transaction Channels</div>
-                                             <div style="height: 260px; position: relative; width: 100%; overflow-y: auto;">
-                                                 <table class="table table-sm table-striped fs--2 mb-0" id="transactionChannelTable" style="font-size: 0.72rem;">
-                                                     <thead class="bg-200">
-                                                         <tr>
-                                                             <th>Channel</th>
-                                                             <th class="text-end">Payments</th>
-                                                             <th class="text-end">Amount</th>
-                                                         </tr>
-                                                     </thead>
-                                                     <tbody id="transactionChannelTableBody">
-                                                         <tr><td colspan="3" class="text-center text-muted">Loading...</td></tr>
-                                                     </tbody>
-                                                 </table>
-                                             </div>
-                                         </div>
-                                     </div>
-                                 </div>
+                                <div class="col-lg-3 col-md-4 col-sm-6 col-12" id="transaction-channels-card">
+                                    <div class="card glass-card h-100">
+                                        <div class="card-body p-2">
+                                            <div class="fs--2 fw-semi-bold text-muted mb-2 text-truncate"><i
+                                                    class="fas fa-list me-1"></i>Transaction Channels</div>
+                                            <div
+                                                style="height: 260px; position: relative; width: 100%; overflow-y: auto;">
+                                                <table class="table table-sm table-striped fs--2 mb-0"
+                                                    id="transactionChannelTable" style="font-size: 0.72rem;">
+                                                    <thead class="bg-200">
+                                                        <tr>
+                                                            <th>Channel</th>
+                                                            <th class="text-end">Payments</th>
+                                                            <th class="text-end">Amount</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="transactionChannelTableBody">
+                                                        <tr>
+                                                            <td colspan="3" class="text-center text-muted">Loading...
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
 
-                                 <!-- Card 3: Matured vs Non-Matured -->
-                                 <div class="col-lg-2 col-md-4 col-sm-6 col-12" id="matured-np-card">
-                                     <div class="card glass-card h-100">
-                                         <div class="card-body p-2 d-flex flex-column justify-content-between">
-                                             <div>
-                                                 <div class="fs--2 fw-semi-bold text-muted mb-2 text-truncate"><i
-                                                         class="fas fa-history me-1"></i>Matured vs Non-Matured</div>
-                                                 <div class="row g-1 align-items-center text-center">
-                                                     <div class="col-12 mb-2">
-                                                         <div class="fw-semi-bold text-muted" style="font-size: 0.55rem; margin-bottom: 2px;">Matured</div>
-                                                         <div style="height: 100px; position: relative; width: 100%;">
-                                                             <canvas id="maturedChart"></canvas>
-                                                         </div>
-                                                     </div>
-                                                     <div class="col-12">
-                                                         <div class="fw-semi-bold text-muted" style="font-size: 0.55rem; margin-bottom: 2px;">Non-Matured</div>
-                                                         <div style="height: 100px; position: relative; width: 100%;">
-                                                             <canvas id="nonMaturedChart"></canvas>
-                                                         </div>
-                                                     </div>
-                                                 </div>
-                                             </div>
-                                         </div>
-                                     </div>
-                                 </div>
+                                <!-- Card 3: Matured vs Non-Matured -->
+                                <div class="col-lg-2 col-md-4 col-sm-6 col-12" id="matured-np-card">
+                                    <div class="card glass-card h-100">
+                                        <div class="card-body p-2 d-flex flex-column justify-content-between">
+                                            <div>
+                                                <div class="fs--2 fw-semi-bold text-muted mb-2 text-truncate"><i
+                                                        class="fas fa-history me-1"></i>Matured vs Non-Matured</div>
+                                                <div class="row g-1 align-items-center text-center">
+                                                    <div class="col-12 mb-2">
+                                                        <div class="fw-semi-bold text-muted"
+                                                            style="font-size: 0.55rem; margin-bottom: 2px;">Matured
+                                                        </div>
+                                                        <div style="height: 100px; position: relative; width: 100%;">
+                                                            <canvas id="maturedChart"></canvas>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <div class="fw-semi-bold text-muted"
+                                                            style="font-size: 0.55rem; margin-bottom: 2px;">Non-Matured
+                                                        </div>
+                                                        <div style="height: 100px; position: relative; width: 100%;">
+                                                            <canvas id="nonMaturedChart"></canvas>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
 
-                                 <!-- Card 4: Device Security Status (Stacked vertically inside) -->
+                                <!-- Card 4: Device Security Status (Stacked vertically inside) -->
                                 <div class="col-lg-2 col-md-4 col-sm-6 col-12" id="device-security-status-card">
                                     <div class="card glass-card h-100">
                                         <div class="card-body p-2 d-flex flex-column justify-content-between">
@@ -556,729 +578,734 @@
                                 </div>
 
                                 <!-- Card 5: Payments Status-Wise -->
-                                 <div class="col-lg-3 col-md-4 col-sm-6 col-12" id="payments-status-wise-card">
-                                     <div class="card glass-card h-100">
-                                         <div class="card-body p-2 d-flex flex-column justify-content-between">
-                                             <div>
-                                                 <div class="d-flex justify-content-between align-items-center mb-2">
-                                                     <div class="fs--2 fw-semi-bold text-muted"><i
-                                                             class="fas fa-hand-holding-usd me-1"></i>Payments
-                                                         Status-Wise</div>
-                                                 </div>
-                                                 <div style="height: 260px; position: relative; width: 100%; overflow-y: auto;">
-                                                     <table class="table table-sm table-striped fs--2 mb-0" id="paymentsStatusTable" style="font-size: 0.72rem;">
-                                                         <thead class="bg-200">
-                                                             <tr>
-                                                                 <th>Month</th>
-                                                                 <th class="text-end">Success</th>
-                                                                 <th class="text-end">Pending</th>
-                                                                 <th class="text-end">Failed</th>
-                                                             </tr>
-                                                         </thead>
-                                                         <tbody id="paymentsStatusTableBody">
-                                                             <tr><td colspan="4" class="text-center text-muted">Loading...</td></tr>
-                                                         </tbody>
-                                                     </table>
-                                                 </div>
-                                             </div>
-                                         </div>
-                                     </div>
-                                 </div>
-                             </div>
-                         </div>
-                     </div>
-                 </div>
-             </div>
-         </div>
-         <!-- ======================== SCRIPTS ======================== -->
-                            <script>
-                                // Global chart instances to allow clean redrawing without hover issues
-                                const activeCharts = {};
-                                let selectedProduct = 'MF';
+                                <div class="col-lg-3 col-md-4 col-sm-6 col-12" id="payments-status-wise-card">
+                                    <div class="card glass-card h-100">
+                                        <div class="card-body p-2 d-flex flex-column justify-content-between">
+                                            <div>
+                                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                                    <div class="fs--2 fw-semi-bold text-muted"><i
+                                                            class="fas fa-hand-holding-usd me-1"></i>Payments
+                                                        Status-Wise</div>
+                                                </div>
+                                                <div
+                                                    style="height: 260px; position: relative; width: 100%; overflow-y: auto;">
+                                                    <table class="table table-sm table-striped fs--2 mb-0"
+                                                        id="paymentsStatusTable" style="font-size: 0.72rem;">
+                                                        <thead class="bg-200">
+                                                            <tr>
+                                                                <th>Month</th>
+                                                                <th class="text-end">Success</th>
+                                                                <th class="text-end">Pending</th>
+                                                                <th class="text-end">Failed</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="paymentsStatusTableBody">
+                                                            <tr>
+                                                                <td colspan="4" class="text-center text-muted">
+                                                                    Loading...</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                    </div>
+            </div>
+            </div>
+            </div>
+            </div>
+            <!-- ======================== SCRIPTS ======================== -->
+            <script>
+                // Global chart instances to allow clean redrawing without hover issues
+                const activeCharts = {};
+                let selectedProduct = 'MF';
 
-                                const formatLKR = (val) => {
-                                    const millions = val / 1000000;
-                                    return new Intl.NumberFormat('en-US', {
-                                        minimumFractionDigits: 2,
-                                        maximumFractionDigits: 2
-                                    }).format(millions) + " Mn";
-                                };
+                const formatLKR = (val) => {
+                    const millions = val / 1000000;
+                    return new Intl.NumberFormat('en-US', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }).format(millions) + " Mn";
+                };
 
-                                const formatNum = (val) => {
-                                    return new Intl.NumberFormat().format(val);
-                                };
+                const formatNum = (val) => {
+                    return new Intl.NumberFormat().format(val);
+                };
 
-                                // Helper: build horizontal bar chart with direct data labels
-                                function buildHorizontalBar(canvasId, labels, amounts, gradientStart, gradientEnd, borderColor, isCollected) {
-                                    destroyChart(canvasId);
-                                    const ctx = document.getElementById(canvasId).getContext('2d');
-                                    activeCharts[canvasId] = new Chart(ctx, {
-                                        type: 'bar',
-                                        data: {
-                                            labels: labels,
-                                            datasets: [{
-                                                data: amounts,
-                                                backgroundColor: function (context) {
-                                                    const index = context.dataIndex;
-                                                    const count = context.dataset.data.length;
-                                                    const isCurrent = (index === count - 1);
-                                                    
-                                                    const chart = context.chart;
-                                                    const { ctx: canvasCtx, chartArea } = chart;
-                                                    if (!chartArea) return isCurrent ? 'rgba(16, 185, 129, 0.85)' : 'rgba(99, 102, 241, 0.85)';
-                                                    const gradient = canvasCtx.createLinearGradient(chartArea.left, 0, chartArea.right, 0);
-                                                    if (isCurrent) {
-                                                        gradient.addColorStop(0, 'rgba(16, 185, 129, 0.15)');
-                                                        gradient.addColorStop(1, 'rgba(16, 185, 129, 0.85)');
-                                                    } else {
-                                                        gradient.addColorStop(0, 'rgba(99, 102, 241, 0.15)');
-                                                        gradient.addColorStop(1, 'rgba(99, 102, 241, 0.85)');
-                                                    }
-                                                    return gradient;
-                                                },
-                                                borderColor: function (context) {
-                                                    const index = context.dataIndex;
-                                                    const count = context.dataset.data.length;
-                                                    return (index === count - 1) ? '#10b981' : '#6366f1';
-                                                },
-                                                borderWidth: 1.5,
-                                                borderRadius: { topRight: 4, bottomRight: 4, topLeft: 0, bottomLeft: 0 },
-                                                barThickness: 12
-                                            }]
-                                        },
-                                        options: {
-                                            indexAxis: 'y',
-                                            responsive: true,
-                                            maintainAspectRatio: false,
-                                            layout: {
-                                                padding: { right: 40 }
-                                            },
-                                            plugins: {
-                                                legend: { display: false },
-                                                tooltip: { enabled: true },
-                                                datalabels: {
-                                                    display: true,
-                                                    anchor: 'end',
-                                                    align: 'end',
-                                                    color: isDark ? '#cbd5e1' : '#1e293b',
-                                                    font: { weight: 'bold', size: 9 },
-                                                    formatter: (val) => formatLKR(val)
-                                                }
-                                            },
-                                            scales: {
-                                                x: {
-                                                    grid: { display: false },
-                                                    ticks: { display: false }
-                                                },
-                                                y: {
-                                                    grid: { display: false },
-                                                    ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 9, weight: 'bold' } }
-                                                }
-                                            }
+                // Helper: build horizontal bar chart with direct data labels
+                function buildHorizontalBar(canvasId, labels, amounts, gradientStart, gradientEnd, borderColor, isCollected) {
+                    destroyChart(canvasId);
+                    const ctx = document.getElementById(canvasId).getContext('2d');
+                    activeCharts[canvasId] = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                data: amounts,
+                                backgroundColor: function (context) {
+                                    const index = context.dataIndex;
+                                    const count = context.dataset.data.length;
+                                    const isCurrent = (index === count - 1);
+
+                                    const chart = context.chart;
+                                    const { ctx: canvasCtx, chartArea } = chart;
+                                    if (!chartArea) return isCurrent ? 'rgba(16, 185, 129, 0.85)' : 'rgba(99, 102, 241, 0.85)';
+                                    const gradient = canvasCtx.createLinearGradient(chartArea.left, 0, chartArea.right, 0);
+                                    if (isCurrent) {
+                                        gradient.addColorStop(0, 'rgba(16, 185, 129, 0.15)');
+                                        gradient.addColorStop(1, 'rgba(16, 185, 129, 0.85)');
+                                    } else {
+                                        gradient.addColorStop(0, 'rgba(99, 102, 241, 0.15)');
+                                        gradient.addColorStop(1, 'rgba(99, 102, 241, 0.85)');
+                                    }
+                                    return gradient;
+                                },
+                                borderColor: function (context) {
+                                    const index = context.dataIndex;
+                                    const count = context.dataset.data.length;
+                                    return (index === count - 1) ? '#10b981' : '#6366f1';
+                                },
+                                borderWidth: 1.5,
+                                borderRadius: { topRight: 4, bottomRight: 4, topLeft: 0, bottomLeft: 0 },
+                                barThickness: 12
+                            }]
+                        },
+                        options: {
+                            indexAxis: 'y',
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            layout: {
+                                padding: { right: 40 }
+                            },
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: { enabled: true },
+                                datalabels: {
+                                    display: true,
+                                    anchor: 'end',
+                                    align: 'end',
+                                    color: isDark ? '#cbd5e1' : '#1e293b',
+                                    font: { weight: 'bold', size: 9 },
+                                    formatter: (val) => formatLKR(val)
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    grid: { display: false },
+                                    ticks: { display: false }
+                                },
+                                y: {
+                                    grid: { display: false },
+                                    ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 9, weight: 'bold' } }
+                                }
+                            }
+                        }
+                    });
+                }
+
+                function onProductChange() {
+                    selectedProduct = document.getElementById('productFilterSelect').value;
+                    loadDashboardData();
+                }
+
+                function destroyChart(canvasId) {
+                    if (activeCharts[canvasId]) {
+                        activeCharts[canvasId].destroy();
+                        delete activeCharts[canvasId];
+                    }
+                }
+
+                const drawSparkline = (canvasId, dataPoints, strokeColor, fillColor) => {
+                    destroyChart(canvasId);
+                    const ctx = document.getElementById(canvasId).getContext('2d');
+
+                    let gradient = null;
+                    if (fillColor) {
+                        gradient = ctx.createLinearGradient(0, 0, 0, 30);
+                        gradient.addColorStop(0, fillColor);
+                        gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+                    }
+
+                    activeCharts[canvasId] = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: dataPoints.map((_, i) => i),
+                            datasets: [{
+                                data: dataPoints,
+                                borderColor: strokeColor,
+                                borderWidth: 1.5,
+                                fill: !!gradient,
+                                backgroundColor: gradient,
+                                tension: 0.4,
+                                pointRadius: 0,
+                                pointHoverRadius: 2
+                            }]
+                        },
+                        options: {
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: { enabled: false },
+                                datalabels: { display: false }
+                            },
+                            scales: {
+                                x: { display: false },
+                                y: { display: false }
+                            },
+                            maintainAspectRatio: false,
+                            responsive: true
+                        }
+                    });
+                };
+
+                function checkSyncStatus() {
+                    fetch('${pageContext.request.contextPath}/api/dashboard/sync-info')
+                        .then(res => res.json())
+                        .then(data => {
+                            document.getElementById("last-sync-timestamp").innerText = data.lastSynced || 'N/A';
+                            const btn = document.getElementById("btn-sync-now");
+                            const icon = document.getElementById("sync-icon");
+                            const text = document.getElementById("sync-btn-text");
+
+                            if (data.isSyncing) {
+                                btn.disabled = true;
+                                btn.classList.remove('btn-primary');
+                                btn.classList.add('btn-secondary');
+                                icon.classList.add('fa-spin');
+                                text.innerText = "Syncing...";
+                                // Poll status again in 3 seconds
+                                setTimeout(checkSyncStatus, 3000);
+                            } else {
+                                if (btn.disabled) {
+                                    btn.disabled = false;
+                                    btn.classList.remove('btn-secondary');
+                                    btn.classList.add('btn-primary');
+                                    icon.classList.remove('fa-spin');
+                                    text.innerText = "Sync Now";
+                                    loadDashboardData();
+                                }
+                            }
+                        })
+                        .catch(err => console.error("Error fetching sync status:", err));
+                }
+
+                function triggerManualSync() {
+                    const btn = document.getElementById("btn-sync-now");
+                    const icon = document.getElementById("sync-icon");
+                    const text = document.getElementById("sync-btn-text");
+
+                    btn.disabled = true;
+                    btn.classList.remove('btn-primary');
+                    btn.classList.add('btn-secondary');
+                    icon.classList.add('fa-spin');
+                    text.innerText = "Syncing...";
+
+                    fetch('${pageContext.request.contextPath}/api/dashboard/sync-now', {
+                        method: 'POST'
+                    })
+                        .then(res => res.json())
+                        .then(data => {
+                            // Wait 2 seconds and check status
+                            setTimeout(checkSyncStatus, 2000);
+                        })
+                        .catch(err => {
+                            console.error("Error triggering manual sync:", err);
+                            btn.disabled = false;
+                            btn.classList.remove('btn-secondary');
+                            btn.classList.add('btn-primary');
+                            icon.classList.remove('fa-spin');
+                            text.innerText = "Sync Now";
+                        });
+                }
+
+                function loadDashboardData() {
+                    const productParam = selectedProduct ? '?product=' + encodeURIComponent(selectedProduct) : '';
+
+                    // ============ 1. Dashboard Stats (KPI Cards) ============
+                    fetch('${pageContext.request.contextPath}/api/dashboard/stats' + productParam)
+                        .then(response => {
+                            if (!response.ok) throw new Error("HTTP error " + response.status);
+                            return response.json();
+                        })
+                        .then(data => {
+                            // Primary KPIs
+                            document.getElementById("kpi-month-count").innerText = formatNum(data.nMonthCount || 0) + " Accounts";
+                            document.getElementById("kpi-month-amount").innerText = formatLKR(data.nMonthAmount || 0);
+
+                            document.getElementById("kpi-portfolio-amount").innerText = formatLKR(data.nPortfolioAmount || 0);
+                            document.getElementById("kpi-portfolio-count").innerText = formatNum(data.nPortfolioCount || 0) + " Accounts";
+
+                            document.getElementById("kpi-npl-exposure").innerText = formatLKR(data.nNplExposure || 0);
+                            document.getElementById("kpi-npl-count").innerText = formatNum(data.nNplCount || 0) + " Accounts";
+
+                            document.getElementById("kpi-settled-amount").innerText = formatLKR(data.settledAmount || 0);
+                            document.getElementById("kpi-settled-count").innerText = formatNum(data.settledCount || 0) + " Accounts";
+
+                            document.getElementById("kpi-perf-arrears-amount").innerText = formatLKR(data.perfArrearsAmount || 0);
+                            document.getElementById("kpi-perf-arrears-count").innerText = formatNum(data.perfArrearsCount || 0) + " Accounts";
+
+                            document.getElementById("kpi-dpd-zero-amount").innerText = formatLKR(data.dpdZeroPortfolioAmount || 0);
+                            document.getElementById("kpi-dpd-zero-count").innerText = formatNum(data.dpdZeroPortfolioCount || 0) + " Accounts";
+
+                            // YTD & Overall Business
+                            document.getElementById("kpi-ytd-amount").innerText = formatLKR(data.nYtdAmount || 0);
+                            document.getElementById("kpi-ytd-count").innerText = formatNum(data.nYtdCount || 0) + " Accounts";
+                            document.getElementById("kpi-overall-amount").innerText = formatLKR(data.nOverallAmount || 0);
+                            document.getElementById("kpi-overall-count").innerText = formatNum(data.nOverallCount || 0) + " Accounts";
+
+                            // YTD & Overall Business
+                            document.getElementById("kpi-ytd-amount").innerText = formatLKR(data.nYtdAmount || 0);
+                            document.getElementById("kpi-ytd-count").innerText = formatNum(data.nYtdCount || 0) + " Accounts";
+                            document.getElementById("kpi-overall-amount").innerText = formatLKR(data.nOverallAmount || 0);
+                            document.getElementById("kpi-overall-count").innerText = formatNum(data.nOverallCount || 0) + " Accounts";
+                        })
+                        .catch(err => console.error("Error fetching dashboard statistics:", err));
+
+                    // ============ 2. Month Wise Business Chart ============
+                    fetch('${pageContext.request.contextPath}/api/dashboard/business-chart' + productParam)
+                        .then(res => res.json())
+                        .then(data => {
+                            const labels = data.map(i => i.month_name);
+                            const amounts = data.map(i => i.business_amount || 0);
+
+                            buildHorizontalBar(
+                                'businessChart',
+                                labels,
+                                amounts,
+                                'rgba(16, 185, 129, 0.15)',
+                                'rgba(16, 185, 129, 0.85)',
+                                '#10b981',
+                                false
+                            );
+                        })
+                        .catch(err => console.error("Error loading month wise business:", err));
+
+                    // ============ 3. DPD Range Wise Chart ============
+                    loadDpdComparisonChart();
+
+
+                    // ============ 6. Device Status Charts ============
+                    fetch('${pageContext.request.contextPath}/api/dashboard/device-status-charts' + productParam)
+                        .then(res => res.json())
+                        .then(data => {
+                            // Helper function for small doughnut charts
+                            const buildDoughnut = (canvasId, dataset, labelsList, colorsList) => {
+                                destroyChart(canvasId);
+                                const labels = dataset.map(item => item.state_name);
+                                const counts = dataset.map(item => item.count_val);
+
+                                let finalColors = colorsList;
+                                if (labels.length) {
+                                    finalColors = labels.map(label => {
+                                        const lowerLabel = label.toLowerCase();
+                                        if (lowerLabel === 'performing' || lowerLabel === 'unlocked' || lowerLabel === 'active' || lowerLabel === 'un-locked') {
+                                            return 'rgba(16, 185, 129, 0.85)'; // Green
                                         }
+                                        if (lowerLabel === 'non-performing' || lowerLabel === 'locked') {
+                                            return 'rgba(239, 68, 68, 0.85)'; // Red
+                                        }
+                                        return 'rgba(156, 163, 175, 0.85)'; // Gray fallback
                                     });
                                 }
 
-                                function onProductChange() {
-                                    selectedProduct = document.getElementById('productFilterSelect').value;
-                                    loadDashboardData();
-                                }
-
-                                function destroyChart(canvasId) {
-                                    if (activeCharts[canvasId]) {
-                                        activeCharts[canvasId].destroy();
-                                        delete activeCharts[canvasId];
+                                const centerTextPlugin = {
+                                    id: 'centerTextPlugin',
+                                    beforeDraw: function (chart) {
+                                        const width = chart.width, height = chart.height, ctx = chart.ctx;
+                                        ctx.restore();
+                                        const total = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                        const fontSize = (chart.innerRadius / 26).toFixed(2);
+                                        ctx.font = "bold " + fontSize + "em 'Plus Jakarta Sans', sans-serif";
+                                        ctx.textBaseline = "middle";
+                                        ctx.fillStyle = isDark ? "#f8fafc" : "#1e293b";
+                                        const text = total.toLocaleString(),
+                                            textX = Math.round((width - ctx.measureText(text).width) / 2),
+                                            textY = chart.chartArea.top + (chart.chartArea.bottom - chart.chartArea.top) / 2;
+                                        ctx.fillText(text, textX, textY);
+                                        ctx.save();
                                     }
-                                }
+                                };
 
-                                 const drawSparkline = (canvasId, dataPoints, strokeColor, fillColor) => {
-                                     destroyChart(canvasId);
-                                     const ctx = document.getElementById(canvasId).getContext('2d');
-                                     
-                                     let gradient = null;
-                                     if (fillColor) {
-                                         gradient = ctx.createLinearGradient(0, 0, 0, 30);
-                                         gradient.addColorStop(0, fillColor);
-                                         gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
-                                     }
-
-                                     activeCharts[canvasId] = new Chart(ctx, {
-                                         type: 'line',
-                                         data: {
-                                             labels: dataPoints.map((_, i) => i),
-                                             datasets: [{
-                                                 data: dataPoints,
-                                                 borderColor: strokeColor,
-                                                 borderWidth: 1.5,
-                                                 fill: !!gradient,
-                                                 backgroundColor: gradient,
-                                                 tension: 0.4,
-                                                 pointRadius: 0,
-                                                 pointHoverRadius: 2
-                                             }]
-                                         },
-                                         options: {
-                                             plugins: {
-                                                 legend: { display: false },
-                                                 tooltip: { enabled: false },
-                                                 datalabels: { display: false }
-                                             },
-                                             scales: {
-                                                 x: { display: false },
-                                                 y: { display: false }
-                                             },
-                                             maintainAspectRatio: false,
-                                             responsive: true
-                                         }
-                                     });
-                                 };
-
-                                function checkSyncStatus() {
-                                    fetch('${pageContext.request.contextPath}/api/dashboard/sync-info')
-                                        .then(res => res.json())
-                                        .then(data => {
-                                            document.getElementById("last-sync-timestamp").innerText = data.lastSynced || 'N/A';
-                                            const btn = document.getElementById("btn-sync-now");
-                                            const icon = document.getElementById("sync-icon");
-                                            const text = document.getElementById("sync-btn-text");
-
-                                            if (data.isSyncing) {
-                                                btn.disabled = true;
-                                                btn.classList.remove('btn-primary');
-                                                btn.classList.add('btn-secondary');
-                                                icon.classList.add('fa-spin');
-                                                text.innerText = "Syncing...";
-                                                // Poll status again in 3 seconds
-                                                setTimeout(checkSyncStatus, 3000);
-                                            } else {
-                                                if (btn.disabled) {
-                                                    btn.disabled = false;
-                                                    btn.classList.remove('btn-secondary');
-                                                    btn.classList.add('btn-primary');
-                                                    icon.classList.remove('fa-spin');
-                                                    text.innerText = "Sync Now";
-                                                    loadDashboardData();
-                                                }
-                                            }
-                                        })
-                                        .catch(err => console.error("Error fetching sync status:", err));
-                                }
-
-                                function triggerManualSync() {
-                                    const btn = document.getElementById("btn-sync-now");
-                                    const icon = document.getElementById("sync-icon");
-                                    const text = document.getElementById("sync-btn-text");
-
-                                    btn.disabled = true;
-                                    btn.classList.remove('btn-primary');
-                                    btn.classList.add('btn-secondary');
-                                    icon.classList.add('fa-spin');
-                                    text.innerText = "Syncing...";
-
-                                    fetch('${pageContext.request.contextPath}/api/dashboard/sync-now', {
-                                        method: 'POST'
-                                    })
-                                        .then(res => res.json())
-                                        .then(data => {
-                                            // Wait 2 seconds and check status
-                                            setTimeout(checkSyncStatus, 2000);
-                                        })
-                                        .catch(err => {
-                                            console.error("Error triggering manual sync:", err);
-                                            btn.disabled = false;
-                                            btn.classList.remove('btn-secondary');
-                                            btn.classList.add('btn-primary');
-                                            icon.classList.remove('fa-spin');
-                                            text.innerText = "Sync Now";
-                                        });
-                                }
-
-                                function loadDashboardData() {
-                                    const productParam = selectedProduct ? '?product=' + encodeURIComponent(selectedProduct) : '';
-
-                                    // ============ 1. Dashboard Stats (KPI Cards) ============
-                                    fetch('${pageContext.request.contextPath}/api/dashboard/stats' + productParam)
-                                        .then(response => {
-                                            if (!response.ok) throw new Error("HTTP error " + response.status);
-                                            return response.json();
-                                        })
-                                        .then(data => {
-                                            // Primary KPIs
-                                            document.getElementById("kpi-month-count").innerText = formatNum(data.nMonthCount || 0) + " Accounts";
-                                            document.getElementById("kpi-month-amount").innerText = formatLKR(data.nMonthAmount || 0);
-
-                                            document.getElementById("kpi-portfolio-amount").innerText = formatLKR(data.nPortfolioAmount || 0);
-                                            document.getElementById("kpi-portfolio-count").innerText = formatNum(data.nPortfolioCount || 0) + " Accounts";
-
-                                            document.getElementById("kpi-npl-exposure").innerText = formatLKR(data.nNplExposure || 0);
-                                            document.getElementById("kpi-npl-count").innerText = formatNum(data.nNplCount || 0) + " Accounts";
-
-                                            document.getElementById("kpi-settled-amount").innerText = formatLKR(data.settledAmount || 0);
-                                            document.getElementById("kpi-settled-count").innerText = formatNum(data.settledCount || 0) + " Accounts";
-
-                                            document.getElementById("kpi-perf-arrears-amount").innerText = formatLKR(data.perfArrearsAmount || 0);
-                                            document.getElementById("kpi-perf-arrears-count").innerText = formatNum(data.perfArrearsCount || 0) + " Accounts";
-
-                                            document.getElementById("kpi-dpd-zero-amount").innerText = formatLKR(data.dpdZeroPortfolioAmount || 0);
-                                            document.getElementById("kpi-dpd-zero-count").innerText = formatNum(data.dpdZeroPortfolioCount || 0) + " Accounts";
-                                             
-                                             // YTD & Overall Business
-                                             document.getElementById("kpi-ytd-amount").innerText = formatLKR(data.nYtdAmount || 0);
-                                             document.getElementById("kpi-ytd-count").innerText = formatNum(data.nYtdCount || 0) + " Accounts";
-                                             document.getElementById("kpi-overall-amount").innerText = formatLKR(data.nOverallAmount || 0);
-                                             document.getElementById("kpi-overall-count").innerText = formatNum(data.nOverallCount || 0) + " Accounts";
-
-                                            // YTD & Overall Business
-                                            document.getElementById("kpi-ytd-amount").innerText = formatLKR(data.nYtdAmount || 0);
-                                            document.getElementById("kpi-ytd-count").innerText = formatNum(data.nYtdCount || 0) + " Accounts";
-                                            document.getElementById("kpi-overall-amount").innerText = formatLKR(data.nOverallAmount || 0);
-                                            document.getElementById("kpi-overall-count").innerText = formatNum(data.nOverallCount || 0) + " Accounts";
-                                        })
-                                        .catch(err => console.error("Error fetching dashboard statistics:", err));
-
-                                    // ============ 2. Month Wise Business Chart ============
-                                    fetch('${pageContext.request.contextPath}/api/dashboard/business-chart' + productParam)
-                                        .then(res => res.json())
-                                        .then(data => {
-                                            const labels = data.map(i => i.month_name);
-                                            const amounts = data.map(i => i.business_amount || 0);
-
-                                            buildHorizontalBar(
-                                                'businessChart',
-                                                labels,
-                                                amounts,
-                                                'rgba(16, 185, 129, 0.15)',
-                                                'rgba(16, 185, 129, 0.85)',
-                                                '#10b981',
-                                                false
-                                            );
-                                        })
-                                        .catch(err => console.error("Error loading month wise business:", err));
-
-                                    // ============ 3. DPD Range Wise Chart ============
-                                     loadDpdComparisonChart();
-
-
-                                     // ============ 6. Device Status Charts ============
-                                    fetch('${pageContext.request.contextPath}/api/dashboard/device-status-charts' + productParam)
-                                        .then(res => res.json())
-                                        .then(data => {
-                                            // Helper function for small doughnut charts
-                                             const buildDoughnut = (canvasId, dataset, labelsList, colorsList) => {
-                                                 destroyChart(canvasId);
-                                                 const labels = dataset.map(item => item.state_name);
-                                                 const counts = dataset.map(item => item.count_val);
- 
-                                                 let finalColors = colorsList;
-                                                 if (labels.length) {
-                                                     finalColors = labels.map(label => {
-                                                         const lowerLabel = label.toLowerCase();
-                                                         if (lowerLabel === 'performing' || lowerLabel === 'unlocked' || lowerLabel === 'active' || lowerLabel === 'un-locked') {
-                                                             return 'rgba(16, 185, 129, 0.85)'; // Green
-                                                         }
-                                                         if (lowerLabel === 'non-performing' || lowerLabel === 'locked') {
-                                                             return 'rgba(239, 68, 68, 0.85)'; // Red
-                                                         }
-                                                         return 'rgba(156, 163, 175, 0.85)'; // Gray fallback
-                                                     });
-                                                 }
-
-                                                 const centerTextPlugin = {
-                                                     id: 'centerTextPlugin',
-                                                     beforeDraw: function (chart) {
-                                                         const width = chart.width, height = chart.height, ctx = chart.ctx;
-                                                         ctx.restore();
-                                                         const total = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                                                         const fontSize = (chart.innerRadius / 26).toFixed(2);
-                                                         ctx.font = "bold " + fontSize + "em 'Plus Jakarta Sans', sans-serif";
-                                                         ctx.textBaseline = "middle";
-                                                         ctx.fillStyle = isDark ? "#f8fafc" : "#1e293b";
-                                                         const text = total.toLocaleString(),
-                                                             textX = Math.round((width - ctx.measureText(text).width) / 2),
-                                                             textY = chart.chartArea.top + (chart.chartArea.bottom - chart.chartArea.top) / 2;
-                                                         ctx.fillText(text, textX, textY);
-                                                         ctx.save();
-                                                     }
-                                                 };
- 
-                                                 const ctx = document.getElementById(canvasId).getContext('2d');
-                                                 activeCharts[canvasId] = new Chart(ctx, {
-                                                     type: 'doughnut',
-                                                     data: {
-                                                         labels: labels.length ? labels : labelsList,
-                                                         datasets: [{
-                                                             data: counts.length ? counts : [0, 0],
-                                                             backgroundColor: finalColors,
-                                                             borderWidth: 0
-                                                         }]
-                                                     },
-                                                    plugins: [centerTextPlugin],
-                                                    options: {
-                                                        responsive: true,
-                                                        maintainAspectRatio: false,
-                                                        cutout: '72%',
-                                                        plugins: {
-                                                            legend: { display: false },
-                                                            tooltip: { enabled: true },
-                                                            datalabels: {
-                                                                display: true,
-                                                                color: '#ffffff',
-                                                                font: { weight: 'bold', size: 9 },
-                                                                formatter: (value, context) => {
-                                                                    let sum = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                                                                    if (sum === 0) return '';
-                                                                    let percentage = Math.round(value * 100 / sum);
-                                                                    return percentage >= 5 ? percentage + "%" : '';
-                                                                },
-                                                                anchor: 'center',
-                                                                align: 'center'
-                                                            }
-                                                        }
-                                                    }
-                                                });
-                                            };
-
-                                            if (selectedProduct === 'MF') {
-                                                document.querySelectorAll('.mobile-sec-col').forEach(el => el.style.display = '');
-                                                document.querySelectorAll('.laptop-sec-col').forEach(el => el.style.display = 'none');
-
-                                                let mobileLocked = 0;
-                                                if (data.mobileLock) {
-                                                    data.mobileLock.forEach(item => {
-                                                        if (item.state_name === 'Locked') mobileLocked = item.count_val || 0;
-                                                    });
-                                                }
-                                                document.getElementById("device-sec-text").innerHTML = 'Device locks summary &bull; Active: <span class="fw-bold text-danger">' + formatNum(mobileLocked) + '</span> Mobiles';
-
-                                                buildDoughnut('mobilePerformingChart', data.mobilePerforming || [], ['Performing', 'Non-Performing'], ['rgba(16, 185, 129, 0.85)', 'rgba(244, 63, 94, 0.85)']);
-                                                buildDoughnut('mobileLockChart', data.mobileLock || [], ['Active', 'Locked'], ['rgba(99, 102, 241, 0.85)', 'rgba(245, 158, 11, 0.85)']);
-                                            } else {
-                                                document.querySelectorAll('.mobile-sec-col').forEach(el => el.style.display = 'none');
-                                                document.querySelectorAll('.laptop-sec-col').forEach(el => el.style.display = '');
-
-                                                let laptopLocked = 0;
-                                                if (data.laptopLock) {
-                                                    data.laptopLock.forEach(item => {
-                                                        if (item.state_name === 'Locked') laptopLocked = item.count_val || 0;
-                                                    });
-                                                }
-                                                document.getElementById("device-sec-text").innerHTML = 'Device locks summary &bull; Active: <span class="fw-bold text-danger">' + formatNum(laptopLocked) + '</span> Laptops';
-
-                                                buildDoughnut('laptopPerformingChart', data.laptopPerforming || [], ['Performing', 'Non-Performing'], ['rgba(16, 185, 129, 0.85)', 'rgba(244, 63, 94, 0.85)']);
-                                                buildDoughnut('laptopLockChart', data.laptopLock || [], ['Active', 'Locked'], ['rgba(99, 102, 241, 0.85)', 'rgba(245, 158, 11, 0.85)']);
-                                            }
-                                        })
-                                        .catch(err => console.error("Error loading security doughnut status:", err));
-
-                                    // ============ 7. Daily Disbursements (Past 7 Days) ============
-                                    fetch('${pageContext.request.contextPath}/api/dashboard/vendor-payments-chart' + productParam)
-                                        .then(res => res.json())
-                                        .then(data => {
-                                            let chartData = data;
-                                            buildHorizontalBar(
-                                                'vendorPaymentsChart',
-                                                chartData.map(i => i.channel_name),
-                                                chartData.map(i => i.total_amount || 0),
-                                                'rgba(16, 185, 129, 0.15)',
-                                                'rgba(16, 185, 129, 0.85)',
-                                                '#10b981',
-                                                false
-                                            );
-                                        })
-                                        .catch(err => console.error("Error loading daily disbursements chart:", err));
-
-                                    // ============ 8. Payments Status-Wise Chart ============
-                                    loadPaymentsStatusChart();
-
-
-
-                                    // ============ 9. Mobile Arrears Lock vs Unlock ============
-                                    const arrearsCard = document.getElementById('mobile-lock-arrears-card');
-                                    if (selectedProduct === 'LF') {
-                                        if (arrearsCard) arrearsCard.style.display = 'none';
-                                    } else {
-                                        if (arrearsCard) arrearsCard.style.display = '';
-                                    }
-
-                                    if (selectedProduct !== 'LF') {
-                                        fetch('${pageContext.request.contextPath}/api/dashboard/mobile-lock-arrears')
-                                            .then(res => res.json())
-                                            .then(data => {
-                                                // 1. Mobile Lock vs Unlock Chart
-                                                destroyChart('mobileLockArrearsChart');
-                                                const ctx1 = document.getElementById('mobileLockArrearsChart').getContext('2d');
-                                                activeCharts['mobileLockArrearsChart'] = new Chart(ctx1, {
-                                                    type: 'bar',
-                                                    data: {
-                                                        labels: ['Lock (<200)', 'Unlock (>=200)'],
-                                                        datasets: [{
-                                                            data: [
-                                                                data.lock_but_less_200 || 0,
-                                                                data.unlock_but_more_200 || 0
-                                                            ],
-                                                            backgroundColor: [
-                                                                'rgba(239, 68, 68, 0.85)',
-                                                                'rgba(16, 185, 129, 0.85)'
-                                                            ],
-                                                            borderWidth: 0,
-                                                            borderRadius: 4,
-                                                            barThickness: 36
-                                                        }]
-                                                    },
-                                                    options: {
-                                                        responsive: true,
-                                                        maintainAspectRatio: false,
-                                                        layout: { padding: { top: 20 } },
-                                                        plugins: {
-                                                            legend: { display: false },
-                                                            tooltip: { enabled: true },
-                                                            datalabels: {
-                                                                display: true,
-                                                                anchor: 'end',
-                                                                align: 'top',
-                                                                color: isDark ? '#cbd5e1' : '#1e293b',
-                                                                font: { weight: 'bold', size: 9 },
-                                                                formatter: (val) => val > 0 ? formatNum(val) : '0'
-                                                            }
-                                                        },
-                                                        scales: {
-                                                            x: { grid: { display: false }, ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 9, weight: 'bold' } } },
-                                                            y: { display: false, grid: { display: false } }
-                                                        }
-                                                    }
-                                                });
-                                            })
-                                            .catch(err => console.error("Error loading Mobile lock arrears analysis:", err));
-                                    }
-
-                                    // ============ 9.1 Transaction Channels Table ============
-                                     fetch('${pageContext.request.contextPath}/api/dashboard/transaction-channel-chart' + productParam)
-                                         .then(res => res.json())
-                                         .then(data => {
-                                             const tbody = document.getElementById('transactionChannelTableBody');
-                                             let html = '';
-                                             data.forEach(item => {
-                                                 const formattedAmt = item.total_amount !== null ? parseFloat(item.total_amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00';
-                                                 html += '<tr>' +
-                                                     '<td>' + (item.channel_name || 'N/A') + '</td>' +
-                                                     '<td class="text-end">' + (item.tx_count || 0) + '</td>' +
-                                                     '<td class="text-end fw-semi-bold">' + formattedAmt + '</td>' +
-                                                     '</tr>';
-                                             });
-                                             tbody.innerHTML = html || '<tr><td colspan="3" class="text-center text-muted">No transactions</td></tr>';
-                                         })
-                                         .catch(err => console.error("Error loading transaction channels:", err));
-
-                                     // ============ 10. Matured vs Non-Matured Contracts Performance ============
-                                    fetch('${pageContext.request.contextPath}/api/dashboard/matured-nonperforming' + productParam)
-                                        .then(res => res.json())
-                                        .then(data => {
-                                            let maturedPerf = 0, maturedNp = 0, nonMaturedPerf = 0, nonMaturedNp = 0;
-                                            data.forEach(item => {
-                                                const isMatured = item.maturity_status === 'Matured';
-                                                const isNp = item.performing_status === 'Non-Performing';
-                                                if (isMatured) {
-                                                    if (isNp) maturedNp = item.contract_count || 0;
-                                                    else maturedPerf = item.contract_count || 0;
-                                                } else {
-                                                    if (isNp) nonMaturedNp = item.contract_count || 0;
-                                                    else nonMaturedPerf = item.contract_count || 0;
-                                                }
-                                            });
-
-                                            destroyChart('maturedNpChart');
-                                            const ctx = document.getElementById('maturedNpChart').getContext('2d');
-                                            activeCharts['maturedNpChart'] = new Chart(ctx, {
-                                                type: 'bar',
-                                                data: {
-                                                    labels: ['Mat Perf', 'Mat NP', 'Non-Mat Perf', 'Non-Mat NP'],
-                                                    datasets: [
-                                                        {
-                                                            data: [maturedPerf, maturedNp, nonMaturedPerf, nonMaturedNp],
-                                                            backgroundColor: [
-                                                                'rgba(16, 185, 129, 0.85)',
-                                                                'rgba(239, 68, 68, 0.85)',
-                                                                'rgba(16, 185, 129, 0.85)',
-                                                                'rgba(239, 68, 68, 0.85)'
-                                                            ],
-                                                            borderWidth: 0,
-                                                            borderRadius: 4,
-                                                            barThickness: 28
-                                                        }
-                                                    ]
+                                const ctx = document.getElementById(canvasId).getContext('2d');
+                                activeCharts[canvasId] = new Chart(ctx, {
+                                    type: 'doughnut',
+                                    data: {
+                                        labels: labels.length ? labels : labelsList,
+                                        datasets: [{
+                                            data: counts.length ? counts : [0, 0],
+                                            backgroundColor: finalColors,
+                                            borderWidth: 0
+                                        }]
+                                    },
+                                    plugins: [centerTextPlugin],
+                                    options: {
+                                        responsive: true,
+                                        maintainAspectRatio: false,
+                                        cutout: '72%',
+                                        plugins: {
+                                            legend: { display: false },
+                                            tooltip: { enabled: true },
+                                            datalabels: {
+                                                display: true,
+                                                color: '#ffffff',
+                                                font: { weight: 'bold', size: 9 },
+                                                formatter: (value, context) => {
+                                                    let sum = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                                    if (sum === 0) return '';
+                                                    let percentage = Math.round(value * 100 / sum);
+                                                    return percentage >= 5 ? percentage + "%" : '';
                                                 },
-                                                options: {
-                                                    responsive: true,
-                                                    maintainAspectRatio: false,
-                                                    plugins: {
-                                                        legend: {
-                                                            display: false
-                                                        },
-                                                        tooltip: { enabled: true },
-                                                        datalabels: {
-                                                            display: true,
-                                                            anchor: 'end',
-                                                            align: 'top',
-                                                            color: isDark ? '#cbd5e1' : '#1e293b',
-                                                            font: { weight: 'bold', size: 8 },
-                                                            formatter: (val) => val > 0 ? formatNum(val) : '',
-                                                            overflow: 'allow',
-                                                            clip: false
-                                                        }
-                                                    },
-                                                    scales: {
-                                                        x: {
-                                                            grid: { display: false },
-                                                            ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 7, weight: 'bold' } }
-                                                        },
-                                                        y: {
-                                                            display: false,
-                                                            grid: { display: false }
-                                                        }
-                                                    }
-                                                }
-                                            });
-                                        })
-                                        .catch(err => console.error("Error loading matured contract performance analysis:", err));
+                                                anchor: 'center',
+                                                align: 'center'
+                                            }
+                                        }
+                                    }
+                                });
+                            };
+
+                            if (selectedProduct === 'MF') {
+                                document.querySelectorAll('.mobile-sec-col').forEach(el => el.style.display = '');
+                                document.querySelectorAll('.laptop-sec-col').forEach(el => el.style.display = 'none');
+
+                                let mobileLocked = 0;
+                                if (data.mobileLock) {
+                                    data.mobileLock.forEach(item => {
+                                        if (item.state_name === 'Locked') mobileLocked = item.count_val || 0;
+                                    });
                                 }
+                                document.getElementById("device-sec-text").innerHTML = 'Device locks summary &bull; Active: <span class="fw-bold text-danger">' + formatNum(mobileLocked) + '</span> Mobiles';
+
+                                buildDoughnut('mobilePerformingChart', data.mobilePerforming || [], ['Performing', 'Non-Performing'], ['rgba(16, 185, 129, 0.85)', 'rgba(244, 63, 94, 0.85)']);
+                                buildDoughnut('mobileLockChart', data.mobileLock || [], ['Active', 'Locked'], ['rgba(99, 102, 241, 0.85)', 'rgba(245, 158, 11, 0.85)']);
+                            } else {
+                                document.querySelectorAll('.mobile-sec-col').forEach(el => el.style.display = 'none');
+                                document.querySelectorAll('.laptop-sec-col').forEach(el => el.style.display = '');
+
+                                let laptopLocked = 0;
+                                if (data.laptopLock) {
+                                    data.laptopLock.forEach(item => {
+                                        if (item.state_name === 'Locked') laptopLocked = item.count_val || 0;
+                                    });
+                                }
+                                document.getElementById("device-sec-text").innerHTML = 'Device locks summary &bull; Active: <span class="fw-bold text-danger">' + formatNum(laptopLocked) + '</span> Laptops';
+
+                                buildDoughnut('laptopPerformingChart', data.laptopPerforming || [], ['Performing', 'Non-Performing'], ['rgba(16, 185, 129, 0.85)', 'rgba(244, 63, 94, 0.85)']);
+                                buildDoughnut('laptopLockChart', data.laptopLock || [], ['Active', 'Locked'], ['rgba(99, 102, 241, 0.85)', 'rgba(245, 158, 11, 0.85)']);
+                            }
+                        })
+                        .catch(err => console.error("Error loading security doughnut status:", err));
+
+                    // ============ 7. Daily Disbursements (Past 7 Days) ============
+                    fetch('${pageContext.request.contextPath}/api/dashboard/vendor-payments-chart' + productParam)
+                        .then(res => res.json())
+                        .then(data => {
+                            let chartData = data;
+                            buildHorizontalBar(
+                                'vendorPaymentsChart',
+                                chartData.map(i => i.channel_name),
+                                chartData.map(i => i.total_amount || 0),
+                                'rgba(16, 185, 129, 0.15)',
+                                'rgba(16, 185, 129, 0.85)',
+                                '#10b981',
+                                false
+                            );
+                        })
+                        .catch(err => console.error("Error loading daily disbursements chart:", err));
+
+                    // ============ 8. Payments Status-Wise Chart ============
+                    loadPaymentsStatusChart();
 
 
-                                 function loadPaymentsStatusChart() {
-                                      const productParam = selectedProduct ? '?product=' + encodeURIComponent(selectedProduct) : '';
-                                      fetch('${pageContext.request.contextPath}/api/dashboard/payments-status-chart' + productParam)
-                                          .then(res => res.json())
-                                          .then(data => {
-                                              const months = [...new Set(data.map(i => i.month_name))];
-                                              
-                                              const completedData = months.map(m => {
-                                                  const found = data.find(i => i.month_name === m && i.status_name.toLowerCase() === 'completed');
-                                                  return found ? found.count_val : 0;
-                                              });
-                                              const pendingData = months.map(m => {
-                                                  const found = data.find(i => i.month_name === m && i.status_name.toLowerCase() === 'pending');
-                                                  return found ? found.count_val : 0;
-                                              });
-                                              const failedData = months.map(m => {
-                                                  const found = data.find(i => i.month_name === m && i.status_name.toLowerCase() === 'failed');
-                                                  return found ? found.count_val : 0;
-                                              });
 
-                                              const tbody = document.getElementById('paymentsStatusTableBody');
-                                              let html = '';
-                                              months.forEach((m, idx) => {
-                                                  html += '<tr>' +
-                                                      '<td>' + m + '</td>' +
-                                                      '<td class="text-end text-success fw-semi-bold">' + (completedData[idx] || 0) + '</td>' +
-                                                      '<td class="text-end text-warning fw-semi-bold">' + (pendingData[idx] || 0) + '</td>' +
-                                                      '<td class="text-end text-danger fw-semi-bold">' + (failedData[idx] || 0) + '</td>' +
-                                                      '</tr>';
-                                              });
-                                              tbody.innerHTML = html || '<tr><td colspan="4" class="text-center text-muted">No data</td></tr>';
-                                          })
-                                          .catch(err => console.error("Error loading payments status:", err));
-                                  }
+                    // ============ 9. Mobile Arrears Lock vs Unlock ============
+                    const arrearsCard = document.getElementById('mobile-lock-arrears-card');
+                    if (selectedProduct === 'LF') {
+                        if (arrearsCard) arrearsCard.style.display = 'none';
+                    } else {
+                        if (arrearsCard) arrearsCard.style.display = '';
+                    }
 
-                                 function loadDpdComparisonChart() {
-                                     const productParam = selectedProduct ? '?product=' + encodeURIComponent(selectedProduct) : '';
-                                     fetch('${pageContext.request.contextPath}/api/dashboard/dpd-comparison-chart' + productParam)
-                                         .then(res => res.json())
-                                         .then(data => {
-                                             const labels = data.map(i => i.month_name);
-                                             const dpd0 = data.map(item => Math.round(((item.dpd0_val || 0) / 1000000) * 100) / 100);
-                                             const dpd1_30 = data.map(item => Math.round(((item.dpd1_30_val || 0) / 1000000) * 100) / 100);
-                                             const dpd31_60 = data.map(item => Math.round(((item.dpd31_60_val || 0) / 1000000) * 100) / 100);
-                                             const dpd61_90 = data.map(item => Math.round(((item.dpd61_90_val || 0) / 1000000) * 100) / 100);
-                                             const dpdAbove90 = data.map(item => Math.round(((item.dpdAbove90_val || 0) / 1000000) * 100) / 100);
+                    if (selectedProduct !== 'LF') {
+                        fetch('${pageContext.request.contextPath}/api/dashboard/mobile-lock-arrears')
+                            .then(res => res.json())
+                            .then(data => {
+                                // 1. Mobile Lock vs Unlock Chart
+                                destroyChart('mobileLockArrearsChart');
+                                const ctx1 = document.getElementById('mobileLockArrearsChart').getContext('2d');
+                                activeCharts['mobileLockArrearsChart'] = new Chart(ctx1, {
+                                    type: 'bar',
+                                    data: {
+                                        labels: ['Lock (<200)', 'Unlock (>=200)'],
+                                        datasets: [{
+                                            data: [
+                                                data.lock_but_less_200 || 0,
+                                                data.unlock_but_more_200 || 0
+                                            ],
+                                            backgroundColor: [
+                                                'rgba(239, 68, 68, 0.85)',
+                                                'rgba(16, 185, 129, 0.85)'
+                                            ],
+                                            borderWidth: 0,
+                                            borderRadius: 4,
+                                            barThickness: 36
+                                        }]
+                                    },
+                                    options: {
+                                        responsive: true,
+                                        maintainAspectRatio: false,
+                                        layout: { padding: { top: 20 } },
+                                        plugins: {
+                                            legend: { display: false },
+                                            tooltip: { enabled: true },
+                                            datalabels: {
+                                                display: true,
+                                                anchor: 'end',
+                                                align: 'top',
+                                                color: isDark ? '#cbd5e1' : '#1e293b',
+                                                font: { weight: 'bold', size: 9 },
+                                                formatter: (val) => val > 0 ? formatNum(val) : '0'
+                                            }
+                                        },
+                                        scales: {
+                                            x: { grid: { display: false }, ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 9, weight: 'bold' } } },
+                                            y: { display: false, grid: { display: false } }
+                                        }
+                                    }
+                                });
+                            })
+                            .catch(err => console.error("Error loading Mobile lock arrears analysis:", err));
+                    }
 
-                                             destroyChart('dpdComparisonChart');
-                                             const ctx = document.getElementById("dpdComparisonChart").getContext('2d');
-                                             activeCharts['dpdComparisonChart'] = new Chart(ctx, {
-                                                 type: 'bar',
-                                                 data: {
-                                                     labels: labels,
-                                                     datasets: [
-                                                         {
-                                                             label: 'DPD 0',
-                                                             data: dpd0,
-                                                             backgroundColor: 'rgba(16, 185, 129, 0.85)',
-                                                             borderRadius: 4,
-                                                             barThickness: 16
-                                                         },
-                                                         {
-                                                             label: 'DPD 1-30',
-                                                             data: dpd1_30,
-                                                             backgroundColor: 'rgba(245, 158, 11, 0.85)',
-                                                             borderRadius: 4,
-                                                             barThickness: 16
-                                                         },
-                                                         {
-                                                             label: 'DPD 31-60',
-                                                             data: dpd31_60,
-                                                             backgroundColor: 'rgba(249, 115, 22, 0.85)',
-                                                             borderRadius: 4,
-                                                             barThickness: 16
-                                                         },
-                                                         {
-                                                             label: 'DPD 61-90',
-                                                             data: dpd61_90,
-                                                             backgroundColor: 'rgba(239, 68, 68, 0.85)',
-                                                             borderRadius: 4,
-                                                             barThickness: 16
-                                                         },
-                                                         {
-                                                             label: 'Over 90 DPD',
-                                                             data: dpdAbove90,
-                                                             backgroundColor: isDark ? 'rgba(167, 139, 250, 0.85)' : 'rgba(30, 41, 59, 0.85)',
-                                                             borderRadius: 4,
-                                                             barThickness: 16
-                                                         }
-                                                     ]
-                                                 },
-                                                 options: {
-                                                     indexAxis: 'y',
-                                                     responsive: true,
-                                                     maintainAspectRatio: false,
-                                                     scales: {
-                                                         x: {
-                                                             stacked: true,
-                                                             beginAtZero: true,
-                                                             grid: { color: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' },
-                                                             ticks: {
-                                                                 color: isDark ? '#94a3b8' : '#475569',
-                                                                 font: { size: 9 },
-                                                                 callback: function (value) {
-                                                                     return value + ' Mn';
-                                                                 }
-                                                             }
-                                                         },
-                                                         y: {
-                                                             stacked: true,
-                                                             grid: { display: false },
-                                                             ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 9, weight: 'bold' } }
-                                                         }
-                                                     },
-                                                     plugins: {
-                                                         legend: {
-                                                             display: true,
-                                                             position: 'top',
-                                                             labels: { boxWidth: 8, padding: 4, font: { size: 8, weight: 'bold' } }
-                                                         },
-                                                         tooltip: { enabled: true },
-                                                         datalabels: { display: false }
-                                                     }
-                                                 }
-                                             });
-                                         })
-                                         .catch(err => console.error("Error loading monthly DPD comparison:", err));
-                                 }
+                    // ============ 9.1 Transaction Channels Table ============
+                    fetch('${pageContext.request.contextPath}/api/dashboard/transaction-channel-chart' + productParam)
+                        .then(res => res.json())
+                        .then(data => {
+                            const tbody = document.getElementById('transactionChannelTableBody');
+                            let html = '';
+                            data.forEach(item => {
+                                const formattedAmt = item.total_amount !== null ? parseFloat(item.total_amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00';
+                                html += '<tr>' +
+                                    '<td>' + (item.channel_name || 'N/A') + '</td>' +
+                                    '<td class="text-end">' + (item.tx_count || 0) + '</td>' +
+                                    '<td class="text-end fw-semi-bold">' + formattedAmt + '</td>' +
+                                    '</tr>';
+                            });
+                            tbody.innerHTML = html || '<tr><td colspan="3" class="text-center text-muted">No transactions</td></tr>';
+                        })
+                        .catch(err => console.error("Error loading transaction channels:", err));
 
-                                 document.addEventListener("DOMContentLoaded", function () {
-                                     checkSyncStatus();
-                                     loadDashboardData();
-                                 });
+                    // ============ 10. Matured vs Non-Matured Contracts Performance ============
+                    fetch('${pageContext.request.contextPath}/api/dashboard/matured-nonperforming' + productParam)
+                        .then(res => res.json())
+                        .then(data => {
+                            let maturedPerf = 0, maturedNp = 0, nonMaturedPerf = 0, nonMaturedNp = 0;
+                            data.forEach(item => {
+                                const isMatured = item.maturity_status === 'Matured';
+                                const isNp = item.performing_status === 'Non-Performing';
+                                if (isMatured) {
+                                    if (isNp) maturedNp = item.contract_count || 0;
+                                    else maturedPerf = item.contract_count || 0;
+                                } else {
+                                    if (isNp) nonMaturedNp = item.contract_count || 0;
+                                    else nonMaturedPerf = item.contract_count || 0;
+                                }
+                            });
 
-                            </script>
-                    </div>
+                            destroyChart('maturedNpChart');
+                            const ctx = document.getElementById('maturedNpChart').getContext('2d');
+                            activeCharts['maturedNpChart'] = new Chart(ctx, {
+                                type: 'bar',
+                                data: {
+                                    labels: ['Mat Perf', 'Mat NP', 'Non-Mat Perf', 'Non-Mat NP'],
+                                    datasets: [
+                                        {
+                                            data: [maturedPerf, maturedNp, nonMaturedPerf, nonMaturedNp],
+                                            backgroundColor: [
+                                                'rgba(16, 185, 129, 0.85)',
+                                                'rgba(239, 68, 68, 0.85)',
+                                                'rgba(16, 185, 129, 0.85)',
+                                                'rgba(239, 68, 68, 0.85)'
+                                            ],
+                                            borderWidth: 0,
+                                            borderRadius: 4,
+                                            barThickness: 28
+                                        }
+                                    ]
+                                },
+                                options: {
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    plugins: {
+                                        legend: {
+                                            display: false
+                                        },
+                                        tooltip: { enabled: true },
+                                        datalabels: {
+                                            display: true,
+                                            anchor: 'end',
+                                            align: 'top',
+                                            color: isDark ? '#cbd5e1' : '#1e293b',
+                                            font: { weight: 'bold', size: 8 },
+                                            formatter: (val) => val > 0 ? formatNum(val) : '',
+                                            overflow: 'allow',
+                                            clip: false
+                                        }
+                                    },
+                                    scales: {
+                                        x: {
+                                            grid: { display: false },
+                                            ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 7, weight: 'bold' } }
+                                        },
+                                        y: {
+                                            display: false,
+                                            grid: { display: false }
+                                        }
+                                    }
+                                }
+                            });
+                        })
+                        .catch(err => console.error("Error loading matured contract performance analysis:", err));
+                }
+
+
+                function loadPaymentsStatusChart() {
+                    const productParam = selectedProduct ? '?product=' + encodeURIComponent(selectedProduct) : '';
+                    fetch('${pageContext.request.contextPath}/api/dashboard/payments-status-chart' + productParam)
+                        .then(res => res.json())
+                        .then(data => {
+                            const months = [...new Set(data.map(i => i.month_name))];
+
+                            const completedData = months.map(m => {
+                                const found = data.find(i => i.month_name === m && i.status_name.toLowerCase() === 'completed');
+                                return found ? found.count_val : 0;
+                            });
+                            const pendingData = months.map(m => {
+                                const found = data.find(i => i.month_name === m && i.status_name.toLowerCase() === 'pending');
+                                return found ? found.count_val : 0;
+                            });
+                            const failedData = months.map(m => {
+                                const found = data.find(i => i.month_name === m && i.status_name.toLowerCase() === 'failed');
+                                return found ? found.count_val : 0;
+                            });
+
+                            const tbody = document.getElementById('paymentsStatusTableBody');
+                            let html = '';
+                            months.forEach((m, idx) => {
+                                html += '<tr>' +
+                                    '<td>' + m + '</td>' +
+                                    '<td class="text-end text-success fw-semi-bold">' + (completedData[idx] || 0) + '</td>' +
+                                    '<td class="text-end text-warning fw-semi-bold">' + (pendingData[idx] || 0) + '</td>' +
+                                    '<td class="text-end text-danger fw-semi-bold">' + (failedData[idx] || 0) + '</td>' +
+                                    '</tr>';
+                            });
+                            tbody.innerHTML = html || '<tr><td colspan="4" class="text-center text-muted">No data</td></tr>';
+                        })
+                        .catch(err => console.error("Error loading payments status:", err));
+                }
+
+                function loadDpdComparisonChart() {
+                    const productParam = selectedProduct ? '?product=' + encodeURIComponent(selectedProduct) : '';
+                    fetch('${pageContext.request.contextPath}/api/dashboard/dpd-comparison-chart' + productParam)
+                        .then(res => res.json())
+                        .then(data => {
+                            const labels = data.map(i => i.month_name);
+                            const dpd0 = data.map(item => Math.round(((item.dpd0_val || 0) / 1000000) * 100) / 100);
+                            const dpd1_30 = data.map(item => Math.round(((item.dpd1_30_val || 0) / 1000000) * 100) / 100);
+                            const dpd31_60 = data.map(item => Math.round(((item.dpd31_60_val || 0) / 1000000) * 100) / 100);
+                            const dpd61_90 = data.map(item => Math.round(((item.dpd61_90_val || 0) / 1000000) * 100) / 100);
+                            const dpdAbove90 = data.map(item => Math.round(((item.dpdAbove90_val || 0) / 1000000) * 100) / 100);
+
+                            destroyChart('dpdComparisonChart');
+                            const ctx = document.getElementById("dpdComparisonChart").getContext('2d');
+                            activeCharts['dpdComparisonChart'] = new Chart(ctx, {
+                                type: 'bar',
+                                data: {
+                                    labels: labels,
+                                    datasets: [
+                                        {
+                                            label: 'DPD 0',
+                                            data: dpd0,
+                                            backgroundColor: 'rgba(16, 185, 129, 0.85)',
+                                            borderRadius: 4,
+                                            barThickness: 16
+                                        },
+                                        {
+                                            label: 'DPD 1-30',
+                                            data: dpd1_30,
+                                            backgroundColor: 'rgba(245, 158, 11, 0.85)',
+                                            borderRadius: 4,
+                                            barThickness: 16
+                                        },
+                                        {
+                                            label: 'DPD 31-60',
+                                            data: dpd31_60,
+                                            backgroundColor: 'rgba(249, 115, 22, 0.85)',
+                                            borderRadius: 4,
+                                            barThickness: 16
+                                        },
+                                        {
+                                            label: 'DPD 61-90',
+                                            data: dpd61_90,
+                                            backgroundColor: 'rgba(239, 68, 68, 0.85)',
+                                            borderRadius: 4,
+                                            barThickness: 16
+                                        },
+                                        {
+                                            label: 'Over 90 DPD',
+                                            data: dpdAbove90,
+                                            backgroundColor: isDark ? 'rgba(167, 139, 250, 0.85)' : 'rgba(30, 41, 59, 0.85)',
+                                            borderRadius: 4,
+                                            barThickness: 16
+                                        }
+                                    ]
+                                },
+                                options: {
+                                    indexAxis: 'y',
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    scales: {
+                                        x: {
+                                            stacked: true,
+                                            beginAtZero: true,
+                                            grid: { color: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' },
+                                            ticks: {
+                                                color: isDark ? '#94a3b8' : '#475569',
+                                                font: { size: 9 },
+                                                callback: function (value) {
+                                                    return value + ' Mn';
+                                                }
+                                            }
+                                        },
+                                        y: {
+                                            stacked: true,
+                                            grid: { display: false },
+                                            ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 9, weight: 'bold' } }
+                                        }
+                                    },
+                                    plugins: {
+                                        legend: {
+                                            display: true,
+                                            position: 'top',
+                                            labels: { boxWidth: 8, padding: 4, font: { size: 8, weight: 'bold' } }
+                                        },
+                                        tooltip: { enabled: true },
+                                        datalabels: { display: false }
+                                    }
+                                }
+                            });
+                        })
+                        .catch(err => console.error("Error loading monthly DPD comparison:", err));
+                }
+
+                document.addEventListener("DOMContentLoaded", function () {
+                    checkSyncStatus();
+                    loadDashboardData();
+                });
+
+            </script>
+            </div>
             </div>
         </main>
 
