@@ -263,3 +263,10 @@ table.dataTable thead th {
     white-space: nowrap !important;
 }
 
+/* Highlight the latest record (first row) in SMS and Lock/Unlock logs */
+#sms_table tbody tr:first-child td:not(.dataTables_empty),
+#locks_table tbody tr:first-child td:not(.dataTables_empty),
+#datacultr_locks_table tbody tr:first-child td:not(.dataTables_empty) {
+    background-color: rgba(220, 252, 231, 0.6) !important; /* Soft lightgreen background */
+}
+
