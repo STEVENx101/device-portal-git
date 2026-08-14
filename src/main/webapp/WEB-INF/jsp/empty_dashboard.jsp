@@ -287,7 +287,7 @@
                              <!-- Row 1: KPI Cards (6 Cards) -->
                              <div class="row g-2 mb-2">
                                  <!-- 1. Month Disbursement -->
-                                   <div class="col-lg-2 col-md-4 col-sm-6">
+                                   <div class="col-lg col-md-3 col-sm-6">
                                        <div class="card kpi-card shadow-sm h-100"
                                            style="border-left: 3px solid #6366f1 !important; cursor: pointer; transition: all 0.2s ease-in-out;">
                                            <div class="card-body p-2 d-flex flex-column justify-content-between">
@@ -300,7 +300,7 @@
                                        </div>
                                    </div>
                                    <!-- Empty KPI Card 1 -->
-                                   <div class="col-lg-2 col-md-4 col-sm-6">
+                                   <div class="col-lg col-md-3 col-sm-6">
                                        <div class="card kpi-card shadow-sm h-100"
                                            style="border-left: 3px solid #cbd5e1 !important; cursor: default; transition: all 0.2s ease-in-out; opacity: 0.7;">
                                            <div class="card-body p-2 d-flex flex-column justify-content-between">
@@ -313,7 +313,7 @@
                                        </div>
                                    </div>
                                    <!-- Empty KPI Card 2 -->
-                                   <div class="col-lg-2 col-md-4 col-sm-6">
+                                   <div class="col-lg col-md-3 col-sm-6">
                                        <div class="card kpi-card shadow-sm h-100"
                                            style="border-left: 3px solid #cbd5e1 !important; cursor: default; transition: all 0.2s ease-in-out; opacity: 0.7;">
                                            <div class="card-body p-2 d-flex flex-column justify-content-between">
@@ -326,7 +326,7 @@
                                        </div>
                                    </div>
                                   <!-- 2. Active Portfolio -->
-                                  <div class="col-lg-2 col-md-4 col-sm-6">
+                                  <div class="col-lg col-md-3 col-sm-6">
                                       <div class="card kpi-card shadow-sm h-100"
                                           style="border-left: 3px solid #10b981 !important; cursor: pointer; transition: all 0.2s ease-in-out;">
                                           <div class="card-body p-2 d-flex flex-column justify-content-between">
@@ -339,7 +339,7 @@
                                       </div>
                                   </div>
                                   <!-- 3. DPD 0 Portfolio -->
-                                  <div class="col-lg-2 col-md-4 col-sm-6">
+                                  <div class="col-lg col-md-3 col-sm-6">
                                       <div class="card kpi-card shadow-sm h-100"
                                           style="border-left: 3px solid #2563eb !important; cursor: pointer; transition: all 0.2s ease-in-out;">
                                           <div class="card-body p-2 d-flex flex-column justify-content-between">
@@ -352,7 +352,7 @@
                                       </div>
                                   </div>
                                   <!-- 4. Arrears Portfolio (was DPD Arrears) -->
-                                  <div class="col-lg-2 col-md-4 col-sm-6">
+                                  <div class="col-lg col-md-3 col-sm-6">
                                       <div class="card kpi-card shadow-sm h-100"
                                           style="border-left: 3px solid #dc2626 !important; cursor: pointer; transition: all 0.2s ease-in-out;">
                                           <div class="card-body p-2 d-flex flex-column justify-content-between">
@@ -365,7 +365,7 @@
                                       </div>
                                   </div>
                                   <!-- 5. NPL Exposure -->
-                                  <div class="col-lg-2 col-md-4 col-sm-6">
+                                  <div class="col-lg col-md-3 col-sm-6">
                                       <div class="card kpi-card shadow-sm h-100"
                                           style="border-left: 3px solid #ef4444 !important; cursor: pointer; transition: all 0.2s ease-in-out;">
                                           <div class="card-body p-2 d-flex flex-column justify-content-between">
@@ -378,7 +378,7 @@
                                       </div>
                                   </div>
                                   <!-- 6. Settled Month -->
-                                  <div class="col-lg-2 col-md-4 col-sm-6">
+                                  <div class="col-lg col-md-3 col-sm-6">
                                       <div class="card kpi-card shadow-sm h-100"
                                           style="border-left: 3px solid #f59e0b !important; cursor: pointer; transition: all 0.2s ease-in-out;">
                                           <div class="card-body p-2 d-flex flex-column justify-content-between">
