@@ -5,6 +5,8 @@ import jakarta.annotation.PostConstruct;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -19,7 +21,7 @@ public class DashboardService {
     private final DashboardRepository dashboardRepository;
     private final ConcurrentHashMap<String, Object> cache = new ConcurrentHashMap<>();
     private final AtomicBoolean isSyncing = new AtomicBoolean(false);
-    private String lastSyncedTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+    private String lastSyncedTime = ZonedDateTime.now(ZoneId.of("Asia/Colombo")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
     public DashboardService(DashboardRepository dashboardRepository) {
         this.dashboardRepository = dashboardRepository;
@@ -91,7 +93,7 @@ public class DashboardService {
             cache.put("mobileLockArrears", mobileLockArrears != null ? mobileLockArrears : new HashMap<>());
 
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-            lastSyncedTime = LocalDateTime.now().format(formatter);
+            lastSyncedTime = ZonedDateTime.now(ZoneId.of("Asia/Colombo")).format(formatter);
             System.out.println("DASHBOARD SNAPSHOT STORE DATA SUCCESSFULLY SYNCED AT: " + lastSyncedTime);
         } catch (Exception e) {
             System.err.println("Error while updating dashboard cache store: " + e.getMessage());
