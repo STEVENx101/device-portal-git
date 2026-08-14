@@ -916,8 +916,7 @@
                                         const width = chart.width, height = chart.height, ctx = chart.ctx;
                                         ctx.restore();
                                         const total = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                                        const fontSize = (chart.innerRadius / 26).toFixed(2);
-                                        ctx.font = "bold " + fontSize + "em 'Plus Jakarta Sans', sans-serif";
+                                        ctx.font = "bold 0.85em 'Plus Jakarta Sans', sans-serif";
                                         ctx.textBaseline = "middle";
                                         ctx.fillStyle = isDark ? "#f8fafc" : "#1e293b";
                                         const text = total.toLocaleString(),
@@ -1133,10 +1132,22 @@
                                         responsive: true,
                                         maintainAspectRatio: false,
                                         plugins: {
-                                            legend: { display: false },
-                                            tooltip: { enabled: true },
-                                            datalabels: { display: false }
-                                        },
+                                                            legend: { display: false },
+                                                            tooltip: { enabled: true },
+                                                            datalabels: {
+                                                                display: true,
+                                                                color: '#ffffff',
+                                                                font: { weight: 'bold', size: 9 },
+                                                                formatter: (value, context) => {
+                                                                    let sum = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                                                    if (sum === 0) return '';
+                                                                    let percentage = Math.round(value * 100 / sum);
+                                                                    return percentage >= 5 ? percentage + "%" : '';
+                                                                },
+                                                                anchor: 'center',
+                                                                align: 'center'
+                                                            }
+                                                        },
                                         cutout: '65%'
                                     },
                                     plugins: [{
