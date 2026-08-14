@@ -180,6 +180,18 @@ public class DashboardRepository {
                 """, filter);
         Map<String, Object> settledStats = jdbcTemplate.queryForMap(sqlSettledStats);
 
+        // 8a. Overall loans count and amount (Overall Business)
+        String sqlOverallStats = String.format("""
+                    SELECT
+                        COUNT(*) AS overall_count,
+                        COALESCE(SUM(l.loan_amount), 0) AS overall_amount
+                    FROM cbs.loan l
+                    LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
+                    WHERE 1=1
+                    %s
+                """, filter);
+        Map<String, Object> overallStats = jdbcTemplate.queryForMap(sqlOverallStats);
+
         // 9. Performing Arrears (0-90 DPD, performing_status = Performing)
         String sqlPerfArrears = String.format("""
                     SELECT
@@ -225,6 +237,8 @@ public class DashboardRepository {
         stats.put("nMonthAmount", monthStats.get("month_amount") != null ? monthStats.get("month_amount") : 0);
         stats.put("nYtdCount", ytdStats.get("ytd_count") != null ? ytdStats.get("ytd_count") : 0);
         stats.put("nYtdAmount", ytdStats.get("ytd_amount") != null ? ytdStats.get("ytd_amount") : 0);
+        stats.put("nOverallCount", overallStats.get("overall_count") != null ? overallStats.get("overall_count") : 0);
+        stats.put("nOverallAmount", overallStats.get("overall_amount") != null ? overallStats.get("overall_amount") : 0);
         stats.put("nPortfolioCount",
                 portfolioStats.get("portfolio_count") != null ? portfolioStats.get("portfolio_count") : 0);
         stats.put("nPortfolioAmount",

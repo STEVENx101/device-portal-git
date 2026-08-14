@@ -299,32 +299,32 @@
                                            </div>
                                        </div>
                                    </div>
-                                   <!-- Empty KPI Card 1 -->
-                                   <div class="col-lg col-md-3 col-sm-6">
-                                       <div class="card kpi-card shadow-sm h-100"
-                                           style="border-left: 3px solid #cbd5e1 !important; cursor: default; transition: all 0.2s ease-in-out; opacity: 0.7;">
-                                           <div class="card-body p-2 d-flex flex-column justify-content-between">
-                                               <div>
-                                                   <span class="card-title-sub text-muted">INFO</span>
-                                                   <div class="card-value text-muted">-</div>
-                                                   <div class="card-detail-text text-muted">-</div>
-                                               </div>
-                                           </div>
-                                       </div>
-                                   </div>
-                                   <!-- Empty KPI Card 2 -->
-                                   <div class="col-lg col-md-3 col-sm-6">
-                                       <div class="card kpi-card shadow-sm h-100"
-                                           style="border-left: 3px solid #cbd5e1 !important; cursor: default; transition: all 0.2s ease-in-out; opacity: 0.7;">
-                                           <div class="card-body p-2 d-flex flex-column justify-content-between">
-                                               <div>
-                                                   <span class="card-title-sub text-muted">INFO</span>
-                                                   <div class="card-value text-muted">-</div>
-                                                   <div class="card-detail-text text-muted">-</div>
-                                               </div>
-                                           </div>
-                                       </div>
-                                   </div>
+                                    <!-- YTD Business KPI Card -->
+                                    <div class="col-lg col-md-3 col-sm-6">
+                                        <div class="card kpi-card shadow-sm h-100"
+                                            style="border-left: 3px solid #3b82f6 !important; cursor: pointer; transition: all 0.2s ease-in-out;">
+                                            <div class="card-body p-2 d-flex flex-column justify-content-between">
+                                                <div>
+                                                    <span class="card-title-sub text-muted">YTD BUSINESS</span>
+                                                    <div class="card-value text-info" id="kpi-ytd-amount">0.00 Mn</div>
+                                                    <div class="card-detail-text text-muted" id="kpi-ytd-count">0 Accounts</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Overall Business KPI Card -->
+                                    <div class="col-lg col-md-3 col-sm-6">
+                                        <div class="card kpi-card shadow-sm h-100"
+                                            style="border-left: 3px solid #8b5cf6 !important; cursor: pointer; transition: all 0.2s ease-in-out;">
+                                            <div class="card-body p-2 d-flex flex-column justify-content-between">
+                                                <div>
+                                                    <span class="card-title-sub text-muted">OVERALL BUSINESS</span>
+                                                    <div class="card-value text-secondary" id="kpi-overall-amount">0.00 Mn</div>
+                                                    <div class="card-detail-text text-muted" id="kpi-overall-count">0 Accounts</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                   <!-- 2. Active Portfolio -->
                                   <div class="col-lg col-md-3 col-sm-6">
                                       <div class="card kpi-card shadow-sm h-100"
@@ -769,6 +769,11 @@
                                             document.getElementById("kpi-dpd-zero-amount").innerText = formatLKR(data.dpdZeroPortfolioAmount || 0);
                                             document.getElementById("kpi-dpd-zero-count").innerText = formatNum(data.dpdZeroPortfolioCount || 0) + " Accounts";
 
+                                            // YTD & Overall Business
+                                            document.getElementById("kpi-ytd-amount").innerText = formatLKR(data.nYtdAmount || 0);
+                                            document.getElementById("kpi-ytd-count").innerText = formatNum(data.nYtdCount || 0) + " Accounts";
+                                            document.getElementById("kpi-overall-amount").innerText = formatLKR(data.nOverallAmount || 0);
+                                            document.getElementById("kpi-overall-count").innerText = formatNum(data.nOverallCount || 0) + " Accounts";
                                         })
                                         .catch(err => console.error("Error fetching dashboard statistics:", err));
 
