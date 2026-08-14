@@ -11,6 +11,8 @@ import java.util.List;
 @AllArgsConstructor
 public class ContractDetails {
     private String financeNo;
+    private String accountNo;
+    private String legacyAccountNo;
     private String contractStatus;
     private BigDecimal amtToCollected;
     private BigDecimal exposure;

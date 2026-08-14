@@ -55,3 +55,49 @@
         </li>
     </ul>
 </nav>
+
+<script>
+(function() {
+    var checkExist = setInterval(function() {
+        if (typeof jQuery !== 'undefined' && jQuery.fn && jQuery.fn.dataTable) {
+            clearInterval(checkExist);
+            jQuery.extend(true, jQuery.fn.dataTable.defaults, {
+                drawCallback: function(settings) {
+                    var api = this.api();
+                    api.cells().every(function() {
+                        var node = this.node();
+                        var colIndex = this.index().column;
+                        var headerText = jQuery(api.column(colIndex).header()).text().trim().toLowerCase();
+                        
+                        if (headerText.includes("amount") || 
+                            headerText.includes("rental") || 
+                            headerText.includes("due") || 
+                            headerText.includes("exposure") || 
+                            headerText.includes("balance") || 
+                            headerText.includes("payment") || 
+                            headerText.includes("arrears") || 
+                            headerText.includes("charges") || 
+                            headerText.includes("principal") || 
+                            headerText.includes("interest") || 
+                            headerText.includes("paid") ||
+                            headerText.includes("total") ||
+                            headerText.includes("target") ||
+                            headerText.includes("collection") ||
+                            headerText.includes("allocated")) {
+                            
+                            jQuery(node).css({
+                                'text-align': 'right',
+                                'padding-right': '15px'
+                            });
+                            jQuery(api.column(colIndex).header()).css({
+                                'text-align': 'right',
+                                'padding-right': '15px'
+                            });
+                        }
+                    });
+                }
+            });
+        }
+    }, 100);
+})();
+</script>

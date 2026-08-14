@@ -242,3 +242,24 @@ body {
     overflow-y: visible !important;
 }
 
+/* Reduce and keep a same height in rows of the data tables and standard tables */
+.table-responsive table.table tbody tr,
+.table-responsive table.table thead tr,
+table.dataTable tbody tr,
+table.dataTable thead tr {
+    height: 32px !important;
+}
+
+.table-responsive table.table tbody td,
+.table-responsive table.table tbody th,
+.table-responsive table.table thead th,
+table.dataTable tbody td,
+table.dataTable tbody th,
+table.dataTable thead th {
+    padding-top: 4px !important;
+    padding-bottom: 4px !important;
+    line-height: 1.2 !important;
+    vertical-align: middle !important;
+    white-space: nowrap !important;
+}
+

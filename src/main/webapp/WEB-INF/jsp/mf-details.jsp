@@ -787,8 +787,7 @@
 
                                 if (isOpening) {
                                     debitStr = '';
-                                    creditStr = '0.00';
-                                    closingStr = '0.00';
+                                    creditStr = '';
                                 } else if (isClosing) {
                                     let totalDebit = 0;
                                     let totalCredit = 0;
@@ -1278,7 +1277,11 @@
                                 return response.json();
                             })
                             .then(data => {
-                                document.querySelectorAll('.val-account-no').forEach(el => el.textContent = data.financeNo || '-');
+                                let accountText = data.accountNo || '-';
+                                if (data.legacyAccountNo && data.legacyAccountNo !== data.accountNo) {
+                                    accountText += ' / ' + data.legacyAccountNo;
+                                }
+                                document.querySelectorAll('.val-account-no').forEach(el => el.textContent = accountText);
                                 let statusDesc = data.contractStatus || '-';
                                 if (data.contractStatus === 'A') {
                                     statusDesc = 'Active Loan';

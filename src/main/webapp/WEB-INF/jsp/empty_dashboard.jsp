@@ -287,18 +287,44 @@
                              <!-- Row 1: KPI Cards (6 Cards) -->
                              <div class="row g-2 mb-2">
                                  <!-- 1. Month Disbursement -->
-                                  <div class="col-lg-2 col-md-4 col-sm-6">
-                                      <div class="card kpi-card shadow-sm h-100"
-                                          style="border-left: 3px solid #6366f1 !important; cursor: pointer; transition: all 0.2s ease-in-out;">
-                                          <div class="card-body p-2 d-flex flex-column justify-content-between">
-                                              <div>
-                                                  <span class="card-title-sub text-muted">MONTH DISBURSEMENT</span>
-                                                  <div class="card-value text-primary" id="kpi-month-amount">0.00 Mn</div>
-                                                  <div class="card-detail-text text-muted" id="kpi-month-count">0 Accounts</div>
-                                              </div>
-                                          </div>
-                                      </div>
-                                  </div>
+                                   <div class="col-lg-2 col-md-4 col-sm-6">
+                                       <div class="card kpi-card shadow-sm h-100"
+                                           style="border-left: 3px solid #6366f1 !important; cursor: pointer; transition: all 0.2s ease-in-out;">
+                                           <div class="card-body p-2 d-flex flex-column justify-content-between">
+                                               <div>
+                                                   <span class="card-title-sub text-muted">MONTH DISBURSEMENT</span>
+                                                   <div class="card-value text-primary" id="kpi-month-amount">0.00 Mn</div>
+                                                   <div class="card-detail-text text-muted" id="kpi-month-count">0 Accounts</div>
+                                               </div>
+                                           </div>
+                                       </div>
+                                   </div>
+                                   <!-- Empty KPI Card 1 -->
+                                   <div class="col-lg-2 col-md-4 col-sm-6">
+                                       <div class="card kpi-card shadow-sm h-100"
+                                           style="border-left: 3px solid #cbd5e1 !important; cursor: default; transition: all 0.2s ease-in-out; opacity: 0.7;">
+                                           <div class="card-body p-2 d-flex flex-column justify-content-between">
+                                               <div>
+                                                   <span class="card-title-sub text-muted">INFO</span>
+                                                   <div class="card-value text-muted">-</div>
+                                                   <div class="card-detail-text text-muted">-</div>
+                                               </div>
+                                           </div>
+                                       </div>
+                                   </div>
+                                   <!-- Empty KPI Card 2 -->
+                                   <div class="col-lg-2 col-md-4 col-sm-6">
+                                       <div class="card kpi-card shadow-sm h-100"
+                                           style="border-left: 3px solid #cbd5e1 !important; cursor: default; transition: all 0.2s ease-in-out; opacity: 0.7;">
+                                           <div class="card-body p-2 d-flex flex-column justify-content-between">
+                                               <div>
+                                                   <span class="card-title-sub text-muted">INFO</span>
+                                                   <div class="card-value text-muted">-</div>
+                                                   <div class="card-detail-text text-muted">-</div>
+                                               </div>
+                                           </div>
+                                       </div>
+                                   </div>
                                   <!-- 2. Active Portfolio -->
                                   <div class="col-lg-2 col-md-4 col-sm-6">
                                       <div class="card kpi-card shadow-sm h-100"
