@@ -534,14 +534,14 @@
                                                 <div class="fs--2 fw-semi-bold text-muted mb-2"><i
                                                         class="fas fa-hdd me-1"></i>Device Security Status</div>
                                                 <div class="row g-1 align-items-center">
-                                                    <div class="col-12 mobile-sec-col p-2" style="height: 210px;">
+                                                    <div class="col-12 mobile-sec-col p-2" style="height: 235px;">
                                                         <!-- Locked -->
                                                         <div class="mb-2 text-start">
                                                             <div class="d-flex justify-content-between text-muted mb-1" style="font-size: 0.62rem;">
                                                                 <span class="fw-bold text-truncate">Locked</span>
                                                                 <span><span class="text-success fw-semi-bold" id="lbl-locked-knox">0</span> : <span class="text-danger fw-semi-bold" id="lbl-locked-dc">0</span></span>
                                                             </div>
-                                                            <div class="progress" style="height: 18px; font-size: 0.65rem; font-weight: bold;">
+                                                            <div class="progress" style="height: 24px; font-size: 0.72rem; font-weight: bold;">
                                                                 <div id="bar-locked-knox" class="progress-bar bg-success" role="progressbar" style="width: 0%"></div>
                                                                 <div id="bar-locked-dc" class="progress-bar bg-danger" role="progressbar" style="width: 0%"></div>
                                                             </div>
@@ -552,7 +552,7 @@
                                                                 <span class="fw-bold text-truncate">Unlocked</span>
                                                                 <span><span class="text-success fw-semi-bold" id="lbl-unlocked-knox">0</span> : <span class="text-danger fw-semi-bold" id="lbl-unlocked-dc">0</span></span>
                                                             </div>
-                                                            <div class="progress" style="height: 18px; font-size: 0.65rem; font-weight: bold;">
+                                                            <div class="progress" style="height: 24px; font-size: 0.72rem; font-weight: bold;">
                                                                 <div id="bar-unlocked-knox" class="progress-bar bg-success" role="progressbar" style="width: 0%"></div>
                                                                 <div id="bar-unlocked-dc" class="progress-bar bg-danger" role="progressbar" style="width: 0%"></div>
                                                             </div>
@@ -563,7 +563,7 @@
                                                                 <span class="fw-bold text-truncate">Performing</span>
                                                                 <span><span class="text-success fw-semi-bold" id="lbl-perf-knox">0</span> : <span class="text-danger fw-semi-bold" id="lbl-perf-dc">0</span></span>
                                                             </div>
-                                                            <div class="progress" style="height: 18px; font-size: 0.65rem; font-weight: bold;">
+                                                            <div class="progress" style="height: 24px; font-size: 0.72rem; font-weight: bold;">
                                                                 <div id="bar-perf-knox" class="progress-bar bg-success" role="progressbar" style="width: 0%"></div>
                                                                 <div id="bar-perf-dc" class="progress-bar bg-danger" role="progressbar" style="width: 0%"></div>
                                                             </div>
@@ -574,7 +574,7 @@
                                                                 <span class="fw-bold text-truncate">Non-Performing</span>
                                                                 <span><span class="text-success fw-semi-bold" id="lbl-np-knox">0</span> : <span class="text-danger fw-semi-bold" id="lbl-np-dc">0</span></span>
                                                             </div>
-                                                            <div class="progress" style="height: 18px; font-size: 0.65rem; font-weight: bold;">
+                                                            <div class="progress" style="height: 24px; font-size: 0.72rem; font-weight: bold;">
                                                                 <div id="bar-np-knox" class="progress-bar bg-success" role="progressbar" style="width: 0%"></div>
                                                                 <div id="bar-np-dc" class="progress-bar bg-danger" role="progressbar" style="width: 0%"></div>
                                                             </div>
@@ -1034,10 +1034,10 @@
                                     const dBar = document.getElementById('bar-' + key + '-dc');
                                     
                                     kBar.style.width = knoxPct + '%';
-                                    kBar.innerText = knoxPct >= 10 ? knoxPct + '%' : '';
+                                    kBar.innerText = knoxPct > 0 ? knoxPct + '%' : '';
                                     
                                     dBar.style.width = dcPct + '%';
-                                    dBar.innerText = dcPct >= 10 ? dcPct + '%' : '';
+                                    dBar.innerText = dcPct > 0 ? dcPct + '%' : '';
                                 });
                             } else {
                                 document.querySelectorAll('.mobile-sec-col').forEach(el => el.style.display = 'none');
