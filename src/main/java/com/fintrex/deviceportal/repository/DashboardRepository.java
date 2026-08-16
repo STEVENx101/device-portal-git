@@ -428,21 +428,32 @@ public class DashboardRepository {
         Map<String, Object> latest = jdbcTemplate.queryForMap(sqlLatest);
         Object latestPortfolioDate = latest.get("portfolio_date");
 
-        // Mobile Performing vs Non-Performing
-        String mobilePerfSql = """
-                    SELECT
-                        p.performing_status AS state_name,
-                        COUNT(*) AS count_val
-                    FROM cbs.loan l
-                    JOIN cbs.portfolio p ON l.account_no = p.account_no
-                    AND l.account_series = p.series
-                    AND p.portfolio_date = CURDATE()
-                    WHERE l.product = '005'
-                    GROUP BY p.performing_status
-                    ORDER BY state_name
-                """;
-        List<Map<String, Object>> mobilePerf = "LF".equalsIgnoreCase(product) ? new ArrayList<>() :
-                jdbcTemplate.queryForList(mobilePerfSql);
+        // Mobile Security Stacked Bar query
+        String mobileSecBarSql = String.format("""
+                    SELECT 
+                        CASE WHEN ml.locked = 1 THEN 'Locked' ELSE 'Unlocked' END AS lock_status,
+                        COALESCE(p.performing_status, 'Performing') AS performing_status,
+                        CASE WHEN ml.knox_compatibility = 'yes' THEN 'Knox' ELSE 'Datacultr' END AS provider,
+                        COUNT(*) AS cnt
+                    FROM loan.mobileloan ml
+                    INNER JOIN (
+                        SELECT legacy_account_no AS finance_no, account_no, account_series, product
+                        FROM cbs.loan
+                        WHERE account_status IN ('A', 'N')
+                          AND legacy_account_no IS NOT NULL
+                        UNION
+                        SELECT account_no AS finance_no, account_no, account_series, product
+                        FROM cbs.loan
+                        WHERE account_status IN ('A', 'N')
+                          AND legacy_account_no IS NULL
+                    ) active_loans ON active_loans.finance_no = ml.finance_no
+                    LEFT JOIN cbs.product pr ON CAST(active_loans.product AS UNSIGNED) = pr.code_val
+                    LEFT JOIN cbs.portfolio p ON p.account_no = active_loans.account_no
+                        AND p.series = active_loans.account_series
+                        AND p.portfolio_date = ?
+                    WHERE ml.locked IN (0, 1) %s
+                    GROUP BY lock_status, performing_status, provider
+                """, filter);
 
         // Laptop Performing vs Non-Performing
         String laptopPerfSql = String.format("""
@@ -471,32 +482,6 @@ public class DashboardRepository {
         List<Map<String, Object>> laptopPerf = "MF".equalsIgnoreCase(product) ? new ArrayList<>() :
                 jdbcTemplate.queryForList(laptopPerfSql, latestPortfolioDate, latestPortfolioDate);
 
-        String mobileLockSql = String.format("""
-                    SELECT
-                    CASE
-                        WHEN ml.locked = 1 THEN 'Locked'
-                        ELSE 'Unlocked'
-                    END AS device_status,
-                    COUNT(*) AS device_count
-                FROM loan.mobileloan ml
-                INNER JOIN (
-                    SELECT legacy_account_no AS finance_no, product
-                    FROM cbs.loan
-                    WHERE account_status IN ('A', 'N')
-                      AND legacy_account_no IS NOT NULL
-                    UNION
-                    SELECT account_no AS finance_no, product
-                    FROM cbs.loan
-                    WHERE account_status IN ('A', 'N')
-                      AND legacy_account_no IS NULL
-                ) active_loans
-                    ON active_loans.finance_no = ml.finance_no
-                LEFT JOIN cbs.product pr ON CAST(active_loans.product AS UNSIGNED) = pr.code_val
-                WHERE ml.locked IN (0, 1) %s
-                GROUP BY ml.locked
-                ORDER BY ml.locked DESC
-                """, filter);
-
         String laptopLockSql = String.format("""
                     SELECT
                     CASE
@@ -523,17 +508,6 @@ public class DashboardRepository {
                 ORDER BY dl.locked DESC
                 """, filter);
 
-        List<Map<String, Object>> mobileLock = new ArrayList<>();
-        if (!"LF".equalsIgnoreCase(product)) {
-            List<Map<String, Object>> mobileLockRaw = jdbcTemplate.queryForList(mobileLockSql);
-            for (Map<String, Object> raw : mobileLockRaw) {
-                Map<String, Object> map = new HashMap<>();
-                map.put("state_name", raw.get("device_status"));
-                map.put("count_val", raw.get("device_count"));
-                mobileLock.add(map);
-            }
-        }
-
         List<Map<String, Object>> laptopLock = new ArrayList<>();
         if (!"MF".equalsIgnoreCase(product)) {
             List<Map<String, Object>> laptopLockRaw = jdbcTemplate.queryForList(laptopLockSql);
@@ -545,10 +519,95 @@ public class DashboardRepository {
             }
         }
 
-        result.put("mobilePerforming", mobilePerf);
+        int lockedKnox = 0;
+        int lockedDatacultr = 0;
+        int unlockedKnox = 0;
+        int unlockedDatacultr = 0;
+        int performingKnox = 0;
+        int performingDatacultr = 0;
+        int nonPerformingKnox = 0;
+        int nonPerformingDatacultr = 0;
+
+        List<Map<String, Object>> mobilePerforming = new ArrayList<>();
+        List<Map<String, Object>> mobileLock = new ArrayList<>();
+
+        if (!"LF".equalsIgnoreCase(product)) {
+            List<Map<String, Object>> mobileSecBarRaw = jdbcTemplate.queryForList(mobileSecBarSql, latestPortfolioDate);
+            for (Map<String, Object> row : mobileSecBarRaw) {
+                String lockStatus = (String) row.get("lock_status");
+                String performingStatus = (String) row.get("performing_status");
+                String provider = (String) row.get("provider");
+                int count = ((Number) row.get("cnt")).intValue();
+
+                if ("Knox".equals(provider)) {
+                    if ("Locked".equals(lockStatus)) {
+                        lockedKnox += count;
+                    } else {
+                        unlockedKnox += count;
+                    }
+                    if ("Non-Performing".equalsIgnoreCase(performingStatus)) {
+                        nonPerformingKnox += count;
+                    } else {
+                        performingKnox += count;
+                    }
+                } else {
+                    if ("Locked".equals(lockStatus)) {
+                        lockedDatacultr += count;
+                    } else {
+                        unlockedDatacultr += count;
+                    }
+                    if ("Non-Performing".equalsIgnoreCase(performingStatus)) {
+                        nonPerformingDatacultr += count;
+                    } else {
+                        performingDatacultr += count;
+                    }
+                }
+            }
+
+            // Populate fallback/compatibility lists for mobilePerforming
+            Map<String, Object> perfMap = new HashMap<>();
+            perfMap.put("state_name", "Performing");
+            perfMap.put("count_val", performingKnox + performingDatacultr);
+            mobilePerforming.add(perfMap);
+
+            Map<String, Object> nonPerfMap = new HashMap<>();
+            nonPerfMap.put("state_name", "Non-Performing");
+            nonPerfMap.put("count_val", nonPerformingKnox + nonPerformingDatacultr);
+            mobilePerforming.add(nonPerfMap);
+
+            // Populate fallback/compatibility lists for mobileLock
+            Map<String, Object> lockedMap = new HashMap<>();
+            lockedMap.put("state_name", "Locked");
+            lockedMap.put("count_val", lockedKnox + lockedDatacultr);
+            mobileLock.add(lockedMap);
+
+            Map<String, Object> unlockedMap = new HashMap<>();
+            unlockedMap.put("state_name", "Unlocked");
+            unlockedMap.put("count_val", unlockedKnox + unlockedDatacultr);
+            mobileLock.add(unlockedMap);
+        }
+
+        List<Integer> knoxList = new ArrayList<>();
+        knoxList.add(lockedKnox);
+        knoxList.add(unlockedKnox);
+        knoxList.add(performingKnox);
+        knoxList.add(nonPerformingKnox);
+
+        List<Integer> datacultrList = new ArrayList<>();
+        datacultrList.add(lockedDatacultr);
+        datacultrList.add(unlockedDatacultr);
+        datacultrList.add(performingDatacultr);
+        datacultrList.add(nonPerformingDatacultr);
+
+        Map<String, Object> mobileSecurityBarData = new HashMap<>();
+        mobileSecurityBarData.put("knox", knoxList);
+        mobileSecurityBarData.put("datacultr", datacultrList);
+
+        result.put("mobilePerforming", mobilePerforming);
         result.put("mobileLock", mobileLock);
         result.put("laptopPerforming", laptopPerf);
         result.put("laptopLock", laptopLock);
+        result.put("mobileSecurityBarData", mobileSecurityBarData);
         return result;
     }
 

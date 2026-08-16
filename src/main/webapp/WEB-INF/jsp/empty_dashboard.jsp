@@ -535,19 +535,8 @@
                                                         class="fas fa-hdd me-1"></i>Device Security Status</div>
                                                 <div class="row g-1 align-items-center text-center">
                                                     <div class="col-12 mobile-sec-col mb-2">
-                                                        <div class="fw-semi-bold text-muted"
-                                                            style="font-size: 0.55rem; margin-bottom: 2px;">Mobiles
-                                                            Performing</div>
-                                                        <div style="height: 100px; position: relative; width: 100%;">
-                                                            <canvas id="mobilePerformingChart"></canvas>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-12 mobile-sec-col">
-                                                        <div class="fw-semi-bold text-muted"
-                                                            style="font-size: 0.55rem; margin-bottom: 2px;">Mobiles Lock
-                                                        </div>
-                                                        <div style="height: 100px; position: relative; width: 100%;">
-                                                            <canvas id="mobileLockChart"></canvas>
+                                                        <div style="height: 210px; position: relative; width: 100%;">
+                                                            <canvas id="mobileSecurityBarChart"></canvas>
                                                         </div>
                                                     </div>
                                                     <div class="col-12 laptop-sec-col mb-2" style="display: none;">
@@ -976,8 +965,68 @@
                                 }
                                 document.getElementById("device-sec-text").innerHTML = 'Device locks summary &bull; Active: <span class="fw-bold text-danger">' + formatNum(mobileLocked) + '</span> Mobiles';
 
-                                buildDoughnut('mobilePerformingChart', data.mobilePerforming || [], ['Performing', 'Non-Performing'], ['rgba(16, 185, 129, 0.85)', 'rgba(244, 63, 94, 0.85)']);
-                                buildDoughnut('mobileLockChart', data.mobileLock || [], ['Active', 'Locked'], ['rgba(99, 102, 241, 0.85)', 'rgba(245, 158, 11, 0.85)']);
+                                // Render Stacked Bar Chart for Mobiles
+                                destroyChart('mobileSecurityBarChart');
+                                const ctx = document.getElementById('mobileSecurityBarChart').getContext('2d');
+                                const barData = data.mobileSecurityBarData || { knox: [0,0,0,0], datacultr: [0,0,0,0] };
+                                activeCharts['mobileSecurityBarChart'] = new Chart(ctx, {
+                                    type: 'bar',
+                                    data: {
+                                        labels: ['Locked', 'Unlocked', 'Performing', 'Non-Performing'],
+                                        datasets: [
+                                            {
+                                                label: 'Knox',
+                                                data: barData.knox,
+                                                backgroundColor: 'rgba(59, 130, 246, 0.85)', // Blue
+                                                borderWidth: 0,
+                                                borderRadius: 4
+                                            },
+                                            {
+                                                label: 'Datacultr',
+                                                data: barData.datacultr,
+                                                backgroundColor: 'rgba(249, 115, 22, 0.85)', // Orange
+                                                borderWidth: 0,
+                                                borderRadius: 4
+                                            }
+                                        ]
+                                    },
+                                    options: {
+                                        responsive: true,
+                                        maintainAspectRatio: false,
+                                        plugins: {
+                                            legend: {
+                                                display: true,
+                                                position: 'top',
+                                                labels: {
+                                                    boxWidth: 10,
+                                                    font: { size: 9, weight: 'bold' },
+                                                    color: isDark ? '#f8fafc' : '#1e293b'
+                                                }
+                                            },
+                                            tooltip: {
+                                                enabled: true
+                                            },
+                                            datalabels: {
+                                                display: true,
+                                                color: '#ffffff',
+                                                font: { weight: 'bold', size: 9 },
+                                                formatter: (value) => value > 0 ? value : ''
+                                            }
+                                        },
+                                        scales: {
+                                            x: {
+                                                stacked: true,
+                                                grid: { display: false },
+                                                ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 9, weight: 'bold' } }
+                                            },
+                                            y: {
+                                                stacked: true,
+                                                grid: { color: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' },
+                                                ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 9, weight: 'bold' } }
+                                            }
+                                        }
+                                    }
+                                });
                             } else {
                                 document.querySelectorAll('.mobile-sec-col').forEach(el => el.style.display = 'none');
                                 document.querySelectorAll('.laptop-sec-col').forEach(el => el.style.display = '');
