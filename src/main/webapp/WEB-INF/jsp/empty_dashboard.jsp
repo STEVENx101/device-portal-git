@@ -533,10 +533,56 @@
                                             <div>
                                                 <div class="fs--2 fw-semi-bold text-muted mb-2"><i
                                                         class="fas fa-hdd me-1"></i>Device Security Status</div>
-                                                <div class="row g-1 align-items-center text-center">
-                                                    <div class="col-12 mobile-sec-col mb-2">
-                                                        <div style="height: 210px; position: relative; width: 100%;">
-                                                            <canvas id="mobileSecurityBarChart"></canvas>
+                                                <div class="row g-1 align-items-center">
+                                                    <div class="col-12 mobile-sec-col p-2" style="height: 210px;">
+                                                        <!-- Locked -->
+                                                        <div class="mb-2 text-start">
+                                                            <div class="d-flex justify-content-between text-muted mb-1" style="font-size: 0.62rem;">
+                                                                <span class="fw-bold text-truncate">Locked</span>
+                                                                <span><span class="text-primary fw-semi-bold" id="lbl-locked-knox">0</span> : <span class="text-warning fw-semi-bold" id="lbl-locked-dc">0</span></span>
+                                                            </div>
+                                                            <div class="progress" style="height: 8px;">
+                                                                <div id="bar-locked-knox" class="progress-bar bg-primary" role="progressbar" style="width: 0%"></div>
+                                                                <div id="bar-locked-dc" class="progress-bar bg-warning" role="progressbar" style="width: 0%"></div>
+                                                            </div>
+                                                        </div>
+                                                        <!-- Unlocked -->
+                                                        <div class="mb-2 text-start">
+                                                            <div class="d-flex justify-content-between text-muted mb-1" style="font-size: 0.62rem;">
+                                                                <span class="fw-bold text-truncate">Unlocked</span>
+                                                                <span><span class="text-primary fw-semi-bold" id="lbl-unlocked-knox">0</span> : <span class="text-warning fw-semi-bold" id="lbl-unlocked-dc">0</span></span>
+                                                            </div>
+                                                            <div class="progress" style="height: 8px;">
+                                                                <div id="bar-unlocked-knox" class="progress-bar bg-primary" role="progressbar" style="width: 0%"></div>
+                                                                <div id="bar-unlocked-dc" class="progress-bar bg-warning" role="progressbar" style="width: 0%"></div>
+                                                            </div>
+                                                        </div>
+                                                        <!-- Performing -->
+                                                        <div class="mb-2 text-start">
+                                                            <div class="d-flex justify-content-between text-muted mb-1" style="font-size: 0.62rem;">
+                                                                <span class="fw-bold text-truncate">Performing</span>
+                                                                <span><span class="text-primary fw-semi-bold" id="lbl-perf-knox">0</span> : <span class="text-warning fw-semi-bold" id="lbl-perf-dc">0</span></span>
+                                                            </div>
+                                                            <div class="progress" style="height: 8px;">
+                                                                <div id="bar-perf-knox" class="progress-bar bg-primary" role="progressbar" style="width: 0%"></div>
+                                                                <div id="bar-perf-dc" class="progress-bar bg-warning" role="progressbar" style="width: 0%"></div>
+                                                            </div>
+                                                        </div>
+                                                        <!-- Non-Performing -->
+                                                        <div class="mb-2 text-start">
+                                                            <div class="d-flex justify-content-between text-muted mb-1" style="font-size: 0.62rem;">
+                                                                <span class="fw-bold text-truncate">Non-Performing</span>
+                                                                <span><span class="text-primary fw-semi-bold" id="lbl-np-knox">0</span> : <span class="text-warning fw-semi-bold" id="lbl-np-dc">0</span></span>
+                                                            </div>
+                                                            <div class="progress" style="height: 8px;">
+                                                                <div id="bar-np-knox" class="progress-bar bg-primary" role="progressbar" style="width: 0%"></div>
+                                                                <div id="bar-np-dc" class="progress-bar bg-warning" role="progressbar" style="width: 0%"></div>
+                                                            </div>
+                                                        </div>
+                                                        <!-- Tiny inline legend -->
+                                                        <div class="text-center" style="font-size: 0.55rem; margin-top: 6px;">
+                                                            <span class="badge bg-primary" style="padding: 2px 4px;">Knox</span>
+                                                            <span class="badge bg-warning text-dark" style="padding: 2px 4px; margin-left: 4px;">Datacultr</span>
                                                         </div>
                                                     </div>
                                                     <div class="col-12 laptop-sec-col mb-2" style="display: none;">
@@ -965,68 +1011,26 @@
                                 }
                                 document.getElementById("device-sec-text").innerHTML = 'Device locks summary &bull; Active: <span class="fw-bold text-danger">' + formatNum(mobileLocked) + '</span> Mobiles';
 
-                                // Render Stacked Bar Chart for Mobiles
-                                destroyChart('mobileSecurityBarChart');
-                                const ctx = document.getElementById('mobileSecurityBarChart').getContext('2d');
+                                // Populate HTML Progress Bars for Mobiles
                                 const barData = data.mobileSecurityBarData || { knox: [0,0,0,0], datacultr: [0,0,0,0] };
-                                activeCharts['mobileSecurityBarChart'] = new Chart(ctx, {
-                                    type: 'bar',
-                                    data: {
-                                        labels: ['Locked', 'Unlocked', 'Performing', 'Non-Performing'],
-                                        datasets: [
-                                            {
-                                                label: 'Knox',
-                                                data: barData.knox,
-                                                backgroundColor: 'rgba(59, 130, 246, 0.85)', // Blue
-                                                borderWidth: 0,
-                                                borderRadius: 4
-                                            },
-                                            {
-                                                label: 'Datacultr',
-                                                data: barData.datacultr,
-                                                backgroundColor: 'rgba(249, 115, 22, 0.85)', // Orange
-                                                borderWidth: 0,
-                                                borderRadius: 4
-                                            }
-                                        ]
-                                    },
-                                    options: {
-                                        indexAxis: 'y',
-                                        responsive: true,
-                                        maintainAspectRatio: false,
-                                        plugins: {
-                                            legend: {
-                                                display: true,
-                                                position: 'top',
-                                                labels: {
-                                                    boxWidth: 10,
-                                                    font: { size: 9, weight: 'bold' },
-                                                    color: isDark ? '#f8fafc' : '#1e293b'
-                                                }
-                                            },
-                                            tooltip: {
-                                                enabled: true
-                                            },
-                                            datalabels: {
-                                                display: true,
-                                                color: '#ffffff',
-                                                font: { weight: 'bold', size: 9 },
-                                                formatter: (value) => value > 0 ? value : ''
-                                            }
-                                        },
-                                        scales: {
-                                            x: {
-                                                stacked: true,
-                                                grid: { display: false },
-                                                ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 9, weight: 'bold' } }
-                                            },
-                                            y: {
-                                                stacked: true,
-                                                grid: { color: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' },
-                                                ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 9, weight: 'bold' } }
-                                            }
-                                        }
+                                
+                                const keys = ['locked', 'unlocked', 'perf', 'np'];
+                                keys.forEach((key, idx) => {
+                                    const knoxVal = barData.knox[idx] || 0;
+                                    const dcVal = barData.datacultr[idx] || 0;
+                                    const total = knoxVal + dcVal;
+                                    
+                                    document.getElementById('lbl-' + key + '-knox').innerText = formatNum(knoxVal);
+                                    document.getElementById('lbl-' + key + '-dc').innerText = formatNum(dcVal);
+                                    
+                                    let knoxPct = 0;
+                                    let dcPct = 0;
+                                    if (total > 0) {
+                                        knoxPct = (knoxVal / total) * 100;
+                                        dcPct = (dcVal / total) * 100;
                                     }
+                                    document.getElementById('bar-' + key + '-knox').style.width = knoxPct + '%';
+                                    document.getElementById('bar-' + key + '-dc').style.width = dcPct + '%';
                                 });
                             } else {
                                 document.querySelectorAll('.mobile-sec-col').forEach(el => el.style.display = 'none');
