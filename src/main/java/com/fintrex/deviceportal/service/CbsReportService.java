@@ -728,6 +728,47 @@ public class CbsReportService {
         return executeDownloadReport(sql, params);
     }
 
+    public Map<String, Object> getArrearsSummary(Map<String, Object> filters) {
+        Map<String, Object> params = new HashMap<>();
+        addLatestPortfolioParams(params);
+        String subQuery = """
+                SELECT
+                    p1.exposure AS `exposure`,
+                    p1.total_due AS `total_due`,
+                    p1.dpd AS `dpd`
+                FROM cbs.loan l
+                JOIN cbs.portfolio p1
+                    ON p1.account_no = l.account_no
+                    AND p1.series = l.account_series
+                    AND p1.portfolio_date = :latestPortfolioDate
+                WHERE 1=1 AND p1.dpd > 0""";
+
+        if (filters != null) {
+            String asAt = (String) filters.get("asAt");
+            if (asAt != null && !asAt.trim().isEmpty()) {
+                subQuery += " AND l.disbursed_date < DATE_ADD(:asAt, INTERVAL 1 DAY)";
+                params.put("asAt", asAt.trim());
+            }
+        }
+
+        String sql = """
+                SELECT
+                    COUNT(*) AS total_count,
+                    COALESCE(SUM(t.exposure), 0) AS total_exposure,
+                    COALESCE(SUM(t.total_due), 0) AS total_due,
+                    COUNT(CASE WHEN t.dpd BETWEEN 1 AND 30 THEN 1 END) AS dpd1_30_count,
+                    COALESCE(SUM(CASE WHEN t.dpd BETWEEN 1 AND 30 THEN t.exposure END), 0) AS dpd1_30_exposure,
+                    COUNT(CASE WHEN t.dpd BETWEEN 31 AND 60 THEN 1 END) AS dpd31_60_count,
+                    COALESCE(SUM(CASE WHEN t.dpd BETWEEN 31 AND 60 THEN t.exposure END), 0) AS dpd31_60_exposure,
+                    COUNT(CASE WHEN t.dpd BETWEEN 61 AND 90 THEN 1 END) AS dpd61_90_count,
+                    COALESCE(SUM(CASE WHEN t.dpd BETWEEN 61 AND 90 THEN t.exposure END), 0) AS dpd61_90_exposure,
+                    COUNT(CASE WHEN t.dpd > 90 THEN 1 END) AS above90_count,
+                    COALESCE(SUM(CASE WHEN t.dpd > 90 THEN t.exposure END), 0) AS above90_exposure
+                FROM (""" + subQuery + ") t";
+
+        return jdbc.queryForMap(sql, params);
+    }
+
     public DataTableResponse fetchNpaReport(DataTableRequest request) {
         Map<String, Object> params = new HashMap<>();
         String sql = buildNpaReportQuery(request.getData(), params);

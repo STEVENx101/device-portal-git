@@ -215,6 +215,11 @@ public class CbsReportController {
         return cbsReportService.fetchArrearsReport(request);
     }
 
+    @PostMapping("/arrears/summary")
+    public ResponseEntity<Map<String, Object>> getArrearsSummary(@RequestBody Map<String, Object> filters) {
+        return ResponseEntity.ok(cbsReportService.getArrearsSummary(filters));
+    }
+
     @GetMapping("/arrears/download")
     public void downloadArrears(
             @RequestParam(value = "asAt", required = false) String asAt,

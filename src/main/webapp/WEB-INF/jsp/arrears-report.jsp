@@ -70,6 +70,30 @@
             .bg-primary {
                 background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%) !important;
             }
+            .kpi-card {
+                border-radius: 14px;
+                padding: 1rem;
+                background: rgba(255, 255, 255, 0.8);
+                backdrop-filter: blur(10px);
+                border: 1px solid rgba(226, 232, 240, 0.8);
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
+            }
+            .kpi-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 20px rgba(99, 102, 241, 0.12);
+            }
+            .kpi-title {
+                font-size: 0.75rem;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                color: #64748b;
+            }
+            .kpi-value {
+                font-size: 1.35rem;
+                font-weight: 800;
+                color: #1e293b;
+            }
         </style>
     </head>
 
@@ -91,6 +115,45 @@
                     <div class="d-flex mb-2 align-items-center justify-content-between mt-2">
                         <div>
                             <h4 class="mb-0 text-primary"><i class="fas fa-clock me-2"></i>Recovery Reports - Arrears</h4>
+                        </div>
+                    </div>
+
+                    <!-- Summary KPI Cards -->
+                    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xl-5 g-3 mb-3">
+                        <div class="col">
+                            <div class="kpi-card border-start border-4 border-success">
+                                <div class="kpi-title"><i class="fas fa-hand-holding-usd me-1 text-success"></i>Total Arrears</div>
+                                <div class="kpi-value text-success" id="kpiTotalArrears">-</div>
+                                <div class="small text-muted mt-1" id="kpiTotalArrearsSub">-</div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="kpi-card border-start border-4 border-warning">
+                                <div class="kpi-title"><i class="fas fa-exclamation-circle me-1 text-warning"></i>DPD 1 - 30</div>
+                                <div class="kpi-value text-warning" id="kpiDpd1_30Exposure">-</div>
+                                <div class="small text-muted mt-1" id="kpiDpd1_30Sub">-</div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="kpi-card border-start border-4 border-danger">
+                                <div class="kpi-title"><i class="fas fa-exclamation-triangle me-1 text-danger"></i>DPD 31 - 60</div>
+                                <div class="kpi-value text-danger" id="kpiDpd31_60Exposure">-</div>
+                                <div class="small text-muted mt-1" id="kpiDpd31_60Sub">-</div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="kpi-card border-start border-4 border-danger">
+                                <div class="kpi-title"><i class="fas fa-times-circle me-1 text-danger"></i>DPD 61 - 90</div>
+                                <div class="kpi-value text-danger" id="kpiDpd61_90Exposure">-</div>
+                                <div class="small text-muted mt-1" id="kpiDpd61_90Sub">-</div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="kpi-card border-start border-4 border-dark">
+                                <div class="kpi-title"><i class="fas fa-ban me-1 text-dark"></i>Over 90 DPD</div>
+                                <div class="kpi-value text-dark" id="kpiAbove90Exposure">-</div>
+                                <div class="small text-muted mt-1" id="kpiAbove90Sub">-</div>
+                            </div>
                         </div>
                     </div>
 
@@ -168,10 +231,51 @@
             let dtReport;
             let hasLoaded = false;
 
+            function formatNumber(val, decimals = 2) {
+                if (val === null || val === undefined || isNaN(val)) return '0.00';
+                return Number(val).toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+            }
+
+            webAppFormatNumber = formatNumber; // expose to global if needed
+
+            function formatInt(val) {
+                if (val === null || val === undefined || isNaN(val)) return '0';
+                return Number(val).toLocaleString();
+            }
+
             function getFilters() {
                 return {
                     asAt: $('#asAtDate').val()
                 };
+            }
+
+            function loadKpis() {
+                const filters = getFilters();
+                $.ajax({
+                    url: '${pageContext.request.contextPath}/api/cbs/arrears/summary',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(filters),
+                    success: function(totals) {
+                        $('#kpiTotalExposure').text(formatNumber(totals.total_exposure / 1000000.0) + ' Mn');
+                        $('#kpiTotalSub').text(formatInt(totals.total_count) + ' Contracts');
+                        
+                        $('#kpiTotalArrears').text(formatNumber(totals.total_due / 1000000.0) + ' Mn');
+                        $('#kpiTotalArrearsSub').text('Arrears Value');
+                        
+                        $('#kpiDpd1_30Exposure').text(formatNumber(totals.dpd1_30_exposure / 1000000.0) + ' Mn');
+                        $('#kpiDpd1_30Sub').text(formatInt(totals.dpd1_30_count) + ' Contracts');
+                        
+                        $('#kpiDpd31_60Exposure').text(formatNumber(totals.dpd31_60_exposure / 1000000.0) + ' Mn');
+                        $('#kpiDpd31_60Sub').text(formatInt(totals.dpd31_60_count) + ' Contracts');
+                        
+                        $('#kpiDpd61_90Exposure').text(formatNumber(totals.dpd61_90_exposure / 1000000.0) + ' Mn');
+                        $('#kpiDpd61_90Sub').text(formatInt(totals.dpd61_90_count) + ' Contracts');
+                        
+                        $('#kpiAbove90Exposure').text(formatNumber(totals.above90_exposure / 1000000.0) + ' Mn');
+                        $('#kpiAbove90Sub').text(formatInt(totals.above90_count) + ' Contracts');
+                    }
+                });
             }
 
             function getCookie(name) {
@@ -184,6 +288,9 @@
                 // Set default date to today
                 const today = new Date().toISOString().split('T')[0];
                 $('#asAtDate').val(today);
+                
+                // Load KPIs initially
+                loadKpis();
 
                 dtReport = $('#tableArrears').DataTable({
                     processing: false,
@@ -240,6 +347,7 @@
                     hasLoaded = true;
                     $(this).html('<span class="fas fa-sync-alt me-1"></span> Refresh Data');
                     dtReport.draw();
+                    loadKpis();
                 });
 
                 if ($('#downloadExcelBtn').length) {
