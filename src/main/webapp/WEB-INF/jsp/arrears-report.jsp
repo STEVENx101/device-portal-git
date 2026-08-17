@@ -122,9 +122,9 @@
                     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xl-5 g-3 mb-3">
                         <div class="col">
                             <div class="kpi-card border-start border-4 border-success">
-                                <div class="kpi-title"><i class="fas fa-hand-holding-usd me-1 text-success"></i>Total Arrears</div>
-                                <div class="kpi-value text-success" id="kpiTotalArrears">-</div>
-                                <div class="small text-muted mt-1" id="kpiTotalArrearsSub">-</div>
+                                <div class="kpi-title"><i class="fas fa-wallet me-1 text-success"></i>Total Exposure</div>
+                                <div class="kpi-value text-success" id="kpiTotalExposure">-</div>
+                                <div class="small text-muted mt-1" id="kpiTotalSub">-</div>
                             </div>
                         </div>
                         <div class="col">
