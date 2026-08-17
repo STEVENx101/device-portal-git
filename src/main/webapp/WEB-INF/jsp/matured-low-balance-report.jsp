@@ -141,6 +141,7 @@
                                             <th>Total Due</th>
                                             <th>Exposure</th>
                                             <th>DPD</th>
+                                            <th>Account Status</th>
                                             <th>Locked Status</th>
                                             <th>Recovery Officer</th>
                                             <th>Customer Name</th>
@@ -229,6 +230,7 @@
                         { data: 'total_due', render: $.fn.dataTable.render.number(',', '.', 2) },
                         { data: 'exposure', render: $.fn.dataTable.render.number(',', '.', 2) },
                         { data: 'dpd' },
+                        { data: 'account_status', defaultContent: '-' },
                         { data: 'lock_status' },
                         { data: 'recovery_officer', defaultContent: '-' },
                         { data: 'client_name' }

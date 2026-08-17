@@ -1346,6 +1346,7 @@ public class CbsReportService {
                     p1.total_due AS `total_due`,
                     p1.exposure AS `exposure`,
                     p1.dpd AS `dpd`,
+                    p1.loan_status AS `account_status`,
                     CASE
                         WHEN COALESCE(lm1.locked, lm2.locked) = 1 THEN 'Locked'
                         ELSE 'Unlocked'
@@ -1390,6 +1391,13 @@ public class CbsReportService {
                     t.total_due,
                     t.exposure,
                     t.dpd,
+                    CASE
+                        WHEN t.account_status = 'A' THEN 'Active Loan'
+                        WHEN t.account_status = 'F' THEN 'Fully Paid'
+                        WHEN t.account_status = 'N' THEN 'NPA (DPD over 90 days)'
+                        WHEN t.account_status = 'P' THEN 'Paid Off'
+                        ELSE t.account_status
+                    END AS `account_status`,
                     t.lock_status,
                     t.recovery_officer,
                     t.charge_amount
