@@ -133,6 +133,42 @@ public class ContractController {
         }
     }
 
+    @PostMapping("/datacultr/resend-unlock")
+    public ResponseEntity<String> resendUnlock(@RequestParam("accountNo") String accountNo) {
+        try {
+            String payload = "[{\"accountNo\":\"" + accountNo.trim() + "\"}]";
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("https://api.fintrex.lk/datacultr/resend-unlock"))
+                    .timeout(Duration.ofSeconds(15))
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(payload))
+                    .build();
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            return ResponseEntity.status(response.statusCode()).body(response.body());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("{\"status\": 500, \"message\": \"Failed: " + e.getMessage() + "\"}");
+        }
+    }
+
+    @PostMapping("/datacultr/resend-lock")
+    public ResponseEntity<String> resendLock(@RequestParam("accountNo") String accountNo) {
+        try {
+            String payload = "[{\"accountNo\":\"" + accountNo.trim() + "\"}]";
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("https://api.fintrex.lk/datacultr/resend-lock"))
+                    .timeout(Duration.ofSeconds(15))
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(payload))
+                    .build();
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            return ResponseEntity.status(response.statusCode()).body(response.body());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("{\"status\": 500, \"message\": \"Failed: " + e.getMessage() + "\"}");
+        }
+    }
+
     private String statementApiToken = null;
 
     private synchronized String getStatementToken() throws Exception {

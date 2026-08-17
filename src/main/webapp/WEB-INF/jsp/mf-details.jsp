@@ -611,6 +611,10 @@
                     contextPath = '/device-portal';
                 }
                 let currentFinanceNo = '';
+                let currentSecurity = '';
+                let currentLocked = null;
+                let currentTotalDue = 0.0;
+                let currentAccountNo = '';
                 $(document).ready(function () {
                     // Hover actions for floating search bar
                     $('#searchHoverTrigger, #searchContainer').on('mouseenter', function () {
@@ -629,13 +633,53 @@
                     SmsTable('');
                     LocksTable('');
                     RemarksTable('');
-                    // Bind click handler for locks status card button toggle (UI-only mockup)
+                    // Bind click handler for locks status card button toggle (Datacultr API integration)
                     $(document).on('click', '#btn-locks-toggle', function () {
-                        const titleEl = document.getElementById('locks-status-title');
-                        if (titleEl) {
-                            const isLocked = titleEl.innerText.includes('Locked');
-                            updateLocksStatusCard(!isLocked);
+                        const btnEl = $(this);
+                        const btnText = btnEl.text().trim();
+                        if (!currentFinanceNo || !currentAccountNo) return;
+
+                        let url = '';
+                        if (btnText === 'Resend Unlock') {
+                            url = contextPath + '/api/contracts/datacultr/resend-unlock?accountNo=' + encodeURIComponent(currentAccountNo);
+                        } else if (btnText === 'Resend Lock') {
+                            url = contextPath + '/api/contracts/datacultr/resend-lock?accountNo=' + encodeURIComponent(currentAccountNo);
+                        } else {
+                            return; // Action disabled or not matching
                         }
+
+                        btnEl.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Sending...');
+
+                        $.ajax({
+                            url: url,
+                            type: 'POST',
+                            success: function (res) {
+                                let responseObj = res;
+                                if (typeof res === 'string') {
+                                    try {
+                                        responseObj = JSON.parse(res);
+                                    } catch (e) {
+                                        responseObj = {};
+                                    }
+                                }
+
+                                if (responseObj.status === 200 || responseObj.status === '200') {
+                                    alert(btnText + ' command sent successfully!');
+                                    // Refresh the locks logs table
+                                    const imeiVal = document.querySelector('.val-imei-no') ? document.querySelector('.val-imei-no').textContent : '';
+                                    LocksTable(currentFinanceNo, currentSecurity, imeiVal);
+                                } else {
+                                    alert('Failed: ' + (responseObj.message || 'Unknown error'));
+                                }
+                            },
+                            error: function (xhr, status, error) {
+                                alert('Error sending command: ' + error);
+                            },
+                            complete: function () {
+                                // Restore button state
+                                updateLocksStatusCard(currentLocked === 1);
+                            }
+                        });
                     });
 
                     // Tab change handler to show/hide the lock control card
@@ -1299,6 +1343,10 @@
                                 document.querySelectorAll('.val-security').forEach(el => el.textContent = data.security || '-');
                                 document.querySelectorAll('.val-model').forEach(el => el.textContent = data.model || '-');
                                 currentFinanceNo = data.financeNo || '';
+                                currentSecurity = data.security || '';
+                                currentLocked = data.locked;
+                                currentTotalDue = data.amtToCollected !== null ? parseFloat(data.amtToCollected) : 0.0;
+                                currentAccountNo = data.accountNo || '';
                                 document.querySelectorAll('.val-imei-no').forEach(el => el.textContent = data.imeiNo || '-');
                                 document.querySelectorAll('.val-workhub-sp-no').forEach(el => el.textContent = data.workhubSpNo || '-');
                                 document.querySelectorAll('.val-vendor-name').forEach(el => el.textContent = data.vendorName || '-');
@@ -1456,28 +1504,46 @@
                             });
                     }
                 });
+                 function updateLocksStatusCard(isLocked) {
+                     const iconEl = document.getElementById('locks-status-icon');
+                     const titleEl = document.getElementById('locks-status-title');
+                     const btnEl = document.getElementById('btn-locks-toggle');
 
-                function updateLocksStatusCard(isLocked) {
-                    const iconEl = document.getElementById('locks-status-icon');
-                    const titleEl = document.getElementById('locks-status-title');
-                    const btnEl = document.getElementById('btn-locks-toggle');
+                     if (isLocked) {
+                         if (iconEl) iconEl.innerHTML = '<i class="fas fa-lock text-danger"></i>';
+                         if (titleEl) titleEl.innerText = 'Device is Locked';
+                     } else {
+                         if (iconEl) iconEl.innerHTML = '<i class="fas fa-lock-open text-success"></i>';
+                         if (titleEl) titleEl.innerText = 'Device is Unlocked';
+                     }
 
-                    if (isLocked) {
-                        if (iconEl) iconEl.innerHTML = '<i class="fas fa-lock text-danger"></i>';
-                        if (titleEl) titleEl.innerText = 'Device is Locked';
-                        if (btnEl) {
-                            btnEl.innerText = 'Unlock Device';
-                            btnEl.className = 'btn btn-sm fw-bold btn-success';
-                        }
-                    } else {
-                        if (iconEl) iconEl.innerHTML = '<i class="fas fa-lock-open text-success"></i>';
-                        if (titleEl) titleEl.innerText = 'Device is Unlocked';
-                        if (btnEl) {
-                            btnEl.innerText = 'Lock Device';
-                            btnEl.className = 'btn btn-sm fw-bold btn-danger';
-                        }
-                    }
-                }
+                     if (btnEl) {
+                         const sec = (currentSecurity || '').trim().toUpperCase();
+                         if (sec === 'DATACULTR') {
+                             if (currentLocked === 0 && currentTotalDue <= 200) {
+                                 btnEl.innerText = 'Resend Unlock';
+                                 btnEl.className = 'btn btn-sm fw-bold btn-success';
+                                 btnEl.disabled = false;
+                                 btnEl.style.opacity = '1';
+                             } else if (currentLocked === 1 && currentTotalDue > 200) {
+                                 btnEl.innerText = 'Resend Lock';
+                                 btnEl.className = 'btn btn-sm fw-bold btn-danger';
+                                 btnEl.disabled = false;
+                                 btnEl.style.opacity = '1';
+                             } else {
+                                 btnEl.innerText = isLocked ? 'Unlock Device' : 'Lock Device';
+                                 btnEl.className = 'btn btn-sm fw-bold btn-secondary';
+                                 btnEl.disabled = true;
+                                 btnEl.style.opacity = '0.5';
+                             }
+                         } else {
+                             btnEl.innerText = isLocked ? 'Unlock Device' : 'Lock Device';
+                             btnEl.className = 'btn btn-sm fw-bold btn-secondary';
+                             btnEl.disabled = true;
+                             btnEl.style.opacity = '0.5';
+                         }
+                     }
+                 }
             </script>
 
             <!-- SMS Modal -->
