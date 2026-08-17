@@ -82,7 +82,9 @@ public class UserRepository {
 
     public List<Screen> findAllScreens() {
         String sql = """
-            SELECT id, name, path, icon, group_name FROM device_portal.screen ORDER BY id ASC""";
+            SELECT id, name, path, icon, group_name FROM device_portal.screen 
+            WHERE path != '/paid-off-report' 
+            ORDER BY id ASC""";
         return jdbcTemplate.query(sql, (rs, rowNum) -> new Screen(
                 rs.getInt("id"),
                 rs.getString("name"),
@@ -98,6 +100,7 @@ public class UserRepository {
             FROM device_portal.screen s 
             JOIN device_portal.user_type_screen uts ON s.id = uts.screen_id 
             WHERE uts.user_type_id = ? 
+              AND s.path != '/paid-off-report' 
             ORDER BY s.id ASC""";
         return jdbcTemplate.query(sql, (rs, rowNum) -> new Screen(
                 rs.getInt("id"),

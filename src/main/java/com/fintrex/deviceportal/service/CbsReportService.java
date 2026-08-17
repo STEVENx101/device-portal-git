@@ -1364,8 +1364,8 @@ public class CbsReportService {
                 LEFT JOIN loan.mobileloan_charges lmc2 ON lmc2.id = lm2.id
                 WHERE 1=1
                   AND l.maturity_date < CURDATE()
-                  AND p1.exposure > 0
-                  AND p1.exposure < :lowAmountThreshold""";
+                  AND p1.total_due > 0
+                  AND p1.total_due < :lowAmountThreshold""";
 
         if (rawFilter instanceof Map) {
             Map<?, ?> filter = (Map<?, ?>) rawFilter;
