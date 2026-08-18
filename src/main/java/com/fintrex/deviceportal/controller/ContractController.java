@@ -134,8 +134,18 @@ public class ContractController {
     }
 
     @PostMapping("/datacultr/resend-unlock")
-    public ResponseEntity<String> resendUnlock(@RequestParam("accountNo") String accountNo) {
+    public ResponseEntity<String> resendUnlock(
+            @RequestParam("accountNo") String accountNo,
+            @RequestParam("financeNo") String financeNo,
+            jakarta.servlet.http.HttpSession session) {
         try {
+            List<com.fintrex.deviceportal.dto.Screen> permittedScreens = (List<com.fintrex.deviceportal.dto.Screen>) session.getAttribute("permittedScreens");
+            boolean hasPermission = permittedScreens != null && permittedScreens.stream()
+                    .anyMatch(s -> s.getPath().equalsIgnoreCase("/device-lock-control"));
+            if (!hasPermission) {
+                return ResponseEntity.status(403).body("{\"status\": 403, \"message\": \"Access Denied: You do not have permission to control this device.\"}");
+            }
+
             String payload = "[{\"accountNo\":\"" + accountNo.trim() + "\"}]";
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("https://api.fintrex.lk/datacultr/resend-unlock"))
@@ -144,6 +154,13 @@ public class ContractController {
                     .POST(HttpRequest.BodyPublishers.ofString(payload))
                     .build();
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            
+            if (response.statusCode() == 200) {
+                com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");
+                String username = currentUser != null ? currentUser.getUsername() : "system";
+                contractService.addRemark(financeNo, "Device Unlock command resent successfully.", username);
+            }
+            
             return ResponseEntity.status(response.statusCode()).body(response.body());
         } catch (Exception e) {
             e.printStackTrace();
@@ -152,8 +169,18 @@ public class ContractController {
     }
 
     @PostMapping("/datacultr/resend-lock")
-    public ResponseEntity<String> resendLock(@RequestParam("accountNo") String accountNo) {
+    public ResponseEntity<String> resendLock(
+            @RequestParam("accountNo") String accountNo,
+            @RequestParam("financeNo") String financeNo,
+            jakarta.servlet.http.HttpSession session) {
         try {
+            List<com.fintrex.deviceportal.dto.Screen> permittedScreens = (List<com.fintrex.deviceportal.dto.Screen>) session.getAttribute("permittedScreens");
+            boolean hasPermission = permittedScreens != null && permittedScreens.stream()
+                    .anyMatch(s -> s.getPath().equalsIgnoreCase("/device-lock-control"));
+            if (!hasPermission) {
+                return ResponseEntity.status(403).body("{\"status\": 403, \"message\": \"Access Denied: You do not have permission to control this device.\"}");
+            }
+
             String payload = "[{\"accountNo\":\"" + accountNo.trim() + "\"}]";
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("https://api.fintrex.lk/datacultr/resend-lock"))
@@ -162,6 +189,13 @@ public class ContractController {
                     .POST(HttpRequest.BodyPublishers.ofString(payload))
                     .build();
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            
+            if (response.statusCode() == 200) {
+                com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");
+                String username = currentUser != null ? currentUser.getUsername() : "system";
+                contractService.addRemark(financeNo, "Device Lock command resent successfully.", username);
+            }
+            
             return ResponseEntity.status(response.statusCode()).body(response.body());
         } catch (Exception e) {
             e.printStackTrace();

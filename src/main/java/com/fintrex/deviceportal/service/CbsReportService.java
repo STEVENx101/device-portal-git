@@ -43,12 +43,25 @@ public class CbsReportService {
         initRecoveryScreens();
         initVendorPaymentScreens();
         initPaymentUploadScreens();
+        initDeviceLockControlScreen();
 
         try {
             jdbc.getJdbcTemplate()
                     .execute("UPDATE device_portal.screen SET name = 'Facility Information' WHERE path = '/mobile'");
         } catch (Exception e) {
             log.warn("Unable to update the Facility Information screen name", e);
+        }
+    }
+
+    private void initDeviceLockControlScreen() {
+        try {
+            jdbc.getJdbcTemplate().execute("""
+                        INSERT INTO device_portal.screen (name, path, icon, group_name)
+                        SELECT 'Device Lock/Unlock Control', '/device-lock-control', 'fas fa-key', 'Controls'
+                        WHERE NOT EXISTS (SELECT 1 FROM device_portal.screen WHERE path = '/device-lock-control')
+                    """);
+        } catch (Exception e) {
+            log.error("Device lock control screen configuration database operation failed", e);
         }
     }
 

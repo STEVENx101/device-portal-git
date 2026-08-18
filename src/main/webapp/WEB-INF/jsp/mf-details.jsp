@@ -136,6 +136,20 @@
                     </script>
 
                     <%@include file="../jspf/navbar.jspf" %>
+<%
+    boolean hasDeviceLockControl = false;
+    if (userScreens != null) {
+        for (Screen s : userScreens) {
+            if (s.getPath().equalsIgnoreCase("/device-lock-control")) {
+                hasDeviceLockControl = true;
+                break;
+            }
+        }
+    }
+%>
+<script>
+    var hasDeviceLockControl = '<%= hasDeviceLockControl %>' === 'true';
+</script>
 
                         <nav class="navbar navbar-light navbar-glass navbar-top navbar-expand-lg"
                             style="display: none;">
@@ -301,10 +315,10 @@
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                                <!-- Device Control Status Card (Horizontal layout below Contract Information Overview) -->
+                                </div>                                <!-- Device Control Status Card (Horizontal layout below Contract Information Overview) -->
+                                <% if (hasDeviceLockControl) { %>
                                 <div class="card shadow-none border mt-2 mb-3" id="locks-status-card"
-                                    style="display: none; background-color: rgba(var(--falcon-primary-rgb), 0.03);">
+                                     style="display: none; background-color: rgba(var(--falcon-primary-rgb), 0.03);">
                                     <div class="card-body p-2 px-3">
                                         <div
                                             class="d-flex flex-column flex-sm-row align-items-center justify-content-between gap-3">
@@ -313,7 +327,7 @@
                                                         class="fas fa-lock text-danger"></i></span>
                                                 <div>
                                                     <div class="fs--1 fw-bold" id="locks-status-title">Device is Locked
-                                                    </div>
+                                                     </div>
                                                     <div class="fs--2 text-muted" id="locks-status-desc">Use the action
                                                         below to send a command to the device.</div>
                                                 </div>
@@ -326,6 +340,7 @@
                                         </div>
                                     </div>
                                 </div>
+                                <% } %>
 
                                 <div class="card glass-card mt-3" id="tabsCard" style="display: none;">
                                     <div class="card-header p-0 border-bottom border-200">
@@ -641,9 +656,9 @@
 
                         let url = '';
                         if (btnText === 'Resend Unlock') {
-                            url = contextPath + '/api/contracts/datacultr/resend-unlock?accountNo=' + encodeURIComponent(currentAccountNo);
+                            url = contextPath + '/api/contracts/datacultr/resend-unlock?accountNo=' + encodeURIComponent(currentAccountNo) + '&financeNo=' + encodeURIComponent(currentFinanceNo);
                         } else if (btnText === 'Resend Lock') {
-                            url = contextPath + '/api/contracts/datacultr/resend-lock?accountNo=' + encodeURIComponent(currentAccountNo);
+                            url = contextPath + '/api/contracts/datacultr/resend-lock?accountNo=' + encodeURIComponent(currentAccountNo) + '&financeNo=' + encodeURIComponent(currentFinanceNo);
                         } else {
                             return; // Action disabled or not matching
                         }
@@ -668,6 +683,8 @@
                                     // Refresh the locks logs table
                                     const imeiVal = document.querySelector('.val-imei-no') ? document.querySelector('.val-imei-no').textContent : '';
                                     LocksTable(currentFinanceNo, currentSecurity, imeiVal);
+                                    // Refresh the remarks table
+                                    RemarksTable(currentFinanceNo);
                                 } else {
                                     alert('Failed: ' + (responseObj.message || 'Unknown error'));
                                 }
@@ -685,7 +702,7 @@
                     // Tab change handler to show/hide the lock control card
                     $('a[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
                         const target = $(e.target).attr('href');
-                        if (target === '#locks-pane' && currentFinanceNo) {
+                        if (target === '#locks-pane' && currentFinanceNo && hasDeviceLockControl) {
                             $('#locks-status-card').slideDown(200);
                         } else {
                             $('#locks-status-card').slideUp(150);
