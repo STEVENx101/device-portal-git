@@ -53,8 +53,7 @@ public class ContractService {
                 WHERE t.account_no = '""" + finNo + """
                 ' OR t.legacy_account_no = '""" + finNo + """
                 '
-                ORDER BY t.date DESC
-                LIMIT 5""";
+                ORDER BY t.date DESC""";
 
         String finalQuery = """
                 SELECT
