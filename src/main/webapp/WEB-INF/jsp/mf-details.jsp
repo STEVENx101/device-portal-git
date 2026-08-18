@@ -1363,7 +1363,7 @@
                                 currentSecurity = data.security || '';
                                 currentLocked = data.locked;
                                 currentTotalDue = data.amtToCollected !== null ? parseFloat(data.amtToCollected) : 0.0;
-                                currentAccountNo = data.accountNo || '';
+                                currentAccountNo = data.legacyAccountNo || data.accountNo || '';
                                 document.querySelectorAll('.val-imei-no').forEach(el => el.textContent = data.imeiNo || '-');
                                 document.querySelectorAll('.val-workhub-sp-no').forEach(el => el.textContent = data.workhubSpNo || '-');
                                 document.querySelectorAll('.val-vendor-name').forEach(el => el.textContent = data.vendorName || '-');
