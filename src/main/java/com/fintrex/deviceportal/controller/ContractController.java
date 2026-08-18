@@ -119,7 +119,7 @@ public class ContractController {
         try {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("https://api.fintrex.lk/datacultr/log/" + imei.trim()))
-                    .timeout(Duration.ofSeconds(15))
+                    .timeout(Duration.ofSeconds(60))
                     .GET()
                     .build();
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
@@ -149,7 +149,7 @@ public class ContractController {
             String payload = "[{\"accountNo\":\"" + accountNo.trim() + "\"}]";
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("https://api.fintrex.lk/datacultr/resend-unlock"))
-                    .timeout(Duration.ofSeconds(15))
+                    .timeout(Duration.ofSeconds(60))
                     .header("Content-Type", "application/json")
                     .POST(HttpRequest.BodyPublishers.ofString(payload))
                     .build();
@@ -184,7 +184,7 @@ public class ContractController {
             String payload = "[{\"accountNo\":\"" + accountNo.trim() + "\"}]";
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("https://api.fintrex.lk/datacultr/resend-lock"))
-                    .timeout(Duration.ofSeconds(15))
+                    .timeout(Duration.ofSeconds(60))
                     .header("Content-Type", "application/json")
                     .POST(HttpRequest.BodyPublishers.ofString(payload))
                     .build();
