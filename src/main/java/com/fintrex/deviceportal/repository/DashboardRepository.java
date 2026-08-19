@@ -882,12 +882,7 @@ public class DashboardRepository {
 
         String sql = String.format("""
                 SELECT 
-                    CASE 
-                        WHEN narration LIKE 'Receipt | %%' THEN SUBSTRING_INDEX(SUBSTRING_INDEX(narration, ' | ', 2), ' | ', -1)
-                        WHEN narration LIKE 'CEFT | %%' THEN 'CEFT'
-                        WHEN narration LIKE 'Cash Deposit%%' THEN 'CASH DEPOSIT'
-                        ELSE 'OTHER'
-                    END AS channel_name,
+                    COALESCE(t.channel, 'OTHER') AS channel_name,
                     COUNT(*) AS tx_count,
                     COALESCE(SUM(amount), 0) AS total_amount
                 FROM cbs.transaction t
