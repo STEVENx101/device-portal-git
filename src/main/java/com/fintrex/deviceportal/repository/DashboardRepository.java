@@ -875,9 +875,9 @@ public class DashboardRepository {
     public List<Map<String, Object>> getTransactionChannelChartData(String product) {
         String productFilter = "";
         if ("MF".equalsIgnoreCase(product)) {
-            productFilter = "AND EXISTS (SELECT 1 FROM cbs.loan l LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val WHERE (t.account_no = l.account_no OR t.legacy_account_no = l.legacy_account_no) AND pr.product_code = 'MF')";
+            productFilter = "AND EXISTS (SELECT 1 FROM cbs.loan l LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val WHERE t.account_no = l.account_no AND pr.product_code = 'MF')";
         } else if ("LF".equalsIgnoreCase(product)) {
-            productFilter = "AND EXISTS (SELECT 1 FROM cbs.loan l LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val WHERE (t.account_no = l.account_no OR t.legacy_account_no = l.legacy_account_no) AND pr.product_code IN ('LF', 'laptop'))";
+            productFilter = "AND EXISTS (SELECT 1 FROM cbs.loan l LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val WHERE t.account_no = l.account_no AND pr.product_code IN ('LF', 'laptop'))";
         }
 
         String sql = String.format("""
