@@ -687,21 +687,21 @@
 
                                     const chart = context.chart;
                                     const { ctx: canvasCtx, chartArea } = chart;
-                                    if (!chartArea) return isCurrent ? 'rgba(16, 185, 129, 0.85)' : 'rgba(99, 102, 241, 0.85)';
+                                    if (!chartArea) return isCurrent ? 'rgba(119, 192, 80, 0.85)' : 'rgba(109, 73, 147, 0.85)';
                                     const gradient = canvasCtx.createLinearGradient(chartArea.left, 0, chartArea.right, 0);
                                     if (isCurrent) {
-                                        gradient.addColorStop(0, 'rgba(16, 185, 129, 0.15)');
-                                        gradient.addColorStop(1, 'rgba(16, 185, 129, 0.85)');
+                                        gradient.addColorStop(0, 'rgba(119, 192, 80, 0.15)');
+                                        gradient.addColorStop(1, 'rgba(119, 192, 80, 0.85)');
                                     } else {
-                                        gradient.addColorStop(0, 'rgba(99, 102, 241, 0.15)');
-                                        gradient.addColorStop(1, 'rgba(99, 102, 241, 0.85)');
+                                        gradient.addColorStop(0, 'rgba(109, 73, 147, 0.15)');
+                                        gradient.addColorStop(1, 'rgba(109, 73, 147, 0.85)');
                                     }
                                     return gradient;
                                 },
                                 borderColor: function (context) {
                                     const index = context.dataIndex;
                                     const count = context.dataset.data.length;
-                                    return (index === count - 1) ? '#10b981' : '#6366f1';
+                                    return (index === count - 1) ? '#77c050' : '#6d4993';
                                 },
                                 borderWidth: 1.5,
                                 borderRadius: { topRight: 4, bottomRight: 4, topLeft: 0, bottomLeft: 0 },
@@ -909,9 +909,9 @@
                                 'businessChart',
                                 labels,
                                 amounts,
-                                'rgba(16, 185, 129, 0.15)',
-                                'rgba(16, 185, 129, 0.85)',
-                                '#10b981',
+                                'rgba(119, 192, 80, 0.15)',
+                                'rgba(119, 192, 80, 0.85)',
+                                '#77c050',
                                 false
                             );
                         })
@@ -936,7 +936,7 @@
                                     finalColors = labels.map(label => {
                                         const lowerLabel = label.toLowerCase();
                                         if (lowerLabel === 'performing' || lowerLabel === 'unlocked' || lowerLabel === 'active' || lowerLabel === 'un-locked') {
-                                            return 'rgba(16, 185, 129, 0.85)'; // Green
+                                            return 'rgba(119, 192, 80, 0.85)'; // Green
                                         }
                                         if (lowerLabel === 'non-performing' || lowerLabel === 'locked') {
                                             return 'rgba(239, 68, 68, 0.85)'; // Red
@@ -1051,8 +1051,8 @@
                                 }
                                 document.getElementById("device-sec-text").innerHTML = 'Device locks summary &bull; Active: <span class="fw-bold text-danger">' + formatNum(laptopLocked) + '</span> Laptops';
 
-                                buildDoughnut('laptopPerformingChart', data.laptopPerforming || [], ['Performing', 'Non-Performing'], ['rgba(16, 185, 129, 0.85)', 'rgba(244, 63, 94, 0.85)']);
-                                buildDoughnut('laptopLockChart', data.laptopLock || [], ['Active', 'Locked'], ['rgba(99, 102, 241, 0.85)', 'rgba(245, 158, 11, 0.85)']);
+                                buildDoughnut('laptopPerformingChart', data.laptopPerforming || [], ['Performing', 'Non-Performing'], ['rgba(119, 192, 80, 0.85)', 'rgba(244, 63, 94, 0.85)']);
+                                buildDoughnut('laptopLockChart', data.laptopLock || [], ['Active', 'Locked'], ['rgba(109, 73, 147, 0.85)', 'rgba(245, 158, 11, 0.85)']);
                             }
                         })
                         .catch(err => console.error("Error loading security doughnut status:", err));
@@ -1066,9 +1066,9 @@
                                 'vendorPaymentsChart',
                                 chartData.map(i => i.channel_name),
                                 chartData.map(i => i.total_amount || 0),
-                                'rgba(16, 185, 129, 0.15)',
-                                'rgba(16, 185, 129, 0.85)',
-                                '#10b981',
+                                'rgba(119, 192, 80, 0.15)',
+                                'rgba(119, 192, 80, 0.85)',
+                                '#77c050',
                                 false
                             );
                         })
@@ -1184,7 +1184,7 @@
                                         labels: ['Perf', 'NP'],
                                         datasets: [{
                                             data: dataVal,
-                                            backgroundColor: ['rgba(16, 185, 129, 0.85)', 'rgba(239, 68, 68, 0.85)'],
+                                            backgroundColor: ['rgba(119, 192, 80, 0.85)', 'rgba(239, 68, 68, 0.85)'],
                                             borderWidth: 1,
                                             borderColor: isDark ? '#1e293b' : '#ffffff'
                                         }]
@@ -1293,7 +1293,7 @@
                                         {
                                             label: 'DPD 0',
                                             data: dpd0,
-                                            backgroundColor: 'rgba(16, 185, 129, 0.85)',
+                                            backgroundColor: 'rgba(119, 192, 80, 0.85)',
                                             borderRadius: 4,
                                             barThickness: 16
                                         },
@@ -1321,7 +1321,7 @@
                                         {
                                             label: 'Over 90 DPD',
                                             data: dpdAbove90,
-                                            backgroundColor: isDark ? 'rgba(167, 139, 250, 0.85)' : 'rgba(30, 41, 59, 0.85)',
+                                            backgroundColor: 'rgba(109, 73, 147, 0.85)',
                                             borderRadius: 4,
                                             barThickness: 16
                                         }
