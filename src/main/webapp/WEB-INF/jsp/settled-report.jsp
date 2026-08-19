@@ -28,9 +28,13 @@
         <link href="${pageContext.request.contextPath}/assets/css/user.min.css" rel="stylesheet" id="user-style-default">
 
         <!-- Vendors for DataTables -->
+        <!-- Vendors for Choices.js and DataTables -->
+        <link href="${pageContext.request.contextPath}/vendors/choices/choices.min.css" rel="stylesheet">
         <link href="${pageContext.request.contextPath}/vendors/datatables.net-bs5/dataTables.bootstrap5.min.css" rel="stylesheet">
 
         <script>
+            let productChoices;
+
             var linkRTL = document.getElementById('style-rtl');
             var userLinkRTL = document.getElementById('user-style-rtl');
             linkRTL.setAttribute('disabled', true);
@@ -107,7 +111,12 @@
                                          <label class="form-label text-700 fw-semi-bold" for="toDate">To Date</label>
                                          <input class="form-control" type="date" id="toDate" value="">
                                      </div>
-                                     <div class="col-md-6 d-flex align-items-end justify-content-end gap-2">
+                                     
+                                    <div class="col-md-3">
+                                        <label class="form-label text-700 fw-semi-bold" for="selectProducts">Product</label>
+                                        <select class="form-select" id="selectProducts" multiple></select>
+                                    </div>
+                                    <div class="col-md-3 d-flex align-items-end justify-content-end gap-2">
                                          <button class="btn btn-primary btn-sm" type="button" id="applyFiltersBtn">
                                              <span class="fas fa-search me-1"></span> Load Data
                                          </button>
@@ -169,6 +178,7 @@
         <script src="${pageContext.request.contextPath}/vendors/is/is.min.js"></script>
         <script src="${pageContext.request.contextPath}/vendors/fontawesome/all.min.js"></script>
         <script src="${pageContext.request.contextPath}/vendors/lodash/lodash.min.js"></script>
+        <script src="${pageContext.request.contextPath}/vendors/choices/choices.min.js"></script>
         <script src="${pageContext.request.contextPath}/vendors/datatables.net/jquery.dataTables.min.js"></script>
         <script src="${pageContext.request.contextPath}/vendors/datatables.net-bs5/dataTables.bootstrap5.min.js"></script>
         <script src="${pageContext.request.contextPath}/assets/js/theme.js"></script>
@@ -177,10 +187,12 @@
             let hasLoaded = false;
 
             function getFilters() {
+                const products = productChoices ? productChoices.getValue(true) : [];
                 return {
                     fromDate: $('#fromDate').val(),
                     toDate: $('#toDate').val()
-                };
+                ,
+                    products: products};
             }
 
             function getCookie(name) {
@@ -190,6 +202,27 @@
             }
 
             $(document).ready(function() {
+
+                productChoices = new Choices('#selectProducts', {
+                    removeItemButton: true,
+                    placeholder: true,
+                    placeholderValue: 'Select Products',
+                    shouldSort: false
+                });
+
+                // Load Metadata
+                fetch('${pageContext.request.contextPath}/api/cbs/metadata')
+                    .then(res => res.json())
+                    .then(data => {
+                        const productList = data.products.map(p => ({
+                            value: p.product_code,
+                            label: p.product_name,
+                            selected: false
+                        }));
+                        productChoices.setChoices(productList, 'value', 'label', true);
+                    })
+                    .catch(err => console.error("Error loading filter metadata:", err));
+    
                 const today = new Date().toISOString().split('T')[0];
                 $('#fromDate').val(today);
                 $('#toDate').val(today);
@@ -253,6 +286,11 @@
                         let downloadUrl = '${pageContext.request.contextPath}/api/cbs/settled-report/download';
 
                         const queryParams = new URLSearchParams();
+
+                        if (filters.products && filters.products.length > 0) {
+                            filters.products.forEach(p => queryParams.append('products', p));
+                        }
+    
                         queryParams.append('fromDate', filters.fromDate);
                         queryParams.append('toDate', filters.toDate);
 

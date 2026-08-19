@@ -217,9 +217,10 @@ public class CbsReportService {
         return executePagedReport(request, sql, params);
     }
 
-    public List<Map<String, Object>> getReport2Data(String branch, String fromDate, String toDate) {
+    public List<Map<String, Object>> getReport2Data(String branch, List<String> products, String fromDate, String toDate) {
         Map<String, Object> filterMap = new HashMap<>();
         filterMap.put("branch", branch);
+        filterMap.put("products", products);
         filterMap.put("fromDate", fromDate);
         filterMap.put("toDate", toDate);
 
@@ -400,6 +401,7 @@ public class CbsReportService {
                 FROM cbs.client c
                 LEFT JOIN cbs.loan l ON c.client_code = l.client
                 LEFT JOIN cbs.branch br ON CAST(l.branch AS UNSIGNED) = br.branch_code
+                LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
                 WHERE 1=1""";
 
         if (rawFilter instanceof Map) {
@@ -408,6 +410,15 @@ public class CbsReportService {
             if (branch != null && !branch.trim().isEmpty() && !branch.equalsIgnoreCase("All")) {
                 subQuery += " AND br.legacy_branch_code = :branch";
                 params.put("branch", branch.trim());
+            }
+
+            Object productsObj = filter.get("products");
+            if (productsObj instanceof List) {
+                List<?> products = (List<?>) productsObj;
+                if (!products.isEmpty()) {
+                    subQuery += " AND pr.product_code IN (:products)";
+                    params.put("products", products);
+                }
             }
 
             String fromDate = (String) filter.get("fromDate");
@@ -733,9 +744,10 @@ public class CbsReportService {
         return executePagedReport(request, sql, params);
     }
 
-    public List<Map<String, Object>> getArrearsReportData(String asAt) {
+    public List<Map<String, Object>> getArrearsReportData(String asAt, List<String> products) {
         Map<String, Object> filterMap = new HashMap<>();
         filterMap.put("asAt", asAt);
+        filterMap.put("products", products);
         Map<String, Object> params = new HashMap<>();
         String sql = buildArrearsReportQuery(filterMap, params);
         return executeDownloadReport(sql, params);
@@ -754,6 +766,7 @@ public class CbsReportService {
                     ON p1.account_no = l.account_no
                     AND p1.series = l.account_series
                     AND p1.portfolio_date = :latestPortfolioDate
+                LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
                 WHERE 1=1 AND p1.dpd > 0""";
 
         if (filters != null) {
@@ -761,6 +774,15 @@ public class CbsReportService {
             if (asAt != null && !asAt.trim().isEmpty()) {
                 subQuery += " AND l.disbursed_date < DATE_ADD(:asAt, INTERVAL 1 DAY)";
                 params.put("asAt", asAt.trim());
+            }
+
+            Object productsObj = filters.get("products");
+            if (productsObj instanceof List) {
+                List<?> products = (List<?>) productsObj;
+                if (!products.isEmpty()) {
+                    subQuery += " AND pr.product_code IN (:products)";
+                    params.put("products", products);
+                }
             }
         }
 
@@ -788,9 +810,10 @@ public class CbsReportService {
         return executePagedReport(request, sql, params);
     }
 
-    public List<Map<String, Object>> getNpaReportData(String asAt) {
+    public List<Map<String, Object>> getNpaReportData(String asAt, List<String> products) {
         Map<String, Object> filterMap = new HashMap<>();
         filterMap.put("asAt", asAt);
+        filterMap.put("products", products);
         Map<String, Object> params = new HashMap<>();
         String sql = buildNpaReportQuery(filterMap, params);
         return executeDownloadReport(sql, params);
@@ -802,9 +825,10 @@ public class CbsReportService {
         return executePagedReport(request, sql, params);
     }
 
-    public List<Map<String, Object>> getNearingNpaReportData(String asAt) {
+    public List<Map<String, Object>> getNearingNpaReportData(String asAt, List<String> products) {
         Map<String, Object> filterMap = new HashMap<>();
         filterMap.put("asAt", asAt);
+        filterMap.put("products", products);
         Map<String, Object> params = new HashMap<>();
         String sql = buildNearingNpaReportQuery(filterMap, params);
         return executeDownloadReport(sql, params);
@@ -812,18 +836,20 @@ public class CbsReportService {
 
     public DataTableResponse fetchDuplicateLoansReport(DataTableRequest request) {
         Map<String, Object> params = new HashMap<>();
-        String sql = buildDuplicateLoansQuery(params);
+        String sql = buildDuplicateLoansQuery(request.getData(), params);
         return executePagedReport(request, sql, params);
     }
 
-    public List<Map<String, Object>> getDuplicateLoansReportData() {
+    public List<Map<String, Object>> getDuplicateLoansReportData(List<String> products) {
+        Map<String, Object> filterMap = new HashMap<>();
+        filterMap.put("products", products);
         Map<String, Object> params = new HashMap<>();
-        String sql = buildDuplicateLoansQuery(params);
+        String sql = buildDuplicateLoansQuery(filterMap, params);
         return executeDownloadReport(sql, params);
     }
 
-    private String buildDuplicateLoansQuery(Map<String, Object> params) {
-        return """
+    private String buildDuplicateLoansQuery(Object rawFilter, Map<String, Object> params) {
+        String sql = """
                     SELECT
                         dl.device_id AS imei_no,
                         COALESCE(l1.account_no, l2.account_no) AS account_no,
@@ -848,8 +874,23 @@ public class CbsReportService {
                     LEFT JOIN cbs.client c2 ON l2.client = c2.client_code
                     LEFT JOIN cbs.vendor v1 ON l1.vendor = v1.code
                     LEFT JOIN cbs.vendor v2 ON l2.vendor = v2.code
-                    ORDER BY dl.device_id ASC
-                """;
+                    LEFT JOIN cbs.product pr1 ON CAST(l1.product AS UNSIGNED) = pr1.code_val
+                    LEFT JOIN cbs.product pr2 ON CAST(l2.product AS UNSIGNED) = pr2.code_val
+                    WHERE 1=1""";
+
+        if (rawFilter instanceof Map) {
+            Map<?, ?> filter = (Map<?, ?>) rawFilter;
+            Object productsObj = filter.get("products");
+            if (productsObj instanceof List) {
+                List<?> products = (List<?>) productsObj;
+                if (!products.isEmpty()) {
+                    sql += " AND (pr1.product_code IN (:products) OR pr2.product_code IN (:products))";
+                    params.put("products", products);
+                }
+            }
+        }
+        sql += " ORDER BY dl.device_id ASC";
+        return sql;
     }
 
     private String buildArrearsReportQuery(Object rawFilter, Map<String, Object> params) {
@@ -880,6 +921,7 @@ public class CbsReportService {
                     AND p1.series = l.account_series
                     AND p1.portfolio_date = :latestPortfolioDate
                 LEFT JOIN cbs.client c ON l.client = c.client_code
+                LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
                 WHERE 1=1 AND p1.dpd > 0""";
 
         if (rawFilter instanceof Map) {
@@ -888,6 +930,15 @@ public class CbsReportService {
             if (asAt != null && !asAt.trim().isEmpty()) {
                 subQuery += " AND l.disbursed_date < DATE_ADD(:asAt, INTERVAL 1 DAY)";
                 params.put("asAt", asAt.trim());
+            }
+
+            Object productsObj = filter.get("products");
+            if (productsObj instanceof List) {
+                List<?> products = (List<?>) productsObj;
+                if (!products.isEmpty()) {
+                    subQuery += " AND pr.product_code IN (:products)";
+                    params.put("products", products);
+                }
             }
         }
 
@@ -948,6 +999,7 @@ public class CbsReportService {
                     AND p1.series = l.account_series
                     AND p1.portfolio_date = :latestPortfolioDate
                 LEFT JOIN cbs.client c ON l.client = c.client_code
+                LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
                 WHERE 1=1 AND p1.performing_status = 'Non-Performing'""";
 
         if (rawFilter instanceof Map) {
@@ -956,6 +1008,15 @@ public class CbsReportService {
             if (asAt != null && !asAt.trim().isEmpty()) {
                 subQuery += " AND l.disbursed_date < DATE_ADD(:asAt, INTERVAL 1 DAY)";
                 params.put("asAt", asAt.trim());
+            }
+
+            Object productsObj = filter.get("products");
+            if (productsObj instanceof List) {
+                List<?> products = (List<?>) productsObj;
+                if (!products.isEmpty()) {
+                    subQuery += " AND pr.product_code IN (:products)";
+                    params.put("products", products);
+                }
             }
         }
 
@@ -1016,6 +1077,7 @@ public class CbsReportService {
                     AND p1.series = l.account_series
                     AND p1.portfolio_date = :latestPortfolioDate
                 LEFT JOIN cbs.client c ON l.client = c.client_code
+                LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
                 WHERE 1=1 AND p1.dpd BETWEEN 60 AND 90""";
 
         if (rawFilter instanceof Map) {
@@ -1024,6 +1086,15 @@ public class CbsReportService {
             if (asAt != null && !asAt.trim().isEmpty()) {
                 subQuery += " AND l.disbursed_date < DATE_ADD(:asAt, INTERVAL 1 DAY)";
                 params.put("asAt", asAt.trim());
+            }
+
+            Object productsObj = filter.get("products");
+            if (productsObj instanceof List) {
+                List<?> products = (List<?>) productsObj;
+                if (!products.isEmpty()) {
+                    subQuery += " AND pr.product_code IN (:products)";
+                    params.put("products", products);
+                }
             }
         }
 
@@ -1062,9 +1133,10 @@ public class CbsReportService {
         return executePagedReport(request, sql, params);
     }
 
-    public List<Map<String, Object>> getUnlockArrearsReportData(String asAt) {
+    public List<Map<String, Object>> getUnlockArrearsReportData(String asAt, List<String> products) {
         Map<String, Object> filterMap = new HashMap<>();
         filterMap.put("asAt", asAt);
+        filterMap.put("products", products);
         Map<String, Object> params = new HashMap<>();
         String sql = buildUnlockArrearsReportQuery(filterMap, params);
         return executeDownloadReport(sql, params);
@@ -1076,9 +1148,10 @@ public class CbsReportService {
         return executePagedReport(request, sql, params);
     }
 
-    public List<Map<String, Object>> getLockNoArrearsReportData(String asAt) {
+    public List<Map<String, Object>> getLockNoArrearsReportData(String asAt, List<String> products) {
         Map<String, Object> filterMap = new HashMap<>();
         filterMap.put("asAt", asAt);
+        filterMap.put("products", products);
         Map<String, Object> params = new HashMap<>();
         String sql = buildLockNoArrearsReportQuery(filterMap, params);
         return executeDownloadReport(sql, params);
@@ -1110,7 +1183,6 @@ public class CbsReportService {
                     ON ml.finance_no = COALESCE(l.legacy_account_no, l.account_no)
                 LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
                 WHERE p.portfolio_date = :latestPortfolioDate
-                  AND pr.product_code = 'MF'
                   AND ml.locked = 0
                   AND p.total_due >= 200""";
 
@@ -1121,6 +1193,16 @@ public class CbsReportService {
                 subQuery += " AND l.disbursed_date < DATE_ADD(:asAt, INTERVAL 1 DAY)";
                 params.put("asAt", asAt.trim());
             }
+
+            Object productsObj = filter.get("products");
+            if (productsObj instanceof List && !((List<?>) productsObj).isEmpty()) {
+                subQuery += " AND pr.product_code IN (:products)";
+                params.put("products", productsObj);
+            } else {
+                subQuery += " AND pr.product_code = 'MF'";
+            }
+        } else {
+            subQuery += " AND pr.product_code = 'MF'";
         }
 
         return """
@@ -1168,7 +1250,6 @@ public class CbsReportService {
                     ON ml.finance_no = COALESCE(l.legacy_account_no, l.account_no)
                 LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
                 WHERE p.portfolio_date = :latestPortfolioDate
-                  AND pr.product_code = 'MF'
                   AND ml.locked = 1
                   AND (p.total_due < 200 OR p.total_due IS NULL)""";
 
@@ -1179,6 +1260,16 @@ public class CbsReportService {
                 subQuery += " AND l.disbursed_date < DATE_ADD(:asAt, INTERVAL 1 DAY)";
                 params.put("asAt", asAt.trim());
             }
+
+            Object productsObj = filter.get("products");
+            if (productsObj instanceof List && !((List<?>) productsObj).isEmpty()) {
+                subQuery += " AND pr.product_code IN (:products)";
+                params.put("products", productsObj);
+            } else {
+                subQuery += " AND pr.product_code = 'MF'";
+            }
+        } else {
+            subQuery += " AND pr.product_code = 'MF'";
         }
 
         return """
@@ -1206,10 +1297,11 @@ public class CbsReportService {
         return executePagedReport(request, sql, params);
     }
 
-    public List<Map<String, Object>> getOneRentalReportData(String asAt, String arrearsFilter) {
+    public List<Map<String, Object>> getOneRentalReportData(String asAt, String arrearsFilter, List<String> products) {
         Map<String, Object> filterMap = new HashMap<>();
         filterMap.put("asAt", asAt);
         filterMap.put("arrearsFilter", arrearsFilter);
+        filterMap.put("products", products);
         Map<String, Object> params = new HashMap<>();
         String sql = buildOneRentalReportQuery(filterMap, params);
         return executeDownloadReport(sql, params);
@@ -1221,10 +1313,11 @@ public class CbsReportService {
         return executePagedReport(request, sql, params);
     }
 
-    public List<Map<String, Object>> getSettledReportData(String fromDate, String toDate) {
+    public List<Map<String, Object>> getSettledReportData(String fromDate, String toDate, List<String> products) {
         Map<String, Object> filterMap = new HashMap<>();
         filterMap.put("fromDate", fromDate);
         filterMap.put("toDate", toDate);
+        filterMap.put("products", products);
         Map<String, Object> params = new HashMap<>();
         String sql = buildSettledReportQuery(filterMap, params);
         return executeDownloadReport(sql, params);
@@ -1236,9 +1329,10 @@ public class CbsReportService {
         return executePagedReport(request, sql, params);
     }
 
-    public List<Map<String, Object>> getMaturedLowBalanceReportData(String asAt, Double lowAmount) {
+    public List<Map<String, Object>> getMaturedLowBalanceReportData(String asAt, Double lowAmount, List<String> products) {
         Map<String, Object> filterMap = new HashMap<>();
         filterMap.put("asAt", asAt);
+        filterMap.put("products", products);
         if (lowAmount != null) {
             filterMap.put("lowAmount", lowAmount);
         }
@@ -1276,6 +1370,7 @@ public class CbsReportService {
                 LEFT JOIN cbs.client c ON l.client = c.client_code
                 LEFT JOIN loan.mobileloan lm1 ON lm1.finance_no = l.account_no
                 LEFT JOIN loan.mobileloan lm2 ON lm2.finance_no = l.legacy_account_no
+                LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
                 WHERE 1=1
                   AND p1.exposure > 0
                   AND p1.exposure <= l.rental""";
@@ -1294,6 +1389,15 @@ public class CbsReportService {
                     subQuery += " AND p1.dpd > 0";
                 } else if ("WITHOUT_ARREARS".equalsIgnoreCase(arrearsFilter.trim())) {
                     subQuery += " AND (p1.dpd <= 0 OR p1.dpd IS NULL)";
+                }
+            }
+
+            Object productsObj = filter.get("products");
+            if (productsObj instanceof List) {
+                List<?> products = (List<?>) productsObj;
+                if (!products.isEmpty()) {
+                    subQuery += " AND pr.product_code IN (:products)";
+                    params.put("products", products);
                 }
             }
         }
@@ -1338,6 +1442,7 @@ public class CbsReportService {
                     END AS `account_status`
                 FROM cbs.loan l
                 LEFT JOIN cbs.client c ON l.client = c.client_code
+                LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
                 WHERE l.account_status IN ('P', 'F')""";
 
         if (rawFilter instanceof Map) {
@@ -1351,6 +1456,15 @@ public class CbsReportService {
             if (toDate != null && !toDate.trim().isEmpty()) {
                 subQuery += " AND l.closed_date < DATE_ADD(:toDate, INTERVAL 1 DAY)";
                 params.put("toDate", toDate.trim());
+            }
+
+            Object productsObj = filter.get("products");
+            if (productsObj instanceof List) {
+                List<?> products = (List<?>) productsObj;
+                if (!products.isEmpty()) {
+                    subQuery += " AND pr.product_code IN (:products)";
+                    params.put("products", products);
+                }
             }
         }
 
@@ -1417,6 +1531,7 @@ public class CbsReportService {
                 LEFT JOIN loan.mobileloan lm2 ON lm2.finance_no = l.legacy_account_no
                 LEFT JOIN loan.mobileloan_charges lmc1 ON lmc1.id = lm1.id
                 LEFT JOIN loan.mobileloan_charges lmc2 ON lmc2.id = lm2.id
+                LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
                 WHERE 1=1
                   AND l.maturity_date < CURDATE()
                   AND p1.exposure > 0
@@ -1428,6 +1543,15 @@ public class CbsReportService {
             if (asAt != null && !asAt.trim().isEmpty()) {
                 subQuery += " AND l.disbursed_date < DATE_ADD(:asAt, INTERVAL 1 DAY)";
                 params.put("asAt", asAt.trim());
+            }
+
+            Object productsObj = filter.get("products");
+            if (productsObj instanceof List) {
+                List<?> products = (List<?>) productsObj;
+                if (!products.isEmpty()) {
+                    subQuery += " AND pr.product_code IN (:products)";
+                    params.put("products", products);
+                }
             }
         }
 
@@ -1692,6 +1816,12 @@ public class CbsReportService {
         }
 
         if (filters != null) {
+            Object productsObj = filters.get("products");
+            if (productsObj instanceof List && !((List<?>) productsObj).isEmpty()) {
+                whereClause.append(" AND EXISTS (SELECT 1 FROM cbs.loan l LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val WHERE (l.account_no = account_id OR l.legacy_account_no = account_id) AND pr.product_code IN (:products)) ");
+                params.put("products", productsObj);
+            }
+
             String status = (String) filters.get("status");
             if (status != null && !status.trim().isEmpty() && !"ALL".equalsIgnoreCase(status.trim())) {
                 whereClause.append(" AND status = :status ");
@@ -1862,10 +1992,11 @@ public class CbsReportService {
         return executePagedReport(request, sql, params);
     }
 
-    public List<Map<String, Object>> getMultiplePaymentsReportData(String fromDate, String toDate) {
+    public List<Map<String, Object>> getMultiplePaymentsReportData(String fromDate, String toDate, List<String> products) {
         Map<String, Object> filterMap = new HashMap<>();
         filterMap.put("fromDate", fromDate);
         filterMap.put("toDate", toDate);
+        filterMap.put("products", products);
         Map<String, Object> params = new HashMap<>();
         String sql = buildMultiplePaymentsReportQuery(filterMap, params);
         return executeDownloadReport(sql, params);
@@ -1913,6 +2044,10 @@ public class CbsReportService {
                     ON l1.account_no = t.account_no
                 LEFT JOIN cbs.loan l2
                     ON l2.legacy_account_no = t.account_no
+                LEFT JOIN cbs.product pr1
+                    ON CAST(l1.product AS UNSIGNED) = pr1.code_val
+                LEFT JOIN cbs.product pr2
+                    ON CAST(l2.product AS UNSIGNED) = pr2.code_val
                 WHERE 1=1""";
 
         if (rawFilter instanceof Map) {
@@ -1926,6 +2061,15 @@ public class CbsReportService {
             if (toDate != null && !toDate.trim().isEmpty()) {
                 subQuery += " AND t.date < DATE_ADD(:toDate, INTERVAL 1 DAY)";
                 params.put("toDate", toDate.trim());
+            }
+
+            Object productsObj = filter.get("products");
+            if (productsObj instanceof List) {
+                List<?> products = (List<?>) productsObj;
+                if (!products.isEmpty()) {
+                    subQuery += " AND (pr1.product_code IN (:products) OR pr2.product_code IN (:products))";
+                    params.put("products", products);
+                }
             }
         }
 

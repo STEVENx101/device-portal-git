@@ -27,9 +27,13 @@
         <link href="${pageContext.request.contextPath}/assets/css/user-rtl.min.css" rel="stylesheet" id="user-style-rtl">
         <link href="${pageContext.request.contextPath}/assets/css/user.min.css" rel="stylesheet" id="user-style-default">
 
+        <!-- Vendors for Choices.js and DataTables -->
+        <link href="${pageContext.request.contextPath}/vendors/choices/choices.min.css" rel="stylesheet">
         <link href="${pageContext.request.contextPath}/vendors/datatables.net-bs5/dataTables.bootstrap5.min.css" rel="stylesheet">
 
         <script>
+            let productChoices;
+
             var linkRTL = document.getElementById('style-rtl');
             var userLinkRTL = document.getElementById('user-style-rtl');
             linkRTL.setAttribute('disabled', true);
@@ -176,6 +180,11 @@
                                         </select>
                                     </div>
 
+                                    
+                                    <div class="col-md-3">
+                                        <label class="form-label text-700 fw-semi-bold mb-1 fs--1" for="selectProducts">Product</label>
+                                        <select class="form-select form-select-sm" id="selectProducts" multiple></select>
+                                    </div>
                                     <div class="col-md-2 d-flex align-items-end justify-content-end gap-2 pt-3">
                                         <button class="btn btn-primary btn-sm" type="button" id="applyFiltersBtn">
                                             <span class="fas fa-search me-1"></span> Load Report
@@ -227,6 +236,7 @@
         <script src="${pageContext.request.contextPath}/vendors/is/is.min.js"></script>
         <script src="${pageContext.request.contextPath}/vendors/fontawesome/all.min.js"></script>
         <script src="${pageContext.request.contextPath}/vendors/lodash/lodash.min.js"></script>
+        <script src="${pageContext.request.contextPath}/vendors/choices/choices.min.js"></script>
         <script src="${pageContext.request.contextPath}/vendors/datatables.net/jquery.dataTables.min.js"></script>
         <script src="${pageContext.request.contextPath}/vendors/datatables.net-bs5/dataTables.bootstrap5.min.js"></script>
         <script src="${pageContext.request.contextPath}/assets/js/theme.js"></script>
@@ -408,6 +418,27 @@
             }
 
             $(document).ready(function() {
+
+                productChoices = new Choices('#selectProducts', {
+                    removeItemButton: true,
+                    placeholder: true,
+                    placeholderValue: 'Select Products',
+                    shouldSort: false
+                });
+
+                // Load Metadata
+                fetch('${pageContext.request.contextPath}/api/cbs/metadata')
+                    .then(res => res.json())
+                    .then(data => {
+                        const productList = data.products.map(p => ({
+                            value: p.product_code,
+                            label: p.product_name,
+                            selected: false
+                        }));
+                        productChoices.setChoices(productList, 'value', 'label', true);
+                    })
+                    .catch(err => console.error("Error loading filter metadata:", err));
+    
                 updateDateInputs();
                 $('#dateModeSelect').on('change', updateDateInputs);
                 $('#applyFiltersBtn').on('click', loadReportData);

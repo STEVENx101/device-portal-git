@@ -85,6 +85,7 @@ public class CbsReportController {
     @GetMapping("/report2/download")
     public void downloadReport2(
             @RequestParam(value = "branch", required = false) String branch,
+            @RequestParam(value = "products", required = false) List<String> products,
             @RequestParam(value = "fromDate", required = false) String fromDate,
             @RequestParam(value = "toDate", required = false) String toDate,
             @RequestParam(value = "downloadToken", required = false) String downloadToken,
@@ -101,14 +102,14 @@ public class CbsReportController {
 
         com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");
         String username = currentUser != null ? currentUser.getUsername() : "system";
-        String filtersStr = String.format("branch=%s, fromDate=%s, toDate=%s", branch, fromDate, toDate);
+        String filtersStr = String.format("branch=%s, products=%s, fromDate=%s, toDate=%s", branch, products, fromDate, toDate);
         cbsReportService.logReportActivity(username, "Client Report", "DOWNLOAD", filtersStr);
 
         if (downloadToken != null) {
             response.setHeader("Set-Cookie", "downloadToken=" + downloadToken + "; Path=/");
         }
 
-        List<Map<String, Object>> data = cbsReportService.getReport2Data(branch, fromDate, toDate);
+        List<Map<String, Object>> data = cbsReportService.getReport2Data(branch, products, fromDate, toDate);
 
         String[] headers = {"Client Code","Client Type","Title","NIC No","Mobile","Address","Entered Date","Full Name"};
         String[] keys = {"client_code","client_type","title","id_no","mobile","address","entered_date","full_name"};
@@ -223,17 +224,18 @@ public class CbsReportController {
     @GetMapping("/arrears/download")
     public void downloadArrears(
             @RequestParam(value = "asAt", required = false) String asAt,
+            @RequestParam(value = "products", required = false) List<String> products,
             @RequestParam(value = "downloadToken", required = false) String downloadToken,
             HttpSession session,
             HttpServletResponse response) throws Exception {
         verifyDownloadPermission(session, response);
         com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");
         String username = currentUser != null ? currentUser.getUsername() : "system";
-        String filtersStr = String.format("asAt=%s", asAt);
+        String filtersStr = String.format("asAt=%s, products=%s", asAt, products);
         cbsReportService.logReportActivity(username, "Arrears Report", "DOWNLOAD", filtersStr);
 
         setDownloadTokenCookie(response, downloadToken);
-        List<Map<String, Object>> data = cbsReportService.getArrearsReportData(asAt);
+        List<Map<String, Object>> data = cbsReportService.getArrearsReportData(asAt, products);
         writeRecoveryCsv(response, "arrears_report.csv", data);
     }
 
@@ -249,17 +251,18 @@ public class CbsReportController {
     @GetMapping("/npa/download")
     public void downloadNpa(
             @RequestParam(value = "asAt", required = false) String asAt,
+            @RequestParam(value = "products", required = false) List<String> products,
             @RequestParam(value = "downloadToken", required = false) String downloadToken,
             HttpSession session,
             HttpServletResponse response) throws Exception {
         verifyDownloadPermission(session, response);
         com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");
         String username = currentUser != null ? currentUser.getUsername() : "system";
-        String filtersStr = String.format("asAt=%s", asAt);
+        String filtersStr = String.format("asAt=%s, products=%s", asAt, products);
         cbsReportService.logReportActivity(username, "NPA Report", "DOWNLOAD", filtersStr);
 
         setDownloadTokenCookie(response, downloadToken);
-        List<Map<String, Object>> data = cbsReportService.getNpaReportData(asAt);
+        List<Map<String, Object>> data = cbsReportService.getNpaReportData(asAt, products);
         writeRecoveryCsv(response, "npa_report.csv", data);
     }
 
@@ -275,17 +278,18 @@ public class CbsReportController {
     @GetMapping("/nearing-npa/download")
     public void downloadNearingNpa(
             @RequestParam(value = "asAt", required = false) String asAt,
+            @RequestParam(value = "products", required = false) List<String> products,
             @RequestParam(value = "downloadToken", required = false) String downloadToken,
             HttpSession session,
             HttpServletResponse response) throws Exception {
         verifyDownloadPermission(session, response);
         com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");
         String username = currentUser != null ? currentUser.getUsername() : "system";
-        String filtersStr = String.format("asAt=%s", asAt);
+        String filtersStr = String.format("asAt=%s, products=%s", asAt, products);
         cbsReportService.logReportActivity(username, "Nearing NPA Report", "DOWNLOAD", filtersStr);
 
         setDownloadTokenCookie(response, downloadToken);
-        List<Map<String, Object>> data = cbsReportService.getNearingNpaReportData(asAt);
+        List<Map<String, Object>> data = cbsReportService.getNearingNpaReportData(asAt, products);
         writeRecoveryCsv(response, "nearing_npa_report.csv", data);
     }
 
@@ -300,16 +304,18 @@ public class CbsReportController {
 
     @GetMapping("/duplicate-loans/download")
     public void downloadDuplicateLoans(
+            @RequestParam(value = "products", required = false) List<String> products,
             @RequestParam(value = "downloadToken", required = false) String downloadToken,
             HttpSession session,
             HttpServletResponse response) throws Exception {
         verifyDownloadPermission(session, response);
         com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");
         String username = currentUser != null ? currentUser.getUsername() : "system";
-        cbsReportService.logReportActivity(username, "Duplicate Loans Report", "DOWNLOAD", "none");
+        String filtersStr = String.format("products=%s", products);
+        cbsReportService.logReportActivity(username, "Duplicate Loans Report", "DOWNLOAD", filtersStr);
 
         setDownloadTokenCookie(response, downloadToken);
-        List<Map<String, Object>> data = cbsReportService.getDuplicateLoansReportData();
+        List<Map<String, Object>> data = cbsReportService.getDuplicateLoansReportData(products);
         writeDuplicateLoansCsv(response, "duplicate_loans_report.csv", data);
     }
 
@@ -325,17 +331,18 @@ public class CbsReportController {
     @GetMapping("/unlock-arrears/download")
     public void downloadUnlockArrears(
             @RequestParam(value = "asAt", required = false) String asAt,
+            @RequestParam(value = "products", required = false) List<String> products,
             @RequestParam(value = "downloadToken", required = false) String downloadToken,
             HttpSession session,
             HttpServletResponse response) throws Exception {
         verifyDownloadPermission(session, response);
         com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");
         String username = currentUser != null ? currentUser.getUsername() : "system";
-        String filtersStr = String.format("asAt=%s", asAt);
+        String filtersStr = String.format("asAt=%s, products=%s", asAt, products);
         cbsReportService.logReportActivity(username, "Unlock with Arrears Exception Report", "DOWNLOAD", filtersStr);
 
         setDownloadTokenCookie(response, downloadToken);
-        List<Map<String, Object>> data = cbsReportService.getUnlockArrearsReportData(asAt);
+        List<Map<String, Object>> data = cbsReportService.getUnlockArrearsReportData(asAt, products);
         writeExceptionLockCsv(response, "unlock_with_arrears_report.csv", data);
     }
 
@@ -351,17 +358,18 @@ public class CbsReportController {
     @GetMapping("/lock-no-arrears/download")
     public void downloadLockNoArrears(
             @RequestParam(value = "asAt", required = false) String asAt,
+            @RequestParam(value = "products", required = false) List<String> products,
             @RequestParam(value = "downloadToken", required = false) String downloadToken,
             HttpSession session,
             HttpServletResponse response) throws Exception {
         verifyDownloadPermission(session, response);
         com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");
         String username = currentUser != null ? currentUser.getUsername() : "system";
-        String filtersStr = String.format("asAt=%s", asAt);
+        String filtersStr = String.format("asAt=%s, products=%s", asAt, products);
         cbsReportService.logReportActivity(username, "Lock with No Arrears Exception Report", "DOWNLOAD", filtersStr);
 
         setDownloadTokenCookie(response, downloadToken);
-        List<Map<String, Object>> data = cbsReportService.getLockNoArrearsReportData(asAt);
+        List<Map<String, Object>> data = cbsReportService.getLockNoArrearsReportData(asAt, products);
         writeExceptionLockCsv(response, "lock_with_no_arrears_report.csv", data);
     }
 
@@ -378,17 +386,18 @@ public class CbsReportController {
     public void downloadOneRental(
             @RequestParam(value = "asAt", required = false) String asAt,
             @RequestParam(value = "arrearsFilter", required = false) String arrearsFilter,
+            @RequestParam(value = "products", required = false) List<String> products,
             @RequestParam(value = "downloadToken", required = false) String downloadToken,
             HttpSession session,
             HttpServletResponse response) throws Exception {
         verifyDownloadPermission(session, response);
         com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");
         String username = currentUser != null ? currentUser.getUsername() : "system";
-        String filtersStr = String.format("asAt=%s, arrearsFilter=%s", asAt, arrearsFilter);
+        String filtersStr = String.format("asAt=%s, arrearsFilter=%s, products=%s", asAt, arrearsFilter, products);
         cbsReportService.logReportActivity(username, "Last Rental Remaining Exception Report", "DOWNLOAD", filtersStr);
 
         setDownloadTokenCookie(response, downloadToken);
-        List<Map<String, Object>> data = cbsReportService.getOneRentalReportData(asAt, arrearsFilter);
+        List<Map<String, Object>> data = cbsReportService.getOneRentalReportData(asAt, arrearsFilter, products);
         writeExceptionLockCsv(response, "last_rental_remaining_report.csv", data);
     }
 
@@ -405,17 +414,18 @@ public class CbsReportController {
     public void downloadSettledReport(
             @RequestParam(value = "fromDate", required = false) String fromDate,
             @RequestParam(value = "toDate", required = false) String toDate,
+            @RequestParam(value = "products", required = false) List<String> products,
             @RequestParam(value = "downloadToken", required = false) String downloadToken,
             HttpSession session,
             HttpServletResponse response) throws Exception {
         verifyDownloadPermission(session, response);
         com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");
         String username = currentUser != null ? currentUser.getUsername() : "system";
-        String filtersStr = String.format("fromDate=%s, toDate=%s", fromDate, toDate);
+        String filtersStr = String.format("fromDate=%s, toDate=%s, products=%s", fromDate, toDate, products);
         cbsReportService.logReportActivity(username, "Settled & Early Settled Exception Report", "DOWNLOAD", filtersStr);
 
         setDownloadTokenCookie(response, downloadToken);
-        List<Map<String, Object>> data = cbsReportService.getSettledReportData(fromDate, toDate);
+        List<Map<String, Object>> data = cbsReportService.getSettledReportData(fromDate, toDate, products);
         String xlsxFilename = "settled_and_early_settled_report.xlsx";
         String[] headers = {"Account No","Series","Legacy Account No","NIC/ID No","Mobile No","Address","Loan Amount","Rental","Disbursed Date","Closed Date","Account Status","Customer Name"};
         String[] keys = {"account_no","series","legacy_account_no","client_nic","client_mobile","client_address","loan_amount","rental","disbursed_date","closed_date","account_status","client_name"};
@@ -435,17 +445,18 @@ public class CbsReportController {
     public void downloadMultiplePaymentsReport(
             @RequestParam(value = "fromDate", required = false) String fromDate,
             @RequestParam(value = "toDate", required = false) String toDate,
+            @RequestParam(value = "products", required = false) List<String> products,
             @RequestParam(value = "downloadToken", required = false) String downloadToken,
             HttpSession session,
             HttpServletResponse response) throws Exception {
         verifyDownloadPermission(session, response);
         com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");
         String username = currentUser != null ? currentUser.getUsername() : "system";
-        String filtersStr = String.format("fromDate=%s, toDate=%s", fromDate, toDate);
+        String filtersStr = String.format("fromDate=%s, toDate=%s, products=%s", fromDate, toDate, products);
         cbsReportService.logReportActivity(username, "Multiple Payments Exception Report", "DOWNLOAD", filtersStr);
 
         setDownloadTokenCookie(response, downloadToken);
-        List<Map<String, Object>> data = cbsReportService.getMultiplePaymentsReportData(fromDate, toDate);
+        List<Map<String, Object>> data = cbsReportService.getMultiplePaymentsReportData(fromDate, toDate, products);
         writeMultiplePaymentsCsv(response, "multiple_payments_report.csv", data);
     }
 
@@ -469,17 +480,18 @@ public class CbsReportController {
     public void downloadMaturedLowBalance(
             @RequestParam(value = "asAt", required = false) String asAt,
             @RequestParam(value = "lowAmount", required = false) Double lowAmount,
+            @RequestParam(value = "products", required = false) List<String> products,
             @RequestParam(value = "downloadToken", required = false) String downloadToken,
             HttpSession session,
             HttpServletResponse response) throws Exception {
         verifyDownloadPermission(session, response);
         com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");
         String username = currentUser != null ? currentUser.getUsername() : "system";
-        String filtersStr = String.format("asAt=%s, lowAmount=%s", asAt, lowAmount);
+        String filtersStr = String.format("asAt=%s, lowAmount=%s, products=%s", asAt, lowAmount, products);
         cbsReportService.logReportActivity(username, "Matured Low Balance Exception Report", "DOWNLOAD", filtersStr);
 
         setDownloadTokenCookie(response, downloadToken);
-        List<Map<String, Object>> data = cbsReportService.getMaturedLowBalanceReportData(asAt, lowAmount);
+        List<Map<String, Object>> data = cbsReportService.getMaturedLowBalanceReportData(asAt, lowAmount, products);
         writeMaturedLowBalanceCsv(response, "matured_low_balance_report.csv", data);
     }
 
@@ -711,6 +723,7 @@ public class CbsReportController {
             @RequestParam(required = false) String toDate,
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String vendor,
+            @RequestParam(value = "products", required = false) List<String> products,
             HttpServletResponse response) throws Exception {
 
         Map<String, Object> filters = new HashMap<>();
@@ -722,6 +735,7 @@ public class CbsReportController {
         filters.put("toDate", toDate);
         filters.put("search", search);
         filters.put("vendor", vendor);
+        filters.put("products", products);
 
         Map<String, Object> reportData = cbsReportService.fetchVendorPaymentsReport(filters, false);
 
@@ -744,6 +758,7 @@ public class CbsReportController {
             @RequestParam(required = false) String toDate,
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String vendor,
+            @RequestParam(value = "products", required = false) List<String> products,
             HttpServletResponse response) throws Exception {
 
         Map<String, Object> filters = new HashMap<>();
@@ -755,6 +770,7 @@ public class CbsReportController {
         filters.put("toDate", toDate);
         filters.put("search", search);
         filters.put("vendor", vendor);
+        filters.put("products", products);
 
         Map<String, Object> reportData = cbsReportService.fetchVendorPaymentsReport(filters, true);
 

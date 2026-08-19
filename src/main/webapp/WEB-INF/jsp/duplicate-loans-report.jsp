@@ -28,9 +28,13 @@
         <link href="${pageContext.request.contextPath}/assets/css/user.min.css" rel="stylesheet" id="user-style-default">
 
         <!-- Vendors for DataTables -->
+        <!-- Vendors for Choices.js and DataTables -->
+        <link href="${pageContext.request.contextPath}/vendors/choices/choices.min.css" rel="stylesheet">
         <link href="${pageContext.request.contextPath}/vendors/datatables.net-bs5/dataTables.bootstrap5.min.css" rel="stylesheet">
 
         <script>
+            let productChoices;
+
             var linkRTL = document.getElementById('style-rtl');
             var userLinkRTL = document.getElementById('user-style-rtl');
             linkRTL.setAttribute('disabled', true);
@@ -99,7 +103,12 @@
                         <div class="card-body">
                             <form id="filterForm">
                                 <div class="row g-3 align-items-end">
-                                    <div class="col-md-12 d-flex align-items-end justify-content-end gap-2">
+                                    
+                                    <div class="col-md-3">
+                                        <label class="form-label text-700 fw-semi-bold" for="selectProducts">Product</label>
+                                        <select class="form-select" id="selectProducts" multiple></select>
+                                    </div>
+                                    <div class="col-md-9 d-flex align-items-end justify-content-end gap-2">
                                         <button class="btn btn-primary btn-sm" type="button" id="applyFiltersBtn">
                                             <span class="fas fa-search me-1"></span> Load Data
                                         </button>
@@ -157,6 +166,7 @@
         <script src="${pageContext.request.contextPath}/vendors/is/is.min.js"></script>
         <script src="${pageContext.request.contextPath}/vendors/fontawesome/all.min.js"></script>
         <script src="${pageContext.request.contextPath}/vendors/lodash/lodash.min.js"></script>
+        <script src="${pageContext.request.contextPath}/vendors/choices/choices.min.js"></script>
         <script src="${pageContext.request.contextPath}/vendors/datatables.net/jquery.dataTables.min.js"></script>
         <script src="${pageContext.request.contextPath}/vendors/datatables.net-bs5/dataTables.bootstrap5.min.js"></script>
         <script src="${pageContext.request.contextPath}/assets/js/theme.js"></script>
@@ -170,7 +180,35 @@
                 if (parts.length === 2) return parts.pop().split(';').shift();
             }
 
+            function getFilters() {
+                const products = productChoices ? productChoices.getValue(true) : [];
+                return {
+                    products: products
+                };
+            }
+
             $(document).ready(function() {
+
+                productChoices = new Choices('#selectProducts', {
+                    removeItemButton: true,
+                    placeholder: true,
+                    placeholderValue: 'Select Products',
+                    shouldSort: false
+                });
+
+                // Load Metadata
+                fetch('${pageContext.request.contextPath}/api/cbs/metadata')
+                    .then(res => res.json())
+                    .then(data => {
+                        const productList = data.products.map(p => ({
+                            value: p.product_code,
+                            label: p.product_name,
+                            selected: false
+                        }));
+                        productChoices.setChoices(productList, 'value', 'label', true);
+                    })
+                    .catch(err => console.error("Error loading filter metadata:", err));
+    
                 dtReport = $('#tableDuplicateLoans').DataTable({
                     processing: false,
                     serverSide: true,
@@ -224,6 +262,11 @@
                     $('#downloadExcelBtn').on('click', function() {
                         let downloadUrl = '${pageContext.request.contextPath}/api/cbs/duplicate-loans/download';
                         const queryParams = new URLSearchParams();
+
+                        if (filters.products && filters.products.length > 0) {
+                            filters.products.forEach(p => queryParams.append('products', p));
+                        }
+    
                         const token = new Date().getTime();
                         queryParams.append('downloadToken', token);
 
