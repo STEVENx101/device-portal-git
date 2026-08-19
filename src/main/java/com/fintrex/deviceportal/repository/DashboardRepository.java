@@ -884,11 +884,11 @@ public class DashboardRepository {
                 SELECT 
                     COALESCE(t.channel, 'OTHER') AS channel_name,
                     COUNT(*) AS tx_count,
-                    COALESCE(SUM(amount), 0) AS total_amount
+                    COALESCE(SUM(t.amount), 0) AS total_amount
                 FROM cbs.transaction t
                 WHERE 1=1 %s
-                GROUP BY channel_name
-                ORDER BY total_amount DESC
+                GROUP BY COALESCE(t.channel, 'OTHER')
+                ORDER BY tx_count DESC
                 """, productFilter);
         return jdbcTemplate.queryForList(sql);
     }
