@@ -29,9 +29,13 @@
 
         <!-- Vendors for DataTables -->
         <link href="${pageContext.request.contextPath}/vendors/choices/choices.min.css" rel="stylesheet">
+        <!-- Vendors for Choices.js and DataTables -->
+        <link href="${pageContext.request.contextPath}/vendors/choices/choices.min.css" rel="stylesheet">
         <link href="${pageContext.request.contextPath}/vendors/datatables.net-bs5/dataTables.bootstrap5.min.css" rel="stylesheet">
 
         <script>
+            let productChoices;
+
             var linkRTL = document.getElementById('style-rtl');
             var userLinkRTL = document.getElementById('user-style-rtl');
             linkRTL.setAttribute('disabled', true);
@@ -114,17 +118,22 @@
                                         <label class="form-label text-700 fw-semi-bold" for="toDate">To Date</label>
                                         <input class="form-control" type="date" id="toDate" value="2026-07-13">
                                     </div>
-                                    <div class="col-md-6 d-flex align-items-end justify-content-end gap-2">
-                                         <button class="btn btn-primary btn-sm" type="button" id="applyFiltersBtn">
+                                    
+                                    <div class="col-md-3">
+                                        <label class="form-label text-700 fw-semi-bold" for="selectProducts">Product</label>
+                                        <select class="form-select" id="selectProducts" multiple></select>
+                                    </div>
+                                    <div class="col-md-3 d-flex align-items-end justify-content-end gap-2">
+                                         <button class="btn btn-primary btn-sm text-nowrap" type="button" id="applyFiltersBtn">
                                              <span class="fas fa-search me-1"></span> Load Data
                                          </button>
                                          <% if (canDownloadReports) { %>
-                                         <button class="btn btn-success btn-sm" type="button" id="downloadExcelBtn">
+                                         <button class="btn btn-success btn-sm text-nowrap" type="button" id="downloadExcelBtn">
                                              <span class="fas fa-file-excel me-1"></span> Download Excel
                                          </button>
                                          <% } %>
                                          <% if (hasReportLogs) { %>
-                                         <a class="btn btn-info btn-sm" href="${pageContext.request.contextPath}/report-logs" style="background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%) !important; border: none !important; color: #ffffff !important; box-shadow: 0 4px 12px rgba(14, 165, 233, 0.2) !important;">
+                                         <a class="btn btn-info btn-sm text-nowrap" href="${pageContext.request.contextPath}/report-logs" style="background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%) !important; border: none !important; color: #ffffff !important; box-shadow: 0 4px 12px rgba(14, 165, 233, 0.2) !important;">
                                              <span class="fas fa-history me-1"></span> View Logs
                                          </a>
                                          <% } %>
@@ -170,6 +179,7 @@
         <script src="${pageContext.request.contextPath}/vendors/fontawesome/all.min.js"></script>
         <script src="${pageContext.request.contextPath}/vendors/lodash/lodash.min.js"></script>
         <script src="${pageContext.request.contextPath}/vendors/choices/choices.min.js"></script>
+        <script src="${pageContext.request.contextPath}/vendors/choices/choices.min.js"></script>
         <script src="${pageContext.request.contextPath}/vendors/datatables.net/jquery.dataTables.min.js"></script>
         <script src="${pageContext.request.contextPath}/vendors/datatables.net-bs5/dataTables.bootstrap5.min.js"></script>
         <script src="${pageContext.request.contextPath}/assets/js/theme.js"></script>
@@ -178,11 +188,13 @@
             let hasLoaded = false;
 
             function getFilters() {
+                const products = productChoices ? productChoices.getValue(true) : [];
                 return {
                     branch: $('#selectBranch').val(),
                     fromDate: $('#fromDate').val(),
                     toDate: $('#toDate').val()
-                };
+                ,
+                    products: products};
             }
 
             function getCookie(name) {
@@ -192,6 +204,27 @@
             }
 
             $(document).ready(function() {
+
+                productChoices = new Choices('#selectProducts', {
+                    removeItemButton: true,
+                    placeholder: true,
+                    placeholderValue: 'Select Products',
+                    shouldSort: false
+                });
+
+                // Load Metadata
+                fetch('${pageContext.request.contextPath}/api/cbs/metadata')
+                    .then(res => res.json())
+                    .then(data => {
+                        const productList = data.products.map(p => ({
+                            value: p.product_code,
+                            label: p.product_name,
+                            selected: false
+                        }));
+                        productChoices.setChoices(productList, 'value', 'label', true);
+                    })
+                    .catch(err => console.error("Error loading filter metadata:", err));
+    
                 // Load Metadata
                 fetch('${pageContext.request.contextPath}/api/cbs/metadata')
                     .then(res => res.json())
@@ -257,6 +290,11 @@
                         let downloadUrl = '${pageContext.request.contextPath}/api/cbs/report2/download';
 
                         const queryParams = new URLSearchParams();
+
+                        if (filters.products && filters.products.length > 0) {
+                            filters.products.forEach(p => queryParams.append('products', p));
+                        }
+    
                         queryParams.append('branch', filters.branch);
                         queryParams.append('fromDate', filters.fromDate);
                         queryParams.append('toDate', filters.toDate);

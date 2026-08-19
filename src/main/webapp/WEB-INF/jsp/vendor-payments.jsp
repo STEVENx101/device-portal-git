@@ -186,11 +186,11 @@
                                         <select class="form-select form-select-sm" id="selectProducts" multiple></select>
                                     </div>
                                     <div class="col-md-2 d-flex align-items-end justify-content-end gap-2 pt-3">
-                                        <button class="btn btn-primary btn-sm" type="button" id="applyFiltersBtn">
+                                        <button class="btn btn-primary btn-sm text-nowrap" type="button" id="applyFiltersBtn">
                                             <span class="fas fa-search me-1"></span> Load Report
                                         </button>
                                         <% if (canDownloadReports) { %>
-                                        <button class="btn btn-success btn-sm" type="button" id="downloadCsvBtn">
+                                        <button class="btn btn-success btn-sm text-nowrap" type="button" id="downloadCsvBtn">
                                             <span class="fas fa-file-excel me-1"></span> Excel
                                         </button>
                                         <% } %>

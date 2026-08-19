@@ -214,7 +214,7 @@
                         <div class="card-body py-2">
                             <form id="filterForm">
                                 <div class="row g-2 align-items-center">
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                         <!-- Dimension Pills -->
                                         <ul class="nav nav-pills" id="dimensionTabs">
                                             <li class="nav-item">
@@ -240,7 +240,7 @@
                                             <input class="form-control form-control-sm" type="date" id="asAtDate">
                                         </div>
                                     </div>
-                                    <div class="col-md-3" id="dynamicFilterCol" style="display: none;">
+                                    <div class="col-md-2" id="dynamicFilterCol" style="display: none;">
                                         <div class="d-flex align-items-center">
                                             <label class="form-label text-700 fw-semi-bold mb-0 me-2 text-nowrap" id="dynamicFilterLabel" for="dynamicFilterSelect">Filter</label>
                                             <select class="form-select form-select-sm" id="dynamicFilterSelect">
@@ -249,16 +249,18 @@
                                         </div>
                                     </div>
                                     
-                                    <div class="col-md-3">
-                                        <label class="form-label text-700 fw-semi-bold mb-1 fs--1" for="selectProducts">Product</label>
-                                        <select class="form-select form-select-sm" id="selectProducts" multiple></select>
+                                    <div class="col-md-2">
+                                        <div class="d-flex align-items-center">
+                                            <label class="form-label text-700 fw-semi-bold mb-0 me-2 text-nowrap" for="selectProducts">Product</label>
+                                            <select class="form-select form-select-sm" id="selectProducts" multiple></select>
+                                        </div>
                                     </div>
-                                    <div class="col-md-2 d-flex align-items-center justify-content-end gap-2">
-                                        <button class="btn btn-primary btn-sm" type="button" id="applyFiltersBtn">
+                                    <div class="col-md-3 d-flex align-items-center justify-content-end gap-2">
+                                        <button class="btn btn-primary btn-sm text-nowrap" type="button" id="applyFiltersBtn">
                                             <span class="fas fa-search me-1"></span> Load Report
                                         </button>
                                         <% if (canDownloadReports) { %>
-                                        <button class="btn btn-success btn-sm" type="button" id="downloadCsvBtn">
+                                        <button class="btn btn-success btn-sm text-nowrap" type="button" id="downloadCsvBtn">
                                             <span class="fas fa-file-excel me-1"></span> Excel
                                         </button>
                                         <% } %>
