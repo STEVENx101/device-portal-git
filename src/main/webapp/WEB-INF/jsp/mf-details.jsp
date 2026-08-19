@@ -905,8 +905,7 @@
 
 
                     $(tableId).DataTable({
-                        paging: true,
-                        pageLength: 10,
+                        paging: false,
                         lengthChange: false,
                         info: true,
                         searching: false,
@@ -1077,8 +1076,7 @@
                         }
 
                         $(tableId).DataTable({
-                            paging: true,
-                            pageLength: 10,
+                            paging: false,
                             lengthChange: false,
                             info: true,
                             searching: false,
@@ -1142,8 +1140,7 @@
                             $(tableId).DataTable().destroy();
                         }
                         $(tableId).DataTable({
-                            paging: true,
-                            pageLength: 10,
+                            paging: false,
                             lengthChange: false,
                             info: true,
                             searching: false,
