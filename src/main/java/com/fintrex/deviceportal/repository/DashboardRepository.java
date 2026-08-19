@@ -316,10 +316,10 @@ public class DashboardRepository {
                 """
                                             SELECT
                                                 %s AS category_name,
-                                                SUM(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) = 0 THEN COALESCE(p1.exposure, p2.exposure, l.loan_amount, 0) ELSE 0 END) AS dpd0_val,
-                                                SUM(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) BETWEEN 1 AND 30 THEN COALESCE(p1.exposure, p2.exposure, l.loan_amount, 0) ELSE 0 END) AS dpd1_30_val,
-                                                SUM(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) BETWEEN 31 AND 60 THEN COALESCE(p1.exposure, p2.exposure, l.loan_amount, 0) ELSE 0 END) AS dpd31_60_val,
-                                                SUM(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) BETWEEN 61 AND 90 THEN COALESCE(p1.exposure, p2.exposure, l.loan_amount, 0) ELSE 0 END) AS dpd61_90_val,
+                                                SUM(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) = 0 AND COALESCE(p1.loan_status, p2.loan_status, '') <> 'N' THEN COALESCE(p1.exposure, p2.exposure, l.loan_amount, 0) ELSE 0 END) AS dpd0_val,
+                                                SUM(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) BETWEEN 1 AND 30 AND COALESCE(p1.loan_status, p2.loan_status, '') <> 'N' THEN COALESCE(p1.exposure, p2.exposure, l.loan_amount, 0) ELSE 0 END) AS dpd1_30_val,
+                                                SUM(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) BETWEEN 31 AND 60 AND COALESCE(p1.loan_status, p2.loan_status, '') <> 'N' THEN COALESCE(p1.exposure, p2.exposure, l.loan_amount, 0) ELSE 0 END) AS dpd31_60_val,
+                                                SUM(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) BETWEEN 61 AND 90 AND COALESCE(p1.loan_status, p2.loan_status, '') <> 'N' THEN COALESCE(p1.exposure, p2.exposure, l.loan_amount, 0) ELSE 0 END) AS dpd61_90_val,
                                                 SUM(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) > 90 OR COALESCE(p1.loan_status, p2.loan_status) = 'N' THEN COALESCE(p1.exposure, p2.exposure, l.loan_amount, 0) ELSE 0 END) AS dpdAbove90_val
                                             FROM cbs.loan l
                                             LEFT JOIN cbs.portfolio p1
@@ -367,10 +367,10 @@ public class DashboardRepository {
                     SELECT
                         DATE_FORMAT(p.portfolio_date, '%%b %%Y') AS month_name,
                         DATE_FORMAT(p.portfolio_date, '%%Y-%%m') AS month_key,
-                        SUM(CASE WHEN COALESCE(p.dpd, 0) = 0 THEN p.exposure ELSE 0 END) AS dpd0_val,
-                        SUM(CASE WHEN COALESCE(p.dpd, 0) BETWEEN 1 AND 30 THEN p.exposure ELSE 0 END) AS dpd1_30_val,
-                        SUM(CASE WHEN COALESCE(p.dpd, 0) BETWEEN 31 AND 60 THEN p.exposure ELSE 0 END) AS dpd31_60_val,
-                        SUM(CASE WHEN COALESCE(p.dpd, 0) BETWEEN 61 AND 90 THEN p.exposure ELSE 0 END) AS dpd61_90_val,
+                        SUM(CASE WHEN COALESCE(p.dpd, 0) = 0 AND COALESCE(p.loan_status, '') <> 'N' THEN p.exposure ELSE 0 END) AS dpd0_val,
+                        SUM(CASE WHEN COALESCE(p.dpd, 0) BETWEEN 1 AND 30 AND COALESCE(p.loan_status, '') <> 'N' THEN p.exposure ELSE 0 END) AS dpd1_30_val,
+                        SUM(CASE WHEN COALESCE(p.dpd, 0) BETWEEN 31 AND 60 AND COALESCE(p.loan_status, '') <> 'N' THEN p.exposure ELSE 0 END) AS dpd31_60_val,
+                        SUM(CASE WHEN COALESCE(p.dpd, 0) BETWEEN 61 AND 90 AND COALESCE(p.loan_status, '') <> 'N' THEN p.exposure ELSE 0 END) AS dpd61_90_val,
                         SUM(CASE WHEN COALESCE(p.dpd, 0) > 90 OR p.loan_status = 'N' THEN p.exposure ELSE 0 END) AS dpdAbove90_val
                     FROM cbs.portfolio p
                     INNER JOIN (
