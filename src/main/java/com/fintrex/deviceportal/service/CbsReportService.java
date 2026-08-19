@@ -325,7 +325,7 @@ public class CbsReportService {
                     COALESCE(dl1.platform, dl2.platform) AS `platform`
                 FROM cbs.loan l
                 JOIN cbs.portfolio p1
-                    ON p1.account_no = l.account_no
+                    ON p1.account_no = COALESCE(l.legacy_account_no, l.account_no)
                     AND p1.series = l.account_series
                     AND p1.portfolio_date = :latestPortfolioDate
                 LEFT JOIN cbs.branch br ON CAST(l.branch AS UNSIGNED) = br.branch_code
@@ -876,7 +876,7 @@ public class CbsReportService {
                     p1.last_payment_amount AS `last_payment_amount`
                 FROM cbs.loan l
                 JOIN cbs.portfolio p1
-                    ON p1.account_no = l.account_no
+                    ON p1.account_no = COALESCE(l.legacy_account_no, l.account_no)
                     AND p1.series = l.account_series
                     AND p1.portfolio_date = :latestPortfolioDate
                 LEFT JOIN cbs.client c ON l.client = c.client_code
@@ -944,7 +944,7 @@ public class CbsReportService {
                     p1.last_payment_amount AS `last_payment_amount`
                 FROM cbs.loan l
                 JOIN cbs.portfolio p1
-                    ON p1.account_no = l.account_no
+                    ON p1.account_no = COALESCE(l.legacy_account_no, l.account_no)
                     AND p1.series = l.account_series
                     AND p1.portfolio_date = :latestPortfolioDate
                 LEFT JOIN cbs.client c ON l.client = c.client_code
@@ -1012,7 +1012,7 @@ public class CbsReportService {
                     p1.last_payment_amount AS `last_payment_amount`
                 FROM cbs.loan l
                 JOIN cbs.portfolio p1
-                    ON p1.account_no = l.account_no
+                    ON p1.account_no = COALESCE(l.legacy_account_no, l.account_no)
                     AND p1.series = l.account_series
                     AND p1.portfolio_date = :latestPortfolioDate
                 LEFT JOIN cbs.client c ON l.client = c.client_code
@@ -1270,7 +1270,7 @@ public class CbsReportService {
                     p1.recovery_officer AS `recovery_officer`
                 FROM cbs.loan l
                 JOIN cbs.portfolio p1
-                    ON p1.account_no = l.account_no
+                    ON p1.account_no = COALESCE(l.legacy_account_no, l.account_no)
                     AND p1.series = l.account_series
                     AND p1.portfolio_date = :latestPortfolioDate
                 LEFT JOIN cbs.client c ON l.client = c.client_code
@@ -1409,7 +1409,7 @@ public class CbsReportService {
                     COALESCE(lmc1.charge_amount, lmc2.charge_amount) AS `charge_amount`
                 FROM cbs.loan l
                 JOIN cbs.portfolio p1
-                    ON p1.account_no = l.account_no
+                    ON p1.account_no = COALESCE(l.legacy_account_no, l.account_no)
                     AND p1.series = l.account_series
                     AND p1.portfolio_date = :latestPortfolioDate
                 LEFT JOIN cbs.client c ON l.client = c.client_code
