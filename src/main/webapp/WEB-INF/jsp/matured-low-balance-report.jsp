@@ -103,8 +103,8 @@
                         <div class="card-body">
                             <form id="filterForm">
                                 <div class="row g-3 align-items-end">
-                                     <div class="col-md-3">
-                                         <label class="form-label text-700 fw-semi-bold" for="asAtDate">As at Portfolio Date</label>
+                                     <div class="col-md-2">
+                                          <label class="form-label text-700 fw-semi-bold" for="asAtDate">As at Portfolio Date</label>
                                          <input class="form-control" type="date" id="asAtDate" value="">
                                      </div>
                                      <div class="col-md-3">
@@ -112,11 +112,11 @@
                                          <input class="form-control" type="number" id="lowAmount" value="1000" placeholder="1000">
                                      </div>
                                      
-                                    <div class="col-md-3">
+                                    <div class="col-md-2">
                                         <label class="form-label text-700 fw-semi-bold" for="selectProducts">Product</label>
                                         <select class="form-select" id="selectProducts" multiple></select>
                                     </div>
-                                    <div class="col-md-3 d-flex align-items-end justify-content-end gap-2">
+                                    <div class="col-md-5 d-flex align-items-end justify-content-end gap-2">
                                          <button class="btn btn-primary btn-sm text-nowrap" type="button" id="applyFiltersBtn">
                                              <span class="fas fa-search me-1"></span> Load Data
                                          </button>
