@@ -448,7 +448,7 @@ public class DashboardRepository {
                           AND legacy_account_no IS NULL
                     ) active_loans ON active_loans.finance_no = ml.finance_no
                     LEFT JOIN cbs.product pr ON CAST(active_loans.product AS UNSIGNED) = pr.code_val
-                     LEFT JOIN cbs.portfolio p ON p.account_no = active_loans.finance_no
+                      LEFT JOIN cbs.portfolio p ON p.account_no = active_loans.account_no
                         AND p.series = active_loans.account_series
                         AND p.portfolio_date = ?
                     WHERE ml.locked IN (0, 1) %s
