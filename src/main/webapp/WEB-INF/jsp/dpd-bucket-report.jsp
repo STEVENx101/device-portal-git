@@ -249,13 +249,15 @@
                                         </div>
                                     </div>
                                     
-                                    <div class="col-md-2">
-                                        <div class="d-flex align-items-center">
+                                    <div class="col-md-3">
+                                        <div class="d-flex align-items-center w-100">
                                             <label class="form-label text-700 fw-semi-bold mb-0 me-2 text-nowrap" for="selectProducts">Product</label>
-                                            <select class="form-select form-select-sm" id="selectProducts" multiple></select>
+                                            <div class="flex-grow-1">
+                                                <select class="form-select form-select-sm" id="selectProducts" multiple></select>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-3 d-flex align-items-center justify-content-end gap-2">
+                                    <div class="col-md-auto ms-auto d-flex align-items-center justify-content-end gap-2">
                                         <button class="btn btn-primary btn-sm text-nowrap" type="button" id="applyFiltersBtn">
                                             <span class="fas fa-search me-1"></span> Load Report
                                         </button>
