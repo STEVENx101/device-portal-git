@@ -375,9 +375,11 @@
             }
 
             function loadReportData() {
+                const products = productChoices ? productChoices.getValue(true) : [];
                 const filters = {
                     dimension: activeDimension,
-                    asAt: $('#asAtDate').val()
+                    asAt: $('#asAtDate').val(),
+                    products: products
                 };
 
                 const filterVal = $('#dynamicFilterSelect').val() || 'ALL';
@@ -574,7 +576,19 @@
                     const filterVal = $('#dynamicFilterSelect').val() || 'ALL';
                     const dealerVal = activeDimension === 'dealer' ? filterVal : 'ALL';
                     const modelVal = activeDimension === 'model' ? filterVal : 'ALL';
-                    const url = '${pageContext.request.contextPath}/api/cbs/dpd-bucket/download?dimension=' + encodeURIComponent(activeDimension) + '&asAt=' + encodeURIComponent(asAt) + '&dealer=' + encodeURIComponent(dealerVal) + '&model=' + encodeURIComponent(modelVal) + '&downloadToken=' + token;
+                    const products = productChoices ? productChoices.getValue(true) : [];
+
+                    const queryParams = new URLSearchParams();
+                    queryParams.append('dimension', activeDimension);
+                    queryParams.append('asAt', asAt);
+                    queryParams.append('dealer', dealerVal);
+                    queryParams.append('model', modelVal);
+                    queryParams.append('downloadToken', token);
+                    if (products && products.length > 0) {
+                        products.forEach(p => queryParams.append('products', p));
+                    }
+
+                    const url = '${pageContext.request.contextPath}/api/cbs/dpd-bucket/download?' + queryParams.toString();
                     
                     $('#loaderText').text('Generating Excel download, please wait...');
                     $('#cbsLoader').css('display', 'flex');
