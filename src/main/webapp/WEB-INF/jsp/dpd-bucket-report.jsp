@@ -129,15 +129,39 @@
             .table-bucket td {
                 vertical-align: middle;
             }
-            .bucket-header-0 { background-color: rgba(16, 185, 129, 0.1) !important; color: #047857 !important; }
-            .bucket-header-1 { background-color: rgba(245, 158, 11, 0.1) !important; color: #b45309 !important; }
-            .bucket-header-2 { background-color: rgba(249, 115, 22, 0.1) !important; color: #c2410c !important; }
-            .bucket-header-3 { background-color: rgba(239, 68, 68, 0.1) !important; color: #b91c1c !important; }
             .bucket-header-above90 { background-color: rgba(30, 41, 59, 0.1) !important; color: #1e293b !important; }
             .bucket-header-tot { background-color: rgba(99, 102, 241, 0.1) !important; color: #4338ca !important; }
             .totals-row {
                 font-weight: 700;
                 background-color: rgba(99, 102, 241, 0.08) !important;
+            }
+            /* Style Choices.js with checkboxes and summary text instead of pills */
+            .choices-checkbox .choices__inner {
+                position: relative;
+                min-height: 31px;
+                padding: 2px 4px !important;
+                background-color: #fff !important;
+                border: 1px solid #d8e2ef !important;
+                border-radius: .25rem !important;
+            }
+            .choices-checkbox .choices__list--multiple {
+                display: none !important; /* Hide the tag pills */
+            }
+            .choices-checkbox .choices__input {
+                margin-bottom: 0 !important;
+                margin-top: 0 !important;
+                padding: 2px 2px !important;
+                height: 25px;
+                background-color: transparent !important;
+            }
+            .choices-checkbox .choices__list--dropdown .choices__item--selectable {
+                padding: 6px 12px !important;
+                display: flex;
+                align-items: center;
+            }
+            .choices-checkbox .choices__list--dropdown .choices__item--selectable.is-highlighted {
+                background-color: #f1f5f9 !important;
+                color: #1e293b !important;
             }
         </style>
     </head>
@@ -511,10 +535,42 @@
             $(document).ready(function() {
 
                 productChoices = new Choices('#selectProducts', {
-                    removeItemButton: true,
+                    removeItemButton: false,
                     placeholder: true,
                     placeholderValue: 'Select Products',
-                    shouldSort: false
+                    shouldSort: false,
+                    classNames: {
+                        containerOuter: 'choices choices-checkbox w-100',
+                    },
+                    callbackOnCreateTemplates: function(template) {
+                        return {
+                            choice: function(classNames, data) {
+                                return template(`
+                                    <div class="${classNames.item} ${classNames.itemChoice} ${data.disabled ? classNames.itemDisabled : classNames.itemSelectable}" data-select-text="" data-choice data-id="${data.id}" data-value="${data.value}" role="option">
+                                        <input type="checkbox" class="form-check-input me-2" ${data.selected ? 'checked' : ''} style="pointer-events: none; width: 14px; height: 14px; margin-top: 0;">
+                                        <span>${data.label}</span>
+                                    </div>
+                                `);
+                            }
+                        };
+                    }
+                });
+
+                function updateProductPlaceholder() {
+                    const selected = productChoices.getValue(true);
+                    const container = $('.choices-checkbox .choices__inner');
+                    container.find('.choices-summary').remove();
+                    
+                    if (selected.length > 0) {
+                        container.prepend(`<div class="choices-summary ps-1 text-800 fs--1" style="position: absolute; pointer-events: none; line-height: 25px; left: 8px;">${selected.length} Product(s) Selected</div>`);
+                        $('.choices-checkbox .choices__input').css('opacity', 0);
+                    } else {
+                        $('.choices-checkbox .choices__input').css('opacity', 1);
+                    }
+                }
+
+                $('#selectProducts').on('change', function() {
+                    updateProductPlaceholder();
                 });
 
                 // Load Metadata
@@ -527,6 +583,7 @@
                             selected: false
                         }));
                         productChoices.setChoices(productList, 'value', 'label', true);
+                        updateProductPlaceholder();
                     })
                     .catch(err => console.error("Error loading filter metadata:", err));
     
