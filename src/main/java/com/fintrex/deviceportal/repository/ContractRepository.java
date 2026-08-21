@@ -110,7 +110,7 @@ public class ContractRepository {
                     AND p1.portfolio_date = (
                         SELECT portfolio_date
                         FROM cbs.portfolio
-                        WHERE account_no = l.account_no
+                        WHERE portfolio_date IS NOT NULL
                         ORDER BY portfolio_date DESC
                         LIMIT 1
                     )
@@ -119,7 +119,7 @@ public class ContractRepository {
                     AND p2.portfolio_date = (
                         SELECT portfolio_date
                         FROM cbs.portfolio
-                        WHERE account_no = l.legacy_account_no
+                        WHERE portfolio_date IS NOT NULL
                         ORDER BY portfolio_date DESC
                         LIMIT 1
                     )
