@@ -60,7 +60,7 @@ public class ContractRepository {
                     COALESCE(l.legacy_account_no, l.account_no) AS FINANCE_NO,
                     l.account_no AS ACCOUNT_NO,
                     l.legacy_account_no AS LEGACY_ACCOUNT_NO,
-                    COALESCE(p1.loan_status, p2.loan_status) AS CONTRACT_STATUS,
+                    l.account_status AS CONTRACT_STATUS,
                     COALESCE(p1.total_due, p2.total_due) AS AMT_TO_COLLECTED,
                     COALESCE(p1.exposure, p2.exposure) AS EXPOSURE,
                     COALESCE(p1.performing_status, p2.performing_status) AS PERFORMING_STATUS,
