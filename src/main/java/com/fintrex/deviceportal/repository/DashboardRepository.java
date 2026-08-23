@@ -61,11 +61,7 @@ public class DashboardRepository {
                         COUNT(DISTINCT p.account_no) AS portfolio_count,
                         COALESCE(SUM(p.exposure), 0) AS portfolio_amount
                     FROM cbs.portfolio p
-                    JOIN (
-                        SELECT account_no AS finance_no, product FROM cbs.loan
-                        UNION ALL
-                        SELECT legacy_account_no AS finance_no, product FROM cbs.loan WHERE legacy_account_no IS NOT NULL
-                    ) l ON l.finance_no = p.account_no
+                    JOIN cbs.loan l ON l.account_no = p.account_no
                     LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
                     WHERE p.portfolio_date = (
                         SELECT MAX(portfolio_date)
@@ -82,17 +78,7 @@ public class DashboardRepository {
                         SUM(p.exposure) AS npl_exposure,
                         SUM(p.total_due) AS npl_arrears
                     FROM cbs.portfolio p
-                    JOIN (
-                        SELECT account_no AS finance_no,
-                               account_status, product
-                        FROM cbs.loan
-                        UNION ALL
-                        SELECT legacy_account_no AS finance_no,
-                               account_status, product
-                        FROM cbs.loan
-                        WHERE legacy_account_no IS NOT NULL
-                    ) l
-                    ON l.finance_no = p.account_no
+                    JOIN cbs.loan l ON l.account_no = p.account_no
                     LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
                     WHERE p.portfolio_date = (
                             SELECT MAX(portfolio_date)
@@ -154,11 +140,7 @@ public class DashboardRepository {
                         COUNT(DISTINCT p.account_no) AS arrears_count,
                         COALESCE(SUM(p.total_due), 0) AS arrears_amount
                     FROM cbs.portfolio p
-                    JOIN (
-                        SELECT account_no AS finance_no, product FROM cbs.loan
-                        UNION ALL
-                        SELECT legacy_account_no AS finance_no, product FROM cbs.loan WHERE legacy_account_no IS NOT NULL
-                    ) l ON l.finance_no = p.account_no
+                    JOIN cbs.loan l ON l.account_no = p.account_no
                     LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
                     WHERE p.portfolio_date = (
                         SELECT MAX(portfolio_date) FROM cbs.portfolio
@@ -198,11 +180,7 @@ public class DashboardRepository {
                         COUNT(DISTINCT p.account_no) AS count_val,
                         COALESCE(SUM(p.exposure), 0) AS amount_val
                     FROM cbs.portfolio p
-                    JOIN (
-                        SELECT account_no AS finance_no, product FROM cbs.loan
-                        UNION ALL
-                        SELECT legacy_account_no AS finance_no, product FROM cbs.loan WHERE legacy_account_no IS NOT NULL
-                    ) l ON l.finance_no = p.account_no
+                    JOIN cbs.loan l ON l.account_no = p.account_no
                     LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
                     WHERE p.portfolio_date = (
                         SELECT MAX(portfolio_date) FROM cbs.portfolio
@@ -219,11 +197,7 @@ public class DashboardRepository {
                         COUNT(DISTINCT p.account_no) AS count_val,
                         COALESCE(SUM(p.exposure), 0) AS amount_val
                     FROM cbs.portfolio p
-                    JOIN (
-                        SELECT account_no AS finance_no, product FROM cbs.loan
-                        UNION ALL
-                        SELECT legacy_account_no AS finance_no, product FROM cbs.loan WHERE legacy_account_no IS NOT NULL
-                    ) l ON l.finance_no = p.account_no
+                    JOIN cbs.loan l ON l.account_no = p.account_no
                     LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
                     WHERE p.portfolio_date = (
                         SELECT MAX(portfolio_date) FROM cbs.portfolio
@@ -316,20 +290,16 @@ public class DashboardRepository {
                 """
                                             SELECT
                                                 %s AS category_name,
-                                                SUM(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) = 0 THEN COALESCE(p1.exposure, p2.exposure, l.loan_amount, 0) ELSE 0 END) AS dpd0_val,
-                                                SUM(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) BETWEEN 1 AND 30 THEN COALESCE(p1.exposure, p2.exposure, l.loan_amount, 0) ELSE 0 END) AS dpd1_30_val,
-                                                SUM(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) BETWEEN 31 AND 60 THEN COALESCE(p1.exposure, p2.exposure, l.loan_amount, 0) ELSE 0 END) AS dpd31_60_val,
-                                                SUM(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) BETWEEN 61 AND 90 THEN COALESCE(p1.exposure, p2.exposure, l.loan_amount, 0) ELSE 0 END) AS dpd61_90_val,
-                                                SUM(CASE WHEN COALESCE(p1.dpd, p2.dpd, 0) > 90 OR COALESCE(p1.loan_status, p2.loan_status) = 'N' THEN COALESCE(p1.exposure, p2.exposure, l.loan_amount, 0) ELSE 0 END) AS dpdAbove90_val
+                                                SUM(CASE WHEN COALESCE(p1.dpd, 0) = 0 THEN COALESCE(p1.exposure, l.loan_amount, 0) ELSE 0 END) AS dpd0_val,
+                                                SUM(CASE WHEN COALESCE(p1.dpd, 0) BETWEEN 1 AND 30 THEN COALESCE(p1.exposure, l.loan_amount, 0) ELSE 0 END) AS dpd1_30_val,
+                                                SUM(CASE WHEN COALESCE(p1.dpd, 0) BETWEEN 31 AND 60 THEN COALESCE(p1.exposure, l.loan_amount, 0) ELSE 0 END) AS dpd31_60_val,
+                                                SUM(CASE WHEN COALESCE(p1.dpd, 0) BETWEEN 61 AND 90 THEN COALESCE(p1.exposure, l.loan_amount, 0) ELSE 0 END) AS dpd61_90_val,
+                                                SUM(CASE WHEN COALESCE(p1.dpd, 0) > 90 OR p1.loan_status = 'N' THEN COALESCE(p1.exposure, l.loan_amount, 0) ELSE 0 END) AS dpdAbove90_val
                                             FROM cbs.loan l
                                             LEFT JOIN cbs.portfolio p1
                                                 ON p1.account_no = l.account_no
                                                 AND p1.series = l.account_series
                                                 AND p1.portfolio_date = ?
-                                            LEFT JOIN cbs.portfolio p2
-                                                ON p2.account_no = l.legacy_account_no
-                                                AND p2.series = l.account_series
-                                                AND p2.portfolio_date = ?
                                             LEFT JOIN cbs.branch br ON CAST(l.branch AS UNSIGNED) = br.branch_code
                                             LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
                                             %s
@@ -339,7 +309,7 @@ public class DashboardRepository {
                         """,
                 categoryExpr, dimensionJoin, filter);
 
-        return jdbcTemplate.queryForList(sql, latestPortfolioDate, latestPortfolioDate);
+        return jdbcTemplate.queryForList(sql, latestPortfolioDate);
     }
 
     public List<Map<String, Object>> getMonthWiseBusiness(String product) {
@@ -430,36 +400,26 @@ public class DashboardRepository {
 
         // Mobile Security Stacked Bar query
         String mobileSecBarSql = String.format("""
-                    SELECT 
-                        CASE WHEN ml.locked = 1 THEN 'Locked' ELSE 'Unlocked' END AS lock_status,
-                        COALESCE(p.performing_status, 'Performing') AS performing_status,
-                        CASE WHEN ml.knox_compatibility = 'yes' THEN 'Knox' ELSE 'Datacultr' END AS provider,
-                        COUNT(*) AS cnt
-                    FROM loan.mobileloan ml
-                    INNER JOIN (
-                        SELECT legacy_account_no AS finance_no, account_no, account_series, product
-                        FROM cbs.loan
-                        WHERE account_status IN ('A', 'N', 'P', 'F')
-                          AND legacy_account_no IS NOT NULL
-                        UNION
-                        SELECT account_no AS finance_no, account_no, account_series, product
-                        FROM cbs.loan
-                        WHERE account_status IN ('A', 'N', 'P', 'F')
-                          AND legacy_account_no IS NULL
-                    ) active_loans ON active_loans.finance_no = ml.finance_no
-                    LEFT JOIN cbs.product pr ON CAST(active_loans.product AS UNSIGNED) = pr.code_val
-                      LEFT JOIN cbs.portfolio p ON p.account_no = active_loans.account_no
-                        AND p.series = active_loans.account_series
-                        AND p.portfolio_date = ?
-                    WHERE ml.locked IN (0, 1) %s
-                    GROUP BY lock_status, performing_status, provider
-                """, filter);
+                     SELECT 
+                         CASE WHEN ml.locked = 1 THEN 'Locked' ELSE 'Unlocked' END AS lock_status,
+                         COALESCE(p.performing_status, 'Performing') AS performing_status,
+                         CASE WHEN ml.knox_compatibility = 'yes' THEN 'Knox' ELSE 'Datacultr' END AS provider,
+                         COUNT(*) AS cnt
+                     FROM loan.mobileloan ml
+                     INNER JOIN cbs.loan l ON l.key_account = ml.finance_no
+                     LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
+                     LEFT JOIN cbs.portfolio p ON p.account_no = l.account_no
+                         AND p.series = l.account_series
+                         AND p.portfolio_date = ?
+                     WHERE (ml.locked IN (0, 1) OR ml.locked IS NULL) AND l.account_status IN ('A', 'N', 'P', 'F') %s
+                     GROUP BY lock_status, performing_status, provider
+                 """, filter);
 
         // Laptop Performing vs Non-Performing
         String laptopPerfSql = String.format("""
                     SELECT
                         CASE
-                            WHEN COALESCE(p1.performing_status, p2.performing_status) = 'Non-Performing'
+                            WHEN p1.performing_status = 'Non-Performing'
                                 THEN 'Non-Performing'
                             ELSE 'Performing'
                         END AS state_name,
@@ -471,42 +431,27 @@ public class DashboardRepository {
                         ON p1.account_no = l.account_no
                         AND p1.series = l.account_series
                         AND p1.portfolio_date = ?
-                    LEFT JOIN cbs.portfolio p2
-                        ON p2.account_no = l.legacy_account_no
-                        AND p2.series = l.account_series
-                        AND p2.portfolio_date = ?
                     WHERE pr.product_code IN ('LF', 'laptop') %s
                     GROUP BY state_name
                     ORDER BY state_name
                 """, filter);
         List<Map<String, Object>> laptopPerf = "MF".equalsIgnoreCase(product) ? new ArrayList<>() :
-                jdbcTemplate.queryForList(laptopPerfSql, latestPortfolioDate, latestPortfolioDate);
+                jdbcTemplate.queryForList(laptopPerfSql, latestPortfolioDate);
 
         String laptopLockSql = String.format("""
-                    SELECT
-                    CASE
-                        WHEN dl.locked = 1 THEN 'Locked'
-                        ELSE 'Unlocked'
-                    END AS device_status,
-                    COUNT(*) AS device_count
-                FROM loan.device_loan dl
-                INNER JOIN (
-                    SELECT legacy_account_no AS finance_no, product
-                    FROM cbs.loan
-                    WHERE account_status IN ('A', 'N', 'P', 'F')
-                      AND legacy_account_no IS NOT NULL
-                    UNION
-                    SELECT account_no AS finance_no, product
-                    FROM cbs.loan
-                    WHERE account_status IN ('A', 'N', 'P', 'F')
-                      AND legacy_account_no IS NULL
-                ) active_loans
-                    ON active_loans.finance_no = dl.finance_no
-                LEFT JOIN cbs.product pr ON CAST(active_loans.product AS UNSIGNED) = pr.code_val
-                WHERE dl.locked IN (0, 1) %s
-                GROUP BY dl.locked
-                ORDER BY dl.locked DESC
-                """, filter);
+                     SELECT
+                         CASE
+                             WHEN dl.locked = 1 THEN 'Locked'
+                             ELSE 'Unlocked'
+                         END AS device_status,
+                         COUNT(*) AS device_count
+                     FROM loan.device_loan dl
+                     INNER JOIN cbs.loan l ON l.key_account = dl.finance_no
+                     LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
+                     WHERE (dl.locked IN (0, 1) OR dl.locked IS NULL) AND l.account_status IN ('A', 'N', 'P', 'F') %s
+                     GROUP BY dl.locked
+                     ORDER BY dl.locked DESC
+                 """, filter);
 
         List<Map<String, Object>> laptopLock = new ArrayList<>();
         if (!"MF".equalsIgnoreCase(product)) {
@@ -638,11 +583,7 @@ public class DashboardRepository {
                     COUNT(DISTINCT p.account_no) AS loan_count,
                     COALESCE(SUM(p.exposure), 0) AS total_exposure
                 FROM cbs.portfolio p
-                INNER JOIN (
-                    SELECT account_no, legacy_account_no, vendor, account_series, product
-                    FROM cbs.loan
-                ) l ON (p.account_no = l.account_no AND p.series = l.account_series)
-                    OR (p.account_no = l.legacy_account_no AND p.series = l.account_series)
+                INNER JOIN cbs.loan l ON p.account_no = l.account_no AND p.series = l.account_series
                 LEFT JOIN cbs.vendor v ON l.vendor = v.code
                 LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
                 WHERE p.portfolio_date = (
@@ -670,11 +611,7 @@ public class DashboardRepository {
                     COALESCE(SUM(p.total_due), 0) AS arrears_amount,
                     COALESCE(SUM(p.exposure), 0) AS exposure_amount
                 FROM cbs.portfolio p
-                JOIN (
-                    SELECT account_no AS finance_no, product FROM cbs.loan
-                    UNION ALL
-                    SELECT legacy_account_no AS finance_no, product FROM cbs.loan WHERE legacy_account_no IS NOT NULL
-                ) l ON l.finance_no = p.account_no
+                JOIN cbs.loan l ON l.account_no = p.account_no
                 LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
                 WHERE p.portfolio_date = (
                     SELECT MAX(portfolio_date) FROM cbs.portfolio
@@ -809,18 +746,16 @@ public class DashboardRepository {
         String sql = String.format("""
             SELECT
                 CASE WHEN l.maturity_date <= CURRENT_DATE() THEN 'Matured' ELSE 'Non-Matured' END AS maturity_status,
-                CASE WHEN COALESCE(p1.performing_status, p2.performing_status, 'Performing') = 'Non-Performing' THEN 'Non-Performing' ELSE 'Performing' END AS performing_status,
-                COUNT(DISTINCT l.account_no) AS contract_count
-            FROM cbs.loan l
+                CASE WHEN COALESCE(p1.performing_status, 'Performing') = 'Non-Performing' THEN 'Non-Performing' ELSE 'Performing' END AS performing_status,
+                COUNT(DISTINCT p1.account_no) AS contract_count
+            FROM cbs.portfolio p1
+            JOIN cbs.loan l ON l.key_account = p1.account_no
             LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
-            LEFT JOIN cbs.portfolio p1 ON p1.account_no = l.account_no
-              AND p1.portfolio_date = ?
-            LEFT JOIN cbs.portfolio p2 ON p2.account_no = l.legacy_account_no AND l.legacy_account_no IS NOT NULL
-              AND p2.portfolio_date = ?
-            WHERE 1=1 %s
+            WHERE p1.portfolio_date = ?
+              %s
             GROUP BY maturity_status, performing_status
         """, filter);
-        return jdbcTemplate.queryForList(sql, latestPortfolioDate, latestPortfolioDate);
+        return jdbcTemplate.queryForList(sql, latestPortfolioDate);
     }
 
     public List<Map<String, Object>> getOutstandingAnalysis(String product) {
@@ -831,11 +766,7 @@ public class DashboardRepository {
                 COUNT(DISTINCT p.account_no) AS account_count,
                 COALESCE(SUM(p.exposure), 0) AS total_exposure
             FROM cbs.portfolio p
-            JOIN (
-                SELECT account_no AS finance_no, product FROM cbs.loan
-                UNION ALL
-                SELECT legacy_account_no AS finance_no, product FROM cbs.loan WHERE legacy_account_no IS NOT NULL
-            ) l ON l.finance_no = p.account_no
+            JOIN cbs.loan l ON l.account_no = p.account_no
             LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
             WHERE p.portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio)
               %s
