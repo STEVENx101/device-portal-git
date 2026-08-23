@@ -747,13 +747,17 @@ public class DashboardRepository {
             SELECT
                 CASE WHEN l.maturity_date <= CURRENT_DATE() THEN 'Matured' ELSE 'Non-Matured' END AS maturity_status,
                 CASE WHEN COALESCE(p1.performing_status, 'Performing') = 'Non-Performing' THEN 'Non-Performing' ELSE 'Performing' END AS performing_status,
-                COUNT(DISTINCT p1.account_no) AS contract_count
-            FROM cbs.portfolio p1
-            JOIN cbs.loan l ON l.key_account = p1.account_no
+                COUNT(DISTINCT l.account_no) AS contract_count
+            FROM cbs.loan l
+            LEFT JOIN cbs.portfolio p1 ON p1.account_no = l.account_no 
+                AND p1.series = l.account_series
+                AND p1.portfolio_date = ?
             LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
-            WHERE p1.portfolio_date = ?
+            WHERE l.account_status IN ('A', 'N')
               %s
-            GROUP BY maturity_status, performing_status
+            GROUP BY 
+                CASE WHEN l.maturity_date <= CURRENT_DATE() THEN 'Matured' ELSE 'Non-Matured' END,
+                CASE WHEN COALESCE(p1.performing_status, 'Performing') = 'Non-Performing' THEN 'Non-Performing' ELSE 'Performing' END
         """, filter);
         return jdbcTemplate.queryForList(sql, latestPortfolioDate);
     }
