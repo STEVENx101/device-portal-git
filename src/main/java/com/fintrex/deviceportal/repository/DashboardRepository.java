@@ -67,6 +67,7 @@ public class DashboardRepository {
                         SELECT MAX(portfolio_date)
                         FROM cbs.portfolio
                     )
+                      AND p.loan_status IN ('A', 'N')
                     %s
                 """, filter);
         Map<String, Object> portfolioStats = jdbcTemplate.queryForMap(sqlPortfolio);
@@ -84,7 +85,8 @@ public class DashboardRepository {
                             SELECT MAX(portfolio_date)
                             FROM cbs.portfolio
                     )
-                    AND p.performing_status = 'Non-Performing'
+                      AND p.performing_status = 'Non-Performing'
+                      AND p.loan_status IN ('A', 'N')
                     %s
                 """, filter);
         Map<String, Object> nplStats = jdbcTemplate.queryForMap(sqlNplStats);
@@ -145,7 +147,8 @@ public class DashboardRepository {
                     WHERE p.portfolio_date = (
                         SELECT MAX(portfolio_date) FROM cbs.portfolio
                     )
-                    AND p.total_due > 0
+                      AND p.total_due > 0
+                      AND p.loan_status IN ('A')
                     %s
                 """, filter);
         Map<String, Object> arrearsStats = jdbcTemplate.queryForMap(sqlArrearsStats);
@@ -202,7 +205,8 @@ public class DashboardRepository {
                     WHERE p.portfolio_date = (
                         SELECT MAX(portfolio_date) FROM cbs.portfolio
                     )
-                    AND p.dpd = 0
+                      AND p.dpd = 0
+                      AND p.loan_status IN ('A', 'N')
                     %s
                 """, filter);
         Map<String, Object> dpdZeroPortfolioStats = jdbcTemplate.queryForMap(sqlDpdZeroPortfolio);
@@ -411,7 +415,8 @@ public class DashboardRepository {
                      LEFT JOIN cbs.portfolio p ON p.account_no = l.account_no
                          AND p.series = l.account_series
                          AND p.portfolio_date = ?
-                     WHERE (ml.locked IN (0, 1) OR ml.locked IS NULL) AND l.account_status IN ('A', 'N', 'P', 'F') %s
+                     WHERE (ml.locked IN (0, 1) OR ml.locked IS NULL) AND l.account_status IN ('A', 'N', 'P', 'F')
+                       AND p.loan_status IN ('A', 'N') %s
                      GROUP BY lock_status, performing_status, provider
                  """, filter);
 
