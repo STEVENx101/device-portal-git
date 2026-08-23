@@ -149,6 +149,7 @@ public class DashboardRepository {
                     )
                       AND p.total_due > 0
                       AND p.loan_status IN ('A')
+                      AND p.performing_status = 'Performing'
                     %s
                 """, filter);
         Map<String, Object> arrearsStats = jdbcTemplate.queryForMap(sqlArrearsStats);
@@ -758,7 +759,7 @@ public class DashboardRepository {
                 AND p1.series = l.account_series
                 AND p1.portfolio_date = ?
             LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
-            WHERE l.account_status IN ('A', 'N')
+            WHERE p1.loan_status IN ('A', 'N')
               %s
             GROUP BY 
                 CASE WHEN l.maturity_date <= CURRENT_DATE() THEN 'Matured' ELSE 'Non-Matured' END,
