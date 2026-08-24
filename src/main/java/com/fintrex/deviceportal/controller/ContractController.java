@@ -133,6 +133,28 @@ public class ContractController {
         }
     }
 
+    @GetMapping("/knox-logs")
+    public ResponseEntity<String> getKnoxLogs(@RequestParam(value = "imei", required = false) String imei) {
+        if (imei == null || imei.trim().isEmpty() || "-".equals(imei.trim())) {
+            return ResponseEntity.ok("{\"data\":{\"deviceLogs\":[]}}");
+        }
+        try {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("https://api.fintrex.lk/knox-new/device-log/" + imei.trim()))
+                    .timeout(Duration.ofSeconds(60))
+                    .GET()
+                    .build();
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() == 200) {
+                return ResponseEntity.ok(response.body());
+            } else {
+                return ResponseEntity.ok("{\"data\":{\"deviceLogs\":[]}}");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.ok("{\"data\":{\"deviceLogs\":[]}}");
+        }
+    }
+
     @PostMapping("/datacultr/resend-unlock")
     public ResponseEntity<String> resendUnlock(
             @RequestParam("accountNo") String accountNo,

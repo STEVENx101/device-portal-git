@@ -555,6 +555,21 @@
                                                         <tbody></tbody>
                                                     </table>
                                                 </div>
+                                                <div class="table-responsive" id="knox_locks_wrapper"
+                                                    style="display: none;">
+                                                    <table id="knox_locks_table"
+                                                        class="table table-hover table-striped mb-0 fs--1 w-100">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Date & Time</th>
+                                                                <th>Action</th>
+                                                                <th>Status</th>
+                                                                <th>Details</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody></tbody>
+                                                    </table>
+                                                </div>
                                             </div>
                                             <!-- Remarks pane -->
                                             <div class="tab-pane fade" id="remarks-pane" role="tabpanel"
@@ -1065,9 +1080,11 @@
 
                 function LocksTable(financeNo, security, imei) {
                     const isDatacultr = security && (security.toUpperCase() === 'DATACULTR' || security.toUpperCase() === 'DATACULTE');
+                    const isKnox = security && (security.toUpperCase() === 'KNOX');
 
                     if (isDatacultr) {
                         $('#standard_locks_wrapper').hide();
+                        $('#knox_locks_wrapper').hide();
                         $('#datacultr_locks_wrapper').show();
 
                         const tableId = '#datacultr_locks_table';
@@ -1131,8 +1148,80 @@
                                 emptyTable: "No lock logs available."
                             }
                         });
+                    } else if (isKnox) {
+                        $('#standard_locks_wrapper').hide();
+                        $('#datacultr_locks_wrapper').hide();
+                        $('#knox_locks_wrapper').show();
+
+                        const tableId = '#knox_locks_table';
+                        if ($.fn.DataTable.isDataTable(tableId)) {
+                            $(tableId).DataTable().destroy();
+                        }
+
+                        $(tableId).DataTable({
+                            paging: true,
+                            pageLength: 10,
+                            lengthChange: true,
+                            info: true,
+                            searching: true,
+                            ordering: false,
+                            autoWidth: false,
+                            processing: true,
+                            serverSide: false,
+                            ajax: {
+                                url: contextPath + '/api/contracts/knox-logs?imei=' + encodeURIComponent(imei || ''),
+                                type: 'GET',
+                                dataSrc: function (json) {
+                                    if (json && json.data && json.data.deviceLogs) {
+                                        return json.data.deviceLogs;
+                                    }
+                                    return [];
+                                },
+                                error: function (xhr, error, code) {
+                                    console.error("Failed to load Knox lock logs", xhr, error, code);
+                                }
+                            },
+                            columns: [
+                                {
+                                    data: "time",
+                                    defaultContent: "-",
+                                    render: function (d) {
+                                        if (!d || d === '-') return '-';
+                                        try {
+                                            let date = new Date(d);
+                                            let year = date.getFullYear();
+                                            let month = String(date.getMonth() + 1).padStart(2, '0');
+                                            let day = String(date.getDate()).padStart(2, '0');
+                                            let hours = String(date.getHours()).padStart(2, '0');
+                                            let minutes = String(date.getMinutes()).padStart(2, '0');
+                                            let seconds = String(date.getSeconds()).padStart(2, '0');
+                                            return day + '-' + month + '-' + year + ' ' + hours + ':' + minutes + ':' + seconds;
+                                        } catch (e) { return d; }
+                                    }
+                                },
+                                { data: "action", defaultContent: "-" },
+                                {
+                                    data: "deviceStatus",
+                                    defaultContent: "-",
+                                    render: function (data) {
+                                        if (data === "Locked") {
+                                            return '<span class="badge badge-soft-danger">Locked</span>';
+                                        } else if (data === "Active") {
+                                            return '<span class="badge badge-soft-success">Active</span>';
+                                        }
+                                        return '<span class="badge badge-soft-warning">' + data + '</span>';
+                                    }
+                                },
+                                { data: "details", defaultContent: "-" }
+                            ],
+                            language: {
+                                processing: 'Loading...',
+                                emptyTable: "No lock logs available."
+                            }
+                        });
                     } else {
                         $('#datacultr_locks_wrapper').hide();
+                        $('#knox_locks_wrapper').hide();
                         $('#standard_locks_wrapper').show();
 
                         const tableId = '#locks_table';
