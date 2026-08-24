@@ -329,6 +329,7 @@ public class CbsReportService {
                     ON p1.account_no = l.account_no
                     AND p1.series = l.account_series
                     AND p1.portfolio_date = :latestPortfolioDate
+                    AND p1.loan_status IN ('A', 'N')
                 LEFT JOIN cbs.branch br ON CAST(l.branch AS UNSIGNED) = br.branch_code
                 LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
                 LEFT JOIN cbs.device_loan dl1 ON dl1.account_no = l.account_no
