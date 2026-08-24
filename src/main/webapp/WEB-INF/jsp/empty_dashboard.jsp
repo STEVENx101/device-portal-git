@@ -1097,7 +1097,7 @@
                                 activeCharts['mobileLockArrearsChart'] = new Chart(ctx1, {
                                     type: 'bar',
                                     data: {
-                                        labels: ['Lock (<200)', 'Unlock (>=200)'],
+                                        labels: ['Locked With no Arrears', 'Active with Arrears'],
                                         datasets: [{
                                             data: [
                                                 data.lock_but_less_200 || 0,

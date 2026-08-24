@@ -686,49 +686,43 @@ public class DashboardRepository {
     public Map<String, Object> getMobileLockArrearsAnalysis() {
         Map<String, Object> result = new HashMap<>();
         
-        String sqlLockUnlock = """
-            SELECT
-                SUM(CASE WHEN ml.locked = 1 AND p.total_due < 200 THEN 1 ELSE 0 END) AS lock_but_less_200,
-                SUM(CASE WHEN ml.locked = 0 AND p.total_due >= 200 THEN 1 ELSE 0 END) AS unlock_but_more_200
-            FROM cbs.loan l
-            JOIN cbs.portfolio p
-                ON p.account_no = l.account_no AND l.account_series = p.series
-            JOIN loan.mobileloan ml
-                ON ml.finance_no = COALESCE(l.legacy_account_no, l.account_no)
-            LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
-            WHERE p.portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio)
-              AND pr.product_code = 'MF'
-        """;
-
-        String sqlDueRanges = """
-            SELECT
-                SUM(CASE WHEN p.total_due BETWEEN 200 AND 500 THEN 1 ELSE 0 END) AS due_200_500,
-                SUM(CASE WHEN p.total_due BETWEEN 501 AND 1000 THEN 1 ELSE 0 END) AS due_500_1000,
-                SUM(CASE WHEN p.total_due BETWEEN 1001 AND 2000 THEN 1 ELSE 0 END) AS due_1000_2000,
-                SUM(CASE WHEN p.total_due > 2000 THEN 1 ELSE 0 END) AS due_above_2000
-            FROM cbs.loan l
-            JOIN cbs.portfolio p
-                ON p.account_no = l.account_no AND l.account_series = p.series
-            JOIN loan.mobileloan ml
-                ON ml.finance_no = COALESCE(l.legacy_account_no, l.account_no)
-            LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
-            WHERE p.portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio)
-              AND pr.product_code = 'MF'
+        String sql = """
+            SELECT a.s AS status, IFNULL(b.amt, 0) AS amt
+            FROM (SELECT 'Active with Arrears' AS s UNION SELECT 'Locked With no Arrears') a
+            LEFT JOIN (
+                SELECT 
+                    (CASE 
+                        WHEN k.locked = 0 AND k.total_due > 200 AND k.dpld >= 5 THEN 'Active with Arrears' 
+                        WHEN k.locked = 1 AND k.total_due <= 200 THEN 'Locked With no Arrears' 
+                     END) AS st,
+                    COUNT(*) AS amt
+                FROM call_center.knox_unlock_query_new k 
+                GROUP BY 1
+            ) b ON a.s = b.st
         """;
 
         try {
-            Map<String, Object> lockUnlock = jdbcTemplate.queryForMap(sqlLockUnlock);
-            Map<String, Object> dueRanges = jdbcTemplate.queryForMap(sqlDueRanges);
-            if (lockUnlock != null) result.putAll(lockUnlock);
-            if (dueRanges != null) result.putAll(dueRanges);
+            List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql);
+            for (Map<String, Object> row : rows) {
+                String status = (String) row.get("status");
+                Number amtVal = (Number) row.get("amt");
+                int amt = amtVal != null ? amtVal.intValue() : 0;
+                if ("Active with Arrears".equalsIgnoreCase(status)) {
+                    result.put("unlock_but_more_200", amt);
+                } else if ("Locked With no Arrears".equalsIgnoreCase(status)) {
+                    result.put("lock_but_less_200", amt);
+                }
+            }
         } catch (Exception e) {
             result.put("lock_but_less_200", 0);
             result.put("unlock_but_more_200", 0);
-            result.put("due_200_500", 0);
-            result.put("due_500_1000", 0);
-            result.put("due_1000_2000", 0);
-            result.put("due_above_2000", 0);
         }
+
+        result.put("due_200_500", 0);
+        result.put("due_500_1000", 0);
+        result.put("due_1000_2000", 0);
+        result.put("due_above_2000", 0);
+
         return result;
     }
 
