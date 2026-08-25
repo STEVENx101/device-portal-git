@@ -1328,6 +1328,14 @@
 
 
                     let debounceTimeout = null;
+                    let activeSuggestionIndex = -1;
+
+                    function highlightMatch(text, query) {
+                        if (!text || !query) return text || '';
+                        const escapedQuery = query.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+                        const regex = new RegExp("(" + escapedQuery + ")", "gi");
+                        return String(text).replace(regex, '<mark class="p-0 bg-warning text-dark">$1</mark>');
+                    }
 
                     if (searchInput && suggestionsDropdown && listContainer) {
                         searchInput.addEventListener('input', function (e) {
@@ -1358,13 +1366,14 @@
                                             if (fallbackEl) {
                                                 fallbackEl.style.setProperty('display', 'none', 'important');
                                             }
+                                            activeSuggestionIndex = -1;
                                             data.forEach(item => {
                                                 const btn = document.createElement('button');
                                                 btn.type = 'button';
                                                 btn.className = 'dropdown-item text-start py-2 border-0 bg-transparent w-100';
                                                 btn.innerHTML =
-                                                    '<div class="fw-bold text-primary text-truncate">' + item.financeNo + '</div>' +
-                                                    '<div class="fs--1 text-600 text-truncate">' + item.fullName + ' | NIC: ' + item.nicNo + '</div>';
+                                                    '<div class="fw-bold text-primary text-truncate">' + highlightMatch(item.financeNo, query) + '</div>' +
+                                                    '<div class="fs--1 text-600 text-truncate">' + highlightMatch(item.fullName, query) + ' | NIC: ' + highlightMatch(item.nicNo, query) + '</div>';
                                                 btn.addEventListener('click', function (evt) {
                                                     evt.preventDefault();
                                                     evt.stopPropagation();
@@ -1384,6 +1393,41 @@
                                         console.error('Error fetching search results:', error);
                                     });
                             }, 300);
+                        });
+
+                        function updateActiveSuggestion() {
+                            const items = listContainer.querySelectorAll('.dropdown-item');
+                            items.forEach((item, index) => {
+                                if (index === activeSuggestionIndex) {
+                                    item.classList.add('active', 'bg-200');
+                                    item.scrollIntoView({ block: 'nearest' });
+                                } else {
+                                    item.classList.remove('active', 'bg-200');
+                                }
+                            });
+                        }
+
+                        searchInput.addEventListener('keydown', function (e) {
+                            const items = listContainer.querySelectorAll('.dropdown-item');
+                            if (!items.length || !suggestionsDropdown.classList.contains('show')) return;
+
+                            if (e.key === 'ArrowDown') {
+                                e.preventDefault();
+                                activeSuggestionIndex = (activeSuggestionIndex + 1) % items.length;
+                                updateActiveSuggestion();
+                            } else if (e.key === 'ArrowUp') {
+                                e.preventDefault();
+                                activeSuggestionIndex = (activeSuggestionIndex - 1 + items.length) % items.length;
+                                updateActiveSuggestion();
+                            } else if (e.key === 'Enter') {
+                                if (activeSuggestionIndex >= 0 && activeSuggestionIndex < items.length) {
+                                    e.preventDefault();
+                                    items[activeSuggestionIndex].click();
+                                }
+                            } else if (e.key === 'Escape') {
+                                suggestionsDropdown.classList.remove('show');
+                                activeSuggestionIndex = -1;
+                            }
                         });
 
                         searchInput.addEventListener('paste', function (e) {
