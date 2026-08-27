@@ -93,6 +93,7 @@ public class CbsReportService {
         } catch (Exception e) {
             log.error("Unable to initialize log tables", e);
         }
+    }
 
     private void initDeviceLockControlScreen() {
         try {
