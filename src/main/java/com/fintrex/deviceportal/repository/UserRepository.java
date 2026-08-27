@@ -120,7 +120,7 @@ public class UserRepository {
                 rs.getString("icon"),
                 rs.getString("group_name")
             );
-        });
+        }, userTypeId);
     }
 
     public int createUser(String username, String password, String fullName, String email, int userTypeId) {
