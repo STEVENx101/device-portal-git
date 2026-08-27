@@ -1359,18 +1359,13 @@ html.dark .dataTables_wrapper .dataTables_processing::after {
                             </div>
                         </div>
 
-                        <% if (hasUserManagement || hasAccessLogs || hasPermissionLogs || hasReportLogs) { %>
+                        <% if (hasAccessLogs || hasPermissionLogs || hasReportLogs) { %>
                         <div class="submenu-group" id="submenu-usermgt">
                             <div class="dropdown-header-custom submenu-trigger" id="trigger-usermgt">
-                                <span>User Management</span>
+                                <span>User Logs</span>
                                 <span class="fas fa-chevron-down ms-auto submenu-chevron"></span>
                             </div>
                             <div class="submenu-items">
-                                <% if (hasUserManagement) { %>
-                                <a href="<%= request.getContextPath() %>/user-management" class="dropdown-item-custom" id="nav-report-usermgt">
-                                    User Management
-                                </a>
-                                <% } %>
                                 <% if (hasAccessLogs) { %>
                                 <a href="<%= request.getContextPath() %>/access-logs" class="dropdown-item-custom" id="nav-report-access-logs">
                                     Access Logs
@@ -1419,7 +1414,12 @@ html.dark .dataTables_wrapper .dataTables_processing::after {
                 </div>
             <% } %>
 
-
+            <% if (hasUserManagement) { %>
+                <a class="nav-item-link" id="nav-users" href="<%= request.getContextPath() %>/user-management">
+                    <span class="fas fa-users-cog"></span>
+                    <span>User Management</span>
+                </a>
+            <% } %>
         </div>
     </div>
     
@@ -1450,6 +1450,9 @@ html.dark .dataTables_wrapper .dataTables_processing::after {
         } else if (path.includes("mobile")) {
             const el = document.getElementById("nav-finance");
             if (el) el.classList.add("active");
+        } else if (path.includes("user-management")) {
+            const el = document.getElementById("nav-users");
+            if (el) el.classList.add("active");
         } else if (path.includes("payments/upload") || path.includes("payments/approve")) {
             const group = document.getElementById("nav-payments-group");
             if (group) group.classList.add("open");
@@ -1460,7 +1463,7 @@ html.dark .dataTables_wrapper .dataTables_processing::after {
                 const item = document.getElementById("nav-payments-approve");
                 if (item) item.classList.add("active");
             }
-        } else if (path.includes("portfolio") || path.includes("client") || path.includes("transaction") || path.includes("vendor-payments") || path.includes("agreement") || path.includes("report-logs") || path.includes("arrears-report") || path.includes("npa-report") || path.includes("nearing-npa-report") || path.includes("duplicate-loans-report") || path.includes("unlock-arrears-report") || path.includes("lock-no-arrears-report") || path.includes("user-management") || path.includes("access-logs") || path.includes("permission-logs")) {
+        } else if (path.includes("portfolio") || path.includes("client") || path.includes("transaction") || path.includes("vendor-payments") || path.includes("agreement") || path.includes("report-logs") || path.includes("arrears-report") || path.includes("npa-report") || path.includes("nearing-npa-report") || path.includes("duplicate-loans-report") || path.includes("unlock-arrears-report") || path.includes("lock-no-arrears-report") || path.includes("access-logs") || path.includes("permission-logs")) {
             const group = document.getElementById("nav-reports-group");
             if (group) group.classList.add("open");
             
@@ -1496,11 +1499,6 @@ html.dark .dataTables_wrapper .dataTables_processing::after {
                 if (sub) sub.classList.add("open");
             } else if (path.includes("report-logs")) {
                 const item = document.getElementById("nav-report-logs");
-                if (item) item.classList.add("active");
-                const sub = document.getElementById("submenu-usermgt");
-                if (sub) sub.classList.add("open");
-            } else if (path.includes("user-management")) {
-                const item = document.getElementById("nav-report-usermgt");
                 if (item) item.classList.add("active");
                 const sub = document.getElementById("submenu-usermgt");
                 if (sub) sub.classList.add("open");
