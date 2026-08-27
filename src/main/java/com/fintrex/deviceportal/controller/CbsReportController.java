@@ -207,6 +207,16 @@ public class CbsReportController {
         return cbsReportService.fetchReportLogs(request);
     }
 
+    @PostMapping("/access-logs")
+    public DataTableResponse getAccessLogs(@RequestBody DataTableRequest request) {
+        return cbsReportService.fetchAccessLogs(request);
+    }
+
+    @PostMapping("/permission-logs")
+    public DataTableResponse getPermissionLogs(@RequestBody DataTableRequest request) {
+        return cbsReportService.fetchPermissionLogs(request);
+    }
+
     @PostMapping("/arrears")
     public DataTableResponse getArrears(@RequestBody DataTableRequest request, HttpSession session) {
         com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");

@@ -64,6 +64,16 @@ public class PageController {
         return "report-logs";
     }
 
+    @GetMapping("/access-logs")
+    public String accessLogs() {
+        return "access-logs";
+    }
+
+    @GetMapping("/permission-logs")
+    public String permissionLogs() {
+        return "permission-logs";
+    }
+
     @GetMapping("/arrears-report")
     public String arrearsReport() {
         return "arrears-report";

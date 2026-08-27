@@ -821,7 +821,7 @@ public class DashboardRepository {
                     COUNT(*) AS tx_count,
                     COALESCE(SUM(t.amount), 0) AS total_amount
                 FROM cbs.transaction t
-                WHERE 1=1 %s
+                WHERE 1=1 %s AND t.date >= DATE_FORMAT(CURRENT_DATE(), '%Y-%m-01')
                 GROUP BY COALESCE(t.channel, 'OTHER')
                 ORDER BY tx_count DESC
                 """, productFilter);

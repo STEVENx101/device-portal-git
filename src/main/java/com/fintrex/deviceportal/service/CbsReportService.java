@@ -44,6 +44,7 @@ public class CbsReportService {
         initVendorPaymentScreens();
         initPaymentUploadScreens();
         initDeviceLockControlScreen();
+        initAuditLogScreens();
 
         try {
             jdbc.getJdbcTemplate()
@@ -92,6 +93,23 @@ public class CbsReportService {
             """);
         } catch (Exception e) {
             log.error("Unable to initialize log tables", e);
+        }
+    }
+
+    private void initAuditLogScreens() {
+        try {
+            jdbc.getJdbcTemplate().execute("""
+                INSERT INTO device_portal.screen (name, path, icon, group_name)
+                SELECT 'Access Logs', '/access-logs', 'fas fa-user-shield', 'Reports'
+                WHERE NOT EXISTS (SELECT 1 FROM device_portal.screen WHERE path = '/access-logs')
+            """);
+            jdbc.getJdbcTemplate().execute("""
+                INSERT INTO device_portal.screen (name, path, icon, group_name)
+                SELECT 'Permission Logs', '/permission-logs', 'fas fa-key', 'Reports'
+                WHERE NOT EXISTS (SELECT 1 FROM device_portal.screen WHERE path = '/permission-logs')
+            """);
+        } catch (Exception e) {
+            log.error("Unable to initialize audit log screens", e);
         }
     }
 
@@ -669,6 +687,65 @@ public class CbsReportService {
                     t.report_name,
                     t.action_type,
                     t.filters,
+                    t.created_date
+                FROM (""" + subQuery + ") t WHERE TRUE";
+    }
+
+    public DataTableResponse fetchAccessLogs(DataTableRequest request) {
+        Map<String, Object> params = new HashMap<>();
+        String sql = buildAccessLogsQuery(request.getData(), params);
+        return executePagedReport(request, sql, params);
+    }
+
+    private String buildAccessLogsQuery(Object rawFilter, Map<String, Object> params) {
+        String subQuery = """
+                SELECT
+                    id,
+                    username,
+                    path,
+                    ip_address,
+                    DATE_FORMAT(access_time, '%Y-%m-%d %H:%i:%s') AS `access_time`,
+                    status
+                FROM device_portal.access_log
+                WHERE 1=1""";
+
+        return """
+                SELECT
+                    t.id,
+                    t.username,
+                    t.path,
+                    t.ip_address,
+                    t.access_time,
+                    t.status
+                FROM (""" + subQuery + ") t WHERE TRUE";
+    }
+
+    public DataTableResponse fetchPermissionLogs(DataTableRequest request) {
+        Map<String, Object> params = new HashMap<>();
+        String sql = buildPermissionLogsQuery(request.getData(), params);
+        return executePagedReport(request, sql, params);
+    }
+
+    private String buildPermissionLogsQuery(Object rawFilter, Map<String, Object> params) {
+        String subQuery = """
+                SELECT
+                    pl.id,
+                    pl.changed_by,
+                    pl.user_type_id,
+                    ut.name AS `role_name`,
+                    pl.action_details,
+                    DATE_FORMAT(pl.created_date, '%Y-%m-%d %H:%i:%s') AS `created_date`
+                FROM device_portal.permission_log pl
+                LEFT JOIN device_portal.user_type ut ON pl.user_type_id = ut.id
+                WHERE 1=1""";
+
+        return """
+                SELECT
+                    t.id,
+                    t.changed_by,
+                    t.user_type_id,
+                    t.role_name,
+                    t.action_details,
                     t.created_date
                 FROM (""" + subQuery + ") t WHERE TRUE";
     }

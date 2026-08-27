@@ -531,58 +531,58 @@
                                     <div class="card glass-card h-100">
                                         <div class="card-body p-2 d-flex flex-column justify-content-between">
                                             <div>
-                                                <div class="fs--2 fw-semi-bold text-muted mb-2"><i
-                                                        class="fas fa-hdd me-1"></i>Device Security Status</div>
+                                                <div class="fs--2 fw-semi-bold text-muted mb-2 d-flex justify-content-between align-items-center">
+                                                    <span><i class="fas fa-hdd me-1"></i>Device Security Status</span>
+                                                    <div>
+                                                        <span class="badge" style="background-color: #8a2be2; color: #ffffff; padding: 2px 4px; font-size: 0.55rem;">K</span>
+                                                        <span class="badge" style="background-color: #f59e0b; color: #ffffff; padding: 2px 4px; font-size: 0.55rem; margin-left: 2px;">D</span>
+                                                    </div>
+                                                </div>
                                                 <div class="row g-1 align-items-center">
                                                     <div class="col-12 mobile-sec-col p-2" style="height: 235px;">
                                                         <!-- Locked -->
                                                         <div class="mb-2 text-start">
                                                             <div class="d-flex justify-content-between text-muted mb-1" style="font-size: 0.62rem;">
-                                                                <span class="fw-bold text-truncate">Locked</span>
-                                                                <span><span class="text-success fw-semi-bold" id="lbl-locked-knox">0</span> : <span class="text-danger fw-semi-bold" id="lbl-locked-dc">0</span></span>
+                                                                <span class="fw-bold text-truncate">Locked (<span id="lbl-locked-total" class="fw-semi-bold">0</span>)</span>
+                                                                <span><span class="fw-semi-bold" id="lbl-locked-knox" style="color: #8a2be2 !important;">0</span> : <span class="fw-semi-bold" id="lbl-locked-dc" style="color: #f59e0b !important;">0</span></span>
                                                             </div>
                                                             <div class="progress" style="height: 24px; font-size: 0.72rem; font-weight: bold;">
-                                                                <div id="bar-locked-knox" class="progress-bar bg-success" role="progressbar" style="width: 0%"></div>
-                                                                <div id="bar-locked-dc" class="progress-bar bg-danger" role="progressbar" style="width: 0%"></div>
+                                                                <div id="bar-locked-knox" class="progress-bar" role="progressbar" style="width: 0%; background-color: #8a2be2 !important;"></div>
+                                                                <div id="bar-locked-dc" class="progress-bar" role="progressbar" style="width: 0%; background-color: #f59e0b !important;"></div>
                                                             </div>
                                                         </div>
                                                         <!-- Unlocked -->
                                                         <div class="mb-2 text-start">
                                                             <div class="d-flex justify-content-between text-muted mb-1" style="font-size: 0.62rem;">
-                                                                <span class="fw-bold text-truncate">Unlocked</span>
-                                                                <span><span class="text-success fw-semi-bold" id="lbl-unlocked-knox">0</span> : <span class="text-danger fw-semi-bold" id="lbl-unlocked-dc">0</span></span>
+                                                                <span class="fw-bold text-truncate">Unlocked (<span id="lbl-unlocked-total" class="fw-semi-bold">0</span>)</span>
+                                                                <span><span class="fw-semi-bold" id="lbl-unlocked-knox" style="color: #8a2be2 !important;">0</span> : <span class="fw-semi-bold" id="lbl-unlocked-dc" style="color: #f59e0b !important;">0</span></span>
                                                             </div>
                                                             <div class="progress" style="height: 24px; font-size: 0.72rem; font-weight: bold;">
-                                                                <div id="bar-unlocked-knox" class="progress-bar bg-success" role="progressbar" style="width: 0%"></div>
-                                                                <div id="bar-unlocked-dc" class="progress-bar bg-danger" role="progressbar" style="width: 0%"></div>
+                                                                <div id="bar-unlocked-knox" class="progress-bar" role="progressbar" style="width: 0%; background-color: #8a2be2 !important;"></div>
+                                                                <div id="bar-unlocked-dc" class="progress-bar" role="progressbar" style="width: 0%; background-color: #f59e0b !important;"></div>
                                                             </div>
                                                         </div>
                                                         <!-- Performing -->
                                                         <div class="mb-2 text-start">
                                                             <div class="d-flex justify-content-between text-muted mb-1" style="font-size: 0.62rem;">
-                                                                <span class="fw-bold text-truncate">Performing</span>
-                                                                <span><span class="text-success fw-semi-bold" id="lbl-perf-knox">0</span> : <span class="text-danger fw-semi-bold" id="lbl-perf-dc">0</span></span>
+                                                                <span class="fw-bold text-truncate">Performing (<span id="lbl-perf-total" class="fw-semi-bold">0</span>)</span>
+                                                                <span><span class="fw-semi-bold" id="lbl-perf-knox" style="color: #8a2be2 !important;">0</span> : <span class="fw-semi-bold" id="lbl-perf-dc" style="color: #f59e0b !important;">0</span></span>
                                                             </div>
                                                             <div class="progress" style="height: 24px; font-size: 0.72rem; font-weight: bold;">
-                                                                <div id="bar-perf-knox" class="progress-bar bg-success" role="progressbar" style="width: 0%"></div>
-                                                                <div id="bar-perf-dc" class="progress-bar bg-danger" role="progressbar" style="width: 0%"></div>
+                                                                <div id="bar-perf-knox" class="progress-bar" role="progressbar" style="width: 0%; background-color: #8a2be2 !important;"></div>
+                                                                <div id="bar-perf-dc" class="progress-bar" role="progressbar" style="width: 0%; background-color: #f59e0b !important;"></div>
                                                             </div>
                                                         </div>
                                                         <!-- Non-Performing -->
                                                         <div class="mb-2 text-start">
                                                             <div class="d-flex justify-content-between text-muted mb-1" style="font-size: 0.62rem;">
-                                                                <span class="fw-bold text-truncate">Non-Performing</span>
-                                                                <span><span class="text-success fw-semi-bold" id="lbl-np-knox">0</span> : <span class="text-danger fw-semi-bold" id="lbl-np-dc">0</span></span>
+                                                                <span class="fw-bold text-truncate">Non-Performing (<span id="lbl-np-total" class="fw-semi-bold">0</span>)</span>
+                                                                <span><span class="fw-semi-bold" id="lbl-np-knox" style="color: #8a2be2 !important;">0</span> : <span class="fw-semi-bold" id="lbl-np-dc" style="color: #f59e0b !important;">0</span></span>
                                                             </div>
                                                             <div class="progress" style="height: 24px; font-size: 0.72rem; font-weight: bold;">
-                                                                <div id="bar-np-knox" class="progress-bar bg-success" role="progressbar" style="width: 0%"></div>
-                                                                <div id="bar-np-dc" class="progress-bar bg-danger" role="progressbar" style="width: 0%"></div>
+                                                                <div id="bar-np-knox" class="progress-bar" role="progressbar" style="width: 0%; background-color: #8a2be2 !important;"></div>
+                                                                <div id="bar-np-dc" class="progress-bar" role="progressbar" style="width: 0%; background-color: #f59e0b !important;"></div>
                                                             </div>
-                                                        </div>
-                                                        <!-- Tiny inline legend -->
-                                                        <div class="text-center" style="font-size: 0.55rem; margin-top: 6px;">
-                                                            <span class="badge bg-success" style="padding: 2px 4px;">Knox</span>
-                                                            <span class="badge bg-danger text-white" style="padding: 2px 4px; margin-left: 4px;">Datacultr</span>
                                                         </div>
                                                     </div>
                                                     <div class="col-12 laptop-sec-col mb-2" style="display: none;">
@@ -1022,6 +1022,8 @@
                                     
                                     document.getElementById('lbl-' + key + '-knox').innerText = formatNum(knoxVal);
                                     document.getElementById('lbl-' + key + '-dc').innerText = formatNum(dcVal);
+                                    const totalEl = document.getElementById('lbl-' + key + '-total');
+                                    if (totalEl) totalEl.innerText = formatNum(total);
                                     
                                     let knoxPct = 0;
                                     let dcPct = 0;
