@@ -249,6 +249,7 @@
                                                          }
                                                      %>
                                                 </div>
+                                                <div id="permissionAlertPlaceholder" class="mb-3"></div>
                                                 <button class="btn btn-primary d-block w-100" type="submit" id="savePermissionsBtn">
                                                     <span class="fas fa-save me-1"></span> Save Permissions
                                                 </button>
@@ -490,6 +491,9 @@
                     formData.append('userTypeId', userTypeId);
                     checkedIds.forEach(id => formData.append('screenIds', id));
 
+                    const placeholder = document.getElementById('permissionAlertPlaceholder');
+                    placeholder.innerHTML = '';
+
                     fetch('<%= request.getContextPath() %>/user-management/api/permissions', {
                         method: 'POST',
                         body: formData
@@ -498,13 +502,52 @@
                     .then(data => {
                         if (data.success) {
                             showAlert(data.message, 'success');
+                            placeholder.innerHTML = `
+                                <div class="alert alert-success border-2 d-flex align-items-center show" role="alert" style="border-radius: 12px; background-color: rgba(76, 175, 80, 0.1); border-color: rgba(76, 175, 80, 0.3);">
+                                    <div class="bg-success text-white p-2 rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; box-shadow: 0 4px 10px rgba(76,175,80,0.3);">
+                                        <span class="fas fa-check fs-0"></span>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h6 class="mb-0 text-success fw-bold">Success</h6>
+                                        <p class="mb-0 fs--1 text-800">${data.message}</p>
+                                    </div>
+                                    <button class="btn-close ms-auto" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            `;
+                            setTimeout(() => {
+                                placeholder.innerHTML = '';
+                            }, 4000);
                         } else {
                             showAlert(data.message, 'danger');
+                            placeholder.innerHTML = `
+                                <div class="alert alert-danger border-2 d-flex align-items-center show" role="alert" style="border-radius: 12px; background-color: rgba(244, 67, 54, 0.1); border-color: rgba(244, 67, 54, 0.3);">
+                                    <div class="bg-danger text-white p-2 rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; box-shadow: 0 4px 10px rgba(244,67,54,0.3);">
+                                        <span class="fas fa-exclamation-triangle fs-0"></span>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h6 class="mb-0 text-danger fw-bold">Error</h6>
+                                        <p class="mb-0 fs--1 text-800">${data.message}</p>
+                                    </div>
+                                    <button class="btn-close ms-auto" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            `;
                         }
                     })
                     .catch(err => {
                         console.error(err);
                         showAlert('Error saving permissions', 'danger');
+                        placeholder.innerHTML = `
+                            <div class="alert alert-danger border-2 d-flex align-items-center show" role="alert" style="border-radius: 12px; background-color: rgba(244, 67, 54, 0.1); border-color: rgba(244, 67, 54, 0.3);">
+                                <div class="bg-danger text-white p-2 rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; box-shadow: 0 4px 10px rgba(244,67,54,0.3);">
+                                    <span class="fas fa-exclamation-triangle fs-0"></span>
+                                </div>
+                                <div class="flex-1">
+                                    <h6 class="mb-0 text-danger fw-bold">Error</h6>
+                                    <p class="mb-0 fs--1 text-800">Error saving permissions</p>
+                                </div>
+                                <button class="btn-close ms-auto" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        `;
                     });
                 });
 
