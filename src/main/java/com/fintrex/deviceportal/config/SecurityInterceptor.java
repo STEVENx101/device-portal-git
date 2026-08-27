@@ -64,6 +64,7 @@ public class SecurityInterceptor implements HandlerInterceptor {
             boolean isPermitted = permittedScreens != null && permittedScreens.stream()
                     .anyMatch(s -> s.getPath().equalsIgnoreCase(path));
             if (!isPermitted) {
+                userService.logAccess(currentUser.getUsername(), path, request.getRemoteAddr(), "DENIED");
                 // Not permitted: Redirect to the first permitted screen or access denied
                 if (permittedScreens != null && !permittedScreens.isEmpty()) {
                     response.sendRedirect(contextPath + permittedScreens.get(0).getPath() + "?error=unauthorized");
@@ -71,6 +72,8 @@ public class SecurityInterceptor implements HandlerInterceptor {
                     response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access Denied");
                 }
                 return false;
+            } else {
+                userService.logAccess(currentUser.getUsername(), path, request.getRemoteAddr(), "ALLOWED");
             }
         }
 

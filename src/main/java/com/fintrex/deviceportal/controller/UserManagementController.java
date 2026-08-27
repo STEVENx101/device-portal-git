@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import jakarta.servlet.http.HttpSession;
 
 import java.util.HashMap;
 import java.util.List;
@@ -119,10 +120,18 @@ public class UserManagementController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> updatePermissions(
             @RequestParam("userTypeId") int userTypeId,
-            @RequestParam(value = "screenIds", required = false) List<Integer> screenIds) {
+            @RequestParam(value = "screenIds", required = false) List<Integer> screenIds,
+            HttpSession session) {
 
         Map<String, Object> response = new HashMap<>();
         userService.updateUserTypePermissions(userTypeId, screenIds);
+
+        // Log the change
+        User currentUser = (User) session.getAttribute("currentUser");
+        String changedBy = currentUser != null ? currentUser.getUsername() : "system";
+        String actionDetails = "Updated permissions for user type ID " + userTypeId + " to screens: " + (screenIds != null ? screenIds.toString() : "[]");
+        userService.logPermissionChange(changedBy, userTypeId, actionDetails);
+
         response.put("success", true);
         response.put("message", "Permissions updated successfully!");
         return ResponseEntity.ok(response);

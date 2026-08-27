@@ -85,13 +85,19 @@ public class UserRepository {
             SELECT id, name, path, icon, group_name FROM device_portal.screen 
             WHERE path != '/paid-off-report' 
             ORDER BY id ASC""";
-        return jdbcTemplate.query(sql, (rs, rowNum) -> new Screen(
+        return jdbcTemplate.query(sql, (rs, rowNum) -> {
+            String name = rs.getString("name");
+            if ("Transaction Report".equalsIgnoreCase(name)) {
+                name = "Customer Payments";
+            }
+            return new Screen(
                 rs.getInt("id"),
-                rs.getString("name"),
+                name,
                 rs.getString("path"),
                 rs.getString("icon"),
                 rs.getString("group_name")
-        ));
+            );
+        });
     }
 
     public List<Screen> findPermittedScreens(int userTypeId) {
@@ -102,13 +108,19 @@ public class UserRepository {
             WHERE uts.user_type_id = ? 
               AND s.path != '/paid-off-report' 
             ORDER BY s.id ASC""";
-        return jdbcTemplate.query(sql, (rs, rowNum) -> new Screen(
+        return jdbcTemplate.query(sql, (rs, rowNum) -> {
+            String name = rs.getString("name");
+            if ("Transaction Report".equalsIgnoreCase(name)) {
+                name = "Customer Payments";
+            }
+            return new Screen(
                 rs.getInt("id"),
-                rs.getString("name"),
+                name,
                 rs.getString("path"),
                 rs.getString("icon"),
                 rs.getString("group_name")
-        ), userTypeId);
+            );
+        });
     }
 
     public int createUser(String username, String password, String fullName, String email, int userTypeId) {
@@ -144,6 +156,24 @@ public class UserRepository {
             String sql = """
                 UPDATE device_portal.user SET full_name = ?, email = ?, user_type_id = ? WHERE id = ?""";
             return jdbcTemplate.update(sql, fullName, email, userTypeId, id);
+        }
+    }
+
+    public void logPermissionChange(String changedBy, int userTypeId, String actionDetails) {
+        try {
+            String sql = "INSERT INTO device_portal.permission_log (changed_by, user_type_id, action_details, created_date) VALUES (?, ?, ?, NOW())";
+            jdbcTemplate.update(sql, changedBy, userTypeId, actionDetails);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void logAccess(String username, String path, String ipAddress, String status) {
+        try {
+            String sql = "INSERT INTO device_portal.access_log (username, path, ip_address, access_time, status) VALUES (?, ?, ?, NOW(), ?)";
+            jdbcTemplate.update(sql, username, path, ipAddress, status);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

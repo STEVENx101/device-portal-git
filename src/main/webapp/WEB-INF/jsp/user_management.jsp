@@ -205,11 +205,17 @@
                                                 </div>
                                             </div>
 
-                                            <hr class="my-4 border-200" />
+                                             <hr class="my-4 border-200" />
 
-                                            <h6 class="text-900 fw-bold mb-3">Permitted Screens</h6>
-                                            <form id="permissionForm">
-                                                <div class="d-flex flex-column gap-3 mb-4" id="screensContainer">
+                                             <h6 class="text-900 fw-bold mb-3">Permitted Screens</h6>
+                                             <div class="mb-3">
+                                                 <div class="input-group input-group-sm">
+                                                     <span class="input-group-text bg-light text-600"><i class="fas fa-filter"></i></span>
+                                                     <input type="text" id="screenSearchInput" class="form-control" placeholder="Filter screens by name or path..." />
+                                                 </div>
+                                             </div>
+                                             <form id="permissionForm">
+                                                 <div class="d-flex flex-column gap-2 mb-4" id="screensContainer" style="max-height: 380px; overflow-y: auto; padding-right: 5px;">
                                                     <%
                                                          List<Screen> screenList = (List<Screen>) request.getAttribute("screens");
                                                          if (screenList != null) {
@@ -589,6 +595,18 @@
                         showAlert('Error updating user', 'danger');
                     });
                 });
+
+                // Screen search filter
+                const screenSearchInput = document.getElementById('screenSearchInput');
+                if (screenSearchInput) {
+                    screenSearchInput.addEventListener('input', function(e) {
+                        const query = e.target.value.toLowerCase();
+                        document.querySelectorAll('#screensContainer > div').forEach(row => {
+                            const text = row.innerText.toLowerCase();
+                            row.style.display = text.includes(query) ? '' : 'none';
+                        });
+                    });
+                }
             });
         </script>
     </body>

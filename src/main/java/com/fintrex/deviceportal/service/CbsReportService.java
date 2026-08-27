@@ -51,7 +51,48 @@ public class CbsReportService {
         } catch (Exception e) {
             log.warn("Unable to update the Facility Information screen name", e);
         }
+
+        try {
+            jdbc.getJdbcTemplate()
+                    .execute("UPDATE device_portal.screen SET name = 'Customer Payments' WHERE path = '/transaction'");
+        } catch (Exception e) {
+            log.warn("Unable to update the Customer Payments screen name", e);
+        }
+
+        try {
+            jdbc.getJdbcTemplate().execute("DELETE FROM device_portal.user_type_screen WHERE screen_id IN (SELECT id FROM device_portal.screen WHERE path IN ('/npa-report', '/nearing-npa-report'))");
+            jdbc.getJdbcTemplate().execute("DELETE FROM device_portal.screen WHERE path IN ('/npa-report', '/nearing-npa-report')");
+        } catch (Exception e) {
+            log.warn("Unable to delete NPA and Nearing NPA screens from database", e);
+        }
+
+        initLogTables();
     }
+
+    private void initLogTables() {
+        try {
+            jdbc.getJdbcTemplate().execute("""
+                CREATE TABLE IF NOT EXISTS device_portal.permission_log (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    changed_by VARCHAR(100) NOT NULL,
+                    user_type_id INT NOT NULL,
+                    action_details TEXT NOT NULL,
+                    created_date DATETIME NOT NULL
+                )
+            """);
+            jdbc.getJdbcTemplate().execute("""
+                CREATE TABLE IF NOT EXISTS device_portal.access_log (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    username VARCHAR(100) NOT NULL,
+                    path VARCHAR(255) NOT NULL,
+                    ip_address VARCHAR(45),
+                    access_time DATETIME NOT NULL,
+                    status VARCHAR(20) NOT NULL
+                )
+            """);
+        } catch (Exception e) {
+            log.error("Unable to initialize log tables", e);
+        }
 
     private void initDeviceLockControlScreen() {
         try {
@@ -638,20 +679,6 @@ public class CbsReportService {
                         INSERT INTO device_portal.screen (name, path, icon, group_name)
                         SELECT 'Arrears Report', '/arrears-report', 'fas fa-clock', 'Reports'
                         WHERE NOT EXISTS (SELECT 1 FROM device_portal.screen WHERE path = '/arrears-report')
-                    """);
-
-            // NPA Report
-            jdbc.getJdbcTemplate().execute("""
-                        INSERT INTO device_portal.screen (name, path, icon, group_name)
-                        SELECT 'NPA Report', '/npa-report', 'fas fa-exclamation-triangle', 'Reports'
-                        WHERE NOT EXISTS (SELECT 1 FROM device_portal.screen WHERE path = '/npa-report')
-                    """);
-
-            // Nearing NPA Report
-            jdbc.getJdbcTemplate().execute("""
-                        INSERT INTO device_portal.screen (name, path, icon, group_name)
-                        SELECT 'Nearing NPA Report', '/nearing-npa-report', 'fas fa-hourglass-half', 'Reports'
-                        WHERE NOT EXISTS (SELECT 1 FROM device_portal.screen WHERE path = '/nearing-npa-report')
                     """);
 
             // Duplicate Loans Report (Exception Reports)

@@ -83,4 +83,12 @@ public class UserService {
             return false;
         }
     }
+
+    public void logPermissionChange(String changedBy, int userTypeId, String actionDetails) {
+        userRepository.logPermissionChange(changedBy, userTypeId, actionDetails);
+    }
+
+    public void logAccess(String username, String path, String ipAddress, String status) {
+        userRepository.logAccess(username, path, ipAddress, status);
+    }
 }
