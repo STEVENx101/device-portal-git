@@ -68,8 +68,30 @@ public class CbsReportController {
 
         List<Map<String, Object>> data = cbsReportService.getReport1Data(branch, products, asAt);
 
-        String[] headers = {"Portfolio Date","Account No","Series","Legacy Account No","Product Name","Loan Amount","Rental","Total Due","Exposure","DPD","Performing Status","Loan Status","Disbursed Date","Closed Date","IMEI No","Device Status","Workhub SP No","Platform"};
-        String[] keys = {"portfolio_date","account_no","series","legacy_account_no","product_name","loan_amount","rental","total_due","exposure","dpd","performing_status","portfolio_loan_status","disbursed_date","closed_date","device_id","device_status","external_id","platform"};
+        List<String> headersList = new java.util.ArrayList<>();
+        List<String> keysList = new java.util.ArrayList<>();
+
+        if (data != null && !data.isEmpty()) {
+            Map<String, Object> firstRow = data.get(0);
+            for (String key : firstRow.keySet()) {
+                keysList.add(key);
+                String header = key.replace("portfolio_", "");
+                header = header.replace("_", " ");
+                StringBuilder title = new StringBuilder();
+                for (String word : header.split(" ")) {
+                    if (word.length() > 0) {
+                        title.append(Character.toUpperCase(word.charAt(0))).append(word.substring(1)).append(" ");
+                    }
+                }
+                headersList.add(title.toString().trim());
+            }
+        } else {
+            headersList.addAll(java.util.Arrays.asList("Portfolio Date","Account No","Series","Legacy Account No","Branch Name","Client Code","Product Name","Loan Amount","Rental","Rate","Period","Total Due","Exposure","DPD","Performing Status","Loan Status","Disbursed Date","Closed Date","IMEI No","Device Status","Workhub SP No","Platform"));
+            keysList.addAll(java.util.Arrays.asList("portfolio_date","account_no","series","legacy_account_no","branch_name","client_code","product_name","loan_amount","rental","rate","period","total_due","exposure","dpd","performing_status","portfolio_loan_status","disbursed_date","closed_date","device_id","device_status","external_id","platform"));
+        }
+
+        String[] headers = headersList.toArray(new String[0]);
+        String[] keys = keysList.toArray(new String[0]);
         writeExcel(response, "portfolio_loan_report.xlsx", headers, keys, data);
     }
 

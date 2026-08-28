@@ -260,14 +260,102 @@ public class CbsReportService {
         return executePagedReport(request, sql, params);
     }
 
-    public List<Map<String, Object>> getReport1Data(String branch, List<String> products, String asAt) {
-        Map<String, Object> filterMap = new HashMap<>();
-        filterMap.put("branch", branch);
-        filterMap.put("products", products);
-        filterMap.put("asAt", asAt);
+    public List<String> getPortfolioTableColumns() {
+        return jdbc.getJdbcTemplate().execute((java.sql.Connection conn) -> {
+            List<String> cols = new java.util.ArrayList<>();
+            try (java.sql.PreparedStatement stmt = conn.prepareStatement("SELECT * FROM cbs.portfolio LIMIT 1")) {
+                try (java.sql.ResultSet rs = stmt.executeQuery()) {
+                    java.sql.ResultSetMetaData md = rs.getMetaData();
+                    int count = md.getColumnCount();
+                    for (int i = 1; i <= count; i++) {
+                        cols.add(md.getColumnName(i));
+                    }
+                }
+            }
+            return cols;
+        });
+    }
 
+    public List<Map<String, Object>> getReport1Data(String branch, List<String> products, String asAt) {
+        List<String> portfolioCols = getPortfolioTableColumns();
+        
+        StringBuilder sb = new StringBuilder();
+        for (String col : portfolioCols) {
+            sb.append("p1.").append(col).append(" AS `portfolio_").append(col).append("`, ");
+        }
+        
         Map<String, Object> params = new HashMap<>();
-        String sql = buildReport1Query(filterMap, params);
+        addLatestPortfolioParams(params);
+        
+        String selectFields = sb.toString();
+        String subQuery = "SELECT " + selectFields + """
+                    l.account_no,
+                    l.account_series AS `series`,
+                    l.legacy_account_no,
+                    COALESCE(pr.product_name, l.product) AS `product_name`,
+                    COALESCE(br.branch_name, l.branch) AS `branch_name`,
+                    l.client AS `client_code`,
+                    l.loan_amount,
+                    l.rental,
+                    l.rate,
+                    l.period,
+                    DATE_FORMAT(l.disbursed_date, '%Y-%m-%d') AS `disbursed_date`,
+                    DATE_FORMAT(l.closed_date, '%Y-%m-%d') AS `closed_date`,
+                    COALESCE(dl1.device_id, dl2.device_id) AS `device_id`,
+                    COALESCE(dl1.device_status, dl2.device_status) AS `device_status`,
+                    COALESCE(dl1.external_id, dl2.external_id) AS `external_id`,
+                    COALESCE(dl1.platform, dl2.platform) AS `platform`
+                FROM cbs.loan l
+                JOIN cbs.portfolio p1
+                    ON p1.account_no = l.account_no
+                    AND p1.series = l.account_series
+                    AND p1.portfolio_date = :latestPortfolioDate
+                    AND p1.loan_status IN ('A', 'N')
+                LEFT JOIN cbs.branch br ON CAST(l.branch AS UNSIGNED) = br.branch_code
+                LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
+                LEFT JOIN cbs.device_loan dl1 ON dl1.account_no = l.account_no
+                LEFT JOIN cbs.device_loan dl2 ON dl2.account_no = l.legacy_account_no
+                WHERE 1=1""";
+
+        if (branch != null && !branch.trim().isEmpty() && !branch.equalsIgnoreCase("All")) {
+            subQuery += " AND br.legacy_branch_code = :branch";
+            params.put("branch", branch.trim());
+        }
+
+        if (products != null && !products.isEmpty()) {
+            subQuery += " AND pr.product_code IN (:products)";
+            params.put("products", products);
+        }
+
+        if (asAt != null && !asAt.trim().isEmpty()) {
+            subQuery += " AND l.disbursed_date < DATE_ADD(:asAt, INTERVAL 1 DAY)";
+            params.put("asAt", asAt.trim());
+        }
+
+        StringBuilder outerSelect = new StringBuilder();
+        for (String col : portfolioCols) {
+            outerSelect.append("t.portfolio_").append(col).append(" AS `portfolio_").append(col).append("`, ");
+        }
+        
+        String sql = "SELECT " + outerSelect.toString() + """
+                    t.account_no,
+                    t.series,
+                    t.legacy_account_no,
+                    t.product_name,
+                    t.branch_name,
+                    t.client_code,
+                    t.loan_amount,
+                    t.rental,
+                    t.rate,
+                    t.period,
+                    t.disbursed_date,
+                    t.closed_date,
+                    t.device_id,
+                    t.device_status,
+                    t.external_id,
+                    t.platform
+                FROM (""" + subQuery + ") t WHERE TRUE";
+
         return executeDownloadReport(sql, params);
     }
 
@@ -920,7 +1008,8 @@ public class CbsReportService {
                 SELECT
                     p1.exposure AS `exposure`,
                     p1.total_due AS `total_due`,
-                    p1.dpd AS `dpd`
+                    p1.dpd AS `dpd`,
+                    p1.performing_status AS `performing_status`
                 FROM cbs.loan l
                 JOIN cbs.portfolio p1
                     ON p1.account_no = l.account_no
@@ -951,14 +1040,14 @@ public class CbsReportService {
                     COUNT(*) AS total_count,
                     COALESCE(SUM(t.exposure), 0) AS total_exposure,
                     COALESCE(SUM(t.total_due), 0) AS total_due,
-                    COUNT(CASE WHEN t.dpd BETWEEN 1 AND 30 THEN 1 END) AS dpd1_30_count,
-                    COALESCE(SUM(CASE WHEN t.dpd BETWEEN 1 AND 30 THEN t.exposure END), 0) AS dpd1_30_exposure,
-                    COUNT(CASE WHEN t.dpd BETWEEN 31 AND 60 THEN 1 END) AS dpd31_60_count,
-                    COALESCE(SUM(CASE WHEN t.dpd BETWEEN 31 AND 60 THEN t.exposure END), 0) AS dpd31_60_exposure,
-                    COUNT(CASE WHEN t.dpd BETWEEN 61 AND 90 THEN 1 END) AS dpd61_90_count,
-                    COALESCE(SUM(CASE WHEN t.dpd BETWEEN 61 AND 90 THEN t.exposure END), 0) AS dpd61_90_exposure,
-                    COUNT(CASE WHEN t.dpd > 90 THEN 1 END) AS above90_count,
-                    COALESCE(SUM(CASE WHEN t.dpd > 90 THEN t.exposure END), 0) AS above90_exposure
+                    COUNT(CASE WHEN t.dpd BETWEEN 1 AND 30 AND t.performing_status = 'Performing' THEN 1 END) AS dpd1_30_count,
+                    COALESCE(SUM(CASE WHEN t.dpd BETWEEN 1 AND 30 AND t.performing_status = 'Performing' THEN t.exposure END), 0) AS dpd1_30_exposure,
+                    COUNT(CASE WHEN t.dpd BETWEEN 31 AND 60 AND t.performing_status = 'Performing' THEN 1 END) AS dpd31_60_count,
+                    COALESCE(SUM(CASE WHEN t.dpd BETWEEN 31 AND 60 AND t.performing_status = 'Performing' THEN t.exposure END), 0) AS dpd31_60_exposure,
+                    COUNT(CASE WHEN t.dpd BETWEEN 61 AND 90 AND t.performing_status = 'Performing' THEN 1 END) AS dpd61_90_count,
+                    COALESCE(SUM(CASE WHEN t.dpd BETWEEN 61 AND 90 AND t.performing_status = 'Performing' THEN t.exposure END), 0) AS dpd61_90_exposure,
+                    COUNT(CASE WHEN t.performing_status = 'Non-Performing' THEN 1 END) AS above90_count,
+                    COALESCE(SUM(CASE WHEN t.performing_status = 'Non-Performing' THEN t.exposure END), 0) AS above90_exposure
                 FROM (""" + subQuery + ") t";
 
         return jdbc.queryForMap(sql, params);
