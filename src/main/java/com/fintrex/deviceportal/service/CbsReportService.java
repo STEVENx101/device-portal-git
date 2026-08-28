@@ -723,7 +723,61 @@ public class CbsReportService {
     public DataTableResponse fetchPermissionLogs(DataTableRequest request) {
         Map<String, Object> params = new HashMap<>();
         String sql = buildPermissionLogsQuery(request.getData(), params);
-        return executePagedReport(request, sql, params);
+        DataTableResponse response = executePagedReport(request, sql, params);
+        
+        List<Map<String, Object>> dataList = response.getData();
+        if (dataList != null && !dataList.isEmpty()) {
+            Map<Integer, String> userTypeMap = new HashMap<>();
+            Map<Integer, String> screenMap = new HashMap<>();
+            
+            try {
+                List<Map<String, Object>> userTypes = jdbc.getJdbcTemplate().queryForList("SELECT id, name FROM device_portal.user_type");
+                for (Map<String, Object> ut : userTypes) {
+                    userTypeMap.put(((Number) ut.get("id")).intValue(), (String) ut.get("name"));
+                }
+                
+                List<Map<String, Object>> screens = jdbc.getJdbcTemplate().queryForList("SELECT id, name FROM device_portal.screen");
+                for (Map<String, Object> sc : screens) {
+                    screenMap.put(((Number) sc.get("id")).intValue(), (String) sc.get("name"));
+                }
+            } catch (Exception e) {
+                System.err.println("Error loading metadata for permission log transformation: " + e.getMessage());
+            }
+            
+            java.util.regex.Pattern utPattern = java.util.regex.Pattern.compile("user type ID (\\d+)");
+            java.util.regex.Pattern scPattern = java.util.regex.Pattern.compile("screens: \\[(\\s*\\d+(?:\\s*,\\s*\\d+)*\\s*)\\]");
+            
+            for (Map<String, Object> row : dataList) {
+                String details = (String) row.get("action_details");
+                if (details != null) {
+                    java.util.regex.Matcher utMatcher = utPattern.matcher(details);
+                    if (utMatcher.find()) {
+                        try {
+                            int utId = Integer.parseInt(utMatcher.group(1));
+                            String utName = userTypeMap.getOrDefault(utId, "ID " + utId);
+                            details = details.replace("user type ID " + utId, utName);
+                        } catch (Exception e) {}
+                    }
+                    
+                    java.util.regex.Matcher scMatcher = scPattern.matcher(details);
+                    if (scMatcher.find()) {
+                        String rawIds = scMatcher.group(1);
+                        String[] ids = rawIds.split(",");
+                        List<String> names = new java.util.ArrayList<>();
+                        for (String idStr : ids) {
+                            try {
+                                int sId = Integer.parseInt(idStr.trim());
+                                names.add(screenMap.getOrDefault(sId, "ID " + sId));
+                            } catch (Exception e) {}
+                        }
+                        details = details.replace("screens: [" + rawIds + "]", "screens: " + names.toString());
+                    }
+                    
+                    row.put("action_details", details);
+                }
+            }
+        }
+        return response;
     }
 
     private String buildPermissionLogsQuery(Object rawFilter, Map<String, Object> params) {
