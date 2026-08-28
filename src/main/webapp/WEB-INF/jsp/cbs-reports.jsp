@@ -158,7 +158,7 @@
                                                     <option value="All">All</option>
                                                 </select>
                                             </div>
-                                            <div class="col-md-6">
+                                            <div class="col-md-2">
                                                 <label class="form-label text-700 fw-semi-bold"
                                                     for="selectProducts">Product</label>
                                                 <select class="form-select" id="selectProducts" multiple></select>
@@ -180,17 +180,17 @@
                                                     Date</label>
                                                 <input class="form-control" type="date" id="toDate" value="2026-07-13">
                                             </div>
-                                            <div class="col-md-9 d-flex align-items-end justify-content-end gap-2"
-                                                id="buttonContainer">
-                                                <button class="btn btn-primary" type="button" id="applyFiltersBtn">
-                                                    <span class="fas fa-search me-1"></span> Refresh Data
-                                                </button>
-                                                <% if (canDownloadReports) { %>
-                                                    <button class="btn btn-success" type="button" id="downloadExcelBtn">
-                                                        <span class="fas fa-file-excel me-1"></span> Download CSV
-                                                    </button>
-                                                    <% } %>
-                                            </div>
+                                             <div class="col-12 d-flex justify-content-end gap-2 mt-2"
+                                                 id="buttonContainer">
+                                                 <button class="btn btn-primary" type="button" id="applyFiltersBtn">
+                                                     <span class="fas fa-search me-1"></span> Refresh Data
+                                                 </button>
+                                                 <% if (canDownloadReports) { %>
+                                                     <button class="btn btn-success" type="button" id="downloadExcelBtn">
+                                                         <span class="fas fa-file-excel me-1"></span> Download CSV
+                                                     </button>
+                                                     <% } %>
+                                             </div>
                                         </div>
                                     </form>
                                 </div>

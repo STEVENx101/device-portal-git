@@ -112,7 +112,7 @@
                                         <label class="form-label text-700 fw-semi-bold" for="selectProducts">Product</label>
                                         <select class="form-select" id="selectProducts" multiple></select>
                                     </div>
-                                    <div class="col-md-8 d-flex align-items-end justify-content-end gap-2">
+                                    <div class="col-12 d-flex justify-content-end gap-2 mt-2">
                                         <button class="btn btn-primary btn-sm text-nowrap" type="button" id="applyFiltersBtn">
                                             <span class="fas fa-search me-1"></span> Load Data
                                         </button>

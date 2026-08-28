@@ -317,7 +317,7 @@
                                              <option value="90+">Over 90 DPD</option>
                                          </select>
                                      </div>
-                                     <div class="col-md-6 d-flex align-items-end justify-content-end gap-2">
+                                     <div class="col-12 d-flex justify-content-end gap-2 mt-2">
                                          <button class="btn btn-primary btn-sm text-nowrap" type="button" id="applyFiltersBtn">
                                              <span class="fas fa-search me-1"></span> Load Data
                                          </button>
