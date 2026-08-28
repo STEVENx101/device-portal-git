@@ -129,7 +129,34 @@ public class UserManagementController {
         // Log the change
         User currentUser = (User) session.getAttribute("currentUser");
         String changedBy = currentUser != null ? currentUser.getUsername() : "system";
-        String actionDetails = "Updated permissions for user type ID " + userTypeId + " to screens: " + (screenIds != null ? screenIds.toString() : "[]");
+
+        String userTypeName = "ID " + userTypeId;
+        List<UserType> allUserTypes = userService.getAllUserTypes();
+        if (allUserTypes != null) {
+            for (UserType ut : allUserTypes) {
+                if (ut.getId() != null && ut.getId() == userTypeId) {
+                    userTypeName = ut.getName();
+                    break;
+                }
+            }
+        }
+
+        List<String> screenNames = new java.util.ArrayList<>();
+        if (screenIds != null && !screenIds.isEmpty()) {
+            List<Screen> allScreens = userService.getAllScreens();
+            if (allScreens != null) {
+                for (Integer sid : screenIds) {
+                    for (Screen sc : allScreens) {
+                        if (sc.getId() != null && sc.getId().equals(sid)) {
+                            screenNames.add(sc.getName());
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        String actionDetails = "Updated permissions for " + userTypeName + " to screens: " + screenNames.toString();
         userService.logPermissionChange(changedBy, userTypeId, actionDetails);
 
         response.put("success", true);
