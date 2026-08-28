@@ -332,9 +332,6 @@
                 // Set default date to today
                 const today = new Date().toISOString().split('T')[0];
                 $('#asAtDate').val(today);
-                
-                // Load KPIs initially
-                loadKpis();
 
                 dtReport = $('#tableArrears').DataTable({
                     processing: false,

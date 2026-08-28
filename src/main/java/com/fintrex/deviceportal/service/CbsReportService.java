@@ -1768,8 +1768,7 @@ public class CbsReportService {
                         WHEN COALESCE(lm1.locked, lm2.locked) = 1 THEN 'Locked'
                         ELSE 'Unlocked'
                     END AS `lock_status`,
-                    p1.recovery_officer AS `recovery_officer`,
-                    COALESCE(lmc1.charge_amount, lmc2.charge_amount) AS `charge_amount`
+                    p1.recovery_officer AS `recovery_officer`
                 FROM cbs.loan l
                 JOIN cbs.portfolio p1
                     ON p1.account_no = l.account_no
@@ -1826,8 +1825,7 @@ public class CbsReportService {
                         ELSE t.account_status
                     END AS `account_status`,
                     t.lock_status,
-                    t.recovery_officer,
-                    t.charge_amount
+                    t.recovery_officer
                 FROM (""" + subQuery + ") t WHERE TRUE";
     }
 
