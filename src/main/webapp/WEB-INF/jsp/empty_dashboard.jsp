@@ -486,9 +486,9 @@
                                                     id="transactionChannelTable" style="font-size: 0.72rem;">
                                                     <thead class="bg-200">
                                                         <tr>
-                                                            <th>Channel</th>
-                                                            <th class="text-end">Payments</th>
-                                                            <th class="text-end">Amount</th>
+                                                            <th class="text-nowrap">Channel</th>
+                                                            <th class="text-end text-nowrap">Payments</th>
+                                                            <th class="text-end text-nowrap">Amount</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody id="transactionChannelTableBody">
@@ -761,89 +761,7 @@
                     });
                 }
 
-                function buildDailyDisbursementsChart(chartData) {
-                    destroyChart('vendorPaymentsChart');
-                    const ctx = document.getElementById('vendorPaymentsChart').getContext('2d');
-                    const isDark = document.documentElement.classList.contains('dark');
 
-                    const labels = chartData.map(i => i.channel_name || i.db_date);
-                    const amounts = chartData.map(i => i.total_amount || 0);
-                    const count = chartData.length;
-
-                    const titleTextEl = document.getElementById('dailyDisbursementsTitleText');
-                    if (titleTextEl) {
-                        if (selectedMonth && selectedMonth.includes('-')) {
-                            const parts = selectedMonth.split('-');
-                            const dateObj = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, 1);
-                            const monthStr = dateObj.toLocaleString('en-US', { month: 'short', year: 'numeric' });
-                            titleTextEl.innerText = 'Daily Disbursements (' + monthStr + ')';
-                        } else {
-                            titleTextEl.innerText = 'Daily Disbursements (Past 7 Days)';
-                        }
-                    }
-
-                    const millionsData = amounts.map(val => Math.round((val / 1000000) * 100) / 100);
-
-                    activeCharts['vendorPaymentsChart'] = new Chart(ctx, {
-                        type: 'bar',
-                        data: {
-                            labels: labels,
-                            datasets: [{
-                                label: 'Disbursement (Mn)',
-                                data: millionsData,
-                                backgroundColor: 'rgba(16, 185, 129, 0.85)',
-                                hoverBackgroundColor: 'rgba(16, 185, 129, 1)',
-                                borderRadius: 4,
-                                barThickness: count > 15 ? 'flex' : 14,
-                                maxBarThickness: 18
-                            }]
-                        },
-                        options: {
-                            indexAxis: 'x',
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            layout: {
-                                padding: { top: count > 12 ? 5 : 15, bottom: 0, left: 0, right: 0 }
-                            },
-                            plugins: {
-                                legend: { display: false },
-                                tooltip: {
-                                    enabled: true,
-                                    callbacks: {
-                                        label: function (context) {
-                                            const rawVal = amounts[context.dataIndex] || 0;
-                                            return 'Amount: ' + formatLKR(rawVal);
-                                        }
-                                    }
-                                },
-                                datalabels: {
-                                    display: count <= 12,
-                                    anchor: 'end',
-                                    align: 'top',
-                                    color: isDark ? '#cbd5e1' : '#1e293b',
-                                    font: { weight: 'bold', size: 8 },
-                                    formatter: (val) => val > 0 ? val + 'M' : ''
-                                }
-                            },
-                            scales: {
-                                x: {
-                                    grid: { display: false },
-                                    ticks: {
-                                        color: isDark ? '#94a3b8' : '#475569',
-                                        font: { size: count > 20 ? 7 : 8, weight: '600' },
-                                        maxRotation: count > 15 ? 45 : 0,
-                                        autoSkip: count > 20
-                                    }
-                                },
-                                y: {
-                                    display: false,
-                                    grid: { display: false },
-                                    beginAtZero: true
-                                }
-                            }
-                        }
-                    });
-                }
 
                 function onProductChange() {
                     selectedProduct = document.getElementById('productFilterSelect').value;
@@ -1158,11 +1076,31 @@
                         })
                         .catch(err => console.error("Error loading security doughnut status:", err));
 
-                    // ============ 7. Daily Disbursements (Past 7 Days / Selected Month) ============
+                    // ============ 7. Daily Disbursements (Last 6-7 Days of Month) ============
                     fetch('${pageContext.request.contextPath}/api/dashboard/vendor-payments-chart' + singleMonthParam)
                         .then(res => res.json())
                         .then(data => {
-                            buildDailyDisbursementsChart(data || []);
+                            let chartData = data;
+                            const titleTextEl = document.getElementById('dailyDisbursementsTitleText');
+                            if (titleTextEl) {
+                                if (selectedMonth && selectedMonth.includes('-')) {
+                                    const parts = selectedMonth.split('-');
+                                    const dateObj = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, 1);
+                                    const monthStr = dateObj.toLocaleString('en-US', { month: 'short', year: 'numeric' });
+                                    titleTextEl.innerText = 'Daily Disbursements (' + monthStr + ')';
+                                } else {
+                                    titleTextEl.innerText = 'Daily Disbursements (Past 7 Days)';
+                                }
+                            }
+                            buildHorizontalBar(
+                                'vendorPaymentsChart',
+                                chartData.map(i => i.channel_name),
+                                chartData.map(i => i.total_amount || 0),
+                                'rgba(16, 185, 129, 0.15)',
+                                'rgba(16, 185, 129, 0.85)',
+                                '#10b981',
+                                false
+                            );
                         })
                         .catch(err => console.error("Error loading daily disbursements chart:", err));
 
@@ -1239,9 +1177,9 @@
                             data.forEach(item => {
                                 const formattedAmt = item.total_amount !== null ? parseFloat(item.total_amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00';
                                 html += '<tr>' +
-                                    '<td>' + (item.channel_name || 'N/A') + '</td>' +
-                                    '<td class="text-end">' + (item.tx_count || 0) + '</td>' +
-                                    '<td class="text-end fw-semi-bold">' + formattedAmt + '</td>' +
+                                    '<td class="text-nowrap" style="max-width: 120px; overflow: hidden; text-overflow: ellipsis;" title="' + (item.channel_name || 'N/A') + '">' + (item.channel_name || 'N/A') + '</td>' +
+                                    '<td class="text-end text-nowrap">' + (item.tx_count || 0) + '</td>' +
+                                    '<td class="text-end fw-semi-bold text-nowrap">' + formattedAmt + '</td>' +
                                     '</tr>';
                             });
                             tbody.innerHTML = html || '<tr><td colspan="3" class="text-center text-muted">No transactions</td></tr>';

@@ -411,7 +411,7 @@ public class DashboardRepository {
         String filter = getProductFilterSql(product);
         String dateClause;
         if (month != null && month.matches("^\\d{4}-\\d{2}$")) {
-            dateClause = String.format("l.disbursed_date >= '%s-01' AND l.disbursed_date <= LAST_DAY('%s-01')", month, month);
+            dateClause = String.format("l.disbursed_date >= DATE_SUB(LAST_DAY('%s-01'), INTERVAL 6 DAY) AND l.disbursed_date <= LAST_DAY('%s-01')", month, month);
         } else {
             dateClause = "l.disbursed_date >= DATE_SUB(CURRENT_DATE(), INTERVAL 6 DAY) AND l.disbursed_date <= CURRENT_DATE()";
         }
@@ -886,7 +886,7 @@ public class DashboardRepository {
                     COUNT(*) AS count_val,
                     COALESCE(SUM(vp.amount), 0) AS total_amount
                 FROM cbs.vendor_payments vp
-                WHERE vp.trx_date >= DATE_SUB(DATE_FORMAT(CURRENT_DATE(), '%%Y-%%m-01'), INTERVAL 2 MONTH)
+                WHERE vp.trx_date >= DATE_SUB(DATE_FORMAT(CURRENT_DATE(), '%%Y-%%m-01'), INTERVAL 5 MONTH)
                 %s
                 GROUP BY month_key, month_name, status_name
                 ORDER BY month_key ASC, status_name ASC
