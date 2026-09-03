@@ -910,12 +910,11 @@ public class DashboardRepository {
             productFilter = "AND EXISTS (SELECT 1 FROM cbs.loan l LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val WHERE t.account_no = l.account_no AND pr.product_code IN ('LF', 'laptop'))";
         }
 
-        String dateFilter;
-        if (month != null && month.matches("^\\d{4}-\\d{2}$")) {
-            dateFilter = String.format("t.date >= '%s-01' AND t.date < DATE_ADD('%s-01', INTERVAL 1 MONTH)", month, month);
-        } else {
-            dateFilter = "t.date >= DATE_FORMAT(CURRENT_DATE(), '%%Y-%%m-01')";
-        }
+        String targetMonth = (month != null && month.matches("^\\d{4}-\\d{2}$"))
+                ? month
+                : new java.text.SimpleDateFormat("yyyy-MM").format(new java.util.Date());
+
+        String dateFilter = String.format("t.date >= '%s-01' AND t.date < DATE_ADD('%s-01', INTERVAL 1 MONTH)", targetMonth, targetMonth);
 
         String sql = String.format("""
                 SELECT 

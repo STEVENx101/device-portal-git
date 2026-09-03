@@ -1396,6 +1396,13 @@
                 }
 
                 document.addEventListener("DOMContentLoaded", function () {
+                    const now = new Date();
+                    const currentYYYYMM = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+                    const monthInput = document.getElementById('monthFilterInput');
+                    if (monthInput) {
+                        monthInput.value = currentYYYYMM;
+                        selectedMonth = currentYYYYMM;
+                    }
                     checkSyncStatus();
                     loadDashboardData();
                 });
