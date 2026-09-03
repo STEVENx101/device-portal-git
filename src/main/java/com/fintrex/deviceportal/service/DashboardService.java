@@ -125,8 +125,17 @@ public class DashboardService {
 
     @SuppressWarnings("unchecked")
     public Map<String, Object> getDashboardStats(String product) {
+        return getDashboardStats(product, null);
+    }
+
+    @SuppressWarnings("unchecked")
+    public Map<String, Object> getDashboardStats(String product, String month) {
+        if (month != null && !month.trim().isEmpty()) {
+            String suffix = getSuffix(product) + "_" + month.trim();
+            return (Map<String, Object>) cache.computeIfAbsent("stats" + suffix, k -> dashboardRepository.getDashboardStats(product, month));
+        }
         String suffix = getSuffix(product);
-        return (Map<String, Object>) cache.computeIfAbsent("stats" + suffix, k -> dashboardRepository.getDashboardStats(product));
+        return (Map<String, Object>) cache.computeIfAbsent("stats" + suffix, k -> dashboardRepository.getDashboardStats(product, null));
     }
 
     public List<Map<String, Object>> getDpdChartData(String product, String dimension) {
@@ -147,26 +156,56 @@ public class DashboardService {
 
     @SuppressWarnings("unchecked")
     public List<Map<String, Object>> getVendorPaymentsChannelChart(String product) {
+        return getVendorPaymentsChannelChart(product, null);
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<Map<String, Object>> getVendorPaymentsChannelChart(String product, String month) {
+        if (month != null && !month.trim().isEmpty()) {
+            String suffix = getSuffix(product) + "_" + month.trim();
+            return (List<Map<String, Object>>) cache.computeIfAbsent("vendorPayments" + suffix, k -> dashboardRepository.getVendorPaymentsChannelChart(product, month));
+        }
         String suffix = getSuffix(product);
-        return (List<Map<String, Object>>) cache.computeIfAbsent("vendorPayments" + suffix, k -> dashboardRepository.getVendorPaymentsChannelChart(product));
+        return (List<Map<String, Object>>) cache.computeIfAbsent("vendorPayments" + suffix, k -> dashboardRepository.getVendorPaymentsChannelChart(product, null));
     }
 
     @SuppressWarnings("unchecked")
     public Map<String, Object> getDeviceStatusCharts(String product) {
+        return getDeviceStatusCharts(product, null);
+    }
+
+    @SuppressWarnings("unchecked")
+    public Map<String, Object> getDeviceStatusCharts(String product, String month) {
+        if (month != null && !month.trim().isEmpty()) {
+            String suffix = getSuffix(product) + "_" + month.trim();
+            return (Map<String, Object>) cache.computeIfAbsent("deviceStatus" + suffix, k -> dashboardRepository.getDeviceStatusCharts(product, month));
+        }
         String suffix = getSuffix(product);
-        return (Map<String, Object>) cache.computeIfAbsent("deviceStatus" + suffix, k -> dashboardRepository.getDeviceStatusCharts(product));
+        return (Map<String, Object>) cache.computeIfAbsent("deviceStatus" + suffix, k -> dashboardRepository.getDeviceStatusCharts(product, null));
     }
 
     public List<Map<String, Object>> getDealerCurrentMonthBusiness(String product) {
-        return dashboardRepository.getDealerCurrentMonthBusiness(product);
+        return getDealerCurrentMonthBusiness(product, null);
+    }
+
+    public List<Map<String, Object>> getDealerCurrentMonthBusiness(String product, String month) {
+        return dashboardRepository.getDealerCurrentMonthBusiness(product, month);
     }
 
     public List<Map<String, Object>> getDealerPortfolioBusiness(String product) {
-        return dashboardRepository.getDealerPortfolioBusiness(product);
+        return getDealerPortfolioBusiness(product, null);
+    }
+
+    public List<Map<String, Object>> getDealerPortfolioBusiness(String product, String month) {
+        return dashboardRepository.getDealerPortfolioBusiness(product, month);
     }
 
     public List<Map<String, Object>> getArrearsAnalysis(String product) {
-        return dashboardRepository.getArrearsAnalysis(product);
+        return getArrearsAnalysis(product, null);
+    }
+
+    public List<Map<String, Object>> getArrearsAnalysis(String product, String month) {
+        return dashboardRepository.getArrearsAnalysis(product, month);
     }
 
     @SuppressWarnings("unchecked")
@@ -185,8 +224,17 @@ public class DashboardService {
 
     @SuppressWarnings("unchecked")
     public List<Map<String, Object>> getProductBusinessChart(String product) {
+        return getProductBusinessChart(product, null);
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<Map<String, Object>> getProductBusinessChart(String product, String month) {
+        if (month != null && !month.trim().isEmpty()) {
+            String suffix = getSuffix(product) + "_" + month.trim();
+            return (List<Map<String, Object>>) cache.computeIfAbsent("productBusiness" + suffix, k -> dashboardRepository.getProductBusinessChart(product, month));
+        }
         String suffix = getSuffix(product);
-        return (List<Map<String, Object>>) cache.computeIfAbsent("productBusiness" + suffix, k -> dashboardRepository.getProductBusinessChart(product));
+        return (List<Map<String, Object>>) cache.computeIfAbsent("productBusiness" + suffix, k -> dashboardRepository.getProductBusinessChart(product, null));
     }
 
     @SuppressWarnings("unchecked")
@@ -196,20 +244,47 @@ public class DashboardService {
 
     @SuppressWarnings("unchecked")
     public List<Map<String, Object>> getMaturedNonPerformingAnalysis(String product) {
+        return getMaturedNonPerformingAnalysis(product, null);
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<Map<String, Object>> getMaturedNonPerformingAnalysis(String product, String month) {
+        if (month != null && !month.trim().isEmpty()) {
+            String suffix = getSuffix(product) + "_" + month.trim();
+            return (List<Map<String, Object>>) cache.computeIfAbsent("maturedNp" + suffix, k -> dashboardRepository.getMaturedNonPerformingAnalysis(product, month));
+        }
         String suffix = getSuffix(product);
-        return (List<Map<String, Object>>) cache.computeIfAbsent("maturedNp" + suffix, k -> dashboardRepository.getMaturedNonPerformingAnalysis(product));
+        return (List<Map<String, Object>>) cache.computeIfAbsent("maturedNp" + suffix, k -> dashboardRepository.getMaturedNonPerformingAnalysis(product, null));
     }
 
     @SuppressWarnings("unchecked")
     public List<Map<String, Object>> getOutstandingAnalysis(String product) {
+        return getOutstandingAnalysis(product, null);
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<Map<String, Object>> getOutstandingAnalysis(String product, String month) {
+        if (month != null && !month.trim().isEmpty()) {
+            String suffix = getSuffix(product) + "_" + month.trim();
+            return (List<Map<String, Object>>) cache.computeIfAbsent("outstanding" + suffix, k -> dashboardRepository.getOutstandingAnalysis(product, month));
+        }
         String suffix = getSuffix(product);
-        return (List<Map<String, Object>>) cache.computeIfAbsent("outstanding" + suffix, k -> dashboardRepository.getOutstandingAnalysis(product));
+        return (List<Map<String, Object>>) cache.computeIfAbsent("outstanding" + suffix, k -> dashboardRepository.getOutstandingAnalysis(product, null));
     }
 
     @SuppressWarnings("unchecked")
     public List<Map<String, Object>> getTransactionChannelChartData(String product) {
+        return getTransactionChannelChartData(product, null);
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<Map<String, Object>> getTransactionChannelChartData(String product, String month) {
+        if (month != null && !month.trim().isEmpty()) {
+            String suffix = getSuffix(product) + "_" + month.trim();
+            return (List<Map<String, Object>>) cache.computeIfAbsent("txnChannel" + suffix, k -> dashboardRepository.getTransactionChannelChartData(product, month));
+        }
         String suffix = getSuffix(product);
-        return (List<Map<String, Object>>) cache.computeIfAbsent("txnChannel" + suffix, k -> dashboardRepository.getTransactionChannelChartData(product));
+        return (List<Map<String, Object>>) cache.computeIfAbsent("txnChannel" + suffix, k -> dashboardRepository.getTransactionChannelChartData(product, null));
     }
 
     @SuppressWarnings("unchecked")

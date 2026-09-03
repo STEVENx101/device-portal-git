@@ -270,6 +270,14 @@
                                             <option value="LF">Laptop Finance (LF)</option>
                                         </select>
                                     </div>
+                                    <div class="d-flex align-items-center gap-2"
+                                        style="border-right: 1px solid rgba(226, 232, 240, 0.8); padding-right: 10px;">
+                                        <span class="text-muted fs--2 fw-semi-bold"><i
+                                                class="fas fa-calendar-alt me-1"></i>Month:</span>
+                                        <input type="month" class="form-control form-control-sm fw-bold text-primary"
+                                            id="monthFilterInput" onchange="onMonthChange()"
+                                            style="font-size: 0.75rem; padding: 2px 8px; width: auto; border-radius: 4px; border: 1px solid #cbd5e1; cursor: pointer;">
+                                    </div>
                                     <div class="text-muted fs--2 fw-semi-bold" id="sync-time-badge"
                                         style="border-right: 1px solid rgba(226, 232, 240, 0.8); padding-right: 10px;">
                                         Last Synced: <span class="fw-bold text-dark dark__text-white"
@@ -657,6 +665,19 @@
                 // Global chart instances to allow clean redrawing without hover issues
                 const activeCharts = {};
                 let selectedProduct = 'MF';
+                let selectedMonth = '';
+
+                function getSingleMonthQueryParams() {
+                    let params = [];
+                    if (selectedProduct) params.push('product=' + encodeURIComponent(selectedProduct));
+                    if (selectedMonth) params.push('month=' + encodeURIComponent(selectedMonth));
+                    return params.length ? '?' + params.join('&') : '';
+                }
+
+                function onMonthChange() {
+                    selectedMonth = document.getElementById('monthFilterInput').value;
+                    loadDashboardData();
+                }
 
                 const formatLKR = (val) => {
                     const millions = val / 1000000;
@@ -857,9 +878,10 @@
 
                 function loadDashboardData() {
                     const productParam = selectedProduct ? '?product=' + encodeURIComponent(selectedProduct) : '';
+                    const singleMonthParam = getSingleMonthQueryParams();
 
                     // ============ 1. Dashboard Stats (KPI Cards) ============
-                    fetch('${pageContext.request.contextPath}/api/dashboard/stats' + productParam)
+                    fetch('${pageContext.request.contextPath}/api/dashboard/stats' + singleMonthParam)
                         .then(response => {
                             if (!response.ok) throw new Error("HTTP error " + response.status);
                             return response.json();
@@ -889,16 +911,10 @@
                             document.getElementById("kpi-ytd-count").innerText = formatNum(data.nYtdCount || 0) + " Accounts";
                             document.getElementById("kpi-overall-amount").innerText = formatLKR(data.nOverallAmount || 0);
                             document.getElementById("kpi-overall-count").innerText = formatNum(data.nOverallCount || 0) + " Accounts";
-
-                            // YTD & Overall Business
-                            document.getElementById("kpi-ytd-amount").innerText = formatLKR(data.nYtdAmount || 0);
-                            document.getElementById("kpi-ytd-count").innerText = formatNum(data.nYtdCount || 0) + " Accounts";
-                            document.getElementById("kpi-overall-amount").innerText = formatLKR(data.nOverallAmount || 0);
-                            document.getElementById("kpi-overall-count").innerText = formatNum(data.nOverallCount || 0) + " Accounts";
                         })
                         .catch(err => console.error("Error fetching dashboard statistics:", err));
 
-                    // ============ 2. Month Wise Business Chart ============
+                    // ============ 2. Month Wise Business Chart (Multi-Month Trend) ============
                     fetch('${pageContext.request.contextPath}/api/dashboard/business-chart' + productParam)
                         .then(res => res.json())
                         .then(data => {
@@ -917,12 +933,12 @@
                         })
                         .catch(err => console.error("Error loading month wise business:", err));
 
-                    // ============ 3. DPD Range Wise Chart ============
+                    // ============ 3. DPD Range Wise Chart (Multi-Month Trend) ============
                     loadDpdComparisonChart();
 
 
                     // ============ 6. Device Status Charts ============
-                    fetch('${pageContext.request.contextPath}/api/dashboard/device-status-charts' + productParam)
+                    fetch('${pageContext.request.contextPath}/api/dashboard/device-status-charts' + singleMonthParam)
                         .then(res => res.json())
                         .then(data => {
                             // Helper function for small doughnut charts
@@ -1059,8 +1075,8 @@
                         })
                         .catch(err => console.error("Error loading security doughnut status:", err));
 
-                    // ============ 7. Daily Disbursements (Past 7 Days) ============
-                    fetch('${pageContext.request.contextPath}/api/dashboard/vendor-payments-chart' + productParam)
+                    // ============ 7. Daily Disbursements (Past 7 Days / Selected Month) ============
+                    fetch('${pageContext.request.contextPath}/api/dashboard/vendor-payments-chart' + singleMonthParam)
                         .then(res => res.json())
                         .then(data => {
                             let chartData = data;
@@ -1076,7 +1092,7 @@
                         })
                         .catch(err => console.error("Error loading daily disbursements chart:", err));
 
-                    // ============ 8. Payments Status-Wise Chart ============
+                    // ============ 8. Payments Status-Wise Chart (Multi-Month Trend) ============
                     loadPaymentsStatusChart();
 
 
@@ -1141,7 +1157,7 @@
                     }
 
                     // ============ 9.1 Transaction Channels Table ============
-                    fetch('${pageContext.request.contextPath}/api/dashboard/transaction-channel-chart' + productParam)
+                    fetch('${pageContext.request.contextPath}/api/dashboard/transaction-channel-chart' + singleMonthParam)
                         .then(res => res.json())
                         .then(data => {
                             const tbody = document.getElementById('transactionChannelTableBody');
@@ -1159,7 +1175,7 @@
                         .catch(err => console.error("Error loading transaction channels:", err));
 
                     // ============ 10. Matured vs Non-Matured Contracts Performance ============
-                    fetch('${pageContext.request.contextPath}/api/dashboard/matured-nonperforming' + productParam)
+                    fetch('${pageContext.request.contextPath}/api/dashboard/matured-nonperforming' + singleMonthParam)
                         .then(res => res.json())
                         .then(data => {
                             let maturedPerf = 0, maturedNp = 0, nonMaturedPerf = 0, nonMaturedNp = 0;

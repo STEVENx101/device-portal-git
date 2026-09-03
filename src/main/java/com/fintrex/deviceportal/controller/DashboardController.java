@@ -20,8 +20,10 @@ public class DashboardController {
     }
 
     @GetMapping("/stats")
-    public ResponseEntity<Map<String, Object>> getDashboardStats(@RequestParam(value = "product", required = false) String product) {
-        return ResponseEntity.ok(dashboardService.getDashboardStats(product));
+    public ResponseEntity<Map<String, Object>> getDashboardStats(
+            @RequestParam(value = "product", required = false) String product,
+            @RequestParam(value = "month", required = false) String month) {
+        return ResponseEntity.ok(dashboardService.getDashboardStats(product, month));
     }
 
     @GetMapping("/dpd-chart-data")
@@ -42,28 +44,38 @@ public class DashboardController {
     }
 
     @GetMapping("/vendor-payments-chart")
-    public ResponseEntity<List<Map<String, Object>>> getVendorPaymentsChannelChart(@RequestParam(value = "product", required = false) String product) {
-        return ResponseEntity.ok(dashboardService.getVendorPaymentsChannelChart(product));
+    public ResponseEntity<List<Map<String, Object>>> getVendorPaymentsChannelChart(
+            @RequestParam(value = "product", required = false) String product,
+            @RequestParam(value = "month", required = false) String month) {
+        return ResponseEntity.ok(dashboardService.getVendorPaymentsChannelChart(product, month));
     }
 
     @GetMapping("/device-status-charts")
-    public ResponseEntity<Map<String, Object>> getDeviceStatusCharts(@RequestParam(value = "product", required = false) String product) {
-        return ResponseEntity.ok(dashboardService.getDeviceStatusCharts(product));
+    public ResponseEntity<Map<String, Object>> getDeviceStatusCharts(
+            @RequestParam(value = "product", required = false) String product,
+            @RequestParam(value = "month", required = false) String month) {
+        return ResponseEntity.ok(dashboardService.getDeviceStatusCharts(product, month));
     }
 
     @GetMapping("/dealer-current-month")
-    public ResponseEntity<List<Map<String, Object>>> getDealerCurrentMonthBusiness(@RequestParam(value = "product", required = false) String product) {
-        return ResponseEntity.ok(dashboardService.getDealerCurrentMonthBusiness(product));
+    public ResponseEntity<List<Map<String, Object>>> getDealerCurrentMonthBusiness(
+            @RequestParam(value = "product", required = false) String product,
+            @RequestParam(value = "month", required = false) String month) {
+        return ResponseEntity.ok(dashboardService.getDealerCurrentMonthBusiness(product, month));
     }
 
     @GetMapping("/dealer-portfolio")
-    public ResponseEntity<List<Map<String, Object>>> getDealerPortfolioBusiness(@RequestParam(value = "product", required = false) String product) {
-        return ResponseEntity.ok(dashboardService.getDealerPortfolioBusiness(product));
+    public ResponseEntity<List<Map<String, Object>>> getDealerPortfolioBusiness(
+            @RequestParam(value = "product", required = false) String product,
+            @RequestParam(value = "month", required = false) String month) {
+        return ResponseEntity.ok(dashboardService.getDealerPortfolioBusiness(product, month));
     }
 
     @GetMapping("/arrears-analysis")
-    public ResponseEntity<List<Map<String, Object>>> getArrearsAnalysis(@RequestParam(value = "product", required = false) String product) {
-        return ResponseEntity.ok(dashboardService.getArrearsAnalysis(product));
+    public ResponseEntity<List<Map<String, Object>>> getArrearsAnalysis(
+            @RequestParam(value = "product", required = false) String product,
+            @RequestParam(value = "month", required = false) String month) {
+        return ResponseEntity.ok(dashboardService.getArrearsAnalysis(product, month));
     }
 
 
@@ -76,8 +88,10 @@ public class DashboardController {
     }
 
     @GetMapping("/product-business-chart")
-    public ResponseEntity<List<Map<String, Object>>> getProductBusinessChart(@RequestParam(value = "product", required = false) String product) {
-        return ResponseEntity.ok(dashboardService.getProductBusinessChart(product));
+    public ResponseEntity<List<Map<String, Object>>> getProductBusinessChart(
+            @RequestParam(value = "product", required = false) String product,
+            @RequestParam(value = "month", required = false) String month) {
+        return ResponseEntity.ok(dashboardService.getProductBusinessChart(product, month));
     }
 
     @GetMapping("/mobile-lock-arrears")
@@ -86,18 +100,24 @@ public class DashboardController {
     }
 
     @GetMapping("/matured-nonperforming")
-    public ResponseEntity<List<Map<String, Object>>> getMaturedNonPerformingAnalysis(@RequestParam(value = "product", required = false) String product) {
-        return ResponseEntity.ok(dashboardService.getMaturedNonPerformingAnalysis(product));
+    public ResponseEntity<List<Map<String, Object>>> getMaturedNonPerformingAnalysis(
+            @RequestParam(value = "product", required = false) String product,
+            @RequestParam(value = "month", required = false) String month) {
+        return ResponseEntity.ok(dashboardService.getMaturedNonPerformingAnalysis(product, month));
     }
 
     @GetMapping("/outstanding-analysis")
-    public ResponseEntity<List<Map<String, Object>>> getOutstandingAnalysis(@RequestParam(value = "product", required = false) String product) {
-        return ResponseEntity.ok(dashboardService.getOutstandingAnalysis(product));
+    public ResponseEntity<List<Map<String, Object>>> getOutstandingAnalysis(
+            @RequestParam(value = "product", required = false) String product,
+            @RequestParam(value = "month", required = false) String month) {
+        return ResponseEntity.ok(dashboardService.getOutstandingAnalysis(product, month));
     }
 
     @GetMapping("/transaction-channel-chart")
-    public ResponseEntity<List<Map<String, Object>>> getTransactionChannelChart(@RequestParam(value = "product", required = false) String product) {
-        return ResponseEntity.ok(dashboardService.getTransactionChannelChartData(product));
+    public ResponseEntity<List<Map<String, Object>>> getTransactionChannelChart(
+            @RequestParam(value = "product", required = false) String product,
+            @RequestParam(value = "month", required = false) String month) {
+        return ResponseEntity.ok(dashboardService.getTransactionChannelChartData(product, month));
     }
 
     @GetMapping("/payments-status-chart")

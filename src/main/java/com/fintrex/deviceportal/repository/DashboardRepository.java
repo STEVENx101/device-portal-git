@@ -25,9 +25,48 @@ public class DashboardRepository {
         return "";
     }
 
+    private String getPortfolioDateSubquery(String month) {
+        if (month != null && month.matches("^\\d{4}-\\d{2}$")) {
+            return String.format("""
+                (SELECT COALESCE(
+                    (SELECT MAX(portfolio_date) FROM cbs.portfolio WHERE portfolio_date >= '%s-01' AND portfolio_date <= LAST_DAY('%s-01')),
+                    (SELECT MAX(portfolio_date) FROM cbs.portfolio WHERE portfolio_date <= LAST_DAY('%s-01')),
+                    (SELECT MAX(portfolio_date) FROM cbs.portfolio)
+                ))
+            """, month, month, month);
+        }
+        return "(SELECT MAX(portfolio_date) FROM cbs.portfolio)";
+    }
+
+    private String getMonthStartExpr(String month) {
+        if (month != null && month.matches("^\\d{4}-\\d{2}$")) {
+            return "'" + month + "-01'";
+        }
+        return "DATE_FORMAT(CURRENT_DATE(), '%Y-%m-01')";
+    }
+
+    private String getMonthEndExpr(String month) {
+        if (month != null && month.matches("^\\d{4}-\\d{2}$")) {
+            return "DATE_ADD('" + month + "-01', INTERVAL 1 MONTH)";
+        }
+        return "DATE_ADD(DATE_FORMAT(CURRENT_DATE(), '%Y-%m-01'), INTERVAL 1 MONTH)";
+    }
+
+    private String getMonthRefDate(String month) {
+        if (month != null && month.matches("^\\d{4}-\\d{2}$")) {
+            return "'" + month + "-01'";
+        }
+        return "CURRENT_DATE()";
+    }
+
     public Map<String, Object> getNStatusKpis(String product) {
+        return getNStatusKpis(product, null);
+    }
+
+    public Map<String, Object> getNStatusKpis(String product, String month) {
         Map<String, Object> stats = new HashMap<>();
         String filter = getProductFilterSql(product);
+        String portfolioSubquery = getPortfolioDateSubquery(month);
 
         // 1. Month stats query
         String sqlMonth = String.format("""
@@ -36,23 +75,24 @@ public class DashboardRepository {
                         COALESCE(SUM(l.loan_amount), 0) AS month_amount
                     FROM cbs.loan l
                     LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
-                    WHERE l.disbursed_date >= DATE_FORMAT(CURRENT_DATE(), '%%Y-%%m-01')
-                      AND l.disbursed_date < DATE_ADD(DATE_FORMAT(CURRENT_DATE(), '%%Y-%%m-01'), INTERVAL 1 MONTH)
+                    WHERE l.disbursed_date >= %s
+                      AND l.disbursed_date < %s
                       %s
-                """, filter);
+                """, getMonthStartExpr(month), getMonthEndExpr(month), filter);
         Map<String, Object> monthStats = jdbcTemplate.queryForMap(sqlMonth);
 
         // 2. YTD stats query
+        String refDate = getMonthRefDate(month);
         String sqlYtd = String.format("""
                     SELECT
                         COUNT(*) AS ytd_count,
                         COALESCE(SUM(l.loan_amount), 0) AS ytd_amount
                     FROM cbs.loan l
                     LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
-                    WHERE l.disbursed_date >= CASE WHEN MONTH(CURRENT_DATE()) >= 4 THEN DATE_FORMAT(CURRENT_DATE(), '%%Y-04-01') ELSE DATE_FORMAT(DATE_SUB(CURRENT_DATE(), INTERVAL 1 YEAR), '%%Y-04-01') END
-                      AND l.disbursed_date < CASE WHEN MONTH(CURRENT_DATE()) >= 4 THEN DATE_FORMAT(DATE_ADD(CURRENT_DATE(), INTERVAL 1 YEAR), '%%Y-04-01') ELSE DATE_FORMAT(CURRENT_DATE(), '%%Y-04-01') END
+                    WHERE l.disbursed_date >= CASE WHEN MONTH(%s) >= 4 THEN DATE_FORMAT(%s, '%%Y-04-01') ELSE DATE_FORMAT(DATE_SUB(%s, INTERVAL 1 YEAR), '%%Y-04-01') END
+                      AND l.disbursed_date < CASE WHEN MONTH(%s) >= 4 THEN DATE_FORMAT(DATE_ADD(%s, INTERVAL 1 YEAR), '%%Y-04-01') ELSE DATE_FORMAT(%s, '%%Y-04-01') END
                       %s
-                """, filter);
+                """, refDate, refDate, refDate, refDate, refDate, refDate, filter);
         Map<String, Object> ytdStats = jdbcTemplate.queryForMap(sqlYtd);
 
         // 3. Portfolio stats query
@@ -63,13 +103,10 @@ public class DashboardRepository {
                     FROM cbs.portfolio p
                     JOIN cbs.loan l ON l.account_no = p.account_no
                     LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
-                    WHERE p.portfolio_date = (
-                        SELECT MAX(portfolio_date)
-                        FROM cbs.portfolio
-                    )
+                    WHERE p.portfolio_date = %s
                       AND p.loan_status IN ('A', 'N')
                     %s
-                """, filter);
+                """, portfolioSubquery, filter);
         Map<String, Object> portfolioStats = jdbcTemplate.queryForMap(sqlPortfolio);
 
         // 4. NPL outstanding and count query where account_status = 'N'
@@ -81,14 +118,11 @@ public class DashboardRepository {
                     FROM cbs.portfolio p
                     JOIN cbs.loan l ON l.account_no = p.account_no
                     LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
-                    WHERE p.portfolio_date = (
-                            SELECT MAX(portfolio_date)
-                            FROM cbs.portfolio
-                    )
+                    WHERE p.portfolio_date = %s
                       AND p.performing_status = 'Non-Performing'
                       AND p.loan_status IN ('A', 'N')
                     %s
-                """, filter);
+                """, portfolioSubquery, filter);
         Map<String, Object> nplStats = jdbcTemplate.queryForMap(sqlNplStats);
 
         // 5. Security-wise Locked / Unlocked count query
@@ -97,10 +131,10 @@ public class DashboardRepository {
                         CASE
                             WHEN pr.product_code IN ('LF','laptop') THEN 'ABSOLUTE'
                             WHEN pr.product_code='MF'
-                                 AND ml.knox_compatibility='yes'
-                                 THEN 'KNOX'
+                                  AND ml.knox_compatibility='yes'
+                                  THEN 'KNOX'
                             WHEN pr.product_code='MF'
-                                 THEN 'DATACULTR'
+                                  THEN 'DATACULTR'
                             ELSE 'OTHER'
                         END AS security_type,
                         SUM(ml.locked=1) AS locked_count,
@@ -136,7 +170,7 @@ public class DashboardRepository {
                 """, filter);
         Map<String, Object> activeStats = jdbcTemplate.queryForMap(sqlActiveCount);
 
-        // 7. Arrears count and amount from latest portfolio
+        // 7. Arrears count and amount from target portfolio
         String sqlArrearsStats = String.format("""
                     SELECT
                         COUNT(DISTINCT p.account_no) AS arrears_count,
@@ -144,26 +178,25 @@ public class DashboardRepository {
                     FROM cbs.portfolio p
                     JOIN cbs.loan l ON l.account_no = p.account_no
                     LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
-                    WHERE p.portfolio_date = (
-                        SELECT MAX(portfolio_date) FROM cbs.portfolio
-                    )
+                    WHERE p.portfolio_date = %s
                       AND p.total_due > 0
                       AND p.loan_status IN ('A')
                       AND p.performing_status = 'Performing'
                     %s
-                """, filter);
+                """, portfolioSubquery, filter);
         Map<String, Object> arrearsStats = jdbcTemplate.queryForMap(sqlArrearsStats);
 
-        // 8. Settled loans count and amount during the current month
+        // 8. Settled loans count and amount during the selected month
         String sqlSettledStats = String.format("""
                     SELECT
                         COUNT(DISTINCT l.account_no) AS settled_count,
                         COALESCE(SUM(l.loan_amount), 0) AS settled_amount
                     FROM cbs.loan l
                     LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
-                    WHERE l.closed_date >= DATE_FORMAT(CURRENT_DATE(), '%%Y-%%m-01')
+                    WHERE l.closed_date >= %s
+                      AND l.closed_date < %s
                     %s
-                """, filter);
+                """, getMonthStartExpr(month), getMonthEndExpr(month), filter);
         Map<String, Object> settledStats = jdbcTemplate.queryForMap(sqlSettledStats);
 
         // 8a. Overall loans count and amount (Overall Business)
@@ -186,13 +219,11 @@ public class DashboardRepository {
                     FROM cbs.portfolio p
                     JOIN cbs.loan l ON l.account_no = p.account_no
                     LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
-                    WHERE p.portfolio_date = (
-                        SELECT MAX(portfolio_date) FROM cbs.portfolio
-                    )
+                    WHERE p.portfolio_date = %s
                     AND p.dpd BETWEEN 1 AND 90
                     AND p.performing_status = 'Performing'
                     %s
-                """, filter);
+                """, portfolioSubquery, filter);
         Map<String, Object> perfArrearsStats = jdbcTemplate.queryForMap(sqlPerfArrears);
 
         // 10. DPD 0 Portfolio (dpd = 0)
@@ -203,13 +234,11 @@ public class DashboardRepository {
                     FROM cbs.portfolio p
                     JOIN cbs.loan l ON l.account_no = p.account_no
                     LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
-                    WHERE p.portfolio_date = (
-                        SELECT MAX(portfolio_date) FROM cbs.portfolio
-                    )
+                    WHERE p.portfolio_date = %s
                       AND p.dpd = 0
                       AND p.loan_status IN ('A', 'N')
                     %s
-                """, filter);
+                """, portfolioSubquery, filter);
         Map<String, Object> dpdZeroPortfolioStats = jdbcTemplate.queryForMap(sqlDpdZeroPortfolio);
 
         stats.put("nMonthCount", monthStats.get("month_count") != null ? monthStats.get("month_count") : 0);
@@ -245,7 +274,11 @@ public class DashboardRepository {
     }
 
     public Map<String, Object> getDashboardStats(String product) {
-        return getNStatusKpis(product);
+        return getNStatusKpis(product, null);
+    }
+
+    public Map<String, Object> getDashboardStats(String product, String month) {
+        return getNStatusKpis(product, month);
     }
 
     public List<Map<String, Object>> getDpdChartData(String product, String dimension) {
@@ -371,7 +404,17 @@ public class DashboardRepository {
     }
 
     public List<Map<String, Object>> getVendorPaymentsChannelChart(String product) {
+        return getVendorPaymentsChannelChart(product, null);
+    }
+
+    public List<Map<String, Object>> getVendorPaymentsChannelChart(String product, String month) {
         String filter = getProductFilterSql(product);
+        String dateClause;
+        if (month != null && month.matches("^\\d{4}-\\d{2}$")) {
+            dateClause = String.format("l.disbursed_date >= '%s-01' AND l.disbursed_date <= LAST_DAY('%s-01')", month, month);
+        } else {
+            dateClause = "l.disbursed_date >= DATE_SUB(CURRENT_DATE(), INTERVAL 6 DAY) AND l.disbursed_date <= CURRENT_DATE()";
+        }
         String sql = String.format("""
                 SELECT
                     DATE_FORMAT(l.disbursed_date, '%%d %%b') AS channel_name,
@@ -379,27 +422,41 @@ public class DashboardRepository {
                     COALESCE(SUM(l.loan_amount), 0) AS total_amount
                 FROM cbs.loan l
                 LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
-                WHERE l.disbursed_date >= DATE_SUB(CURRENT_DATE(), INTERVAL 6 DAY)
-                  AND l.disbursed_date <= CURRENT_DATE()
+                WHERE %s
                   %s
                 GROUP BY DATE_FORMAT(l.disbursed_date, '%%d %%b'), DATE_FORMAT(l.disbursed_date, '%%Y-%%m-%%d')
                 ORDER BY db_date ASC
-                """, filter);
+                """, dateClause, filter);
         return jdbcTemplate.queryForList(sql);
     }
 
     public Map<String, Object> getDeviceStatusCharts(String product) {
+        return getDeviceStatusCharts(product, null);
+    }
+
+    public Map<String, Object> getDeviceStatusCharts(String product, String month) {
         Map<String, Object> result = new HashMap<>();
         String filter = getProductFilterSql(product);
 
-        // Fetch latest portfolio date dynamically
-        String sqlLatest = """
-                    SELECT portfolio_date
-                    FROM cbs.portfolio
-                    WHERE portfolio_date IS NOT NULL
-                    ORDER BY portfolio_date DESC
-                    LIMIT 1
-                """;
+        // Fetch latest portfolio date dynamically for month or overall
+        String sqlLatest;
+        if (month != null && month.matches("^\\d{4}-\\d{2}$")) {
+            sqlLatest = String.format("""
+                SELECT COALESCE(
+                    (SELECT portfolio_date FROM cbs.portfolio WHERE portfolio_date >= '%s-01' AND portfolio_date <= LAST_DAY('%s-01') ORDER BY portfolio_date DESC LIMIT 1),
+                    (SELECT portfolio_date FROM cbs.portfolio WHERE portfolio_date <= LAST_DAY('%s-01') ORDER BY portfolio_date DESC LIMIT 1),
+                    (SELECT portfolio_date FROM cbs.portfolio WHERE portfolio_date IS NOT NULL ORDER BY portfolio_date DESC LIMIT 1)
+                ) AS portfolio_date
+            """, month, month, month);
+        } else {
+            sqlLatest = """
+                SELECT portfolio_date
+                FROM cbs.portfolio
+                WHERE portfolio_date IS NOT NULL
+                ORDER BY portfolio_date DESC
+                LIMIT 1
+            """;
+        }
         Map<String, Object> latest = jdbcTemplate.queryForMap(sqlLatest);
         Object latestPortfolioDate = latest.get("portfolio_date");
 
@@ -563,6 +620,10 @@ public class DashboardRepository {
     }
 
     public List<Map<String, Object>> getDealerCurrentMonthBusiness(String product) {
+        return getDealerCurrentMonthBusiness(product, null);
+    }
+
+    public List<Map<String, Object>> getDealerCurrentMonthBusiness(String product, String month) {
         String filter = getProductFilterSql(product);
         String sql = String.format("""
                 SELECT
@@ -572,17 +633,22 @@ public class DashboardRepository {
                 FROM cbs.loan l
                 LEFT JOIN cbs.vendor v ON l.vendor = v.code
                 LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
-                WHERE l.disbursed_date >= DATE_FORMAT(CURRENT_DATE(), '%Y-%m-01')
-                  AND l.disbursed_date < DATE_ADD(DATE_FORMAT(CURRENT_DATE(), '%Y-%m-01'), INTERVAL 1 MONTH)
+                WHERE l.disbursed_date >= %s
+                  AND l.disbursed_date < %s
                   %s
                 GROUP BY dealer_name
                 ORDER BY total_amount DESC
-                """, filter);
+                """, getMonthStartExpr(month), getMonthEndExpr(month), filter);
         return jdbcTemplate.queryForList(sql);
     }
 
     public List<Map<String, Object>> getDealerPortfolioBusiness(String product) {
+        return getDealerPortfolioBusiness(product, null);
+    }
+
+    public List<Map<String, Object>> getDealerPortfolioBusiness(String product, String month) {
         String filter = getProductFilterSql(product);
+        String portfolioSubquery = getPortfolioDateSubquery(month);
         String sql = String.format("""
                 SELECT
                     COALESCE(v.name, 'Unknown Dealer') AS dealer_name,
@@ -592,18 +658,21 @@ public class DashboardRepository {
                 INNER JOIN cbs.loan l ON p.account_no = l.account_no AND p.series = l.account_series
                 LEFT JOIN cbs.vendor v ON l.vendor = v.code
                 LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
-                WHERE p.portfolio_date = (
-                    SELECT MAX(portfolio_date) FROM cbs.portfolio
-                )
+                WHERE p.portfolio_date = %s
                 %s
                 GROUP BY dealer_name
                 ORDER BY total_exposure DESC
-                """, filter);
+                """, portfolioSubquery, filter);
         return jdbcTemplate.queryForList(sql);
     }
 
     public List<Map<String, Object>> getArrearsAnalysis(String product) {
+        return getArrearsAnalysis(product, null);
+    }
+
+    public List<Map<String, Object>> getArrearsAnalysis(String product, String month) {
         String filter = getProductFilterSql(product);
+        String portfolioSubquery = getPortfolioDateSubquery(month);
         String sql = String.format("""
                 SELECT
                     CASE
@@ -619,17 +688,14 @@ public class DashboardRepository {
                 FROM cbs.portfolio p
                 JOIN cbs.loan l ON l.account_no = p.account_no
                 LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
-                WHERE p.portfolio_date = (
-                    SELECT MAX(portfolio_date) FROM cbs.portfolio
-                )
+                WHERE p.portfolio_date = %s
                 AND p.total_due > 0
                 %s
                 GROUP BY dpd_bucket
                 ORDER BY FIELD(dpd_bucket, 'Current', '1-30 DPD', '31-60 DPD', '61-90 DPD', '90+ DPD')
-                """, filter);
+                """, portfolioSubquery, filter);
         return jdbcTemplate.queryForList(sql);
     }
-
 
     public List<Map<String, Object>> getCollectionsDealerWise(String product) {
         return getCollectionsDealerWise(product, null, null);
@@ -667,6 +733,10 @@ public class DashboardRepository {
     }
 
     public List<Map<String, Object>> getProductBusinessChart(String product) {
+        return getProductBusinessChart(product, null);
+    }
+
+    public List<Map<String, Object>> getProductBusinessChart(String product, String month) {
         String filter = getProductFilterSql(product);
         String sql = String.format("""
                 SELECT
@@ -675,11 +745,12 @@ public class DashboardRepository {
                     COALESCE(SUM(l.loan_amount), 0) AS business_amount
                 FROM cbs.loan l
                 LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
-                WHERE l.disbursed_date >= DATE_FORMAT(CURRENT_DATE(), '%%Y-%%m-01')
+                WHERE l.disbursed_date >= %s
+                  AND l.disbursed_date < %s
                 %s
                 GROUP BY product_name
                 ORDER BY business_amount DESC
-                """, filter);
+                """, getMonthStartExpr(month), getMonthEndExpr(month), filter);
         return jdbcTemplate.queryForList(sql);
     }
 
@@ -727,13 +798,28 @@ public class DashboardRepository {
     }
 
     public List<Map<String, Object>> getMaturedNonPerformingAnalysis(String product) {
-        String sqlLatest = """
-                    SELECT portfolio_date
-                    FROM cbs.portfolio
-                    WHERE portfolio_date IS NOT NULL
-                    ORDER BY portfolio_date DESC
-                    LIMIT 1
-                """;
+        return getMaturedNonPerformingAnalysis(product, null);
+    }
+
+    public List<Map<String, Object>> getMaturedNonPerformingAnalysis(String product, String month) {
+        String sqlLatest;
+        if (month != null && month.matches("^\\d{4}-\\d{2}$")) {
+            sqlLatest = String.format("""
+                SELECT COALESCE(
+                    (SELECT portfolio_date FROM cbs.portfolio WHERE portfolio_date >= '%s-01' AND portfolio_date <= LAST_DAY('%s-01') ORDER BY portfolio_date DESC LIMIT 1),
+                    (SELECT portfolio_date FROM cbs.portfolio WHERE portfolio_date <= LAST_DAY('%s-01') ORDER BY portfolio_date DESC LIMIT 1),
+                    (SELECT portfolio_date FROM cbs.portfolio WHERE portfolio_date IS NOT NULL ORDER BY portfolio_date DESC LIMIT 1)
+                ) AS portfolio_date
+            """, month, month, month);
+        } else {
+            sqlLatest = """
+                SELECT portfolio_date
+                FROM cbs.portfolio
+                WHERE portfolio_date IS NOT NULL
+                ORDER BY portfolio_date DESC
+                LIMIT 1
+            """;
+        }
         Object latestPortfolioDate = null;
         try {
             Map<String, Object> latest = jdbcTemplate.queryForMap(sqlLatest);
@@ -745,7 +831,7 @@ public class DashboardRepository {
         String filter = getProductFilterSql(product);
         String sql = String.format("""
             SELECT
-                CASE WHEN l.maturity_date <= CURRENT_DATE() THEN 'Matured' ELSE 'Non-Matured' END AS maturity_status,
+                CASE WHEN l.maturity_date <= %s THEN 'Matured' ELSE 'Non-Matured' END AS maturity_status,
                 CASE WHEN COALESCE(p1.performing_status, 'Performing') = 'Non-Performing' THEN 'Non-Performing' ELSE 'Performing' END AS performing_status,
                 COUNT(DISTINCT l.account_no) AS contract_count
             FROM cbs.loan l
@@ -756,14 +842,19 @@ public class DashboardRepository {
             WHERE p1.loan_status IN ('A', 'N')
               %s
             GROUP BY 
-                CASE WHEN l.maturity_date <= CURRENT_DATE() THEN 'Matured' ELSE 'Non-Matured' END,
+                CASE WHEN l.maturity_date <= %s THEN 'Matured' ELSE 'Non-Matured' END,
                 CASE WHEN COALESCE(p1.performing_status, 'Performing') = 'Non-Performing' THEN 'Non-Performing' ELSE 'Performing' END
-        """, filter);
+        """, getMonthRefDate(month), filter, getMonthRefDate(month));
         return jdbcTemplate.queryForList(sql, latestPortfolioDate);
     }
 
     public List<Map<String, Object>> getOutstandingAnalysis(String product) {
+        return getOutstandingAnalysis(product, null);
+    }
+
+    public List<Map<String, Object>> getOutstandingAnalysis(String product, String month) {
         String filter = getProductFilterSql(product);
+        String portfolioSubquery = getPortfolioDateSubquery(month);
         String sql = String.format("""
             SELECT
                 CASE WHEN COALESCE(p.exposure, 0) > 1000 THEN 'Above 1000' ELSE 'Below 1000' END AS outstanding_bucket,
@@ -772,10 +863,10 @@ public class DashboardRepository {
             FROM cbs.portfolio p
             JOIN cbs.loan l ON l.account_no = p.account_no
             LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
-            WHERE p.portfolio_date = (SELECT MAX(portfolio_date) FROM cbs.portfolio)
+            WHERE p.portfolio_date = %s
               %s
             GROUP BY outstanding_bucket
-        """, filter);
+        """, portfolioSubquery, filter);
         return jdbcTemplate.queryForList(sql);
     }
 
@@ -808,11 +899,22 @@ public class DashboardRepository {
     }
 
     public List<Map<String, Object>> getTransactionChannelChartData(String product) {
+        return getTransactionChannelChartData(product, null);
+    }
+
+    public List<Map<String, Object>> getTransactionChannelChartData(String product, String month) {
         String productFilter = "";
         if ("MF".equalsIgnoreCase(product)) {
             productFilter = "AND EXISTS (SELECT 1 FROM cbs.loan l LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val WHERE t.account_no = l.account_no AND pr.product_code = 'MF')";
         } else if ("LF".equalsIgnoreCase(product)) {
             productFilter = "AND EXISTS (SELECT 1 FROM cbs.loan l LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val WHERE t.account_no = l.account_no AND pr.product_code IN ('LF', 'laptop'))";
+        }
+
+        String dateFilter;
+        if (month != null && month.matches("^\\d{4}-\\d{2}$")) {
+            dateFilter = String.format("t.date >= '%s-01' AND t.date < DATE_ADD('%s-01', INTERVAL 1 MONTH)", month, month);
+        } else {
+            dateFilter = "t.date >= DATE_FORMAT(CURRENT_DATE(), '%%Y-%%m-01')";
         }
 
         String sql = String.format("""
@@ -821,10 +923,10 @@ public class DashboardRepository {
                     COUNT(*) AS tx_count,
                     COALESCE(SUM(t.amount), 0) AS total_amount
                 FROM cbs.transaction t
-                WHERE 1=1 %s AND t.date >= DATE_FORMAT(CURRENT_DATE(), '%%Y-%%m-01')
+                WHERE %s %s
                 GROUP BY COALESCE(t.channel, 'OTHER')
                 ORDER BY tx_count DESC
-                """, productFilter);
+                """, dateFilter, productFilter);
         return jdbcTemplate.queryForList(sql);
     }
 }
