@@ -486,9 +486,9 @@
                                                     id="transactionChannelTable" style="font-size: 0.72rem;">
                                                     <thead class="bg-200">
                                                         <tr>
-                                                            <th class="text-nowrap">Channel</th>
-                                                            <th class="text-end text-nowrap">Payments</th>
-                                                            <th class="text-end text-nowrap">Amount</th>
+                                                            <th style="white-space: nowrap !important;">Channel</th>
+                                                            <th class="text-end" style="white-space: nowrap !important;">Payments</th>
+                                                            <th class="text-end" style="white-space: nowrap !important;">Amount</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody id="transactionChannelTableBody">
@@ -1177,9 +1177,9 @@
                             data.forEach(item => {
                                 const formattedAmt = item.total_amount !== null ? parseFloat(item.total_amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00';
                                 html += '<tr>' +
-                                    '<td class="text-nowrap" style="max-width: 120px; overflow: hidden; text-overflow: ellipsis;" title="' + (item.channel_name || 'N/A') + '">' + (item.channel_name || 'N/A') + '</td>' +
-                                    '<td class="text-end text-nowrap">' + (item.tx_count || 0) + '</td>' +
-                                    '<td class="text-end fw-semi-bold text-nowrap">' + formattedAmt + '</td>' +
+                                    '<td style="white-space: nowrap !important; word-break: normal !important;" title="' + (item.channel_name || 'N/A') + '">' + (item.channel_name || 'N/A') + '</td>' +
+                                    '<td class="text-end" style="white-space: nowrap !important;">' + (item.tx_count || 0) + '</td>' +
+                                    '<td class="text-end fw-semi-bold" style="white-space: nowrap !important;">' + formattedAmt + '</td>' +
                                     '</tr>';
                             });
                             tbody.innerHTML = html || '<tr><td colspan="3" class="text-center text-muted">No transactions</td></tr>';
