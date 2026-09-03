@@ -23,6 +23,7 @@
     boolean hasOneRentalReport = false;
     boolean hasSettledReport = false;
     boolean hasMaturedLowBalanceReport = false;
+    boolean hasLowBalanceReport = false;
     boolean hasMultiplePaymentsReport = false;
     boolean hasDpdBucketReport = false;
     boolean hasVendorPaymentsReport = false;
@@ -51,6 +52,7 @@
             if (s.getPath().equalsIgnoreCase("/one-rental-report")) hasOneRentalReport = true;
             if (s.getPath().equalsIgnoreCase("/settled-report")) hasSettledReport = true;
             if (s.getPath().equalsIgnoreCase("/matured-low-balance-report")) hasMaturedLowBalanceReport = true;
+            if (s.getPath().equalsIgnoreCase("/low-balance-report")) hasLowBalanceReport = true;
             if (s.getPath().equalsIgnoreCase("/multiple-payments-report")) hasMultiplePaymentsReport = true;
             if (s.getPath().equalsIgnoreCase("/dpd-bucket-report")) hasDpdBucketReport = true;
             if (s.getPath().equalsIgnoreCase("/vendor-payments")) hasVendorPaymentsReport = true;
@@ -60,7 +62,6 @@
             if (s.getPath().equalsIgnoreCase("/payments/approve")) hasBulkApprove = true;
         }
     }
-    if (!hasVendorPaymentsExceptionReport && (hasDuplicateLoansReport || hasMaturedLowBalanceReport)) hasVendorPaymentsExceptionReport = true;
     User navbarUser = (User) session.getAttribute("currentUser");
     String navUserName = (navbarUser != null) ? navbarUser.getFullName() : "Guest User";
     String navUserRole = (navbarUser != null) ? navbarUser.getUserTypeName() : "Visitor";
@@ -1238,7 +1239,7 @@ html.dark .dataTables_wrapper .dataTables_processing::after {
                 </a>
             <% } %>
             
-            <% if (hasPortfolio || hasClientReport || hasTransactionReport || hasAgreementReport || hasReportLogs || hasArrearsReport || hasNpaReport || hasNearingNpaReport || hasDuplicateLoansReport || hasUnlockArrearsReport || hasLockNoArrearsReport || hasOneRentalReport || hasSettledReport || hasMaturedLowBalanceReport || hasMultiplePaymentsReport || hasDpdBucketReport || hasVendorPaymentsReport || hasVendorPaymentsExceptionReport || hasUserManagement || hasAccessLogs || hasPermissionLogs) { %>
+            <% if (hasPortfolio || hasClientReport || hasTransactionReport || hasAgreementReport || hasReportLogs || hasArrearsReport || hasNpaReport || hasNearingNpaReport || hasDuplicateLoansReport || hasUnlockArrearsReport || hasLockNoArrearsReport || hasOneRentalReport || hasSettledReport || hasMaturedLowBalanceReport || hasLowBalanceReport || hasMultiplePaymentsReport || hasDpdBucketReport || hasVendorPaymentsReport || hasVendorPaymentsExceptionReport || hasUserManagement || hasAccessLogs || hasPermissionLogs) { %>
                 <div class="nav-item-dropdown-custom" id="nav-reports-group">
                     <a class="nav-item-link dropdown-trigger" href="javascript:void(0)" id="nav-reports-trigger">
                         <span class="fas fa-file-invoice-dollar"></span>
@@ -1344,6 +1345,11 @@ html.dark .dataTables_wrapper .dataTables_processing::after {
                                 <% if (hasMaturedLowBalanceReport) { %>
                                 <a href="<%= request.getContextPath() %>/matured-low-balance-report" class="dropdown-item-custom" id="nav-report-matured-low-balance">
                                     Matured Low Balance
+                                </a>
+                                <% } %>
+                                <% if (hasLowBalanceReport) { %>
+                                <a href="<%= request.getContextPath() %>/low-balance-report" class="dropdown-item-custom" id="nav-report-low-balance">
+                                    Low Balance Report
                                 </a>
                                 <% } %>
                                 <% if (hasMultiplePaymentsReport) { %>
@@ -1554,6 +1560,11 @@ html.dark .dataTables_wrapper .dataTables_processing::after {
                 if (sub) sub.classList.add("open");
             } else if (path.includes("matured-low-balance-report")) {
                 const item = document.getElementById("nav-report-matured-low-balance");
+                if (item) item.classList.add("active");
+                const sub = document.getElementById("submenu-exception");
+                if (sub) sub.classList.add("open");
+            } else if (path.includes("low-balance-report")) {
+                const item = document.getElementById("nav-report-low-balance");
                 if (item) item.classList.add("active");
                 const sub = document.getElementById("submenu-exception");
                 if (sub) sub.classList.add("open");
