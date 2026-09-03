@@ -429,13 +429,12 @@
                                     </div>
                                 </div>
 
-                                <!-- Middle: Daily Disbursements (Past 7 Days) (1/3 width) -->
+                                <!-- Middle: Daily Disbursements (Past 7 Days / Selected Month) (1/3 width) -->
                                 <div class="col-lg-4 col-12">
                                     <div class="card shadow-sm h-100">
                                         <div class="card-body p-2">
-                                            <div class="fs--2 fw-semi-bold text-muted mb-2"><i
-                                                    class="fas fa-money-check-alt me-1"></i>Daily Disbursements (Past 7
-                                                Days)</div>
+                                            <div class="fs--2 fw-semi-bold text-muted mb-1 text-truncate" id="dailyDisbursementsTitle"><i
+                                                    class="fas fa-money-check-alt me-1"></i><span id="dailyDisbursementsTitleText">Daily Disbursements (Past 7 Days)</span></div>
                                             <div style="height: 155px; position: relative; width: 100%;">
                                                 <canvas id="vendorPaymentsChart"></canvas>
                                             </div>
@@ -762,6 +761,90 @@
                     });
                 }
 
+                function buildDailyDisbursementsChart(chartData) {
+                    destroyChart('vendorPaymentsChart');
+                    const ctx = document.getElementById('vendorPaymentsChart').getContext('2d');
+                    const isDark = document.documentElement.classList.contains('dark');
+
+                    const labels = chartData.map(i => i.channel_name || i.db_date);
+                    const amounts = chartData.map(i => i.total_amount || 0);
+                    const count = chartData.length;
+
+                    const titleTextEl = document.getElementById('dailyDisbursementsTitleText');
+                    if (titleTextEl) {
+                        if (selectedMonth && selectedMonth.includes('-')) {
+                            const parts = selectedMonth.split('-');
+                            const dateObj = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, 1);
+                            const monthStr = dateObj.toLocaleString('en-US', { month: 'short', year: 'numeric' });
+                            titleTextEl.innerText = 'Daily Disbursements (' + monthStr + ')';
+                        } else {
+                            titleTextEl.innerText = 'Daily Disbursements (Past 7 Days)';
+                        }
+                    }
+
+                    const millionsData = amounts.map(val => Math.round((val / 1000000) * 100) / 100);
+
+                    activeCharts['vendorPaymentsChart'] = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Disbursement (Mn)',
+                                data: millionsData,
+                                backgroundColor: 'rgba(16, 185, 129, 0.85)',
+                                hoverBackgroundColor: 'rgba(16, 185, 129, 1)',
+                                borderRadius: 4,
+                                barThickness: count > 15 ? 'flex' : 14,
+                                maxBarThickness: 18
+                            }]
+                        },
+                        options: {
+                            indexAxis: 'x',
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            layout: {
+                                padding: { top: count > 12 ? 5 : 15, bottom: 0, left: 0, right: 0 }
+                            },
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: {
+                                    enabled: true,
+                                    callbacks: {
+                                        label: function (context) {
+                                            const rawVal = amounts[context.dataIndex] || 0;
+                                            return 'Amount: ' + formatLKR(rawVal);
+                                        }
+                                    }
+                                },
+                                datalabels: {
+                                    display: count <= 12,
+                                    anchor: 'end',
+                                    align: 'top',
+                                    color: isDark ? '#cbd5e1' : '#1e293b',
+                                    font: { weight: 'bold', size: 8 },
+                                    formatter: (val) => val > 0 ? val + 'M' : ''
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    grid: { display: false },
+                                    ticks: {
+                                        color: isDark ? '#94a3b8' : '#475569',
+                                        font: { size: count > 20 ? 7 : 8, weight: '600' },
+                                        maxRotation: count > 15 ? 45 : 0,
+                                        autoSkip: count > 20
+                                    }
+                                },
+                                y: {
+                                    display: false,
+                                    grid: { display: false },
+                                    beginAtZero: true
+                                }
+                            }
+                        }
+                    });
+                }
+
                 function onProductChange() {
                     selectedProduct = document.getElementById('productFilterSelect').value;
                     loadDashboardData();
@@ -1079,16 +1162,7 @@
                     fetch('${pageContext.request.contextPath}/api/dashboard/vendor-payments-chart' + singleMonthParam)
                         .then(res => res.json())
                         .then(data => {
-                            let chartData = data;
-                            buildHorizontalBar(
-                                'vendorPaymentsChart',
-                                chartData.map(i => i.channel_name),
-                                chartData.map(i => i.total_amount || 0),
-                                'rgba(16, 185, 129, 0.15)',
-                                'rgba(16, 185, 129, 0.85)',
-                                '#10b981',
-                                false
-                            );
+                            buildDailyDisbursementsChart(data || []);
                         })
                         .catch(err => console.error("Error loading daily disbursements chart:", err));
 
