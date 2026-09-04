@@ -22,6 +22,9 @@ public class SecurityInterceptor implements HandlerInterceptor {
     private static final Map<String, String> API_SCREEN_MAP = new HashMap<>();
 
     static {
+        API_SCREEN_MAP.put("/user-management/api", "/user-management");
+        API_SCREEN_MAP.put("/api/contracts", "/mobile");
+        API_SCREEN_MAP.put("/api/dashboard", "/dashboard");
         API_SCREEN_MAP.put("/api/cbs/report1", "/portfolio");
         API_SCREEN_MAP.put("/api/cbs/report2", "/client");
         API_SCREEN_MAP.put("/api/cbs/report3", "/transaction");
@@ -38,13 +41,14 @@ public class SecurityInterceptor implements HandlerInterceptor {
         API_SCREEN_MAP.put("/api/cbs/low-balance", "/low-balance-report");
         API_SCREEN_MAP.put("/api/cbs/multiple-payments-report", "/multiple-payments-report");
         API_SCREEN_MAP.put("/api/cbs/dpd-bucket", "/dpd-bucket-report");
-        API_SCREEN_MAP.put("/api/cbs/vendor-payments", "/vendor-payments");
         API_SCREEN_MAP.put("/api/cbs/vendor-payments-exception", "/vendor-payments-exception");
+        API_SCREEN_MAP.put("/api/cbs/vendor-payments", "/vendor-payments");
         API_SCREEN_MAP.put("/api/cbs/report-logs", "/report-logs");
         API_SCREEN_MAP.put("/api/cbs/access-logs", "/access-logs");
         API_SCREEN_MAP.put("/api/cbs/permission-logs", "/permission-logs");
         API_SCREEN_MAP.put("/api/payments/upload", "/payments/upload");
         API_SCREEN_MAP.put("/api/payments/approve", "/payments/approve");
+        API_SCREEN_MAP.put("/api/payments", "/payments/upload");
     }
 
     public SecurityInterceptor(UserService userService) {
@@ -84,7 +88,7 @@ public class SecurityInterceptor implements HandlerInterceptor {
         User currentUser = (session != null) ? (User) session.getAttribute("currentUser") : null;
 
         if (currentUser == null) {
-            if (path.startsWith("/api/")) {
+            if (path.contains("/api/")) {
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Session expired or unauthorized");
             } else {
                 response.sendRedirect(contextPath + "/login");
@@ -99,7 +103,7 @@ public class SecurityInterceptor implements HandlerInterceptor {
         }
 
         // Handle API endpoints permission validation
-        if (path.startsWith("/api/")) {
+        if (path.contains("/api/")) {
             return checkApiPermission(path, permittedScreens, currentUser, request, response);
         }
 
