@@ -119,6 +119,11 @@ public class PageController {
         return "matured-low-balance-report";
     }
 
+    @GetMapping("/low-balance-report")
+    public String lowBalanceReport() {
+        return "low-balance-report";
+    }
+
     @GetMapping("/multiple-payments-report")
     public String multiplePaymentsReport() {
         return "multiple-payments-report";

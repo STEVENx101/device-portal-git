@@ -527,6 +527,42 @@ public class CbsReportController {
         writeMaturedLowBalanceCsv(response, "matured_low_balance_report.csv", data);
     }
 
+    @PostMapping("/low-balance")
+    public DataTableResponse getLowBalance(@RequestBody DataTableRequest request, HttpSession session) {
+        com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");
+        String username = currentUser != null ? currentUser.getUsername() : "system";
+        String filtersStr = request.getData() != null ? request.getData().toString() : "none";
+        cbsReportService.logReportActivity(username, "Low Balance Exception Report", "VIEW", filtersStr);
+        return cbsReportService.fetchLowBalanceReport(request);
+    }
+
+    @GetMapping("/low-balance/download")
+    public void downloadLowBalance(
+            @RequestParam(value = "asAt", required = false) String asAt,
+            @RequestParam(value = "lowAmount", required = false) Double lowAmount,
+            @RequestParam(value = "maturityStatus", required = false) String maturityStatus,
+            @RequestParam(value = "products", required = false) List<String> products,
+            @RequestParam(value = "downloadToken", required = false) String downloadToken,
+            HttpSession session,
+            HttpServletResponse response) throws Exception {
+        verifyDownloadPermission(session, response);
+        com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");
+        String username = currentUser != null ? currentUser.getUsername() : "system";
+        String filtersStr = String.format("asAt=%s, lowAmount=%s, maturityStatus=%s, products=%s", asAt, lowAmount, maturityStatus, products);
+        cbsReportService.logReportActivity(username, "Low Balance Exception Report", "DOWNLOAD", filtersStr);
+
+        setDownloadTokenCookie(response, downloadToken);
+        List<Map<String, Object>> data = cbsReportService.getLowBalanceReportData(asAt, lowAmount, maturityStatus, products);
+        writeLowBalanceCsv(response, "low_balance_report.csv", data);
+    }
+
+    private void writeLowBalanceCsv(HttpServletResponse response, String filename, List<Map<String, Object>> data) throws Exception {
+        String xlsxFilename = filename.replace(".csv", ".xlsx");
+        String[] headers = {"Account No","Series","Legacy Account No","NIC/ID No","Mobile No","Mature Date","Loan Amount","Rental","Total Due","Exposure","DPD","Account Status","Locked Status","Recovery Officer","Customer Name"};
+        String[] keys = {"account_no","series","legacy_account_no","client_nic","client_mobile","mature_date","loan_amount","rental","total_due","exposure","dpd","account_status","lock_status","recovery_officer","client_name"};
+        writeExcel(response, xlsxFilename, headers, keys, data);
+    }
+
     private void writeExceptionLockCsv(HttpServletResponse response, String filename, List<Map<String, Object>> data) throws Exception {
         String xlsxFilename = filename.replace(".csv", ".xlsx");
         String[] headers = {"Account No","Series","Legacy Account No","NIC/ID No","Mobile No","Address","Loan Amount","Rental","Total Due","Exposure","DPD","Locked Status","Recovery Officer","Customer Name"};
