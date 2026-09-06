@@ -411,7 +411,7 @@ public class DashboardRepository {
         String filter = getProductFilterSql(product);
         String dateClause;
         if (month != null && month.matches("^\\d{4}-\\d{2}$")) {
-            dateClause = String.format("l.disbursed_date >= DATE_SUB(LAST_DAY('%s-01'), INTERVAL 6 DAY) AND l.disbursed_date <= LAST_DAY('%s-01')", month, month);
+            dateClause = String.format("l.disbursed_date >= GREATEST('%s-01', DATE_SUB(LEAST(LAST_DAY('%s-01'), CURRENT_DATE()), INTERVAL 6 DAY)) AND l.disbursed_date <= LEAST(LAST_DAY('%s-01'), CURRENT_DATE())", month, month, month);
         } else {
             dateClause = "l.disbursed_date >= DATE_SUB(CURRENT_DATE(), INTERVAL 6 DAY) AND l.disbursed_date <= CURRENT_DATE()";
         }

@@ -38,6 +38,7 @@ public class SecurityInterceptor implements HandlerInterceptor {
         API_SCREEN_MAP.put("/api/cbs/one-rental", "/one-rental-report");
         API_SCREEN_MAP.put("/api/cbs/settled-report", "/settled-report");
         API_SCREEN_MAP.put("/api/cbs/matured-low-balance", "/matured-low-balance-report");
+        API_SCREEN_MAP.put("/api/cbs/early-settled", "/early-settled-report");
         API_SCREEN_MAP.put("/api/cbs/low-balance", "/low-balance-report");
         API_SCREEN_MAP.put("/api/cbs/multiple-payments-report", "/multiple-payments-report");
         API_SCREEN_MAP.put("/api/cbs/dpd-bucket", "/dpd-bucket-report");

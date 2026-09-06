@@ -527,6 +527,33 @@ public class CbsReportController {
         writeMaturedLowBalanceCsv(response, "matured_low_balance_report.csv", data);
     }
 
+    @PostMapping("/early-settled")
+    public DataTableResponse getEarlySettled(@RequestBody DataTableRequest request, HttpSession session) {
+        com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");
+        String username = currentUser != null ? currentUser.getUsername() : "system";
+        String filtersStr = request.getData() != null ? request.getData().toString() : "none";
+        cbsReportService.logReportActivity(username, "Early Settled Exception Report", "VIEW", filtersStr);
+        return cbsReportService.fetchEarlySettledReport(request);
+    }
+
+    @GetMapping("/early-settled/download")
+    public void downloadEarlySettled(
+            @RequestParam(value = "asAt", required = false) String asAt,
+            @RequestParam(value = "products", required = false) List<String> products,
+            @RequestParam(value = "downloadToken", required = false) String downloadToken,
+            HttpSession session,
+            HttpServletResponse response) throws Exception {
+        verifyDownloadPermission(session, response);
+        com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");
+        String username = currentUser != null ? currentUser.getUsername() : "system";
+        String filtersStr = String.format("asAt=%s, products=%s", asAt, products);
+        cbsReportService.logReportActivity(username, "Early Settled Exception Report", "DOWNLOAD", filtersStr);
+
+        setDownloadTokenCookie(response, downloadToken);
+        List<Map<String, Object>> data = cbsReportService.getEarlySettledReportData(asAt, products);
+        writeEarlySettledCsv(response, "early_settled_report.csv", data);
+    }
+
     @PostMapping("/low-balance")
     public DataTableResponse getLowBalance(@RequestBody DataTableRequest request, HttpSession session) {
         com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");
@@ -574,6 +601,13 @@ public class CbsReportController {
         String xlsxFilename = filename.replace(".csv", ".xlsx");
         String[] headers = {"Account No","Series","Legacy Account No","NIC/ID No","Mobile No","Mature Date","Loan Amount","Rental","Total Due","Exposure","DPD","Account Status","Locked Status","Recovery Officer","Customer Name"};
         String[] keys = {"account_no","series","legacy_account_no","client_nic","client_mobile","mature_date","loan_amount","rental","total_due","exposure","dpd","account_status","lock_status","recovery_officer","client_name"};
+        writeExcel(response, xlsxFilename, headers, keys, data);
+    }
+
+    private void writeEarlySettledCsv(HttpServletResponse response, String filename, List<Map<String, Object>> data) throws Exception {
+        String xlsxFilename = filename.replace(".csv", ".xlsx");
+        String[] headers = {"Account No","Series","Legacy Account No","NIC/ID No","Mobile No","Early Settlement Amount","Loan Amount","Rental","Total Due","Exposure","DPD","Account Status","Locked Status","Recovery Officer","Customer Name"};
+        String[] keys = {"account_no","series","legacy_account_no","client_nic","client_mobile","early_settlement","loan_amount","rental","total_due","exposure","dpd","account_status","lock_status","recovery_officer","client_name"};
         writeExcel(response, xlsxFilename, headers, keys, data);
     }
 

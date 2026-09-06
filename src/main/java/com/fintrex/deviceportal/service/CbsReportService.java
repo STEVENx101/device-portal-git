@@ -941,6 +941,13 @@ public class CbsReportService {
                         WHERE NOT EXISTS (SELECT 1 FROM device_portal.screen WHERE path = '/matured-low-balance-report')
                     """);
 
+            // Early Settled Report
+            jdbc.getJdbcTemplate().execute("""
+                        INSERT INTO device_portal.screen (name, path, icon, group_name)
+                        SELECT 'Early Settled Report', '/early-settled-report', 'fas fa-money-check-alt', 'Reports'
+                        WHERE NOT EXISTS (SELECT 1 FROM device_portal.screen WHERE path = '/early-settled-report')
+                    """);
+
             // Low Balance Report
             jdbc.getJdbcTemplate().execute("""
                         INSERT INTO device_portal.screen (name, path, icon, group_name)
@@ -1611,6 +1618,21 @@ public class CbsReportService {
         return executeDownloadReport(sql, params);
     }
 
+    public DataTableResponse fetchEarlySettledReport(DataTableRequest request) {
+        Map<String, Object> params = new HashMap<>();
+        String sql = buildEarlySettledReportQuery(request.getData(), params);
+        return executePagedReport(request, sql, params);
+    }
+
+    public List<Map<String, Object>> getEarlySettledReportData(String asAt, List<String> products) {
+        Map<String, Object> filterMap = new HashMap<>();
+        filterMap.put("asAt", asAt);
+        filterMap.put("products", products);
+        Map<String, Object> params = new HashMap<>();
+        String sql = buildEarlySettledReportQuery(filterMap, params);
+        return executeDownloadReport(sql, params);
+    }
+
     public DataTableResponse fetchLowBalanceReport(DataTableRequest request) {
         Map<String, Object> params = new HashMap<>();
         String sql = buildLowBalanceReportQuery(request.getData(), params);
@@ -1852,6 +1874,85 @@ public class CbsReportService {
                     t.client_nic,
                     t.client_mobile,
                     t.mature_date,
+                    t.loan_amount,
+                    t.rental,
+                    t.total_due,
+                    t.exposure,
+                    t.dpd,
+                    CASE
+                        WHEN t.account_status = 'A' THEN 'Active Loan'
+                        WHEN t.account_status = 'F' THEN 'Fully Paid'
+                        WHEN t.account_status = 'N' THEN 'NPA (DPD over 90 days)'
+                        WHEN t.account_status = 'P' THEN 'Paid Off'
+                        ELSE t.account_status
+                    END AS `account_status`,
+                    t.lock_status,
+                    t.recovery_officer
+                FROM (""" + subQuery + ") t WHERE TRUE";
+    }
+
+    private String buildEarlySettledReportQuery(Object rawFilter, Map<String, Object> params) {
+        addLatestPortfolioParams(params);
+
+        String subQuery = """
+                SELECT
+                    l.account_no,
+                    l.account_series AS `series`,
+                    l.legacy_account_no,
+                    c.full_name AS `client_name`,
+                    c.id_no AS `client_nic`,
+                    c.mobile AS `client_mobile`,
+                    p1.early_settlement AS `early_settlement`,
+                    l.loan_amount,
+                    l.rental,
+                    p1.total_due AS `total_due`,
+                    p1.exposure AS `exposure`,
+                    p1.dpd AS `dpd`,
+                    p1.loan_status AS `account_status`,
+                    CASE
+                        WHEN COALESCE(lm1.locked, lm2.locked) = 1 THEN 'Locked'
+                        ELSE 'Unlocked'
+                    END AS `lock_status`,
+                    p1.recovery_officer AS `recovery_officer`
+                FROM cbs.loan l
+                JOIN cbs.portfolio p1
+                    ON p1.account_no = l.account_no
+                    AND p1.series = l.account_series
+                    AND p1.portfolio_date = :latestPortfolioDate
+                LEFT JOIN cbs.client c ON l.client = c.client_code
+                LEFT JOIN loan.mobileloan lm1 ON lm1.finance_no = l.account_no
+                LEFT JOIN loan.mobileloan lm2 ON lm2.finance_no = l.legacy_account_no
+                LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
+                WHERE 1=1
+                  AND p1.early_settlement > 0""";
+
+        if (rawFilter instanceof Map) {
+            Map<?, ?> filter = (Map<?, ?>) rawFilter;
+            String asAt = (String) filter.get("asAt");
+            if (asAt != null && !asAt.trim().isEmpty()) {
+                subQuery += " AND l.disbursed_date < DATE_ADD(:asAt, INTERVAL 1 DAY)";
+                params.put("asAt", asAt.trim());
+            }
+
+            Object productsObj = filter.get("products");
+            if (productsObj instanceof List) {
+                List<?> products = (List<?>) productsObj;
+                if (!products.isEmpty()) {
+                    subQuery += " AND pr.product_code IN (:products)";
+                    params.put("products", products);
+                }
+            }
+        }
+
+        return """
+                SELECT
+                    t.account_no,
+                    t.series,
+                    t.legacy_account_no,
+                    t.client_name,
+                    t.client_nic,
+                    t.client_mobile,
+                    t.early_settlement,
                     t.loan_amount,
                     t.rental,
                     t.total_due,

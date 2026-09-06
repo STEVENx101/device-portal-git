@@ -249,7 +249,14 @@
                 </script>
                 <%@include file="../jspf/navbar.jspf" %>
 
-                    <div class="content dashboard-content">
+                    <div class="content dashboard-content" style="position: relative;">
+                        <!-- Dashboard Loading Overlay -->
+                        <div id="dashboardLoader" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.75); z-index: 9999; align-items: center; justify-content: center; flex-direction: column; border-radius: 8px;">
+                            <div class="spinner-border text-primary mb-2" role="status" style="width: 2.5rem; height: 2.5rem;">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <div class="fw-bold text-primary fs--1">Updating dashboard data for selected month...</div>
+                        </div>
                         <%@include file="../jspf/topbar.jspf" %>
 
                             <!-- Header Area -->
@@ -878,371 +885,102 @@
                 }
 
                 function loadDashboardData() {
+                    const loader = document.getElementById('dashboardLoader');
+                    if (loader) loader.style.display = 'flex';
+
                     const productParam = selectedProduct ? '?product=' + encodeURIComponent(selectedProduct) : '';
                     const singleMonthParam = getSingleMonthQueryParams();
 
+                    const promises = [];
+
                     // ============ 1. Dashboard Stats (KPI Cards) ============
-                    fetch('${pageContext.request.contextPath}/api/dashboard/stats' + singleMonthParam)
-                        .then(response => {
-                            if (!response.ok) throw new Error("HTTP error " + response.status);
-                            return response.json();
-                        })
-                        .then(data => {
-                            // Primary KPIs
-                            document.getElementById("kpi-month-count").innerText = formatNum(data.nMonthCount || 0) + " Accounts";
-                            document.getElementById("kpi-month-amount").innerText = formatLKR(data.nMonthAmount || 0);
+                    promises.push(
+                        fetch('${pageContext.request.contextPath}/api/dashboard/stats' + singleMonthParam)
+                            .then(response => {
+                                if (!response.ok) throw new Error("HTTP error " + response.status);
+                                return response.json();
+                            })
+                            .then(data => {
+                                // Primary KPIs
+                                document.getElementById("kpi-month-count").innerText = formatNum(data.nMonthCount || 0) + " Accounts";
+                                document.getElementById("kpi-month-amount").innerText = formatLKR(data.nMonthAmount || 0);
 
-                            document.getElementById("kpi-portfolio-amount").innerText = formatLKR(data.nPortfolioAmount || 0);
-                            document.getElementById("kpi-portfolio-count").innerText = formatNum(data.nPortfolioCount || 0) + " Accounts";
+                                document.getElementById("kpi-portfolio-amount").innerText = formatLKR(data.nPortfolioAmount || 0);
+                                document.getElementById("kpi-portfolio-count").innerText = formatNum(data.nPortfolioCount || 0) + " Accounts";
 
-                            document.getElementById("kpi-npl-exposure").innerText = formatLKR(data.nNplExposure || 0);
-                            document.getElementById("kpi-npl-count").innerText = formatNum(data.nNplCount || 0) + " Accounts";
+                                document.getElementById("kpi-npl-exposure").innerText = formatLKR(data.nNplExposure || 0);
+                                document.getElementById("kpi-npl-count").innerText = formatNum(data.nNplCount || 0) + " Accounts";
 
-                            document.getElementById("kpi-settled-amount").innerText = formatLKR(data.settledAmount || 0);
-                            document.getElementById("kpi-settled-count").innerText = formatNum(data.settledCount || 0) + " Accounts";
+                                document.getElementById("kpi-settled-amount").innerText = formatLKR(data.settledAmount || 0);
+                                document.getElementById("kpi-settled-count").innerText = formatNum(data.settledCount || 0) + " Accounts";
 
-                            document.getElementById("kpi-perf-arrears-amount").innerText = formatLKR(data.perfArrearsAmount || 0);
-                            document.getElementById("kpi-perf-arrears-count").innerText = formatNum(data.perfArrearsCount || 0) + " Accounts";
+                                document.getElementById("kpi-perf-arrears-amount").innerText = formatLKR(data.perfArrearsAmount || 0);
+                                document.getElementById("kpi-perf-arrears-count").innerText = formatNum(data.perfArrearsCount || 0) + " Accounts";
 
-                            document.getElementById("kpi-dpd-zero-amount").innerText = formatLKR(data.dpdZeroPortfolioAmount || 0);
-                            document.getElementById("kpi-dpd-zero-count").innerText = formatNum(data.dpdZeroPortfolioCount || 0) + " Accounts";
+                                document.getElementById("kpi-dpd-zero-amount").innerText = formatLKR(data.dpdZeroPortfolioAmount || 0);
+                                document.getElementById("kpi-dpd-zero-count").innerText = formatNum(data.dpdZeroPortfolioCount || 0) + " Accounts";
 
-                            // YTD & Overall Business
-                            document.getElementById("kpi-ytd-amount").innerText = formatLKR(data.nYtdAmount || 0);
-                            document.getElementById("kpi-ytd-count").innerText = formatNum(data.nYtdCount || 0) + " Accounts";
-                            document.getElementById("kpi-overall-amount").innerText = formatLKR(data.nOverallAmount || 0);
-                            document.getElementById("kpi-overall-count").innerText = formatNum(data.nOverallCount || 0) + " Accounts";
-                        })
-                        .catch(err => console.error("Error fetching dashboard statistics:", err));
+                                // YTD & Overall Business
+                                document.getElementById("kpi-ytd-amount").innerText = formatLKR(data.nYtdAmount || 0);
+                                document.getElementById("kpi-ytd-count").innerText = formatNum(data.nYtdCount || 0) + " Accounts";
+                                document.getElementById("kpi-overall-amount").innerText = formatLKR(data.nOverallAmount || 0);
+                                document.getElementById("kpi-overall-count").innerText = formatNum(data.nOverallCount || 0) + " Accounts";
+                            })
+                            .catch(err => console.error("Error fetching dashboard statistics:", err))
+                    );
 
                     // ============ 2. Month Wise Business Chart (Multi-Month Trend) ============
-                    fetch('${pageContext.request.contextPath}/api/dashboard/business-chart' + productParam)
-                        .then(res => res.json())
-                        .then(data => {
-                            const labels = data.map(i => i.month_name);
-                            const amounts = data.map(i => i.business_amount || 0);
+                    promises.push(
+                        fetch('${pageContext.request.contextPath}/api/dashboard/business-chart' + productParam)
+                            .then(res => res.json())
+                            .then(data => {
+                                const labels = data.map(i => i.month_name);
+                                const amounts = data.map(i => i.business_amount || 0);
 
-                            buildHorizontalBar(
-                                'businessChart',
-                                labels,
-                                amounts,
-                                'rgba(16, 185, 129, 0.15)',
-                                'rgba(16, 185, 129, 0.85)',
-                                '#10b981',
-                                false
-                            );
-                        })
-                        .catch(err => console.error("Error loading month wise business:", err));
+                                buildHorizontalBar(
+                                    'businessChart',
+                                    labels,
+                                    amounts,
+                                    'rgba(16, 185, 129, 0.15)',
+                                    'rgba(16, 185, 129, 0.85)',
+                                    '#10b981',
+                                    false
+                                );
+                            })
+                            .catch(err => console.error("Error loading month wise business:", err))
+                    );
 
                     // ============ 3. DPD Range Wise Chart (Multi-Month Trend) ============
-                    loadDpdComparisonChart();
+                    promises.push(loadDpdComparisonChart());
 
 
                     // ============ 6. Device Status Charts ============
-                    fetch('${pageContext.request.contextPath}/api/dashboard/device-status-charts' + singleMonthParam)
-                        .then(res => res.json())
-                        .then(data => {
-                            // Helper function for small doughnut charts
-                            const buildDoughnut = (canvasId, dataset, labelsList, colorsList) => {
-                                destroyChart(canvasId);
-                                const labels = dataset.map(item => item.state_name);
-                                const counts = dataset.map(item => item.count_val);
-
-                                let finalColors = colorsList;
-                                if (labels.length) {
-                                    finalColors = labels.map(label => {
-                                        const lowerLabel = label.toLowerCase();
-                                        if (lowerLabel === 'performing' || lowerLabel === 'unlocked' || lowerLabel === 'active' || lowerLabel === 'un-locked') {
-                                            return 'rgba(16, 185, 129, 0.85)'; // Green
-                                        }
-                                        if (lowerLabel === 'non-performing' || lowerLabel === 'locked') {
-                                            return 'rgba(239, 68, 68, 0.85)'; // Red
-                                        }
-                                        return 'rgba(156, 163, 175, 0.85)'; // Gray fallback
-                                    });
-                                }
-
-                                const centerTextPlugin = {
-                                    id: 'centerTextPlugin',
-                                    beforeDraw: function (chart) {
-                                        const width = chart.width, height = chart.height, ctx = chart.ctx;
-                                        ctx.restore();
-                                        const total = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                                        ctx.font = "bold 0.85em 'Plus Jakarta Sans', sans-serif";
-                                        ctx.textBaseline = "middle";
-                                        ctx.fillStyle = isDark ? "#f8fafc" : "#1e293b";
-                                        const text = total.toLocaleString(),
-                                            textX = Math.round((width - ctx.measureText(text).width) / 2),
-                                            textY = chart.chartArea.top + (chart.chartArea.bottom - chart.chartArea.top) / 2;
-                                        ctx.fillText(text, textX, textY);
-                                        ctx.save();
-                                    }
-                                };
-
-                                const ctx = document.getElementById(canvasId).getContext('2d');
-                                activeCharts[canvasId] = new Chart(ctx, {
-                                    type: 'doughnut',
-                                    data: {
-                                        labels: labels.length ? labels : labelsList,
-                                        datasets: [{
-                                            data: counts.length ? counts : [0, 0],
-                                            backgroundColor: finalColors,
-                                            borderWidth: 0
-                                        }]
-                                    },
-                                    plugins: [centerTextPlugin],
-                                    options: {
-                                        responsive: true,
-                                        maintainAspectRatio: false,
-                                        cutout: '72%',
-                                        plugins: {
-                                            legend: { display: false },
-                                            tooltip: { enabled: true },
-                                            datalabels: {
-                                                display: true,
-                                                color: '#ffffff',
-                                                font: { weight: 'bold', size: 9 },
-                                                formatter: (value, context) => {
-                                                    let sum = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                                                    if (sum === 0) return '';
-                                                    let percentage = Math.round(value * 100 / sum);
-                                                    return percentage >= 5 ? percentage + "%" : '';
-                                                },
-                                                anchor: 'center',
-                                                align: 'center'
-                                            }
-                                        }
-                                    }
-                                });
-                            };
-
-                            if (selectedProduct === 'MF') {
-                                document.querySelectorAll('.mobile-sec-col').forEach(el => el.style.display = '');
-                                document.querySelectorAll('.laptop-sec-col').forEach(el => el.style.display = 'none');
-
-                                let mobileLocked = 0;
-                                if (data.mobileLock) {
-                                    data.mobileLock.forEach(item => {
-                                        if (item.state_name === 'Locked') mobileLocked = item.count_val || 0;
-                                    });
-                                }
-                                document.getElementById("device-sec-text").innerHTML = 'Device locks summary &bull; Active: <span class="fw-bold text-danger">' + formatNum(mobileLocked) + '</span> Mobiles';
-
-                                // Populate HTML Progress Bars for Mobiles
-                                const barData = data.mobileSecurityBarData || { knox: [0,0,0,0], datacultr: [0,0,0,0] };
-                                
-                                const keys = ['locked', 'unlocked', 'perf', 'np'];
-                                keys.forEach((key, idx) => {
-                                    const knoxVal = barData.knox[idx] || 0;
-                                    const dcVal = barData.datacultr[idx] || 0;
-                                    const total = knoxVal + dcVal;
-                                    
-                                    document.getElementById('lbl-' + key + '-knox').innerText = formatNum(knoxVal);
-                                    document.getElementById('lbl-' + key + '-dc').innerText = formatNum(dcVal);
-                                    const totalEl = document.getElementById('lbl-' + key + '-total');
-                                    if (totalEl) totalEl.innerText = formatNum(total);
-                                    
-                                    let knoxPct = 0;
-                                    let dcPct = 0;
-                                    if (total > 0) {
-                                        knoxPct = Math.round((knoxVal / total) * 100);
-                                        dcPct = Math.round((dcVal / total) * 100);
-                                    }
-                                    
-                                    const kBar = document.getElementById('bar-' + key + '-knox');
-                                    const dBar = document.getElementById('bar-' + key + '-dc');
-                                    
-                                    kBar.style.width = knoxPct + '%';
-                                    kBar.innerText = knoxPct > 0 ? knoxPct + '%' : '';
-                                    
-                                    dBar.style.width = dcPct + '%';
-                                    dBar.innerText = dcPct > 0 ? dcPct + '%' : '';
-                                });
-                            } else {
-                                document.querySelectorAll('.mobile-sec-col').forEach(el => el.style.display = 'none');
-                                document.querySelectorAll('.laptop-sec-col').forEach(el => el.style.display = '');
-
-                                let laptopLocked = 0;
-                                if (data.laptopLock) {
-                                    data.laptopLock.forEach(item => {
-                                        if (item.state_name === 'Locked') laptopLocked = item.count_val || 0;
-                                    });
-                                }
-                                document.getElementById("device-sec-text").innerHTML = 'Device locks summary &bull; Active: <span class="fw-bold text-danger">' + formatNum(laptopLocked) + '</span> Laptops';
-
-                                buildDoughnut('laptopPerformingChart', data.laptopPerforming || [], ['Performing', 'Non-Performing'], ['rgba(16, 185, 129, 0.85)', 'rgba(244, 63, 94, 0.85)']);
-                                buildDoughnut('laptopLockChart', data.laptopLock || [], ['Active', 'Locked'], ['rgba(99, 102, 241, 0.85)', 'rgba(245, 158, 11, 0.85)']);
-                            }
-                        })
-                        .catch(err => console.error("Error loading security doughnut status:", err));
-
-                    // ============ 7. Daily Disbursements (Last 6-7 Days of Month) ============
-                    fetch('${pageContext.request.contextPath}/api/dashboard/vendor-payments-chart' + singleMonthParam)
-                        .then(res => res.json())
-                        .then(data => {
-                            let chartData = data;
-                            const titleTextEl = document.getElementById('dailyDisbursementsTitleText');
-                            if (titleTextEl) {
-                                if (selectedMonth && selectedMonth.includes('-')) {
-                                    const parts = selectedMonth.split('-');
-                                    const dateObj = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, 1);
-                                    const monthStr = dateObj.toLocaleString('en-US', { month: 'short', year: 'numeric' });
-                                    titleTextEl.innerText = 'Daily Disbursements (' + monthStr + ')';
-                                } else {
-                                    titleTextEl.innerText = 'Daily Disbursements (Past 7 Days)';
-                                }
-                            }
-                            buildHorizontalBar(
-                                'vendorPaymentsChart',
-                                chartData.map(i => i.channel_name),
-                                chartData.map(i => i.total_amount || 0),
-                                'rgba(16, 185, 129, 0.15)',
-                                'rgba(16, 185, 129, 0.85)',
-                                '#10b981',
-                                false
-                            );
-                        })
-                        .catch(err => console.error("Error loading daily disbursements chart:", err));
-
-                    // ============ 8. Payments Status-Wise Chart (Multi-Month Trend) ============
-                    loadPaymentsStatusChart();
-
-
-
-                    // ============ 9. Mobile Arrears Lock vs Unlock ============
-                    const arrearsCard = document.getElementById('mobile-lock-arrears-card');
-                    if (selectedProduct === 'LF') {
-                        if (arrearsCard) arrearsCard.style.display = 'none';
-                    } else {
-                        if (arrearsCard) arrearsCard.style.display = '';
-                    }
-
-                    if (selectedProduct !== 'LF') {
-                        fetch('${pageContext.request.contextPath}/api/dashboard/mobile-lock-arrears')
+                    promises.push(
+                        fetch('${pageContext.request.contextPath}/api/dashboard/device-status-charts' + singleMonthParam)
                             .then(res => res.json())
                             .then(data => {
-                                // 1. Mobile Lock vs Unlock Chart
-                                destroyChart('mobileLockArrearsChart');
-                                const ctx1 = document.getElementById('mobileLockArrearsChart').getContext('2d');
-                                activeCharts['mobileLockArrearsChart'] = new Chart(ctx1, {
-                                    type: 'bar',
-                                    data: {
-                                        labels: ['Locked With no Arrears', 'Active with Arrears'],
-                                        datasets: [{
-                                            data: [
-                                                data.lock_but_less_200 || 0,
-                                                data.unlock_but_more_200 || 0
-                                            ],
-                                            backgroundColor: [
-                                                'rgba(239, 68, 68, 0.85)',
-                                                'rgba(16, 185, 129, 0.85)'
-                                            ],
-                                            borderWidth: 0,
-                                            borderRadius: 4,
-                                            barThickness: 36
-                                        }]
-                                    },
-                                    options: {
-                                        responsive: true,
-                                        maintainAspectRatio: false,
-                                        layout: { padding: { top: 20 } },
-                                        plugins: {
-                                            legend: { display: false },
-                                            tooltip: { enabled: true },
-                                            datalabels: {
-                                                display: true,
-                                                anchor: 'end',
-                                                align: 'top',
-                                                color: isDark ? '#cbd5e1' : '#1e293b',
-                                                font: { weight: 'bold', size: 9 },
-                                                formatter: (val) => val > 0 ? formatNum(val) : '0'
+                                // Helper function for small doughnut charts
+                                const buildDoughnut = (canvasId, dataset, labelsList, colorsList) => {
+                                    destroyChart(canvasId);
+                                    const labels = dataset.map(item => item.state_name);
+                                    const counts = dataset.map(item => item.count_val);
+
+                                    let finalColors = colorsList;
+                                    if (labels.length) {
+                                        finalColors = labels.map(label => {
+                                            const lowerLabel = label.toLowerCase();
+                                            if (lowerLabel === 'performing' || lowerLabel === 'unlocked' || lowerLabel === 'active' || lowerLabel === 'un-locked') {
+                                                return 'rgba(16, 185, 129, 0.85)'; // Green
                                             }
-                                        },
-                                        scales: {
-                                            x: { grid: { display: false }, ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 9, weight: 'bold' } } },
-                                            y: { display: false, grid: { display: false } }
-                                        }
+                                            if (lowerLabel === 'non-performing' || lowerLabel === 'locked') {
+                                                return 'rgba(239, 68, 68, 0.85)'; // Red
+                                            }
+                                            return 'rgba(156, 163, 175, 0.85)'; // Gray fallback
+                                        });
                                     }
-                                });
-                            })
-                            .catch(err => console.error("Error loading Mobile lock arrears analysis:", err));
-                    }
 
-                    // ============ 9.1 Transaction Channels Table ============
-                    fetch('${pageContext.request.contextPath}/api/dashboard/transaction-channel-chart' + singleMonthParam)
-                        .then(res => res.json())
-                        .then(data => {
-                            const tbody = document.getElementById('transactionChannelTableBody');
-                            let html = '';
-                            data.forEach(item => {
-                                const formattedAmt = item.total_amount !== null ? parseFloat(item.total_amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00';
-                                html += '<tr>' +
-                                    '<td style="white-space: nowrap !important; word-break: normal !important;" title="' + (item.channel_name || 'N/A') + '">' + (item.channel_name || 'N/A') + '</td>' +
-                                    '<td class="text-end" style="white-space: nowrap !important;">' + (item.tx_count || 0) + '</td>' +
-                                    '<td class="text-end fw-semi-bold" style="white-space: nowrap !important;">' + formattedAmt + '</td>' +
-                                    '</tr>';
-                            });
-                            tbody.innerHTML = html || '<tr><td colspan="3" class="text-center text-muted">No transactions</td></tr>';
-                        })
-                        .catch(err => console.error("Error loading transaction channels:", err));
-
-                    // ============ 10. Matured vs Non-Matured Contracts Performance ============
-                    fetch('${pageContext.request.contextPath}/api/dashboard/matured-nonperforming' + singleMonthParam)
-                        .then(res => res.json())
-                        .then(data => {
-                            let maturedPerf = 0, maturedNp = 0, nonMaturedPerf = 0, nonMaturedNp = 0;
-                            data.forEach(item => {
-                                const isMatured = item.maturity_status === 'Matured';
-                                const isNp = item.performing_status === 'Non-Performing';
-                                if (isMatured) {
-                                    if (isNp) maturedNp = item.contract_count || 0;
-                                    else maturedPerf = item.contract_count || 0;
-                                } else {
-                                    if (isNp) nonMaturedNp = item.contract_count || 0;
-                                    else nonMaturedPerf = item.contract_count || 0;
-                                }
-                            });
-
-                            destroyChart('maturedChart');
-                            destroyChart('nonMaturedChart');
-
-                            const buildPie = (canvasId, dataVal, labelText) => {
-                                const ctx = document.getElementById(canvasId).getContext('2d');
-                                activeCharts[canvasId] = new Chart(ctx, {
-                                    type: 'doughnut',
-                                    data: {
-                                        labels: ['Perf', 'NP'],
-                                        datasets: [{
-                                            data: dataVal,
-                                            backgroundColor: ['rgba(16, 185, 129, 0.85)', 'rgba(239, 68, 68, 0.85)'],
-                                            borderWidth: 1,
-                                            borderColor: isDark ? '#1e293b' : '#ffffff'
-                                        }]
-                                    },
-                                    options: {
-                                        responsive: true,
-                                        maintainAspectRatio: false,
-                                        plugins: {
-                                                            legend: { display: false },
-                                                            tooltip: { enabled: true },
-                                                            datalabels: {
-                                                                display: true,
-                                                                color: '#ffffff',
-                                                                font: { weight: 'bold', size: 9 },
-                                                                formatter: (value, context) => {
-                                                                    let sum = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                                                                    if (sum === 0) return '';
-                                                                    let percentage = Math.round(value * 100 / sum);
-                                                                    return percentage >= 5 ? percentage + "%" : '';
-                                                                },
-                                                                anchor: 'center',
-                                                                align: 'center'
-                                                            }
-                                                        },
-                                        cutout: '65%'
-                                    },
-                                    plugins: [{
-                                        id: 'centerText',
+                                    const centerTextPlugin = {
+                                        id: 'centerTextPlugin',
                                         beforeDraw: function (chart) {
                                             const width = chart.width, height = chart.height, ctx = chart.ctx;
                                             ctx.restore();
@@ -1256,19 +994,326 @@
                                             ctx.fillText(text, textX, textY);
                                             ctx.save();
                                         }
-                                    }]
-                                });
-                            };
+                                    };
 
-                            buildPie('maturedChart', [maturedPerf, maturedNp], 'Matured');
-                            buildPie('nonMaturedChart', [nonMaturedPerf, nonMaturedNp], 'Non-Matured');
-                        })
-                        .catch(err => console.error("Error loading matured vs non-matured analysis:", err));
+                                    const ctx = document.getElementById(canvasId).getContext('2d');
+                                    activeCharts[canvasId] = new Chart(ctx, {
+                                        type: 'doughnut',
+                                        data: {
+                                            labels: labels.length ? labels : labelsList,
+                                            datasets: [{
+                                                data: counts.length ? counts : [0, 0],
+                                                backgroundColor: finalColors,
+                                                borderWidth: 0
+                                            }]
+                                        },
+                                        plugins: [centerTextPlugin],
+                                        options: {
+                                            responsive: true,
+                                            maintainAspectRatio: false,
+                                            cutout: '72%',
+                                            plugins: {
+                                                legend: { display: false },
+                                                tooltip: { enabled: true },
+                                                datalabels: {
+                                                    display: true,
+                                                    color: '#ffffff',
+                                                    font: { weight: 'bold', size: 9 },
+                                                    formatter: (value, context) => {
+                                                        let sum = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                                        if (sum === 0) return '';
+                                                        let percentage = Math.round(value * 100 / sum);
+                                                        return percentage >= 5 ? percentage + "%" : '';
+                                                    },
+                                                    anchor: 'center',
+                                                    align: 'center'
+                                                }
+                                            }
+                                        }
+                                    });
+                                };
+
+                                if (selectedProduct === 'MF') {
+                                    document.querySelectorAll('.mobile-sec-col').forEach(el => el.style.display = '');
+                                    document.querySelectorAll('.laptop-sec-col').forEach(el => el.style.display = 'none');
+
+                                    // Populate HTML Progress Bars for Mobiles
+                                    const barData = data.mobileSecurityBarData || { knox: [0,0,0,0], datacultr: [0,0,0,0] };
+                                    
+                                    const keys = ['locked', 'unlocked', 'perf', 'np'];
+                                    keys.forEach((key, idx) => {
+                                        const knoxVal = barData.knox[idx] || 0;
+                                        const dcVal = barData.datacultr[idx] || 0;
+                                        const total = knoxVal + dcVal;
+                                        
+                                        document.getElementById('lbl-' + key + '-knox').innerText = formatNum(knoxVal);
+                                        document.getElementById('lbl-' + key + '-dc').innerText = formatNum(dcVal);
+                                        const totalEl = document.getElementById('lbl-' + key + '-total');
+                                        if (totalEl) totalEl.innerText = formatNum(total);
+                                        
+                                        let knoxPct = 0;
+                                        let dcPct = 0;
+                                        if (total > 0) {
+                                            knoxPct = Math.round((knoxVal / total) * 100);
+                                            dcPct = Math.round((dcVal / total) * 100);
+                                        }
+                                        
+                                        const kBar = document.getElementById('bar-' + key + '-knox');
+                                        const dBar = document.getElementById('bar-' + key + '-dc');
+                                        
+                                        kBar.style.width = knoxPct + '%';
+                                        kBar.innerText = knoxPct > 0 ? knoxPct + '%' : '';
+                                        
+                                        dBar.style.width = dcPct + '%';
+                                        dBar.innerText = dcPct > 0 ? dcPct + '%' : '';
+                                    });
+
+                                    const lockedTot = (barData.knox[0] || 0) + (barData.datacultr[0] || 0);
+                                    const unlockedTot = (barData.knox[1] || 0) + (barData.datacultr[1] || 0);
+                                    const perfTot = (barData.knox[2] || 0) + (barData.datacultr[2] || 0);
+                                    const npTot = (barData.knox[3] || 0) + (barData.datacultr[3] || 0);
+
+                                    document.getElementById("device-sec-text").innerHTML =
+                                        '<span class="fw-bold me-1">Totals:</span>' +
+                                        '<span class="text-success fw-bold">Perf: ' + formatNum(perfTot) + '</span> | ' +
+                                        '<span class="text-danger fw-bold">Non-Perf: ' + formatNum(npTot) + '</span> &bull; ' +
+                                        '<span class="text-warning fw-bold">Locked: ' + formatNum(lockedTot) + '</span> | ' +
+                                        '<span class="text-info fw-bold">Unlocked: ' + formatNum(unlockedTot) + '</span>';
+                                } else {
+                                    document.querySelectorAll('.mobile-sec-col').forEach(el => el.style.display = 'none');
+                                    document.querySelectorAll('.laptop-sec-col').forEach(el => el.style.display = '');
+
+                                    let perfTot = 0, npTot = 0, lockedTot = 0, unlockedTot = 0;
+                                    if (data.laptopPerforming) {
+                                        data.laptopPerforming.forEach(item => {
+                                            if (item.state_name === 'Non-Performing') npTot = item.count_val || 0;
+                                            else perfTot += item.count_val || 0;
+                                        });
+                                    }
+                                    if (data.laptopLock) {
+                                        data.laptopLock.forEach(item => {
+                                            if (item.state_name === 'Locked') lockedTot = item.count_val || 0;
+                                            else unlockedTot += item.count_val || 0;
+                                        });
+                                    }
+
+                                    document.getElementById("device-sec-text").innerHTML =
+                                        '<span class="fw-bold me-1">Totals:</span>' +
+                                        '<span class="text-success fw-bold">Perf: ' + formatNum(perfTot) + '</span> | ' +
+                                        '<span class="text-danger fw-bold">Non-Perf: ' + formatNum(npTot) + '</span> &bull; ' +
+                                        '<span class="text-warning fw-bold">Locked: ' + formatNum(lockedTot) + '</span> | ' +
+                                        '<span class="text-info fw-bold">Unlocked: ' + formatNum(unlockedTot) + '</span>';
+
+                                    buildDoughnut('laptopPerformingChart', data.laptopPerforming || [], ['Performing', 'Non-Performing'], ['rgba(16, 185, 129, 0.85)', 'rgba(244, 63, 94, 0.85)']);
+                                    buildDoughnut('laptopLockChart', data.laptopLock || [], ['Active', 'Locked'], ['rgba(99, 102, 241, 0.85)', 'rgba(245, 158, 11, 0.85)']);
+                                }
+                            })
+                            .catch(err => console.error("Error loading security doughnut status:", err))
+                    );
+
+                    // ============ 7. Daily Disbursements (Last 6-7 Days of Month) ============
+                    promises.push(
+                        fetch('${pageContext.request.contextPath}/api/dashboard/vendor-payments-chart' + singleMonthParam)
+                            .then(res => res.json())
+                            .then(data => {
+                                let chartData = data;
+                                const titleTextEl = document.getElementById('dailyDisbursementsTitleText');
+                                if (titleTextEl) {
+                                    if (selectedMonth && selectedMonth.includes('-')) {
+                                        const parts = selectedMonth.split('-');
+                                        const dateObj = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, 1);
+                                        const monthStr = dateObj.toLocaleString('en-US', { month: 'short', year: 'numeric' });
+                                        titleTextEl.innerText = 'Daily Disbursements (' + monthStr + ')';
+                                    } else {
+                                        titleTextEl.innerText = 'Daily Disbursements (Past 7 Days)';
+                                    }
+                                }
+                                buildHorizontalBar(
+                                    'vendorPaymentsChart',
+                                    chartData.map(i => i.channel_name),
+                                    chartData.map(i => i.total_amount || 0),
+                                    'rgba(16, 185, 129, 0.15)',
+                                    'rgba(16, 185, 129, 0.85)',
+                                    '#10b981',
+                                    false
+                                );
+                            })
+                            .catch(err => console.error("Error loading daily disbursements chart:", err))
+                    );
+
+                    // ============ 8. Payments Status-Wise Chart (Multi-Month Trend) ============
+                    promises.push(loadPaymentsStatusChart());
+
+                    // ============ 9. Mobile Arrears Lock vs Unlock ============
+                    const arrearsCard = document.getElementById('mobile-lock-arrears-card');
+                    if (selectedProduct === 'LF') {
+                        if (arrearsCard) arrearsCard.style.display = 'none';
+                    } else {
+                        if (arrearsCard) arrearsCard.style.display = '';
+                    }
+
+                    if (selectedProduct !== 'LF') {
+                        promises.push(
+                            fetch('${pageContext.request.contextPath}/api/dashboard/mobile-lock-arrears')
+                                .then(res => res.json())
+                                .then(data => {
+                                    // 1. Mobile Lock vs Unlock Chart
+                                    destroyChart('mobileLockArrearsChart');
+                                    const ctx1 = document.getElementById('mobileLockArrearsChart').getContext('2d');
+                                    activeCharts['mobileLockArrearsChart'] = new Chart(ctx1, {
+                                        type: 'bar',
+                                        data: {
+                                            labels: ['Locked With no Arrears', 'Active with Arrears'],
+                                            datasets: [{
+                                                data: [
+                                                    data.lock_but_less_200 || 0,
+                                                    data.unlock_but_more_200 || 0
+                                                ],
+                                                backgroundColor: [
+                                                    'rgba(239, 68, 68, 0.85)',
+                                                    'rgba(16, 185, 129, 0.85)'
+                                                ],
+                                                borderWidth: 0,
+                                                borderRadius: 4,
+                                                barThickness: 36
+                                            }]
+                                        },
+                                        options: {
+                                            responsive: true,
+                                            maintainAspectRatio: false,
+                                            layout: { padding: { top: 20 } },
+                                            plugins: {
+                                                legend: { display: false },
+                                                tooltip: { enabled: true },
+                                                datalabels: {
+                                                    display: true,
+                                                    anchor: 'end',
+                                                    align: 'top',
+                                                    color: isDark ? '#cbd5e1' : '#1e293b',
+                                                    font: { weight: 'bold', size: 9 },
+                                                    formatter: (val) => val > 0 ? formatNum(val) : '0'
+                                                }
+                                            },
+                                            scales: {
+                                                x: { grid: { display: false }, ticks: { color: isDark ? '#94a3b8' : '#475569', font: { size: 9, weight: 'bold' } } },
+                                                y: { display: false, grid: { display: false } }
+                                            }
+                                        }
+                                    });
+                                })
+                                .catch(err => console.error("Error loading Mobile lock arrears analysis:", err))
+                        );
+                    }
+
+                    // ============ 9.1 Transaction Channels Table ============
+                    promises.push(
+                        fetch('${pageContext.request.contextPath}/api/dashboard/transaction-channel-chart' + singleMonthParam)
+                            .then(res => res.json())
+                            .then(data => {
+                                const tbody = document.getElementById('transactionChannelTableBody');
+                                let html = '';
+                                data.forEach(item => {
+                                    const formattedAmt = item.total_amount !== null ? parseFloat(item.total_amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00';
+                                    html += '<tr>' +
+                                        '<td style="white-space: nowrap !important; word-break: normal !important;" title="' + (item.channel_name || 'N/A') + '">' + (item.channel_name || 'N/A') + '</td>' +
+                                        '<td class="text-end" style="white-space: nowrap !important;">' + (item.tx_count || 0) + '</td>' +
+                                        '<td class="text-end fw-semi-bold" style="white-space: nowrap !important;">' + formattedAmt + '</td>' +
+                                        '</tr>';
+                                });
+                                tbody.innerHTML = html || '<tr><td colspan="3" class="text-center text-muted">No transactions</td></tr>';
+                            })
+                            .catch(err => console.error("Error loading transaction channels:", err))
+                    );
+
+                    // ============ 10. Matured vs Non-Matured Contracts Performance ============
+                    promises.push(
+                        fetch('${pageContext.request.contextPath}/api/dashboard/matured-nonperforming' + singleMonthParam)
+                            .then(res => res.json())
+                            .then(data => {
+                                let maturedPerf = 0, maturedNp = 0, nonMaturedPerf = 0, nonMaturedNp = 0;
+                                data.forEach(item => {
+                                    const isMatured = item.maturity_status === 'Matured';
+                                    const isNp = item.performing_status === 'Non-Performing';
+                                    if (isMatured) {
+                                        if (isNp) maturedNp = item.contract_count || 0;
+                                        else maturedPerf = item.contract_count || 0;
+                                    } else {
+                                        if (isNp) nonMaturedNp = item.contract_count || 0;
+                                        else nonMaturedPerf = item.contract_count || 0;
+                                    }
+                                });
+
+                                destroyChart('maturedChart');
+                                destroyChart('nonMaturedChart');
+
+                                const buildPie = (canvasId, dataVal, labelText) => {
+                                    const ctx = document.getElementById(canvasId).getContext('2d');
+                                    activeCharts[canvasId] = new Chart(ctx, {
+                                        type: 'doughnut',
+                                        data: {
+                                            labels: ['Perf', 'NP'],
+                                            datasets: [{
+                                                data: dataVal,
+                                                backgroundColor: ['rgba(16, 185, 129, 0.85)', 'rgba(239, 68, 68, 0.85)'],
+                                                borderWidth: 1,
+                                                borderColor: isDark ? '#1e293b' : '#ffffff'
+                                            }]
+                                        },
+                                        options: {
+                                            responsive: true,
+                                            maintainAspectRatio: false,
+                                            plugins: {
+                                                                legend: { display: false },
+                                                                tooltip: { enabled: true },
+                                                                datalabels: {
+                                                                    display: true,
+                                                                    color: '#ffffff',
+                                                                    font: { weight: 'bold', size: 9 },
+                                                                    formatter: (value, context) => {
+                                                                        let sum = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                                                        if (sum === 0) return '';
+                                                                        let percentage = Math.round(value * 100 / sum);
+                                                                        return percentage >= 5 ? percentage + "%" : '';
+                                                                    },
+                                                                    anchor: 'center',
+                                                                    align: 'center'
+                                                                }
+                                                            },
+                                            cutout: '65%'
+                                        },
+                                        plugins: [{
+                                            id: 'centerText',
+                                            beforeDraw: function (chart) {
+                                                const width = chart.width, height = chart.height, ctx = chart.ctx;
+                                                ctx.restore();
+                                                const total = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                                ctx.font = "bold 0.85em 'Plus Jakarta Sans', sans-serif";
+                                                ctx.textBaseline = "middle";
+                                                ctx.fillStyle = isDark ? "#f8fafc" : "#1e293b";
+                                                const text = total.toLocaleString(),
+                                                    textX = Math.round((width - ctx.measureText(text).width) / 2),
+                                                    textY = chart.chartArea.top + (chart.chartArea.bottom - chart.chartArea.top) / 2;
+                                                ctx.fillText(text, textX, textY);
+                                                ctx.save();
+                                            }
+                                        }]
+                                    });
+                                };
+
+                                buildPie('maturedChart', [maturedPerf, maturedNp], 'Matured');
+                                buildPie('nonMaturedChart', [nonMaturedPerf, nonMaturedNp], 'Non-Matured');
+                            })
+                            .catch(err => console.error("Error loading matured vs non-matured analysis:", err))
+                    );
+
+                    Promise.allSettled(promises).finally(() => {
+                        if (loader) loader.style.display = 'none';
+                    });
                 }
 
                 function loadPaymentsStatusChart() {
                     const productParam = selectedProduct ? '?product=' + encodeURIComponent(selectedProduct) : '';
-                    fetch('${pageContext.request.contextPath}/api/dashboard/payments-status-chart' + productParam)
+                    return fetch('${pageContext.request.contextPath}/api/dashboard/payments-status-chart' + productParam)
                         .then(res => res.json())
                         .then(data => {
                             const months = [...new Set(data.map(i => i.month_name))];
@@ -1303,7 +1348,7 @@
 
                 function loadDpdComparisonChart() {
                     const productParam = selectedProduct ? '?product=' + encodeURIComponent(selectedProduct) : '';
-                    fetch('${pageContext.request.contextPath}/api/dashboard/dpd-comparison-chart' + productParam)
+                    return fetch('${pageContext.request.contextPath}/api/dashboard/dpd-comparison-chart' + productParam)
                         .then(res => res.json())
                         .then(data => {
                             const labels = data.map(i => i.month_name);

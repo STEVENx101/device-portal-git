@@ -23,6 +23,7 @@
     boolean hasOneRentalReport = false;
     boolean hasSettledReport = false;
     boolean hasMaturedLowBalanceReport = false;
+    boolean hasEarlySettledReport = false;
     boolean hasLowBalanceReport = false;
     boolean hasMultiplePaymentsReport = false;
     boolean hasDpdBucketReport = false;
@@ -52,6 +53,7 @@
             if (s.getPath().equalsIgnoreCase("/one-rental-report")) hasOneRentalReport = true;
             if (s.getPath().equalsIgnoreCase("/settled-report")) hasSettledReport = true;
             if (s.getPath().equalsIgnoreCase("/matured-low-balance-report")) hasMaturedLowBalanceReport = true;
+            if (s.getPath().equalsIgnoreCase("/early-settled-report")) hasEarlySettledReport = true;
             if (s.getPath().equalsIgnoreCase("/low-balance-report")) hasLowBalanceReport = true;
             if (s.getPath().equalsIgnoreCase("/multiple-payments-report")) hasMultiplePaymentsReport = true;
             if (s.getPath().equalsIgnoreCase("/dpd-bucket-report")) hasDpdBucketReport = true;
@@ -1239,7 +1241,7 @@ html.dark .dataTables_wrapper .dataTables_processing::after {
                 </a>
             <% } %>
             
-            <% if (hasPortfolio || hasClientReport || hasTransactionReport || hasAgreementReport || hasReportLogs || hasArrearsReport || hasNpaReport || hasNearingNpaReport || hasDuplicateLoansReport || hasUnlockArrearsReport || hasLockNoArrearsReport || hasOneRentalReport || hasSettledReport || hasMaturedLowBalanceReport || hasLowBalanceReport || hasMultiplePaymentsReport || hasDpdBucketReport || hasVendorPaymentsReport || hasVendorPaymentsExceptionReport || hasUserManagement || hasAccessLogs || hasPermissionLogs) { %>
+            <% if (hasPortfolio || hasClientReport || hasTransactionReport || hasAgreementReport || hasReportLogs || hasArrearsReport || hasNpaReport || hasNearingNpaReport || hasDuplicateLoansReport || hasUnlockArrearsReport || hasLockNoArrearsReport || hasOneRentalReport || hasSettledReport || hasMaturedLowBalanceReport || hasEarlySettledReport || hasLowBalanceReport || hasMultiplePaymentsReport || hasDpdBucketReport || hasVendorPaymentsReport || hasVendorPaymentsExceptionReport || hasUserManagement || hasAccessLogs || hasPermissionLogs) { %>
                 <div class="nav-item-dropdown-custom" id="nav-reports-group">
                     <a class="nav-item-link dropdown-trigger" href="javascript:void(0)" id="nav-reports-trigger">
                         <span class="fas fa-file-invoice-dollar"></span>
@@ -1345,6 +1347,11 @@ html.dark .dataTables_wrapper .dataTables_processing::after {
                                 <% if (hasMaturedLowBalanceReport) { %>
                                 <a href="<%= request.getContextPath() %>/matured-low-balance-report" class="dropdown-item-custom" id="nav-report-matured-low-balance">
                                     Matured Low Balance
+                                </a>
+                                <% } %>
+                                <% if (hasEarlySettledReport) { %>
+                                <a href="<%= request.getContextPath() %>/early-settled-report" class="dropdown-item-custom" id="nav-report-early-settled">
+                                    Early Settled Report
                                 </a>
                                 <% } %>
                                 <% if (hasLowBalanceReport) { %>
@@ -1560,6 +1567,11 @@ html.dark .dataTables_wrapper .dataTables_processing::after {
                 if (sub) sub.classList.add("open");
             } else if (path.includes("matured-low-balance-report")) {
                 const item = document.getElementById("nav-report-matured-low-balance");
+                if (item) item.classList.add("active");
+                const sub = document.getElementById("submenu-exception");
+                if (sub) sub.classList.add("open");
+            } else if (path.includes("early-settled-report")) {
+                const item = document.getElementById("nav-report-early-settled");
                 if (item) item.classList.add("active");
                 const sub = document.getElementById("submenu-exception");
                 if (sub) sub.classList.add("open");
