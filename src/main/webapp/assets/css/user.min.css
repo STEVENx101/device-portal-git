@@ -321,59 +321,69 @@ table.dataTable thead th {
 }
 
 /* Ensure Row 3 cards stay strictly on a single row without wrapping */
-#row-3-container,
-.content.dashboard-content .row:has(#payments-status-wise-card) {
+#row-3-container {
     display: flex !important;
     flex-wrap: nowrap !important;
+    overflow-x: hidden !important;
 }
 
 #mobile-lock-arrears-card {
-    flex: 0 0 15% !important;
-    max-width: 15% !important;
+    flex: 0 0 14% !important;
+    max-width: 14% !important;
     min-width: 0 !important;
+    width: 14% !important;
 }
 
 #transaction-channels-card {
-    flex: 0 0 27% !important;
-    max-width: 27% !important;
+    flex: 0 0 26% !important;
+    max-width: 26% !important;
     min-width: 0 !important;
+    width: 26% !important;
 }
 
 #matured-np-card {
-    flex: 0 0 15% !important;
-    max-width: 15% !important;
+    flex: 0 0 14% !important;
+    max-width: 14% !important;
     min-width: 0 !important;
+    width: 14% !important;
 }
 
 #device-security-status-card {
-    flex: 0 0 16% !important;
-    max-width: 16% !important;
+    flex: 0 0 20% !important;
+    max-width: 20% !important;
     min-width: 0 !important;
+    width: 20% !important;
 }
 
 #payments-status-wise-card {
-    flex: 0 0 27% !important;
-    max-width: 27% !important;
+    flex: 0 0 26% !important;
+    max-width: 26% !important;
     min-width: 0 !important;
+    width: 26% !important;
 }
 
 /* Laptop Finance adjustment when Card 1 is hidden */
 #mobile-lock-arrears-card[style*="display: none"] ~ #transaction-channels-card {
-    flex: 0 0 32% !important;
-    max-width: 32% !important;
+    flex: 0 0 30% !important;
+    max-width: 30% !important;
+    width: 30% !important;
 }
 #mobile-lock-arrears-card[style*="display: none"] ~ #matured-np-card {
-    flex: 0 0 18% !important;
-    max-width: 18% !important;
+    flex: 0 0 16% !important;
+    max-width: 16% !important;
+    width: 16% !important;
 }
 #mobile-lock-arrears-card[style*="display: none"] ~ #device-security-status-card {
-    flex: 0 0 18% !important;
-    max-width: 18% !important;
+    flex: 0 0 24% !important;
+    max-width: 24% !important;
+    width: 24% !important;
 }
 #mobile-lock-arrears-card[style*="display: none"] ~ #payments-status-wise-card {
-    flex: 0 0 32% !important;
-    max-width: 32% !important;
+    flex: 0 0 30% !important;
+    max-width: 30% !important;
+    width: 30% !important;
 }
+
 
 
 

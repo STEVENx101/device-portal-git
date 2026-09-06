@@ -470,7 +470,7 @@
                             <!-- Row 3: Risk & Performance Charts (All 5 cards side-by-side in 1 row) -->
                             <div class="row g-1 mb-1 d-flex" id="row-3-container" style="margin-top: 2px; flex-wrap: nowrap !important;">
                                 <!-- Card 1: Mobile Arrears: Lock vs Unlock -->
-                                <div id="mobile-lock-arrears-card" style="flex: 0 0 15%; max-width: 15%; min-width: 0;">
+                                <div id="mobile-lock-arrears-card" style="flex: 0 0 14%; max-width: 14%; min-width: 0;">
                                     <div class="card glass-card h-100">
                                         <div class="card-body p-2">
                                             <div class="fs--2 fw-semi-bold text-muted mb-2 text-truncate"><i
@@ -483,7 +483,7 @@
                                 </div>
 
                                 <!-- Card 2: Transaction Channels -->
-                                <div id="transaction-channels-card" style="flex: 0 0 27%; max-width: 27%; min-width: 0;">
+                                <div id="transaction-channels-card" style="flex: 0 0 26%; max-width: 26%; min-width: 0;">
                                     <div class="card glass-card h-100">
                                         <div class="card-body p-2">
                                             <div class="fs--2 fw-semi-bold text-muted mb-2 text-truncate"><i
@@ -517,7 +517,7 @@
                                 </div>
 
                                 <!-- Card 3: Matured vs Non-Matured -->
-                                <div id="matured-np-card" style="flex: 0 0 15%; max-width: 15%; min-width: 0;">
+                                <div id="matured-np-card" style="flex: 0 0 14%; max-width: 14%; min-width: 0;">
                                     <div class="card glass-card h-100">
                                         <div class="card-body p-2 d-flex flex-column justify-content-between">
                                             <div>
@@ -547,7 +547,7 @@
                                 </div>
 
                                 <!-- Card 4: Device Security Status (Stacked vertically inside) -->
-                                <div id="device-security-status-card" style="flex: 0 0 16%; max-width: 16%; min-width: 0;">
+                                <div id="device-security-status-card" style="flex: 0 0 20%; max-width: 20%; min-width: 0;">
                                     <div class="card glass-card h-100">
                                         <div class="card-body p-2 d-flex flex-column justify-content-between">
                                             <div>
@@ -623,16 +623,16 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                             <div class="text-center text-700 fw-bold mt-2 border-top pt-2"
-                                                 id="device-sec-text" style="font-size: 0.6rem; line-height: 1.2; white-space: normal; word-break: break-word;">
-                                                 Totals:Perf: 0 (0%) | Non-Perf: 0 (0%)<br>Locked: 0 (0%) | Unlocked: 0 (0%)
-                                             </div></div>
+                                            <div class="text-center text-700 fw-bold mt-2 border-top pt-2"
+                                                id="device-sec-text" style="font-size: 0.6rem; line-height: 1.2; white-space: normal; word-break: break-word;">
+                                                Totals:Perf: 0 (0%) | Non-Perf: 0 (0%)<br>Locked: 0 (0%) | Unlocked: 0 (0%)
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- Card 5: Payments Status-Wise -->
-                                <div id="payments-status-wise-card" style="flex: 0 0 27%; max-width: 27%; min-width: 0;">
+                                <div id="payments-status-wise-card" style="flex: 0 0 26%; max-width: 26%; min-width: 0;">
                                     <div class="card glass-card h-100">
                                         <div class="card-body p-2 d-flex flex-column justify-content-between">
                                             <div>
@@ -1174,16 +1174,16 @@
 
                     if (selectedProduct === 'LF') {
                         if (arrearsCard) arrearsCard.style.display = 'none';
-                        if (channelsCard) { channelsCard.style.flex = '0 0 32%'; channelsCard.style.maxWidth = '32%'; }
-                        if (maturedCard) { maturedCard.style.flex = '0 0 18%'; maturedCard.style.maxWidth = '18%'; }
-                        if (securityCard) { securityCard.style.flex = '0 0 18%'; securityCard.style.maxWidth = '18%'; }
-                        if (paymentsCard) { paymentsCard.style.flex = '0 0 32%'; paymentsCard.style.maxWidth = '32%'; }
+                        if (channelsCard) { channelsCard.style.flex = '0 0 30%'; channelsCard.style.maxWidth = '30%'; }
+                        if (maturedCard) { maturedCard.style.flex = '0 0 16%'; maturedCard.style.maxWidth = '16%'; }
+                        if (securityCard) { securityCard.style.flex = '0 0 24%'; securityCard.style.maxWidth = '24%'; }
+                        if (paymentsCard) { paymentsCard.style.flex = '0 0 30%'; paymentsCard.style.maxWidth = '30%'; }
                     } else {
-                        if (arrearsCard) { arrearsCard.style.display = ''; arrearsCard.style.flex = '0 0 15%'; arrearsCard.style.maxWidth = '15%'; }
-                        if (channelsCard) { channelsCard.style.flex = '0 0 27%'; channelsCard.style.maxWidth = '27%'; }
-                        if (maturedCard) { maturedCard.style.flex = '0 0 15%'; maturedCard.style.maxWidth = '15%'; }
-                        if (securityCard) { securityCard.style.flex = '0 0 16%'; securityCard.style.maxWidth = '16%'; }
-                        if (paymentsCard) { paymentsCard.style.flex = '0 0 27%'; paymentsCard.style.maxWidth = '27%'; }
+                        if (arrearsCard) { arrearsCard.style.display = ''; arrearsCard.style.flex = '0 0 14%'; arrearsCard.style.maxWidth = '14%'; }
+                        if (channelsCard) { channelsCard.style.flex = '0 0 26%'; channelsCard.style.maxWidth = '26%'; }
+                        if (maturedCard) { maturedCard.style.flex = '0 0 14%'; maturedCard.style.maxWidth = '14%'; }
+                        if (securityCard) { securityCard.style.flex = '0 0 20%'; securityCard.style.maxWidth = '20%'; }
+                        if (paymentsCard) { paymentsCard.style.flex = '0 0 26%'; paymentsCard.style.maxWidth = '26%'; }
                     }
 
                     if (selectedProduct !== 'LF') {
