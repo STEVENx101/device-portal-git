@@ -334,8 +334,8 @@ table.dataTable thead th {
 }
 
 #transaction-channels-card {
-    flex: 0 0 25% !important;
-    max-width: 25% !important;
+    flex: 0 0 27% !important;
+    max-width: 27% !important;
     min-width: 0 !important;
 }
 
@@ -346,33 +346,34 @@ table.dataTable thead th {
 }
 
 #device-security-status-card {
-    flex: 0 0 20% !important;
-    max-width: 20% !important;
+    flex: 0 0 16% !important;
+    max-width: 16% !important;
     min-width: 0 !important;
 }
 
 #payments-status-wise-card {
-    flex: 0 0 25% !important;
-    max-width: 25% !important;
+    flex: 0 0 27% !important;
+    max-width: 27% !important;
     min-width: 0 !important;
 }
 
 /* Laptop Finance adjustment when Card 1 is hidden */
 #mobile-lock-arrears-card[style*="display: none"] ~ #transaction-channels-card {
-    flex: 0 0 30% !important;
-    max-width: 30% !important;
+    flex: 0 0 32% !important;
+    max-width: 32% !important;
 }
 #mobile-lock-arrears-card[style*="display: none"] ~ #matured-np-card {
     flex: 0 0 18% !important;
     max-width: 18% !important;
 }
 #mobile-lock-arrears-card[style*="display: none"] ~ #device-security-status-card {
-    flex: 0 0 22% !important;
-    max-width: 22% !important;
+    flex: 0 0 18% !important;
+    max-width: 18% !important;
 }
 #mobile-lock-arrears-card[style*="display: none"] ~ #payments-status-wise-card {
-    flex: 0 0 30% !important;
-    max-width: 30% !important;
+    flex: 0 0 32% !important;
+    max-width: 32% !important;
 }
+
 
 

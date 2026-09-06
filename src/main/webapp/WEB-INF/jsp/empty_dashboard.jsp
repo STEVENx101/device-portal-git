@@ -483,7 +483,7 @@
                                 </div>
 
                                 <!-- Card 2: Transaction Channels -->
-                                <div id="transaction-channels-card" style="flex: 0 0 25%; max-width: 25%; min-width: 0;">
+                                <div id="transaction-channels-card" style="flex: 0 0 27%; max-width: 27%; min-width: 0;">
                                     <div class="card glass-card h-100">
                                         <div class="card-body p-2">
                                             <div class="fs--2 fw-semi-bold text-muted mb-2 text-truncate"><i
@@ -547,7 +547,7 @@
                                 </div>
 
                                 <!-- Card 4: Device Security Status (Stacked vertically inside) -->
-                                <div id="device-security-status-card" style="flex: 0 0 20%; max-width: 20%; min-width: 0;">
+                                <div id="device-security-status-card" style="flex: 0 0 16%; max-width: 16%; min-width: 0;">
                                     <div class="card glass-card h-100">
                                         <div class="card-body p-2 d-flex flex-column justify-content-between">
                                             <div>
@@ -632,7 +632,7 @@
                                 </div>
 
                                 <!-- Card 5: Payments Status-Wise -->
-                                <div id="payments-status-wise-card" style="flex: 0 0 25%; max-width: 25%; min-width: 0;">
+                                <div id="payments-status-wise-card" style="flex: 0 0 27%; max-width: 27%; min-width: 0;">
                                     <div class="card glass-card h-100">
                                         <div class="card-body p-2 d-flex flex-column justify-content-between">
                                             <div>
@@ -1174,16 +1174,16 @@
 
                     if (selectedProduct === 'LF') {
                         if (arrearsCard) arrearsCard.style.display = 'none';
-                        if (channelsCard) { channelsCard.style.flex = '0 0 30%'; channelsCard.style.maxWidth = '30%'; }
+                        if (channelsCard) { channelsCard.style.flex = '0 0 32%'; channelsCard.style.maxWidth = '32%'; }
                         if (maturedCard) { maturedCard.style.flex = '0 0 18%'; maturedCard.style.maxWidth = '18%'; }
-                        if (securityCard) { securityCard.style.flex = '0 0 22%'; securityCard.style.maxWidth = '22%'; }
-                        if (paymentsCard) { paymentsCard.style.flex = '0 0 30%'; paymentsCard.style.maxWidth = '30%'; }
+                        if (securityCard) { securityCard.style.flex = '0 0 18%'; securityCard.style.maxWidth = '18%'; }
+                        if (paymentsCard) { paymentsCard.style.flex = '0 0 32%'; paymentsCard.style.maxWidth = '32%'; }
                     } else {
                         if (arrearsCard) { arrearsCard.style.display = ''; arrearsCard.style.flex = '0 0 15%'; arrearsCard.style.maxWidth = '15%'; }
-                        if (channelsCard) { channelsCard.style.flex = '0 0 25%'; channelsCard.style.maxWidth = '25%'; }
+                        if (channelsCard) { channelsCard.style.flex = '0 0 27%'; channelsCard.style.maxWidth = '27%'; }
                         if (maturedCard) { maturedCard.style.flex = '0 0 15%'; maturedCard.style.maxWidth = '15%'; }
-                        if (securityCard) { securityCard.style.flex = '0 0 20%'; securityCard.style.maxWidth = '20%'; }
-                        if (paymentsCard) { paymentsCard.style.flex = '0 0 25%'; paymentsCard.style.maxWidth = '25%'; }
+                        if (securityCard) { securityCard.style.flex = '0 0 16%'; securityCard.style.maxWidth = '16%'; }
+                        if (paymentsCard) { paymentsCard.style.flex = '0 0 27%'; paymentsCard.style.maxWidth = '27%'; }
                     }
 
                     if (selectedProduct !== 'LF') {
