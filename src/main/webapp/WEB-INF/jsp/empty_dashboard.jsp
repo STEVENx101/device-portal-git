@@ -490,12 +490,17 @@
                                             <div
                                                 style="height: 260px; position: relative; width: 100%; overflow-y: auto;">
                                                 <table class="table table-sm table-striped fs--2 mb-0"
-                                                    id="transactionChannelTable" style="font-size: 0.72rem;">
+                                                    id="transactionChannelTable" style="font-size: 0.7rem; table-layout: fixed; width: 100%;">
+                                                    <colgroup>
+                                                        <col style="width: 38%;">
+                                                        <col style="width: 27%;">
+                                                        <col style="width: 35%;">
+                                                    </colgroup>
                                                     <thead class="bg-200">
                                                         <tr>
-                                                            <th style="white-space: nowrap !important;">Channel</th>
-                                                            <th class="text-end" style="white-space: nowrap !important;">Payments</th>
-                                                            <th class="text-end" style="white-space: nowrap !important;">Amount</th>
+                                                            <th class="text-truncate" style="max-width: 0;" title="Channel">Channel</th>
+                                                            <th class="text-end text-truncate" style="max-width: 0;" title="Payments">Payments</th>
+                                                            <th class="text-end text-truncate" style="max-width: 0;" title="Amount">Amount</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody id="transactionChannelTableBody">
@@ -617,10 +622,9 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                             <div class="text-center text-700 mt-2 border-top pt-2"
+                                             <div class="text-center text-700 fw-bold mt-2 border-top pt-2"
                                                  id="device-sec-text" style="font-size: 0.65rem; line-height: 1.25;">
-                                                 Device locks summary &bull; Active: <span id="sec-mobile-locked-val"
-                                                     class="fw-bold text-danger">0</span> Mobiles
+                                                 Totals:Perf: 0 (0%) | Non-Perf: 0 (0%) &bull; Locked: 0 (0%) | Unlocked: 0 (0%)
                                              </div></div>
                                         </div>
                                     </div>
@@ -639,13 +643,19 @@
                                                 <div
                                                     style="height: 260px; position: relative; width: 100%; overflow-y: auto;">
                                                     <table class="table table-sm table-striped fs--2 mb-0"
-                                                        id="paymentsStatusTable" style="font-size: 0.72rem;">
+                                                        id="paymentsStatusTable" style="font-size: 0.7rem; table-layout: fixed; width: 100%;">
+                                                        <colgroup>
+                                                            <col style="width: 34%;">
+                                                            <col style="width: 22%;">
+                                                            <col style="width: 22%;">
+                                                            <col style="width: 22%;">
+                                                        </colgroup>
                                                         <thead class="bg-200">
                                                             <tr>
-                                                                <th>Month</th>
-                                                                <th class="text-end">Success</th>
-                                                                <th class="text-end">Pending</th>
-                                                                <th class="text-end">Failed</th>
+                                                                <th class="text-truncate" style="max-width: 0;" title="Month">Month</th>
+                                                                <th class="text-end text-truncate" style="max-width: 0;" title="Success">Success</th>
+                                                                <th class="text-end text-truncate" style="max-width: 0;" title="Pending">Pending</th>
+                                                                <th class="text-end text-truncate" style="max-width: 0;" title="Failed">Failed</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody id="paymentsStatusTableBody">
@@ -1081,12 +1091,11 @@
                                     const lockedPctStr = lockSum > 0 ? ' (' + Math.round((lockedTot / lockSum) * 100) + '%)' : '';
                                     const unlockedPctStr = lockSum > 0 ? ' (' + Math.round((unlockedTot / lockSum) * 100) + '%)' : '';
 
-                                    document.getElementById("device-sec-text").innerHTML =
-                                        '<span class="fw-bold me-1 text-700">Totals:</span>' +
-                                        '<span class="text-700 fw-semi-bold">Perf: ' + formatNum(perfTot) + perfPctStr + '</span> | ' +
-                                        '<span class="text-700 fw-semi-bold">Non-Perf: ' + formatNum(npTot) + npPctStr + '</span> &bull; ' +
-                                        '<span class="text-700 fw-semi-bold">Locked: ' + formatNum(lockedTot) + lockedPctStr + '</span> | ' +
-                                        '<span class="text-700 fw-semi-bold">Unlocked: ' + formatNum(unlockedTot) + unlockedPctStr + '</span>';
+                                     document.getElementById("device-sec-text").innerHTML =
+                                        '<span class="fw-bold text-700">Totals:Perf: ' + formatNum(perfTot) + perfPctStr + ' | ' +
+                                        'Non-Perf: ' + formatNum(npTot) + npPctStr + ' &bull; ' +
+                                        'Locked: ' + formatNum(lockedTot) + lockedPctStr + ' | ' +
+                                        'Unlocked: ' + formatNum(unlockedTot) + unlockedPctStr + '</span>';
                                 } else {
                                     document.querySelectorAll('.mobile-sec-col').forEach(el => el.style.display = 'none');
                                     document.querySelectorAll('.laptop-sec-col').forEach(el => el.style.display = '');
@@ -1114,11 +1123,10 @@
                                     const unlockedPctStr = lockSum > 0 ? ' (' + Math.round((unlockedTot / lockSum) * 100) + '%)' : '';
 
                                     document.getElementById("device-sec-text").innerHTML =
-                                        '<span class="fw-bold me-1 text-700">Totals:</span>' +
-                                        '<span class="text-700 fw-semi-bold">Perf: ' + formatNum(perfTot) + perfPctStr + '</span> | ' +
-                                        '<span class="text-700 fw-semi-bold">Non-Perf: ' + formatNum(npTot) + npPctStr + '</span> &bull; ' +
-                                        '<span class="text-700 fw-semi-bold">Locked: ' + formatNum(lockedTot) + lockedPctStr + '</span> | ' +
-                                        '<span class="text-700 fw-semi-bold">Unlocked: ' + formatNum(unlockedTot) + unlockedPctStr + '</span>';
+                                        '<span class="fw-bold text-700">Totals:Perf: ' + formatNum(perfTot) + perfPctStr + ' | ' +
+                                        'Non-Perf: ' + formatNum(npTot) + npPctStr + ' &bull; ' +
+                                        'Locked: ' + formatNum(lockedTot) + lockedPctStr + ' | ' +
+                                        'Unlocked: ' + formatNum(unlockedTot) + unlockedPctStr + '</span>';
 
                                     buildDoughnut('laptopPerformingChart', data.laptopPerforming || [], ['Performing', 'Non-Performing'], ['rgba(16, 185, 129, 0.85)', 'rgba(244, 63, 94, 0.85)']);
                                     buildDoughnut('laptopLockChart', data.laptopLock || [], ['Active', 'Locked'], ['rgba(99, 102, 241, 0.85)', 'rgba(245, 158, 11, 0.85)']);
@@ -1230,10 +1238,11 @@
                                 let html = '';
                                 data.forEach(item => {
                                     const formattedAmt = item.total_amount !== null ? parseFloat(item.total_amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00';
+                                    const channelName = item.channel_name || 'N/A';
                                     html += '<tr>' +
-                                        '<td style="white-space: nowrap !important; word-break: normal !important;" title="' + (item.channel_name || 'N/A') + '">' + (item.channel_name || 'N/A') + '</td>' +
-                                        '<td class="text-end" style="white-space: nowrap !important;">' + (item.tx_count || 0) + '</td>' +
-                                        '<td class="text-end fw-semi-bold" style="white-space: nowrap !important;">' + formattedAmt + '</td>' +
+                                        '<td class="text-truncate fw-semi-bold" style="max-width: 0;" title="' + channelName + '">' + channelName + '</td>' +
+                                        '<td class="text-end text-truncate" style="max-width: 0;">' + (item.tx_count || 0) + '</td>' +
+                                        '<td class="text-end fw-semi-bold text-truncate" style="max-width: 0;">' + formattedAmt + '</td>' +
                                         '</tr>';
                                 });
                                 tbody.innerHTML = html || '<tr><td colspan="3" class="text-center text-muted">No transactions</td></tr>';
@@ -1350,11 +1359,26 @@
                             const tbody = document.getElementById('paymentsStatusTableBody');
                             let html = '';
                             months.forEach((m, idx) => {
+                                let shortMonth = m || '';
+                                if (shortMonth.length > 8) {
+                                    shortMonth = shortMonth
+                                        .replace('January', 'Jan')
+                                        .replace('February', 'Feb')
+                                        .replace('March', 'Mar')
+                                        .replace('April', 'Apr')
+                                        .replace('June', 'Jun')
+                                        .replace('July', 'Jul')
+                                        .replace('August', 'Aug')
+                                        .replace('September', 'Sep')
+                                        .replace('October', 'Oct')
+                                        .replace('November', 'Nov')
+                                        .replace('December', 'Dec');
+                                }
                                 html += '<tr>' +
-                                    '<td>' + m + '</td>' +
-                                    '<td class="text-end text-success fw-semi-bold">' + (completedData[idx] || 0) + '</td>' +
-                                    '<td class="text-end text-warning fw-semi-bold">' + (pendingData[idx] || 0) + '</td>' +
-                                    '<td class="text-end text-danger fw-semi-bold">' + (failedData[idx] || 0) + '</td>' +
+                                    '<td class="text-truncate fw-semi-bold" style="max-width: 0;" title="' + m + '">' + shortMonth + '</td>' +
+                                    '<td class="text-end text-success fw-semi-bold text-truncate" style="max-width: 0;">' + (completedData[idx] || 0) + '</td>' +
+                                    '<td class="text-end text-warning fw-semi-bold text-truncate" style="max-width: 0;">' + (pendingData[idx] || 0) + '</td>' +
+                                    '<td class="text-end text-danger fw-semi-bold text-truncate" style="max-width: 0;">' + (failedData[idx] || 0) + '</td>' +
                                     '</tr>';
                             });
                             tbody.innerHTML = html || '<tr><td colspan="4" class="text-center text-muted">No data</td></tr>';
