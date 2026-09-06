@@ -469,7 +469,7 @@
                             <!-- Row 3: Risk & Performance Charts (All 5 cards side-by-side, vertical content orientation) -->
                             <div class="row g-1 mb-1" style="margin-top: 2px;">
                                 <!-- Card 1: Mobile Arrears: Lock vs Unlock -->
-                                <div class="col-lg-2 col-md-4 col-sm-6 col-12" id="mobile-lock-arrears-card">
+                                <div class="col-lg-2 col-md-4 col-sm-6 col-12" id="mobile-lock-arrears-card" style="min-width: 0;">
                                     <div class="card glass-card h-100">
                                         <div class="card-body p-2">
                                             <div class="fs--2 fw-semi-bold text-muted mb-2 text-truncate"><i
@@ -482,7 +482,7 @@
                                 </div>
 
                                 <!-- Card 2: Transaction Channels -->
-                                <div class="col-lg-3 col-md-4 col-sm-6 col-12" id="transaction-channels-card">
+                                <div class="col-lg-3 col-md-4 col-sm-6 col-12" id="transaction-channels-card" style="min-width: 0;">
                                     <div class="card glass-card h-100">
                                         <div class="card-body p-2">
                                             <div class="fs--2 fw-semi-bold text-muted mb-2 text-truncate"><i
@@ -516,7 +516,7 @@
                                 </div>
 
                                 <!-- Card 3: Matured vs Non-Matured -->
-                                <div class="col-lg-2 col-md-4 col-sm-6 col-12" id="matured-np-card">
+                                <div class="col-lg-2 col-md-4 col-sm-6 col-12" id="matured-np-card" style="min-width: 0;">
                                     <div class="card glass-card h-100">
                                         <div class="card-body p-2 d-flex flex-column justify-content-between">
                                             <div>
@@ -546,7 +546,7 @@
                                 </div>
 
                                 <!-- Card 4: Device Security Status (Stacked vertically inside) -->
-                                <div class="col-lg-2 col-md-4 col-sm-6 col-12" id="device-security-status-card">
+                                <div class="col-lg-2 col-md-4 col-sm-6 col-12" id="device-security-status-card" style="min-width: 0;">
                                     <div class="card glass-card h-100">
                                         <div class="card-body p-2 d-flex flex-column justify-content-between">
                                             <div>
@@ -623,15 +623,15 @@
                                                 </div>
                                             </div>
                                              <div class="text-center text-700 fw-bold mt-2 border-top pt-2"
-                                                 id="device-sec-text" style="font-size: 0.65rem; line-height: 1.25;">
-                                                 Totals:Perf: 0 (0%) | Non-Perf: 0 (0%) &bull; Locked: 0 (0%) | Unlocked: 0 (0%)
+                                                 id="device-sec-text" style="font-size: 0.62rem; line-height: 1.2; white-space: normal; word-break: break-word;">
+                                                 Totals:Perf: 0 (0%) | Non-Perf: 0 (0%)<br>Locked: 0 (0%) | Unlocked: 0 (0%)
                                              </div></div>
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- Card 5: Payments Status-Wise -->
-                                <div class="col-lg-3 col-md-4 col-sm-6 col-12" id="payments-status-wise-card">
+                                <div class="col-lg-3 col-md-4 col-sm-6 col-12" id="payments-status-wise-card" style="min-width: 0;">
                                     <div class="card glass-card h-100">
                                         <div class="card-body p-2 d-flex flex-column justify-content-between">
                                             <div>
@@ -1092,10 +1092,8 @@
                                     const unlockedPctStr = lockSum > 0 ? ' (' + Math.round((unlockedTot / lockSum) * 100) + '%)' : '';
 
                                      document.getElementById("device-sec-text").innerHTML =
-                                        '<span class="fw-bold text-700">Totals:Perf: ' + formatNum(perfTot) + perfPctStr + ' | ' +
-                                        'Non-Perf: ' + formatNum(npTot) + npPctStr + ' &bull; ' +
-                                        'Locked: ' + formatNum(lockedTot) + lockedPctStr + ' | ' +
-                                        'Unlocked: ' + formatNum(unlockedTot) + unlockedPctStr + '</span>';
+                                        '<span class="fw-bold text-700">Totals:Perf: ' + formatNum(perfTot) + perfPctStr + ' | Non-Perf: ' + formatNum(npTot) + npPctStr + '</span><br>' +
+                                        '<span class="fw-bold text-700">Locked: ' + formatNum(lockedTot) + lockedPctStr + ' | Unlocked: ' + formatNum(unlockedTot) + unlockedPctStr + '</span>';
                                 } else {
                                     document.querySelectorAll('.mobile-sec-col').forEach(el => el.style.display = 'none');
                                     document.querySelectorAll('.laptop-sec-col').forEach(el => el.style.display = '');
@@ -1123,10 +1121,8 @@
                                     const unlockedPctStr = lockSum > 0 ? ' (' + Math.round((unlockedTot / lockSum) * 100) + '%)' : '';
 
                                     document.getElementById("device-sec-text").innerHTML =
-                                        '<span class="fw-bold text-700">Totals:Perf: ' + formatNum(perfTot) + perfPctStr + ' | ' +
-                                        'Non-Perf: ' + formatNum(npTot) + npPctStr + ' &bull; ' +
-                                        'Locked: ' + formatNum(lockedTot) + lockedPctStr + ' | ' +
-                                        'Unlocked: ' + formatNum(unlockedTot) + unlockedPctStr + '</span>';
+                                        '<span class="fw-bold text-700">Totals:Perf: ' + formatNum(perfTot) + perfPctStr + ' | Non-Perf: ' + formatNum(npTot) + npPctStr + '</span><br>' +
+                                        '<span class="fw-bold text-700">Locked: ' + formatNum(lockedTot) + lockedPctStr + ' | Unlocked: ' + formatNum(unlockedTot) + unlockedPctStr + '</span>';
 
                                     buildDoughnut('laptopPerformingChart', data.laptopPerforming || [], ['Performing', 'Non-Performing'], ['rgba(16, 185, 129, 0.85)', 'rgba(244, 63, 94, 0.85)']);
                                     buildDoughnut('laptopLockChart', data.laptopLock || [], ['Active', 'Locked'], ['rgba(99, 102, 241, 0.85)', 'rgba(245, 158, 11, 0.85)']);
