@@ -539,6 +539,7 @@ public class CbsReportController {
     @GetMapping("/early-settled/download")
     public void downloadEarlySettled(
             @RequestParam(value = "asAt", required = false) String asAt,
+            @RequestParam(value = "lowAmount", required = false) Double lowAmount,
             @RequestParam(value = "products", required = false) List<String> products,
             @RequestParam(value = "downloadToken", required = false) String downloadToken,
             HttpSession session,
@@ -546,11 +547,11 @@ public class CbsReportController {
         verifyDownloadPermission(session, response);
         com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");
         String username = currentUser != null ? currentUser.getUsername() : "system";
-        String filtersStr = String.format("asAt=%s, products=%s", asAt, products);
+        String filtersStr = String.format("asAt=%s, lowAmount=%s, products=%s", asAt, lowAmount, products);
         cbsReportService.logReportActivity(username, "Early Settled Exception Report", "DOWNLOAD", filtersStr);
 
         setDownloadTokenCookie(response, downloadToken);
-        List<Map<String, Object>> data = cbsReportService.getEarlySettledReportData(asAt, products);
+        List<Map<String, Object>> data = cbsReportService.getEarlySettledReportData(asAt, lowAmount, products);
         writeEarlySettledCsv(response, "early_settled_report.csv", data);
     }
 

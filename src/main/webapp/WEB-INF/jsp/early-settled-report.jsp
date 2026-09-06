@@ -101,9 +101,13 @@
                         <div class="card-body">
                             <form id="filterForm">
                                 <div class="row g-3 align-items-end">
-                                     <div class="col-md-3">
+                                     <div class="col-md-2">
                                           <label class="form-label text-700 fw-semi-bold" for="asAtDate">As at Portfolio Date</label>
                                          <input class="form-control" type="date" id="asAtDate" value="">
+                                     </div>
+                                     <div class="col-md-3">
+                                         <label class="form-label text-700 fw-semi-bold" for="lowAmount">Max Balance (Low Amount)</label>
+                                         <input class="form-control" type="number" id="lowAmount" value="1000" placeholder="1000">
                                      </div>
                                      
                                     <div class="col-md-3">
@@ -187,6 +191,7 @@
                 const products = productChoices ? productChoices.getValue(true) : [];
                 return {
                     asAt: $('#asAtDate').val(),
+                    lowAmount: $('#lowAmount').val(),
                     products: products
                 };
             }
@@ -322,6 +327,7 @@
                     queryParams.push('downloadToken=' + encodeURIComponent(token));
 
                     if (filters.asAt) queryParams.push('asAt=' + encodeURIComponent(filters.asAt));
+                    if (filters.lowAmount) queryParams.push('lowAmount=' + encodeURIComponent(filters.lowAmount));
 
                     if (filters.products && filters.products.length > 0) {
                         filters.products.forEach(p => queryParams.push('products=' + encodeURIComponent(p)));

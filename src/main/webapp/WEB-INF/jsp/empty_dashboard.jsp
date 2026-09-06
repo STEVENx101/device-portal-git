@@ -553,7 +553,7 @@
                                                     </div>
                                                 </div>
                                                 <div class="row g-1 align-items-center">
-                                                    <div class="col-12 mobile-sec-col p-2" style="height: 235px;">
+                                                    <div class="col-12 mobile-sec-col p-2" style="height: 220px;">
                                                         <!-- Locked -->
                                                         <div class="mb-2 text-start">
                                                             <div class="d-flex justify-content-between text-muted mb-1" style="font-size: 0.62rem;">
@@ -617,11 +617,11 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="text-center text-muted mt-2 border-top pt-1"
-                                                id="device-sec-text" style="font-size: 0.65rem; line-height: 1.1;">
-                                                Device locks summary &bull; Active: <span id="sec-mobile-locked-val"
-                                                    class="fw-bold text-danger">0</span> Mobiles
-                                            </div>
+                                             <div class="text-center text-700 mt-2 border-top pt-2"
+                                                 id="device-sec-text" style="font-size: 0.65rem; line-height: 1.25;">
+                                                 Device locks summary &bull; Active: <span id="sec-mobile-locked-val"
+                                                     class="fw-bold text-danger">0</span> Mobiles
+                                             </div></div>
                                         </div>
                                     </div>
                                 </div>
@@ -1073,12 +1073,20 @@
                                     const perfTot = (barData.knox[2] || 0) + (barData.datacultr[2] || 0);
                                     const npTot = (barData.knox[3] || 0) + (barData.datacultr[3] || 0);
 
+                                    const perfSum = perfTot + npTot;
+                                    const lockSum = lockedTot + unlockedTot;
+
+                                    const perfPctStr = perfSum > 0 ? ' (' + Math.round((perfTot / perfSum) * 100) + '%)' : '';
+                                    const npPctStr = perfSum > 0 ? ' (' + Math.round((npTot / perfSum) * 100) + '%)' : '';
+                                    const lockedPctStr = lockSum > 0 ? ' (' + Math.round((lockedTot / lockSum) * 100) + '%)' : '';
+                                    const unlockedPctStr = lockSum > 0 ? ' (' + Math.round((unlockedTot / lockSum) * 100) + '%)' : '';
+
                                     document.getElementById("device-sec-text").innerHTML =
-                                        '<span class="fw-bold me-1">Totals:</span>' +
-                                        '<span class="text-success fw-bold">Perf: ' + formatNum(perfTot) + '</span> | ' +
-                                        '<span class="text-danger fw-bold">Non-Perf: ' + formatNum(npTot) + '</span> &bull; ' +
-                                        '<span class="text-warning fw-bold">Locked: ' + formatNum(lockedTot) + '</span> | ' +
-                                        '<span class="text-info fw-bold">Unlocked: ' + formatNum(unlockedTot) + '</span>';
+                                        '<span class="fw-bold me-1 text-700">Totals:</span>' +
+                                        '<span class="text-700 fw-semi-bold">Perf: ' + formatNum(perfTot) + perfPctStr + '</span> | ' +
+                                        '<span class="text-700 fw-semi-bold">Non-Perf: ' + formatNum(npTot) + npPctStr + '</span> &bull; ' +
+                                        '<span class="text-700 fw-semi-bold">Locked: ' + formatNum(lockedTot) + lockedPctStr + '</span> | ' +
+                                        '<span class="text-700 fw-semi-bold">Unlocked: ' + formatNum(unlockedTot) + unlockedPctStr + '</span>';
                                 } else {
                                     document.querySelectorAll('.mobile-sec-col').forEach(el => el.style.display = 'none');
                                     document.querySelectorAll('.laptop-sec-col').forEach(el => el.style.display = '');
@@ -1097,12 +1105,20 @@
                                         });
                                     }
 
+                                    const perfSum = perfTot + npTot;
+                                    const lockSum = lockedTot + unlockedTot;
+
+                                    const perfPctStr = perfSum > 0 ? ' (' + Math.round((perfTot / perfSum) * 100) + '%)' : '';
+                                    const npPctStr = perfSum > 0 ? ' (' + Math.round((npTot / perfSum) * 100) + '%)' : '';
+                                    const lockedPctStr = lockSum > 0 ? ' (' + Math.round((lockedTot / lockSum) * 100) + '%)' : '';
+                                    const unlockedPctStr = lockSum > 0 ? ' (' + Math.round((unlockedTot / lockSum) * 100) + '%)' : '';
+
                                     document.getElementById("device-sec-text").innerHTML =
-                                        '<span class="fw-bold me-1">Totals:</span>' +
-                                        '<span class="text-success fw-bold">Perf: ' + formatNum(perfTot) + '</span> | ' +
-                                        '<span class="text-danger fw-bold">Non-Perf: ' + formatNum(npTot) + '</span> &bull; ' +
-                                        '<span class="text-warning fw-bold">Locked: ' + formatNum(lockedTot) + '</span> | ' +
-                                        '<span class="text-info fw-bold">Unlocked: ' + formatNum(unlockedTot) + '</span>';
+                                        '<span class="fw-bold me-1 text-700">Totals:</span>' +
+                                        '<span class="text-700 fw-semi-bold">Perf: ' + formatNum(perfTot) + perfPctStr + '</span> | ' +
+                                        '<span class="text-700 fw-semi-bold">Non-Perf: ' + formatNum(npTot) + npPctStr + '</span> &bull; ' +
+                                        '<span class="text-700 fw-semi-bold">Locked: ' + formatNum(lockedTot) + lockedPctStr + '</span> | ' +
+                                        '<span class="text-700 fw-semi-bold">Unlocked: ' + formatNum(unlockedTot) + unlockedPctStr + '</span>';
 
                                     buildDoughnut('laptopPerformingChart', data.laptopPerforming || [], ['Performing', 'Non-Performing'], ['rgba(16, 185, 129, 0.85)', 'rgba(244, 63, 94, 0.85)']);
                                     buildDoughnut('laptopLockChart', data.laptopLock || [], ['Active', 'Locked'], ['rgba(99, 102, 241, 0.85)', 'rgba(245, 158, 11, 0.85)']);

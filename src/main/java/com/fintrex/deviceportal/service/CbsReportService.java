@@ -1624,10 +1624,13 @@ public class CbsReportService {
         return executePagedReport(request, sql, params);
     }
 
-    public List<Map<String, Object>> getEarlySettledReportData(String asAt, List<String> products) {
+    public List<Map<String, Object>> getEarlySettledReportData(String asAt, Double lowAmount, List<String> products) {
         Map<String, Object> filterMap = new HashMap<>();
         filterMap.put("asAt", asAt);
         filterMap.put("products", products);
+        if (lowAmount != null) {
+            filterMap.put("lowAmount", lowAmount);
+        }
         Map<String, Object> params = new HashMap<>();
         String sql = buildEarlySettledReportQuery(filterMap, params);
         return executeDownloadReport(sql, params);
@@ -1932,6 +1935,16 @@ public class CbsReportService {
             if (asAt != null && !asAt.trim().isEmpty()) {
                 subQuery += " AND l.disbursed_date < DATE_ADD(:asAt, INTERVAL 1 DAY)";
                 params.put("asAt", asAt.trim());
+            }
+
+            Object lowAmtObj = filter.get("lowAmount");
+            if (lowAmtObj != null && !lowAmtObj.toString().trim().isEmpty()) {
+                try {
+                    double lowAmount = Double.parseDouble(lowAmtObj.toString().trim());
+                    subQuery += " AND (p1.early_settlement <= :lowAmountThreshold OR p1.exposure <= :lowAmountThreshold)";
+                    params.put("lowAmountThreshold", lowAmount);
+                } catch (NumberFormatException ignored) {
+                }
             }
 
             Object productsObj = filter.get("products");
