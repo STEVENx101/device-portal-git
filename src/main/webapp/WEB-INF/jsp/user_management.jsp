@@ -412,18 +412,15 @@
             function showAlert(message, type = 'success') {
                 const container = document.getElementById('alertContainer');
                 const toast = document.createElement('div');
-                toast.className = `toast align-items-center text-white bg-${type} border-0 show mb-2`;
+                toast.className = 'toast align-items-center text-white bg-' + type + ' border-0 show mb-2';
                 toast.setAttribute('role', 'alert');
                 toast.setAttribute('aria-live', 'assertive');
                 toast.setAttribute('aria-atomic', 'true');
-                toast.innerHTML = `
-                    <div class="d-flex">
-                        <div class="toast-body">
-                            ${message}
-                        </div>
-                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-                    </div>
-                `;
+                toast.innerHTML = 
+                    '<div class="d-flex">' +
+                        '<div class="toast-body">' + message + '</div>' +
+                        '<button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>' +
+                    '</div>';
                 container.appendChild(toast);
                 setTimeout(() => {
                     toast.classList.remove('show');
@@ -435,7 +432,7 @@
             function updateUserCount() {
                 const count = Array.from(document.querySelectorAll('#userTableBody tr'))
                                    .filter(row => row.style.display !== 'none').length;
-                document.getElementById('userCount').innerText = `${count} Users`;
+                document.getElementById('userCount').innerText = count + ' Users';
             }
 
             // Load and check permissions when a role is selected
@@ -505,52 +502,49 @@
                     .then(data => {
                         if (data.success) {
                             showAlert(data.message, 'success');
-                            placeholder.innerHTML = `
-                                <div class="alert alert-success border-2 d-flex align-items-center show" role="alert" style="border-radius: 12px; background-color: rgba(76, 175, 80, 0.1); border-color: rgba(76, 175, 80, 0.3);">
-                                    <div class="bg-success text-white p-2 rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; box-shadow: 0 4px 10px rgba(76,175,80,0.3);">
-                                        <span class="fas fa-check fs-0"></span>
-                                    </div>
-                                    <div class="flex-1">
-                                        <h6 class="mb-0 text-success fw-bold">Success</h6>
-                                        <p class="mb-0 fs--1 text-800">${data.message}</p>
-                                    </div>
-                                    <button class="btn-close ms-auto" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
-                                </div>
-                            `;
+                            placeholder.innerHTML = 
+                                '<div class="alert alert-success border-2 d-flex align-items-center show" role="alert" style="border-radius: 12px; background-color: rgba(76, 175, 80, 0.1); border-color: rgba(76, 175, 80, 0.3);">' +
+                                    '<div class="bg-success text-white p-2 rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; box-shadow: 0 4px 10px rgba(76,175,80,0.3);">' +
+                                        '<span class="fas fa-check fs-0"></span>' +
+                                    '</div>' +
+                                    '<div class="flex-1">' +
+                                        '<h6 class="mb-0 text-success fw-bold">Success</h6>' +
+                                        '<p class="mb-0 fs--1 text-800">' + data.message + '</p>' +
+                                    '</div>' +
+                                    '<button class="btn-close ms-auto" type="button" data-bs-dismiss="alert" aria-label="Close"></button>' +
+                                '</div>';
                             setTimeout(() => {
                                 placeholder.innerHTML = '';
                             }, 4000);
                         } else {
                             showAlert(data.message, 'danger');
-                            placeholder.innerHTML = `
-                                <div class="alert alert-danger border-2 d-flex align-items-center show" role="alert" style="border-radius: 12px; background-color: rgba(244, 67, 54, 0.1); border-color: rgba(244, 67, 54, 0.3);">
-                                    <div class="bg-danger text-white p-2 rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; box-shadow: 0 4px 10px rgba(244,67,54,0.3);">
-                                        <span class="fas fa-exclamation-triangle fs-0"></span>
-                                    </div>
-                                    <div class="flex-1">
-                                        <h6 class="mb-0 text-danger fw-bold">Error</h6>
-                                        <p class="mb-0 fs--1 text-800">${data.message}</p>
-                                    </div>
-                                    <button class="btn-close ms-auto" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
-                                </div>
-                            `;
+                            placeholder.innerHTML = 
+                                '<div class="alert alert-danger border-2 d-flex align-items-center show" role="alert" style="border-radius: 12px; background-color: rgba(244, 67, 54, 0.1); border-color: rgba(244, 67, 54, 0.3);">' +
+                                    '<div class="bg-danger text-white p-2 rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; box-shadow: 0 4px 10px rgba(244,67,54,0.3);">' +
+                                        '<span class="fas fa-exclamation-triangle fs-0"></span>' +
+                                    '</div>' +
+                                    '<div class="flex-1">' +
+                                        '<h6 class="mb-0 text-danger fw-bold">Error</h6>' +
+                                        '<p class="mb-0 fs--1 text-800">' + data.message + '</p>' +
+                                    '</div>' +
+                                    '<button class="btn-close ms-auto" type="button" data-bs-dismiss="alert" aria-label="Close"></button>' +
+                                '</div>';
                         }
                     })
                     .catch(err => {
                         console.error(err);
                         showAlert('Error saving permissions', 'danger');
-                        placeholder.innerHTML = `
-                            <div class="alert alert-danger border-2 d-flex align-items-center show" role="alert" style="border-radius: 12px; background-color: rgba(244, 67, 54, 0.1); border-color: rgba(244, 67, 54, 0.3);">
-                                <div class="bg-danger text-white p-2 rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; box-shadow: 0 4px 10px rgba(244,67,54,0.3);">
-                                    <span class="fas fa-exclamation-triangle fs-0"></span>
-                                </div>
-                                <div class="flex-1">
-                                    <h6 class="mb-0 text-danger fw-bold">Error</h6>
-                                    <p class="mb-0 fs--1 text-800">Error saving permissions</p>
-                                </div>
-                                <button class="btn-close ms-auto" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        `;
+                        placeholder.innerHTML = 
+                            '<div class="alert alert-danger border-2 d-flex align-items-center show" role="alert" style="border-radius: 12px; background-color: rgba(244, 67, 54, 0.1); border-color: rgba(244, 67, 54, 0.3);">' +
+                                '<div class="bg-danger text-white p-2 rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; box-shadow: 0 4px 10px rgba(244,67,54,0.3);">' +
+                                    '<span class="fas fa-exclamation-triangle fs-0"></span>' +
+                                '</div>' +
+                                '<div class="flex-1">' +
+                                    '<h6 class="mb-0 text-danger fw-bold">Error</h6>' +
+                                    '<p class="mb-0 fs--1 text-800">Error saving permissions</p>' +
+                                '</div>' +
+                                '<button class="btn-close ms-auto" type="button" data-bs-dismiss="alert" aria-label="Close"></button>' +
+                            '</div>';
                     });
                 });
 
@@ -682,19 +676,22 @@
 
                                     let html = '<div class="list-group shadow-lg border border-200" style="max-height: 220px; overflow-y: auto; border-radius: 8px;">';
                                     users.forEach(u => {
-                                        html += `
-                                            <a href="#" class="list-group-item list-group-item-action py-2 hris-suggestion-item" 
-                                               data-username="${u.username || ''}" 
-                                               data-callname="${u.callname || ''}" 
-                                               data-email="${u.email || ''}">
-                                                <div class="d-flex justify-content-between align-items-center mb-1">
-                                                    <span class="fw-bold text-primary font-monospace fs--1">${u.username || ''}</span>
-                                                    <span class="badge bg-soft-success text-success fs--2">${u.status || 'Active'}</span>
-                                                </div>
-                                                <div class="fs--1 text-900 fw-semi-bold">${u.callname || ''}</div>
-                                                <div class="fs--2 text-500">${u.email || ''}</div>
-                                            </a>
-                                        `;
+                                        const usernameStr = u.username ? u.username : '';
+                                        const callnameStr = u.callname ? u.callname : '';
+                                        const emailStr = u.email ? u.email : '';
+                                        const statusStr = u.status ? u.status : 'Active';
+
+                                        html += '<a href="#" class="list-group-item list-group-item-action py-2 hris-suggestion-item" ' +
+                                                'data-username="' + usernameStr + '" ' +
+                                                'data-callname="' + callnameStr + '" ' +
+                                                'data-email="' + emailStr + '">' +
+                                                    '<div class="d-flex justify-content-between align-items-center mb-1">' +
+                                                        '<span class="fw-bold text-primary font-monospace fs--1">' + usernameStr + '</span>' +
+                                                        '<span class="badge bg-soft-success text-success fs--2">' + statusStr + '</span>' +
+                                                    '</div>' +
+                                                    '<div class="fs--1 text-900 fw-semi-bold">' + callnameStr + '</div>' +
+                                                    '<div class="fs--2 text-500">' + emailStr + '</div>' +
+                                                '</a>';
                                     });
                                     html += '</div>';
                                     hrisSuggestions.innerHTML = html;
