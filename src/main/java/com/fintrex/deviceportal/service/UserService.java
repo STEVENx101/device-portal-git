@@ -3,6 +3,7 @@ package com.fintrex.deviceportal.service;
 import com.fintrex.deviceportal.dto.User;
 import com.fintrex.deviceportal.dto.UserType;
 import com.fintrex.deviceportal.dto.Screen;
+import com.fintrex.deviceportal.dto.HrisUser;
 import com.fintrex.deviceportal.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
@@ -48,6 +49,10 @@ public class UserService {
 
     public List<Screen> getPermittedScreens(int userTypeId) {
         return userRepository.findPermittedScreens(userTypeId);
+    }
+
+    public List<HrisUser> searchActiveHrisUsers(String query) {
+        return userRepository.searchActiveHrisUsers(query);
     }
 
     public boolean createUser(String username, String password, String fullName, String email, int userTypeId) {

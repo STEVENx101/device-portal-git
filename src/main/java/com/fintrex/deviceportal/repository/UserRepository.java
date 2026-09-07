@@ -3,6 +3,7 @@ package com.fintrex.deviceportal.repository;
 import com.fintrex.deviceportal.dto.User;
 import com.fintrex.deviceportal.dto.UserType;
 import com.fintrex.deviceportal.dto.Screen;
+import com.fintrex.deviceportal.dto.HrisUser;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -123,10 +124,39 @@ public class UserRepository {
         }, userTypeId);
     }
 
+    public List<HrisUser> searchActiveHrisUsers(String query) {
+        String sql = """
+            SELECT e.id AS employee_id, u.username, e.callname, e.email, e.status
+            FROM hris_new.employee e
+            JOIN hris_new.user u ON e.id = u.employee_id
+            WHERE (LOWER(e.status) = 'active' OR e.status = '1' OR e.status = 'Active' OR e.status = 'ACTIVE')
+              AND (
+                   LOWER(u.username) LIKE LOWER(?) 
+                OR LOWER(e.callname) LIKE LOWER(?) 
+                OR LOWER(e.email) LIKE LOWER(?)
+              )
+            ORDER BY e.callname ASC
+            LIMIT 25""";
+        String searchPattern = "%" + (query == null ? "" : query.trim()) + "%";
+        try {
+            return jdbcTemplate.query(sql, (rs, rowNum) -> new HrisUser(
+                    rs.getInt("employee_id"),
+                    rs.getString("username"),
+                    rs.getString("callname"),
+                    rs.getString("email"),
+                    rs.getString("status")
+            ), searchPattern, searchPattern, searchPattern);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return java.util.Collections.emptyList();
+        }
+    }
+
     public int createUser(String username, String password, String fullName, String email, int userTypeId) {
+        String pwd = (password != null && !password.trim().isEmpty()) ? password : "default_password";
         String sql = """
             INSERT INTO device_portal.user (username, password, full_name, email, user_type_id) VALUES (?, ?, ?, ?, ?)""";
-        return jdbcTemplate.update(sql, username, password, fullName, email, userTypeId);
+        return jdbcTemplate.update(sql, username, pwd, fullName, email, userTypeId);
     }
 
     public int createUserType(String name, String description) {

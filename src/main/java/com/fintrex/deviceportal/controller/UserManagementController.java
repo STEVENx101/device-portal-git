@@ -3,6 +3,7 @@ package com.fintrex.deviceportal.controller;
 import com.fintrex.deviceportal.dto.User;
 import com.fintrex.deviceportal.dto.UserType;
 import com.fintrex.deviceportal.dto.Screen;
+import com.fintrex.deviceportal.dto.HrisUser;
 import com.fintrex.deviceportal.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -61,11 +62,17 @@ public class UserManagementController {
         return ResponseEntity.ok(screenIds);
     }
 
+    @GetMapping("/api/hris-users")
+    @ResponseBody
+    public ResponseEntity<List<HrisUser>> searchHrisUsers(@RequestParam(value = "query", required = false, defaultValue = "") String query) {
+        return ResponseEntity.ok(userService.searchActiveHrisUsers(query));
+    }
+
     @PostMapping("/api/users")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> createUser(
             @RequestParam("username") String username,
-            @RequestParam("password") String password,
+            @RequestParam(value = "password", required = false, defaultValue = "123456") String password,
             @RequestParam("fullName") String fullName,
             @RequestParam("email") String email,
             @RequestParam("userTypeId") int userTypeId) {
@@ -73,13 +80,15 @@ public class UserManagementController {
         Map<String, Object> response = new HashMap<>();
         
         // Simple validation
-        if (username.trim().isEmpty() || password.trim().isEmpty() || fullName.trim().isEmpty() || email.trim().isEmpty()) {
+        if (username.trim().isEmpty() || fullName.trim().isEmpty() || email.trim().isEmpty()) {
             response.put("success", false);
-            response.put("message", "All fields are required.");
+            response.put("message", "Username, Full Name, and Email are required.");
             return ResponseEntity.badRequest().body(response);
         }
 
-        boolean success = userService.createUser(username, password, fullName, email, userTypeId);
+        String userPassword = (password != null && !password.trim().isEmpty()) ? password : "123456";
+
+        boolean success = userService.createUser(username, userPassword, fullName, email, userTypeId);
         if (success) {
             response.put("success", true);
             response.put("message", "User created successfully!");

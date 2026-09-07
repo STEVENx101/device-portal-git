@@ -271,35 +271,38 @@
                                 </div>
                                 <form id="createUserForm">
                                     <div class="modal-body">
-                                        <div class="mb-3">
-                                            <label class="form-label" for="username">Username</label>
-                                            <input class="form-control" type="text" id="username" name="username" required placeholder="e.g. jsmith" />
+                                        <div class="mb-3 position-relative">
+                                            <label class="form-label" for="username">Search & Select Active Employee / User</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light"><i class="fas fa-search text-500"></i></span>
+                                                <input class="form-control" type="text" id="username" name="username" required placeholder="Type username or employee name..." autocomplete="off" />
+                                            </div>
+                                            <div id="hrisUserSuggestions" class="position-absolute w-100" style="z-index: 1050; display: none; top: 100%; left: 0;"></div>
                                         </div>
                                         <div class="mb-3">
                                             <label class="form-label" for="fullName">Full Name</label>
-                                            <input class="form-control" type="text" id="fullName" name="fullName" required placeholder="e.g. John Smith" />
+                                            <input class="form-control" type="text" id="fullName" name="fullName" required placeholder="Full name will auto-populate" />
                                         </div>
                                         <div class="mb-3">
                                             <label class="form-label" for="email">Email address</label>
-                                            <input class="form-control" type="email" id="email" name="email" required placeholder="e.g. john@fintrex.lk" />
+                                            <input class="form-control" type="email" id="email" name="email" required placeholder="Email address will auto-populate" />
                                         </div>
                                         <div class="mb-3">
                                             <label class="form-label" for="userTypeId">User Role (User Type)</label>
                                             <select class="form-select" id="userTypeId" name="userTypeId" required>
                                                 <%
                                                     if (roleList != null) {
+                                                        boolean selectedSet = false;
                                                         for (UserType r : roleList) {
+                                                            boolean isDefault = !selectedSet && ("USER".equalsIgnoreCase(r.getName()) || "DEFAULT".equalsIgnoreCase(r.getName()) || r.getName().toUpperCase().contains("USER"));
+                                                            if (isDefault) selectedSet = true;
                                                 %>
-                                                <option value="<%= r.getId() %>"><%= r.getName() %></option>
+                                                <option value="<%= r.getId() %>" <%= isDefault ? "selected" : "" %>><%= r.getName() %></option>
                                                 <%
                                                         }
                                                     }
                                                 %>
                                             </select>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label" for="password">Password</label>
-                                            <input class="form-control" type="password" id="password" name="password" required placeholder="••••••••" />
                                         </div>
                                     </div>
                                     <div class="modal-footer bg-light">
@@ -648,6 +651,75 @@
                             const text = row.innerText.toLowerCase();
                             row.style.display = text.includes(query) ? '' : 'none';
                         });
+                    });
+                }
+
+                // HRIS Active User Search & Autocomplete
+                const usernameInput = document.getElementById('username');
+                const hrisSuggestions = document.getElementById('hrisUserSuggestions');
+                let hrisDebounceTimer = null;
+
+                if (usernameInput && hrisSuggestions) {
+                    usernameInput.addEventListener('input', function(e) {
+                        const query = e.target.value.trim();
+                        clearTimeout(hrisDebounceTimer);
+
+                        if (query.length < 1) {
+                            hrisSuggestions.style.display = 'none';
+                            hrisSuggestions.innerHTML = '';
+                            return;
+                        }
+
+                        hrisDebounceTimer = setTimeout(() => {
+                            fetch('<%= request.getContextPath() %>/user-management/api/hris-users?query=' + encodeURIComponent(query))
+                                .then(res => res.json())
+                                .then(users => {
+                                    if (!users || users.length === 0) {
+                                        hrisSuggestions.innerHTML = '<div class="list-group shadow-sm mb-0"><div class="list-group-item py-2 text-muted fs--1">No matching active HRIS users found</div></div>';
+                                        hrisSuggestions.style.display = 'block';
+                                        return;
+                                    }
+
+                                    let html = '<div class="list-group shadow-lg border border-200" style="max-height: 220px; overflow-y: auto; border-radius: 8px;">';
+                                    users.forEach(u => {
+                                        html += `
+                                            <a href="#" class="list-group-item list-group-item-action py-2 hris-suggestion-item" 
+                                               data-username="${u.username || ''}" 
+                                               data-callname="${u.callname || ''}" 
+                                               data-email="${u.email || ''}">
+                                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                                    <span class="fw-bold text-primary font-monospace fs--1">${u.username || ''}</span>
+                                                    <span class="badge bg-soft-success text-success fs--2">${u.status || 'Active'}</span>
+                                                </div>
+                                                <div class="fs--1 text-900 fw-semi-bold">${u.callname || ''}</div>
+                                                <div class="fs--2 text-500">${u.email || ''}</div>
+                                            </a>
+                                        `;
+                                    });
+                                    html += '</div>';
+                                    hrisSuggestions.innerHTML = html;
+                                    hrisSuggestions.style.display = 'block';
+
+                                    // Add click listener for selecting an employee
+                                    hrisSuggestions.querySelectorAll('.hris-suggestion-item').forEach(item => {
+                                        item.addEventListener('click', function(evt) {
+                                            evt.preventDefault();
+                                            document.getElementById('username').value = this.getAttribute('data-username');
+                                            document.getElementById('fullName').value = this.getAttribute('data-callname');
+                                            document.getElementById('email').value = this.getAttribute('data-email');
+                                            hrisSuggestions.style.display = 'none';
+                                        });
+                                    });
+                                })
+                                .catch(err => console.error('Error searching HRIS users:', err));
+                        }, 250);
+                    });
+
+                    // Close suggestions when clicking outside
+                    document.addEventListener('click', function(e) {
+                        if (!usernameInput.contains(e.target) && !hrisSuggestions.contains(e.target)) {
+                            hrisSuggestions.style.display = 'none';
+                        }
                     });
                 }
             });
