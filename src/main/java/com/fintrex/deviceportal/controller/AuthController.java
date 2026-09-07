@@ -147,4 +147,24 @@ public class AuthController {
         newSession.setAttribute("loggedOut", true);
         return "redirect:/login?logout=true";
     }
+
+    @GetMapping("/api/keep-alive")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> keepAlive(jakarta.servlet.http.HttpServletRequest request) {
+        Map<String, Object> response = new HashMap<>();
+        HttpSession session = request.getSession(false);
+        if (session != null && session.getAttribute("currentUser") != null) {
+            User user = (User) session.getAttribute("currentUser");
+            int maxInactiveInterval = session.getMaxInactiveInterval();
+            response.put("success", true);
+            response.put("message", "Session extended successfully.");
+            response.put("username", user.getUsername());
+            response.put("maxInactiveInterval", maxInactiveInterval);
+            return ResponseEntity.ok(response);
+        } else {
+            response.put("success", false);
+            response.put("message", "Session expired or invalid.");
+            return ResponseEntity.status(401).body(response);
+        }
+    }
 }

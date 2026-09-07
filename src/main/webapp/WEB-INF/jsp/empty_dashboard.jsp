@@ -781,6 +781,26 @@
 
 
 
+                function checkApiResponse(response) {
+                    if (response.redirected && response.url && response.url.indexOf('/login') !== -1) {
+                        window.location.href = '${pageContext.request.contextPath}/login?expired=true';
+                        throw new Error("Session expired");
+                    }
+                    if (response.status === 401 || response.status === 403) {
+                        window.location.href = '${pageContext.request.contextPath}/login?expired=true';
+                        throw new Error("Session expired (HTTP " + response.status + ")");
+                    }
+                    const contentType = response.headers.get("content-type");
+                    if (contentType && contentType.indexOf("text/html") !== -1) {
+                        window.location.href = '${pageContext.request.contextPath}/login?expired=true';
+                        throw new Error("Session expired or invalid response");
+                    }
+                    if (!response.ok) {
+                        throw new Error("HTTP error " + response.status);
+                    }
+                    return response.json();
+                }
+
                 function onProductChange() {
                     selectedProduct = document.getElementById('productFilterSelect').value;
                     loadDashboardData();
@@ -837,7 +857,7 @@
 
                 function checkSyncStatus() {
                     fetch('${pageContext.request.contextPath}/api/dashboard/sync-info')
-                        .then(res => res.json())
+                        .then(checkApiResponse)
                         .then(data => {
                             document.getElementById("last-sync-timestamp").innerText = data.lastSynced || 'N/A';
                             const btn = document.getElementById("btn-sync-now");
@@ -880,7 +900,7 @@
                     fetch('${pageContext.request.contextPath}/api/dashboard/sync-now', {
                         method: 'POST'
                     })
-                        .then(res => res.json())
+                        .then(checkApiResponse)
                         .then(data => {
                             // Wait 2 seconds and check status
                             setTimeout(checkSyncStatus, 2000);
@@ -907,10 +927,7 @@
                     // ============ 1. Dashboard Stats (KPI Cards) ============
                     promises.push(
                         fetch('${pageContext.request.contextPath}/api/dashboard/stats' + singleMonthParam)
-                            .then(response => {
-                                if (!response.ok) throw new Error("HTTP error " + response.status);
-                                return response.json();
-                            })
+                            .then(checkApiResponse)
                             .then(data => {
                                 // Primary KPIs
                                 document.getElementById("kpi-month-count").innerText = formatNum(data.nMonthCount || 0) + " Accounts";
@@ -943,7 +960,7 @@
                     // ============ 2. Month Wise Business Chart (Multi-Month Trend) ============
                     promises.push(
                         fetch('${pageContext.request.contextPath}/api/dashboard/business-chart' + productParam)
-                            .then(res => res.json())
+                            .then(checkApiResponse)
                             .then(data => {
                                 const labels = data.map(i => i.month_name);
                                 const amounts = data.map(i => i.business_amount || 0);
@@ -968,7 +985,7 @@
                     // ============ 6. Device Status Charts ============
                     promises.push(
                         fetch('${pageContext.request.contextPath}/api/dashboard/device-status-charts' + singleMonthParam)
-                            .then(res => res.json())
+                            .then(checkApiResponse)
                             .then(data => {
                                 // Helper function for small doughnut charts
                                 const buildDoughnut = (canvasId, dataset, labelsList, colorsList) => {
@@ -1135,7 +1152,7 @@
                     // ============ 7. Daily Disbursements (Last 6-7 Days of Month) ============
                     promises.push(
                         fetch('${pageContext.request.contextPath}/api/dashboard/vendor-payments-chart' + singleMonthParam)
-                            .then(res => res.json())
+                            .then(checkApiResponse)
                             .then(data => {
                                 let chartData = data;
                                 const titleTextEl = document.getElementById('dailyDisbursementsTitleText');
@@ -1189,7 +1206,7 @@
                     if (selectedProduct !== 'LF') {
                         promises.push(
                             fetch('${pageContext.request.contextPath}/api/dashboard/mobile-lock-arrears')
-                                .then(res => res.json())
+                                .then(checkApiResponse)
                                 .then(data => {
                                     // 1. Mobile Lock vs Unlock Chart
                                     destroyChart('mobileLockArrearsChart');
@@ -1242,7 +1259,7 @@
                     // ============ 9.1 Transaction Channels Table ============
                     promises.push(
                         fetch('${pageContext.request.contextPath}/api/dashboard/transaction-channel-chart' + singleMonthParam)
-                            .then(res => res.json())
+                            .then(checkApiResponse)
                             .then(data => {
                                 const tbody = document.getElementById('transactionChannelTableBody');
                                 let html = '';
@@ -1263,7 +1280,7 @@
                     // ============ 10. Matured vs Non-Matured Contracts Performance ============
                     promises.push(
                         fetch('${pageContext.request.contextPath}/api/dashboard/matured-nonperforming' + singleMonthParam)
-                            .then(res => res.json())
+                            .then(checkApiResponse)
                             .then(data => {
                                 let maturedPerf = 0, maturedNp = 0, nonMaturedPerf = 0, nonMaturedNp = 0;
                                 data.forEach(item => {
@@ -1349,7 +1366,7 @@
                 function loadPaymentsStatusChart() {
                     const productParam = selectedProduct ? '?product=' + encodeURIComponent(selectedProduct) : '';
                     return fetch('${pageContext.request.contextPath}/api/dashboard/payments-status-chart' + productParam)
-                        .then(res => res.json())
+                        .then(checkApiResponse)
                         .then(data => {
                             const months = [...new Set(data.map(i => i.month_name))];
 
@@ -1399,7 +1416,7 @@
                 function loadDpdComparisonChart() {
                     const productParam = selectedProduct ? '?product=' + encodeURIComponent(selectedProduct) : '';
                     return fetch('${pageContext.request.contextPath}/api/dashboard/dpd-comparison-chart' + productParam)
-                        .then(res => res.json())
+                        .then(checkApiResponse)
                         .then(data => {
                             const labels = data.map(i => i.month_name);
                             const dpd0 = data.map(item => Math.round(((item.dpd0_val || 0) / 1000000) * 100) / 100);

@@ -54,7 +54,7 @@ public class ContractDetails {
     private String g1Nic;
     private String g2Nic;
     private String g3Nic;
-    private String vendorName;
+    private String repaymentAccount;
 
     public void setReceipts(List<Receipt> receipts) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody

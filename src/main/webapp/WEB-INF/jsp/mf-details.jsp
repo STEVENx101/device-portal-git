@@ -309,9 +309,9 @@
                                                 <div class="fs--1 fw-bold val-workhub-sp-no">-</div>
                                             </div>
                                             <div class="col-6 col-sm-4 col-md-3 col-lg-2 text-center">
-                                                <div class="text-500 fs--2 font-sans-serif fw-semi-bold">VENDOR NAME
+                                                <div class="text-500 fs--2 font-sans-serif fw-semi-bold">REPAYMENT AMOUNT
                                                 </div>
-                                                <div class="fs--1 fw-bold val-vendor-name">-</div>
+                                                <div class="fs--1 fw-bold val-repayment-amount">-</div>
                                             </div>
                                         </div>
                                     </div>
@@ -1499,7 +1499,45 @@
                                 currentAccountNo = data.legacyAccountNo || data.accountNo || '';
                                 document.querySelectorAll('.val-imei-no').forEach(el => el.textContent = data.imeiNo || '-');
                                 document.querySelectorAll('.val-workhub-sp-no').forEach(el => el.textContent = data.workhubSpNo || '-');
-                                document.querySelectorAll('.val-vendor-name').forEach(el => el.textContent = data.vendorName || '-');
+                                const repAcc = data.repaymentAccount || '';
+                                if (repAcc && repAcc !== '-') {
+                                    document.querySelectorAll('.val-repayment-amount').forEach(el => el.textContent = 'Loading...');
+                                    fetch(contextPath + '/api/contracts/available-balance?accountNumber=' + encodeURIComponent(repAcc))
+                                        .then(res => res.json())
+                                        .then(res => {
+                                            let balance = null;
+                                            if (res && res.data !== undefined && res.data !== null) {
+                                                if (typeof res.data === 'number') {
+                                                    balance = res.data;
+                                                } else if (typeof res.data === 'string' && !isNaN(parseFloat(res.data))) {
+                                                    balance = parseFloat(res.data);
+                                                } else if (res.data.availableBalance !== undefined && res.data.availableBalance !== null) {
+                                                    balance = res.data.availableBalance;
+                                                } else if (res.data.balance !== undefined && res.data.balance !== null) {
+                                                    balance = res.data.balance;
+                                                } else if (res.data.amount !== undefined && res.data.amount !== null) {
+                                                    balance = res.data.amount;
+                                                }
+                                            } else if (res && res.availableBalance !== undefined && res.availableBalance !== null) {
+                                                balance = res.availableBalance;
+                                            } else if (res && res.balance !== undefined && res.balance !== null) {
+                                                balance = res.balance;
+                                            }
+
+                                            if (balance !== null && !isNaN(parseFloat(balance))) {
+                                                const formatted = parseFloat(balance).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                                                document.querySelectorAll('.val-repayment-amount').forEach(el => el.textContent = formatted);
+                                            } else {
+                                                document.querySelectorAll('.val-repayment-amount').forEach(el => el.textContent = '-');
+                                            }
+                                        })
+                                        .catch(err => {
+                                            console.error('Error fetching available balance:', err);
+                                            document.querySelectorAll('.val-repayment-amount').forEach(el => el.textContent = '-');
+                                        });
+                                } else {
+                                    document.querySelectorAll('.val-repayment-amount').forEach(el => el.textContent = '-');
+                                }
 
                                 document.querySelectorAll('.val-facility-grant-date').forEach(el => el.textContent = data.facilityGrantDate || '-');
                                 document.querySelectorAll('.val-maturity-date').forEach(el => el.textContent = data.maturityDate || '-');

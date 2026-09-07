@@ -247,7 +247,7 @@
                     if (rowData) {
                         const searchVal = (rowData.legacy_account_no && rowData.legacy_account_no !== '-') ? rowData.legacy_account_no : rowData.account_no;
                         if (searchVal) {
-                            window.location.href = '${pageContext.request.contextPath}/mobile?query=' + encodeURIComponent(searchVal);
+                            window.open('${pageContext.request.contextPath}/mobile?query=' + encodeURIComponent(searchVal), '_blank');
                         }
                     }
                 });

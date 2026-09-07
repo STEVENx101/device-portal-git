@@ -100,7 +100,7 @@ public class ContractRepository {
                     COALESCE(dl1.device_status, dl2.device_status) AS CURRENT_DEVICE_STATUS,
                     COALESCE(dl1.device_id, dl2.device_id) AS IMEI_NO,
                     COALESCE(dl1.external_id, dl2.external_id) AS WORKHUB_SP_NO,
-                    v.name AS VENDOR_NAME
+                    l.repayment_account AS REPAYMENT_ACCOUNT
                 FROM (
                     SELECT * FROM cbs.loan
                     WHERE account_no = ? OR legacy_account_no = ?
@@ -191,7 +191,7 @@ public class ContractRepository {
                 rs.getString("G1_NIC"),
                 rs.getString("G2_NIC"),
                 rs.getString("G3_NIC"),
-                rs.getString("VENDOR_NAME")), financeNo, financeNo);
+                rs.getString("REPAYMENT_ACCOUNT")), financeNo, financeNo);
 
         return results.isEmpty() ? null : results.get(0);
     }

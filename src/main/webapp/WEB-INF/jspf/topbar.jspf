@@ -48,13 +48,146 @@
                     <div class="px-3 py-2 border-bottom border-200">
                         <p class="mb-0 fw-bold fs--1 text-900"><%= displayUserName %></p>
                         <p class="mb-0 fs--2 text-500"><%= displayUserRole %></p>
-                    </div>
-                    <a class="dropdown-item text-danger mt-1" href="<%= request.getContextPath() %>/sso-logout">Logout</a>
+                    <a class="dropdown-item text-primary cursor-pointer py-2" href="javascript:void(0);" onclick="extendUserSession()">
+                        <span class="fas fa-clock me-2"></span>Extend Session
+                    </a>
+                    <div class="dropdown-divider my-1"></div>
+                    <a class="dropdown-item text-danger py-2" href="<%= request.getContextPath() %>/sso-logout">Logout</a>
                 </div>
             </div>
         </li>
     </ul>
 </nav>
+
+<!-- Modal: Session Expiring Warning -->
+<div class="modal fade" id="sessionWarningModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="sessionWarningModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-warning text-dark py-2">
+                <h5 class="modal-title fs-0 fw-bold" id="sessionWarningModalLabel">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Session Expiring Soon
+                </h5>
+            </div>
+            <div class="modal-body text-center py-4">
+                <p class="mb-2 fs-0 text-800">Your session is about to expire due to inactivity.</p>
+                <p class="mb-0 fs--1 text-600">Time remaining: <span id="sessionCountdown" class="badge bg-soft-warning text-warning fw-bold fs-0 font-monospace">02:00</span></p>
+            </div>
+            <div class="modal-footer bg-light py-2 justify-content-center">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="location.href='<%= request.getContextPath() %>/sso-logout'">Logout</button>
+                <button type="button" class="btn btn-primary btn-sm" onclick="extendUserSession(true)"><i class="fas fa-clock me-1"></i>Extend Session</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="sessionToastContainer" class="position-fixed bottom-0 end-0 p-3" style="z-index: 1090;"></div>
+
+<script>
+(function() {
+    var warningTimer = null;
+    var countdownInterval = null;
+    var remainingSeconds = 120; // 2 minute countdown window before expiration
+    var defaultMaxInactiveSeconds = 1800; // 30 minutes default session length
+
+    function showSessionToast(msg, bgClass) {
+        var container = document.getElementById('sessionToastContainer');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'sessionToastContainer';
+            container.className = 'position-fixed bottom-0 end-0 p-3';
+            container.style.zIndex = '1090';
+            document.body.appendChild(container);
+        }
+        var toast = document.createElement('div');
+        toast.className = 'toast align-items-center text-white ' + (bgClass || 'bg-success') + ' border-0 show mb-2';
+        toast.setAttribute('role', 'alert');
+        toast.setAttribute('aria-live', 'assertive');
+        toast.setAttribute('aria-atomic', 'true');
+        toast.innerHTML = 
+            '<div class="d-flex">' +
+                '<div class="toast-body"><i class="fas fa-history me-2"></i>' + msg + '</div>' +
+                '<button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>' +
+            '</div>';
+        container.appendChild(toast);
+        setTimeout(function() {
+            toast.classList.remove('show');
+            setTimeout(function() { toast.remove(); }, 500);
+        }, 4000);
+    }
+
+    function formatTime(seconds) {
+        var m = Math.floor(seconds / 60);
+        var s = seconds % 60;
+        return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+    }
+
+    function hideWarningModal() {
+        if (countdownInterval) clearInterval(countdownInterval);
+        var modalEl = document.getElementById('sessionWarningModal');
+        if (modalEl && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+            var modalInstance = bootstrap.Modal.getInstance(modalEl);
+            if (modalInstance) modalInstance.hide();
+        }
+    }
+
+    function startWarningCountdown() {
+        remainingSeconds = 120;
+        var countdownEl = document.getElementById('sessionCountdown');
+        if (countdownEl) countdownEl.innerText = formatTime(remainingSeconds);
+
+        var modalEl = document.getElementById('sessionWarningModal');
+        if (modalEl && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+            var modalInstance = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+            modalInstance.show();
+        }
+
+        if (countdownInterval) clearInterval(countdownInterval);
+        countdownInterval = setInterval(function() {
+            remainingSeconds--;
+            if (countdownEl) countdownEl.innerText = formatTime(remainingSeconds);
+
+            if (remainingSeconds <= 0) {
+                clearInterval(countdownInterval);
+                window.location.href = '<%= request.getContextPath() %>/sso-logout';
+            }
+        }, 1000);
+    }
+
+    function scheduleWarningTimer(maxInactiveSec) {
+        if (warningTimer) clearTimeout(warningTimer);
+        var msUntilWarning = (maxInactiveSec - 120) * 1000;
+        if (msUntilWarning < 5000) msUntilWarning = 10000;
+
+        warningTimer = setTimeout(function() {
+            startWarningCountdown();
+        }, msUntilWarning);
+    }
+
+    window.extendUserSession = function(fromModal) {
+        hideWarningModal();
+        if (warningTimer) clearTimeout(warningTimer);
+
+        fetch('<%= request.getContextPath() %>/api/keep-alive')
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
+                if (data && data.success) {
+                    var maxInactive = data.maxInactiveIntervalSeconds || data.maxInactiveInterval || defaultMaxInactiveSeconds;
+                    showSessionToast('Session extended successfully!', 'bg-success');
+                    scheduleWarningTimer(maxInactive);
+                } else {
+                    showSessionToast('Unable to extend session. Please log in again.', 'bg-danger');
+                }
+            })
+            .catch(function(err) {
+                console.error('Session extension request failed:', err);
+                showSessionToast('Failed to extend session.', 'bg-danger');
+            });
+    };
+
+    // Schedule initial warning 2 minutes before session expiration
+    scheduleWarningTimer(defaultMaxInactiveSeconds);
+})();
+</script>
 
 <script>
 (function() {

@@ -387,4 +387,63 @@ public class ContractController {
             return ResponseEntity.internalServerError().body("{\"status\": 500, \"message\": \"" + e.getMessage() + "\"}");
         }
     }
+
+    @GetMapping("/available-balance")
+    public ResponseEntity<String> getAvailableBalance(
+            @RequestParam(value = "accountNumber", required = false) String accountNumber,
+            @RequestParam(value = "financeNo", required = false) String financeNo) {
+        try {
+            String accNo = accountNumber;
+            if ((accNo == null || accNo.trim().isEmpty()) && financeNo != null && !financeNo.trim().isEmpty()) {
+                ContractDetails details = contractService.getContractDetails(financeNo);
+                if (details != null) {
+                    accNo = details.getRepaymentAccount();
+                }
+            }
+            if (accNo == null || accNo.trim().isEmpty() || "-".equals(accNo.trim())) {
+                return ResponseEntity.ok("{\"status\": 400, \"message\": \"Account number not found\"}");
+            }
+
+            String token = getStatementToken();
+            if (token == null || token.isEmpty()) {
+                return ResponseEntity.status(500).body("{\"status\": 500, \"message\": \"Token not found\"}");
+            }
+
+            String balanceUrl = "https://ma.fintrex.lk/mobile-banking/api/account/available-balance";
+            String balanceBody = String.format(
+                    "{\"accountNumber\": \"%s\", \"type\": \"SAVINGS\"}",
+                    accNo.trim()
+            );
+
+            HttpRequest req = HttpRequest.newBuilder()
+                    .uri(URI.create(balanceUrl))
+                    .header("Content-Type", "application/json")
+                    .header("Authorization", "Bearer " + token)
+                    .timeout(Duration.ofSeconds(15))
+                    .POST(HttpRequest.BodyPublishers.ofString(balanceBody))
+                    .build();
+
+            HttpResponse<String> resp = httpClient.send(req, HttpResponse.BodyHandlers.ofString());
+
+            if (resp.statusCode() == 401 || resp.statusCode() == 403) {
+                statementApiToken = null;
+                token = getStatementToken();
+                if (token != null) {
+                    req = HttpRequest.newBuilder()
+                            .uri(URI.create(balanceUrl))
+                            .header("Content-Type", "application/json")
+                            .header("Authorization", "Bearer " + token)
+                            .timeout(Duration.ofSeconds(15))
+                            .POST(HttpRequest.BodyPublishers.ofString(balanceBody))
+                            .build();
+                    resp = httpClient.send(req, HttpResponse.BodyHandlers.ofString());
+                }
+            }
+
+            return ResponseEntity.status(resp.statusCode()).body(resp.body());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("{\"status\": 500, \"message\": \"Failed: " + e.getMessage() + "\"}");
+        }
+    }
 }
