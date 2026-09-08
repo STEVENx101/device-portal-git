@@ -553,7 +553,7 @@
                                             <div>
                                                 <div class="fs--2 fw-semi-bold text-muted mb-2 d-flex justify-content-between align-items-center">
                                                     <span><i class="fas fa-hdd me-1"></i>Device Security Status</span>
-                                                    <div>
+                                                    <div class="mobile-sec-col">
                                                         <span class="badge" style="background-color: #8a2be2; color: #ffffff; padding: 2px 4px; font-size: 0.55rem;">K</span>
                                                         <span class="badge" style="background-color: #f59e0b; color: #ffffff; padding: 2px 4px; font-size: 0.55rem; margin-left: 2px;">D</span>
                                                     </div>
