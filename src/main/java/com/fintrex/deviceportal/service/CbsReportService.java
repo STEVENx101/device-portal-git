@@ -61,8 +61,10 @@ public class CbsReportService {
         }
 
         try {
-            jdbc.getJdbcTemplate().execute("DELETE FROM device_portal.user_type_screen WHERE screen_id IN (SELECT id FROM device_portal.screen WHERE path IN ('/npa-report', '/nearing-npa-report'))");
-            jdbc.getJdbcTemplate().execute("DELETE FROM device_portal.screen WHERE path IN ('/npa-report', '/nearing-npa-report')");
+            jdbc.getJdbcTemplate().execute(
+                    "DELETE FROM device_portal.user_type_screen WHERE screen_id IN (SELECT id FROM device_portal.screen WHERE path IN ('/npa-report', '/nearing-npa-report'))");
+            jdbc.getJdbcTemplate()
+                    .execute("DELETE FROM device_portal.screen WHERE path IN ('/npa-report', '/nearing-npa-report')");
         } catch (Exception e) {
             log.warn("Unable to delete NPA and Nearing NPA screens from database", e);
         }
@@ -73,24 +75,24 @@ public class CbsReportService {
     private void initLogTables() {
         try {
             jdbc.getJdbcTemplate().execute("""
-                CREATE TABLE IF NOT EXISTS device_portal.permission_log (
-                    id INT AUTO_INCREMENT PRIMARY KEY,
-                    changed_by VARCHAR(100) NOT NULL,
-                    user_type_id INT NOT NULL,
-                    action_details TEXT NOT NULL,
-                    created_date DATETIME NOT NULL
-                )
-            """);
+                        CREATE TABLE IF NOT EXISTS device_portal.permission_log (
+                            id INT AUTO_INCREMENT PRIMARY KEY,
+                            changed_by VARCHAR(100) NOT NULL,
+                            user_type_id INT NOT NULL,
+                            action_details TEXT NOT NULL,
+                            created_date DATETIME NOT NULL
+                        )
+                    """);
             jdbc.getJdbcTemplate().execute("""
-                CREATE TABLE IF NOT EXISTS device_portal.access_log (
-                    id INT AUTO_INCREMENT PRIMARY KEY,
-                    username VARCHAR(100) NOT NULL,
-                    path VARCHAR(255) NOT NULL,
-                    ip_address VARCHAR(45),
-                    access_time DATETIME NOT NULL,
-                    status VARCHAR(20) NOT NULL
-                )
-            """);
+                        CREATE TABLE IF NOT EXISTS device_portal.access_log (
+                            id INT AUTO_INCREMENT PRIMARY KEY,
+                            username VARCHAR(100) NOT NULL,
+                            path VARCHAR(255) NOT NULL,
+                            ip_address VARCHAR(45),
+                            access_time DATETIME NOT NULL,
+                            status VARCHAR(20) NOT NULL
+                        )
+                    """);
         } catch (Exception e) {
             log.error("Unable to initialize log tables", e);
         }
@@ -99,15 +101,15 @@ public class CbsReportService {
     private void initAuditLogScreens() {
         try {
             jdbc.getJdbcTemplate().execute("""
-                INSERT INTO device_portal.screen (name, path, icon, group_name)
-                SELECT 'Access Logs', '/access-logs', 'fas fa-user-shield', 'Reports'
-                WHERE NOT EXISTS (SELECT 1 FROM device_portal.screen WHERE path = '/access-logs')
-            """);
+                        INSERT INTO device_portal.screen (name, path, icon, group_name)
+                        SELECT 'Access Logs', '/access-logs', 'fas fa-user-shield', 'Reports'
+                        WHERE NOT EXISTS (SELECT 1 FROM device_portal.screen WHERE path = '/access-logs')
+                    """);
             jdbc.getJdbcTemplate().execute("""
-                INSERT INTO device_portal.screen (name, path, icon, group_name)
-                SELECT 'Permission Logs', '/permission-logs', 'fas fa-key', 'Reports'
-                WHERE NOT EXISTS (SELECT 1 FROM device_portal.screen WHERE path = '/permission-logs')
-            """);
+                        INSERT INTO device_portal.screen (name, path, icon, group_name)
+                        SELECT 'Permission Logs', '/permission-logs', 'fas fa-key', 'Reports'
+                        WHERE NOT EXISTS (SELECT 1 FROM device_portal.screen WHERE path = '/permission-logs')
+                    """);
         } catch (Exception e) {
             log.error("Unable to initialize audit log screens", e);
         }
@@ -278,15 +280,15 @@ public class CbsReportService {
 
     public List<Map<String, Object>> getReport1Data(String branch, List<String> products, String asAt) {
         List<String> portfolioCols = getPortfolioTableColumns();
-        
+
         StringBuilder sb = new StringBuilder();
         for (String col : portfolioCols) {
             sb.append("p1.").append(col).append(" AS `portfolio_").append(col).append("`, ");
         }
-        
+
         Map<String, Object> params = new HashMap<>();
         addLatestPortfolioParams(params);
-        
+
         String selectFields = sb.toString();
         String subQuery = "SELECT " + selectFields + """
                     l.account_no,
@@ -336,7 +338,7 @@ public class CbsReportService {
         for (String col : portfolioCols) {
             outerSelect.append("t.portfolio_").append(col).append(" AS `portfolio_").append(col).append("`, ");
         }
-        
+
         String sql = "SELECT " + outerSelect.toString() + """
                     t.account_no,
                     t.series,
@@ -365,7 +367,8 @@ public class CbsReportService {
         return executePagedReport(request, sql, params);
     }
 
-    public List<Map<String, Object>> getReport2Data(String branch, List<String> products, String fromDate, String toDate) {
+    public List<Map<String, Object>> getReport2Data(String branch, List<String> products, String fromDate,
+            String toDate) {
         Map<String, Object> filterMap = new HashMap<>();
         filterMap.put("branch", branch);
         filterMap.put("products", products);
@@ -812,29 +815,32 @@ public class CbsReportService {
         Map<String, Object> params = new HashMap<>();
         String sql = buildPermissionLogsQuery(request.getData(), params);
         DataTableResponse response = executePagedReport(request, sql, params);
-        
+
         List<Map<String, Object>> dataList = response.getData();
         if (dataList != null && !dataList.isEmpty()) {
             Map<Integer, String> userTypeMap = new HashMap<>();
             Map<Integer, String> screenMap = new HashMap<>();
-            
+
             try {
-                List<Map<String, Object>> userTypes = jdbc.getJdbcTemplate().queryForList("SELECT id, name FROM device_portal.user_type");
+                List<Map<String, Object>> userTypes = jdbc.getJdbcTemplate()
+                        .queryForList("SELECT id, name FROM device_portal.user_type");
                 for (Map<String, Object> ut : userTypes) {
                     userTypeMap.put(((Number) ut.get("id")).intValue(), (String) ut.get("name"));
                 }
-                
-                List<Map<String, Object>> screens = jdbc.getJdbcTemplate().queryForList("SELECT id, name FROM device_portal.screen");
+
+                List<Map<String, Object>> screens = jdbc.getJdbcTemplate()
+                        .queryForList("SELECT id, name FROM device_portal.screen");
                 for (Map<String, Object> sc : screens) {
                     screenMap.put(((Number) sc.get("id")).intValue(), (String) sc.get("name"));
                 }
             } catch (Exception e) {
                 System.err.println("Error loading metadata for permission log transformation: " + e.getMessage());
             }
-            
+
             java.util.regex.Pattern utPattern = java.util.regex.Pattern.compile("user type ID (\\d+)");
-            java.util.regex.Pattern scPattern = java.util.regex.Pattern.compile("screens: \\[(\\s*\\d+(?:\\s*,\\s*\\d+)*\\s*)\\]");
-            
+            java.util.regex.Pattern scPattern = java.util.regex.Pattern
+                    .compile("screens: \\[(\\s*\\d+(?:\\s*,\\s*\\d+)*\\s*)\\]");
+
             for (Map<String, Object> row : dataList) {
                 String details = (String) row.get("action_details");
                 if (details != null) {
@@ -844,9 +850,10 @@ public class CbsReportService {
                             int utId = Integer.parseInt(utMatcher.group(1));
                             String utName = userTypeMap.getOrDefault(utId, "ID " + utId);
                             details = details.replace("user type ID " + utId, utName);
-                        } catch (Exception e) {}
+                        } catch (Exception e) {
+                        }
                     }
-                    
+
                     java.util.regex.Matcher scMatcher = scPattern.matcher(details);
                     if (scMatcher.find()) {
                         String rawIds = scMatcher.group(1);
@@ -856,11 +863,12 @@ public class CbsReportService {
                             try {
                                 int sId = Integer.parseInt(idStr.trim());
                                 names.add(screenMap.getOrDefault(sId, "ID " + sId));
-                            } catch (Exception e) {}
+                            } catch (Exception e) {
+                            }
                         }
                         details = details.replace("screens: [" + rawIds + "]", "screens: " + names.toString());
                     }
-                    
+
                     row.put("action_details", details);
                 }
             }
@@ -1004,11 +1012,12 @@ public class CbsReportService {
                     """);
 
             // Vendor Payments Exception Report
-            jdbc.getJdbcTemplate().execute("""
-                        INSERT INTO device_portal.screen (name, path, icon, group_name)
-                        SELECT 'Vendor Payments Exception', '/vendor-payments-exception', 'fas fa-exclamation-circle', 'Reports'
-                        WHERE NOT EXISTS (SELECT 1 FROM device_portal.screen WHERE path = '/vendor-payments-exception')
-                    """);
+            jdbc.getJdbcTemplate().execute(
+                    """
+                                INSERT INTO device_portal.screen (name, path, icon, group_name)
+                                SELECT 'Vendor Payments Exception', '/vendor-payments-exception', 'fas fa-exclamation-circle', 'Reports'
+                                WHERE NOT EXISTS (SELECT 1 FROM device_portal.screen WHERE path = '/vendor-payments-exception')
+                            """);
         } catch (Exception e) {
             log.error("Report configuration database operation failed for Vendor Payments", e);
         }
@@ -1076,7 +1085,8 @@ public class CbsReportService {
                     COALESCE(SUM(CASE WHEN t.dpd BETWEEN 61 AND 90 AND t.performing_status = 'Performing' THEN t.exposure END), 0) AS dpd61_90_exposure,
                     COUNT(CASE WHEN t.performing_status = 'Non-Performing' THEN 1 END) AS above90_count,
                     COALESCE(SUM(CASE WHEN t.performing_status = 'Non-Performing' THEN t.exposure END), 0) AS above90_exposure
-                FROM (""" + subQuery + ") t";
+                FROM ("""
+                + subQuery + ") t";
 
         return jdbc.queryForMap(sql, params);
     }
@@ -1127,33 +1137,33 @@ public class CbsReportService {
 
     private String buildDuplicateLoansQuery(Object rawFilter, Map<String, Object> params) {
         String sql = """
-                    SELECT
-                        dl.device_id AS imei_no,
-                        COALESCE(l1.account_no, l2.account_no) AS account_no,
-                        COALESCE(l1.account_series, l2.account_series) AS series,
-                        COALESCE(l1.legacy_account_no, l2.legacy_account_no) AS legacy_account_no,
-                        COALESCE(c1.full_name, c2.full_name) AS client_name,
-                        COALESCE(c1.id_no, c2.id_no) AS client_nic,
-                        COALESCE(l1.loan_amount, l2.loan_amount) AS loan_amount,
-                        COALESCE(v1.name, v2.name) AS vendor_name
-                    FROM cbs.device_loan dl
-                    INNER JOIN (
-                        SELECT device_id
-                        FROM cbs.device_loan
-                        WHERE device_id IS NOT NULL
-                          AND device_id != ''
-                        GROUP BY device_id
-                        HAVING COUNT(*) > 1
-                    ) duplicates ON duplicates.device_id = dl.device_id
-                    LEFT JOIN cbs.loan l1 ON dl.account_no = l1.account_no
-                    LEFT JOIN cbs.loan l2 ON dl.account_no = l2.legacy_account_no
-                    LEFT JOIN cbs.client c1 ON l1.client = c1.client_code
-                    LEFT JOIN cbs.client c2 ON l2.client = c2.client_code
-                    LEFT JOIN cbs.vendor v1 ON l1.vendor = v1.code
-                    LEFT JOIN cbs.vendor v2 ON l2.vendor = v2.code
-                    LEFT JOIN cbs.product pr1 ON CAST(l1.product AS UNSIGNED) = pr1.code_val
-                    LEFT JOIN cbs.product pr2 ON CAST(l2.product AS UNSIGNED) = pr2.code_val
-                    WHERE 1=1""";
+                SELECT
+                    dl.device_id AS imei_no,
+                    COALESCE(l1.account_no, l2.account_no) AS account_no,
+                    COALESCE(l1.account_series, l2.account_series) AS series,
+                    COALESCE(l1.legacy_account_no, l2.legacy_account_no) AS legacy_account_no,
+                    COALESCE(c1.full_name, c2.full_name) AS client_name,
+                    COALESCE(c1.id_no, c2.id_no) AS client_nic,
+                    COALESCE(l1.loan_amount, l2.loan_amount) AS loan_amount,
+                    COALESCE(v1.name, v2.name) AS vendor_name
+                FROM cbs.device_loan dl
+                INNER JOIN (
+                    SELECT device_id
+                    FROM cbs.device_loan
+                    WHERE device_id IS NOT NULL
+                      AND device_id != ''
+                    GROUP BY device_id
+                    HAVING COUNT(*) > 1
+                ) duplicates ON duplicates.device_id = dl.device_id
+                LEFT JOIN cbs.loan l1 ON dl.account_no = l1.account_no
+                LEFT JOIN cbs.loan l2 ON dl.account_no = l2.legacy_account_no
+                LEFT JOIN cbs.client c1 ON l1.client = c1.client_code
+                LEFT JOIN cbs.client c2 ON l2.client = c2.client_code
+                LEFT JOIN cbs.vendor v1 ON l1.vendor = v1.code
+                LEFT JOIN cbs.vendor v2 ON l2.vendor = v2.code
+                LEFT JOIN cbs.product pr1 ON CAST(l1.product AS UNSIGNED) = pr1.code_val
+                LEFT JOIN cbs.product pr2 ON CAST(l2.product AS UNSIGNED) = pr2.code_val
+                WHERE 1=1""";
 
         if (rawFilter instanceof Map) {
             Map<?, ?> filter = (Map<?, ?>) rawFilter;
@@ -1606,7 +1616,8 @@ public class CbsReportService {
         return executePagedReport(request, sql, params);
     }
 
-    public List<Map<String, Object>> getMaturedLowBalanceReportData(String asAt, Double lowAmount, List<String> products) {
+    public List<Map<String, Object>> getMaturedLowBalanceReportData(String asAt, Double lowAmount,
+            List<String> products) {
         Map<String, Object> filterMap = new HashMap<>();
         filterMap.put("asAt", asAt);
         filterMap.put("products", products);
@@ -1642,7 +1653,8 @@ public class CbsReportService {
         return executePagedReport(request, sql, params);
     }
 
-    public List<Map<String, Object>> getLowBalanceReportData(String asAt, Double lowAmount, String maturityStatus, List<String> products) {
+    public List<Map<String, Object>> getLowBalanceReportData(String asAt, Double lowAmount, String maturityStatus,
+            List<String> products) {
         Map<String, Object> filterMap = new HashMap<>();
         filterMap.put("asAt", asAt);
         filterMap.put("products", products);
@@ -1922,15 +1934,20 @@ public class CbsReportService {
                     ON p1.account_no = l.account_no
                     AND p1.series = l.account_series
                     AND p1.portfolio_date = :latestPortfolioDate
-                LEFT JOIN cbs.client c ON l.client = c.client_code
-                LEFT JOIN loan.mobileloan lm1 ON lm1.finance_no = l.account_no
-                LEFT JOIN loan.mobileloan lm2 ON lm2.finance_no = l.legacy_account_no
-                LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
+                LEFT JOIN cbs.client c
+                    ON l.client = c.client_code
+                LEFT JOIN loan.mobileloan lm1
+                    ON lm1.finance_no = l.account_no
+                LEFT JOIN loan.mobileloan lm2
+                    ON lm2.finance_no = l.legacy_account_no
+                LEFT JOIN cbs.product pr
+                    ON CAST(l.product AS UNSIGNED) = pr.code_val
                 WHERE 1=1
-                  AND p1.early_settlement > 0""";
+                """;
 
         if (rawFilter instanceof Map) {
             Map<?, ?> filter = (Map<?, ?>) rawFilter;
+
             String asAt = (String) filter.get("asAt");
             if (asAt != null && !asAt.trim().isEmpty()) {
                 subQuery += " AND l.disbursed_date < DATE_ADD(:asAt, INTERVAL 1 DAY)";
@@ -1941,8 +1958,10 @@ public class CbsReportService {
             if (lowAmtObj != null && !lowAmtObj.toString().trim().isEmpty()) {
                 try {
                     double lowAmount = Double.parseDouble(lowAmtObj.toString().trim());
-                    subQuery += " AND (p1.early_settlement <= :lowAmountThreshold OR p1.exposure <= :lowAmountThreshold)";
+
+                    subQuery += " AND p1.early_settlement <= :lowAmountThreshold";
                     params.put("lowAmountThreshold", lowAmount);
+
                 } catch (NumberFormatException ignored) {
                 }
             }
@@ -1950,6 +1969,7 @@ public class CbsReportService {
             Object productsObj = filter.get("products");
             if (productsObj instanceof List) {
                 List<?> products = (List<?>) productsObj;
+
                 if (!products.isEmpty()) {
                     subQuery += " AND pr.product_code IN (:products)";
                     params.put("products", products);
@@ -1980,14 +2000,18 @@ public class CbsReportService {
                     END AS `account_status`,
                     t.lock_status,
                     t.recovery_officer
-                FROM (""" + subQuery + ") t WHERE TRUE";
+                FROM (
+                """ + subQuery + """
+                ) t
+                WHERE TRUE
+                """;
     }
 
     private String buildLowBalanceReportQuery(Object rawFilter, Map<String, Object> params) {
         addLatestPortfolioParams(params);
         double lowAmount = 1000.0;
         String maturityStatus = "ALL"; // ALL, MATURED, NON_MATURED
-        
+
         if (rawFilter instanceof Map) {
             Map<?, ?> filter = (Map<?, ?>) rawFilter;
             Object lowAmtObj = filter.get("lowAmount");
@@ -2042,8 +2066,8 @@ public class CbsReportService {
                 LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
                 WHERE 1=1
                   """ + maturityCondition + """
-                  AND p1.exposure > 0
-                  AND p1.exposure < :lowAmountThreshold""";
+                AND p1.exposure > 0
+                AND p1.exposure < :lowAmountThreshold""";
 
         if (rawFilter instanceof Map) {
             Map<?, ?> filter = (Map<?, ?>) rawFilter;
@@ -2325,7 +2349,8 @@ public class CbsReportService {
         if (filters != null) {
             Object productsObj = filters.get("products");
             if (productsObj instanceof List && !((List<?>) productsObj).isEmpty()) {
-                whereClause.append(" AND EXISTS (SELECT 1 FROM cbs.loan l LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val WHERE (l.account_no = account_id OR l.legacy_account_no = account_id) AND pr.product_code IN (:products)) ");
+                whereClause.append(
+                        " AND EXISTS (SELECT 1 FROM cbs.loan l LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val WHERE (l.account_no = account_id OR l.legacy_account_no = account_id) AND pr.product_code IN (:products)) ");
                 params.put("products", productsObj);
             }
 
@@ -2499,7 +2524,8 @@ public class CbsReportService {
         return executePagedReport(request, sql, params);
     }
 
-    public List<Map<String, Object>> getMultiplePaymentsReportData(String fromDate, String toDate, List<String> products) {
+    public List<Map<String, Object>> getMultiplePaymentsReportData(String fromDate, String toDate,
+            List<String> products) {
         Map<String, Object> filterMap = new HashMap<>();
         filterMap.put("fromDate", fromDate);
         filterMap.put("toDate", toDate);
@@ -2607,83 +2633,84 @@ public class CbsReportService {
         try {
             // Create bulk_upload table
             jdbc.getJdbcTemplate().execute("""
-                CREATE TABLE IF NOT EXISTS device_portal.bulk_upload (
-                    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-                    date DATETIME,
-                    user VARCHAR(100),
-                    service VARCHAR(50),
-                    status VARCHAR(50),
-                    approved_user VARCHAR(100),
-                    comment TEXT,
-                    approved_on DATETIME
-                )
-            """);
+                        CREATE TABLE IF NOT EXISTS device_portal.bulk_upload (
+                            id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                            date DATETIME,
+                            user VARCHAR(100),
+                            service VARCHAR(50),
+                            status VARCHAR(50),
+                            approved_user VARCHAR(100),
+                            comment TEXT,
+                            approved_on DATETIME
+                        )
+                    """);
 
             // Create bulk_upload_detail table
-            jdbc.getJdbcTemplate().execute("""
-                CREATE TABLE IF NOT EXISTS device_portal.bulk_upload_detail (
-                    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-                    bulk_id BIGINT,
-                    payment_id VARCHAR(100),
-                    account_no VARCHAR(100),
-                    amount DOUBLE,
-                    narration VARCHAR(255),
-                    pushed DATETIME,
-                    ended DATETIME,
-                    status VARCHAR(50),
-                    response TEXT,
-                    CONSTRAINT fk_bulk_upload FOREIGN KEY (bulk_id) REFERENCES device_portal.bulk_upload(id) ON DELETE CASCADE
-                )
-            """);
+            jdbc.getJdbcTemplate().execute(
+                    """
+                                CREATE TABLE IF NOT EXISTS device_portal.bulk_upload_detail (
+                                    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                                    bulk_id BIGINT,
+                                    payment_id VARCHAR(100),
+                                    account_no VARCHAR(100),
+                                    amount DOUBLE,
+                                    narration VARCHAR(255),
+                                    pushed DATETIME,
+                                    ended DATETIME,
+                                    status VARCHAR(50),
+                                    response TEXT,
+                                    CONSTRAINT fk_bulk_upload FOREIGN KEY (bulk_id) REFERENCES device_portal.bulk_upload(id) ON DELETE CASCADE
+                                )
+                            """);
 
             // Create api_log table
             jdbc.getJdbcTemplate().execute("""
-                CREATE TABLE IF NOT EXISTS device_portal.api_log (
-                    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-                    url VARCHAR(255) NOT NULL,
-                    method VARCHAR(10) NOT NULL,
-                    request_payload TEXT,
-                    response_status INT,
-                    response_payload TEXT,
-                    created_date DATETIME NOT NULL,
-                    username VARCHAR(100)
-                )
-            """);
+                        CREATE TABLE IF NOT EXISTS device_portal.api_log (
+                            id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                            url VARCHAR(255) NOT NULL,
+                            method VARCHAR(10) NOT NULL,
+                            request_payload TEXT,
+                            response_status INT,
+                            response_payload TEXT,
+                            created_date DATETIME NOT NULL,
+                            username VARCHAR(100)
+                        )
+                    """);
 
             // Create payment_service table
             jdbc.getJdbcTemplate().execute("""
-                CREATE TABLE IF NOT EXISTS device_portal.payment_service (
-                    id INT AUTO_INCREMENT PRIMARY KEY,
-                    code VARCHAR(50) UNIQUE NOT NULL,
-                    name VARCHAR(100) NOT NULL
-                )
-            """);
+                        CREATE TABLE IF NOT EXISTS device_portal.payment_service (
+                            id INT AUTO_INCREMENT PRIMARY KEY,
+                            code VARCHAR(50) UNIQUE NOT NULL,
+                            name VARCHAR(100) NOT NULL
+                        )
+                    """);
 
             // Seed initial service codes (Only EzCash)
             jdbc.getJdbcTemplate().execute("""
-                INSERT INTO device_portal.payment_service (code, name)
-                SELECT 'EZCASH', 'EzCash'
-                WHERE NOT EXISTS (SELECT 1 FROM device_portal.payment_service WHERE code = 'EZCASH')
-            """);
-            
+                        INSERT INTO device_portal.payment_service (code, name)
+                        SELECT 'EZCASH', 'EzCash'
+                        WHERE NOT EXISTS (SELECT 1 FROM device_portal.payment_service WHERE code = 'EZCASH')
+                    """);
+
             // Clean up MF and LF codes if they exist from previous runs
             jdbc.getJdbcTemplate().execute("""
-                DELETE FROM device_portal.payment_service WHERE code IN ('MF', 'LF')
-            """);
+                        DELETE FROM device_portal.payment_service WHERE code IN ('MF', 'LF')
+                    """);
 
             // Insert Screen for Upload
             jdbc.getJdbcTemplate().execute("""
-                INSERT INTO device_portal.screen (name, path, icon, group_name)
-                SELECT 'Bulk Payments Upload', '/payments/upload', 'fas fa-upload', 'Payments'
-                WHERE NOT EXISTS (SELECT 1 FROM device_portal.screen WHERE path = '/payments/upload')
-            """);
+                        INSERT INTO device_portal.screen (name, path, icon, group_name)
+                        SELECT 'Bulk Payments Upload', '/payments/upload', 'fas fa-upload', 'Payments'
+                        WHERE NOT EXISTS (SELECT 1 FROM device_portal.screen WHERE path = '/payments/upload')
+                    """);
 
             // Insert Screen for Approve
             jdbc.getJdbcTemplate().execute("""
-                INSERT INTO device_portal.screen (name, path, icon, group_name)
-                SELECT 'Bulk Payments Approve', '/payments/approve', 'fas fa-check-double', 'Payments'
-                WHERE NOT EXISTS (SELECT 1 FROM device_portal.screen WHERE path = '/payments/approve')
-            """);
+                        INSERT INTO device_portal.screen (name, path, icon, group_name)
+                        SELECT 'Bulk Payments Approve', '/payments/approve', 'fas fa-check-double', 'Payments'
+                        WHERE NOT EXISTS (SELECT 1 FROM device_portal.screen WHERE path = '/payments/approve')
+                    """);
         } catch (Exception e) {
             log.error("Payment Staging configuration database operation failed", e);
         }
