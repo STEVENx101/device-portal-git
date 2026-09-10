@@ -72,6 +72,9 @@
             .bg-primary {
                 background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%) !important;
             }
+            #tableEarlySettled th, #tableEarlySettled td {
+                text-align: left !important;
+            }
         </style>
     </head>
 
@@ -142,6 +145,9 @@
                                             <th>NIC/ID No</th>
                                             <th>Mobile No</th>
                                             <th>Early Settlement Amount</th>
+                                            <th>Repayment Balance</th>
+                                            <th>Future Capital</th>
+                                            <th>Future Interest</th>
                                             <th>Loan Amount</th>
                                             <th>Rental</th>
                                             <th>Total Due</th>
@@ -259,14 +265,39 @@
                         });
                     },
                     columns: [
-                        { data: 'account_no', defaultContent: '' },
-                        { data: 'series', defaultContent: '' },
-                        { data: 'legacy_account_no', defaultContent: '' },
-                        { data: 'client_nic', defaultContent: '' },
-                        { data: 'client_mobile', defaultContent: '' },
+                        { data: 'account_no', defaultContent: '', className: 'text-start' },
+                        { data: 'series', defaultContent: '', className: 'text-start' },
+                        { data: 'legacy_account_no', defaultContent: '', className: 'text-start' },
+                        { data: 'client_nic', defaultContent: '', className: 'text-start' },
+                        { data: 'client_mobile', defaultContent: '', className: 'text-start' },
                         { 
                             data: 'early_settlement', 
                             defaultContent: '0.00',
+                            className: 'text-start',
+                            render: function(data) {
+                                return data ? parseFloat(data).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '0.00';
+                            }
+                        },
+                        { 
+                            data: 'repayment_balance', 
+                            defaultContent: '0.00',
+                            className: 'text-start',
+                            render: function(data) {
+                                return data ? parseFloat(data).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '0.00';
+                            }
+                        },
+                        { 
+                            data: 'future_capital', 
+                            defaultContent: '0.00',
+                            className: 'text-start',
+                            render: function(data) {
+                                return data ? parseFloat(data).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '0.00';
+                            }
+                        },
+                        { 
+                            data: 'future_interest', 
+                            defaultContent: '0.00',
+                            className: 'text-start',
                             render: function(data) {
                                 return data ? parseFloat(data).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '0.00';
                             }
@@ -274,6 +305,7 @@
                         { 
                             data: 'loan_amount', 
                             defaultContent: '0.00',
+                            className: 'text-start',
                             render: function(data) {
                                 return data ? parseFloat(data).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '0.00';
                             }
@@ -281,6 +313,7 @@
                         { 
                             data: 'rental', 
                             defaultContent: '0.00',
+                            className: 'text-start',
                             render: function(data) {
                                 return data ? parseFloat(data).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '0.00';
                             }
@@ -288,6 +321,7 @@
                         { 
                             data: 'total_due', 
                             defaultContent: '0.00',
+                            className: 'text-start',
                             render: function(data) {
                                 return data ? parseFloat(data).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '0.00';
                             }
@@ -295,15 +329,16 @@
                         { 
                             data: 'exposure', 
                             defaultContent: '0.00',
+                            className: 'text-start',
                             render: function(data) {
                                 return data ? parseFloat(data).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '0.00';
                             }
                         },
-                        { data: 'dpd', defaultContent: '0' },
-                        { data: 'account_status', defaultContent: '' },
-                        { data: 'lock_status', defaultContent: '' },
-                        { data: 'recovery_officer', defaultContent: '' },
-                        { data: 'client_name', defaultContent: '' }
+                        { data: 'dpd', defaultContent: '0', className: 'text-start' },
+                        { data: 'account_status', defaultContent: '', className: 'text-start' },
+                        { data: 'lock_status', defaultContent: '', className: 'text-start' },
+                        { data: 'recovery_officer', defaultContent: '', className: 'text-start' },
+                        { data: 'client_name', defaultContent: '', className: 'text-start' }
                     ],
                     pageLength: 25,
                     language: {

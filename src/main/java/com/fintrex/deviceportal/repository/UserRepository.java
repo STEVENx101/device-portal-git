@@ -6,6 +6,7 @@ import com.fintrex.deviceportal.dto.Screen;
 import com.fintrex.deviceportal.dto.HrisUser;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -165,6 +166,7 @@ public class UserRepository {
         return jdbcTemplate.update(sql, name, description);
     }
 
+    @Transactional
     public void updateUserTypePermissions(int userTypeId, List<Integer> screenIds) {
         // First delete existing permissions
         jdbcTemplate.update("DELETE FROM device_portal.user_type_screen WHERE user_type_id = ?", userTypeId);

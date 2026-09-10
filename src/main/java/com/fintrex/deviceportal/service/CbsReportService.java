@@ -60,14 +60,6 @@ public class CbsReportService {
             log.warn("Unable to update the Customer Payments screen name", e);
         }
 
-        try {
-            jdbc.getJdbcTemplate().execute(
-                    "DELETE FROM device_portal.user_type_screen WHERE screen_id IN (SELECT id FROM device_portal.screen WHERE path IN ('/npa-report', '/nearing-npa-report'))");
-            jdbc.getJdbcTemplate()
-                    .execute("DELETE FROM device_portal.screen WHERE path IN ('/npa-report', '/nearing-npa-report')");
-        } catch (Exception e) {
-            log.warn("Unable to delete NPA and Nearing NPA screens from database", e);
-        }
 
         initLogTables();
     }
@@ -977,19 +969,6 @@ public class CbsReportService {
                         WHERE NOT EXISTS (SELECT 1 FROM device_portal.screen WHERE path = '/settled-report')
                     """);
 
-            // NPA Report
-            jdbc.getJdbcTemplate().execute("""
-                        INSERT INTO device_portal.screen (name, path, icon, group_name)
-                        SELECT 'NPA Report', '/npa-report', 'fas fa-exclamation-triangle', 'Reports'
-                        WHERE NOT EXISTS (SELECT 1 FROM device_portal.screen WHERE path = '/npa-report')
-                    """);
-
-            // Nearing NPA Report
-            jdbc.getJdbcTemplate().execute("""
-                        INSERT INTO device_portal.screen (name, path, icon, group_name)
-                        SELECT 'Nearing NPA Report', '/nearing-npa-report', 'fas fa-hourglass-half', 'Reports'
-                        WHERE NOT EXISTS (SELECT 1 FROM device_portal.screen WHERE path = '/nearing-npa-report')
-                    """);
 
             // Multiple Payments Report
             jdbc.getJdbcTemplate().execute("""
@@ -1918,6 +1897,9 @@ public class CbsReportService {
                     c.id_no AS `client_nic`,
                     c.mobile AS `client_mobile`,
                     p1.early_settlement AS `early_settlement`,
+                    p1.repayment_balance AS `repayment_balance`,
+                    p1.future_capital AS `future_capital`,
+                    p1.future_interest AS `future_interest`,
                     l.loan_amount,
                     l.rental,
                     p1.total_due AS `total_due`,
@@ -1988,6 +1970,9 @@ public class CbsReportService {
                     t.client_nic,
                     t.client_mobile,
                     t.early_settlement,
+                    t.repayment_balance,
+                    t.future_capital,
+                    t.future_interest,
                     t.loan_amount,
                     t.rental,
                     t.total_due,
