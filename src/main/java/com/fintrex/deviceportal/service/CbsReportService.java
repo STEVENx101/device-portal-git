@@ -1943,6 +1943,8 @@ public class CbsReportService {
                 LEFT JOIN cbs.product pr
                     ON CAST(l.product AS UNSIGNED) = pr.code_val
                 WHERE 1=1
+                  AND (p1.loan_status IS NULL OR p1.loan_status != 'F')
+                  AND (l.account_status IS NULL OR l.account_status != 'F')
                 """;
 
         if (rawFilter instanceof Map) {
