@@ -75,6 +75,9 @@
             #tableEarlySettled th, #tableEarlySettled td {
                 text-align: left !important;
             }
+            #tableEarlySettled tbody tr {
+                cursor: pointer;
+            }
         </style>
     </head>
 
@@ -148,6 +151,7 @@
                                             <th>Repayment Balance</th>
                                             <th>Future Capital</th>
                                             <th>Future Interest</th>
+                                            <th>Maturity Date</th>
                                             <th>Loan Amount</th>
                                             <th>Rental</th>
                                             <th>Total Due</th>
@@ -302,6 +306,7 @@
                                 return data ? parseFloat(data).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '0.00';
                             }
                         },
+                        { data: 'maturity_date', defaultContent: '', className: 'text-start' },
                         { 
                             data: 'loan_amount', 
                             defaultContent: '0.00',
@@ -345,6 +350,17 @@
                         emptyTable: "No data available in table",
                         info: "Showing _START_ to _END_ of _TOTAL_ entries",
                         infoEmpty: "Showing 0 to 0 of 0 entries"
+                    }
+                });
+
+                // Row click handler to open facility info
+                $('#tableEarlySettled tbody').on('click', 'tr', function () {
+                    const rowData = dtReport.row(this).data();
+                    if (rowData) {
+                        const searchVal = (rowData.legacy_account_no && rowData.legacy_account_no !== '-') ? rowData.legacy_account_no : rowData.account_no;
+                        if (searchVal) {
+                            window.open('${pageContext.request.contextPath}/mobile?query=' + encodeURIComponent(searchVal), '_blank');
+                        }
                     }
                 });
 

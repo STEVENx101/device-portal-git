@@ -607,8 +607,8 @@ public class CbsReportController {
 
     private void writeEarlySettledCsv(HttpServletResponse response, String filename, List<Map<String, Object>> data) throws Exception {
         String xlsxFilename = filename.replace(".csv", ".xlsx");
-        String[] headers = {"Account No","Series","Legacy Account No","NIC/ID No","Mobile No","Early Settlement Amount","Repayment Balance","Future Capital","Future Interest","Loan Amount","Rental","Total Due","Exposure","DPD","Account Status","Locked Status","Recovery Officer","Customer Name"};
-        String[] keys = {"account_no","series","legacy_account_no","client_nic","client_mobile","early_settlement","repayment_balance","future_capital","future_interest","loan_amount","rental","total_due","exposure","dpd","account_status","lock_status","recovery_officer","client_name"};
+        String[] headers = {"Account No","Series","Legacy Account No","NIC/ID No","Mobile No","Early Settlement Amount","Repayment Balance","Future Capital","Future Interest","Maturity Date","Loan Amount","Rental","Total Due","Exposure","DPD","Account Status","Locked Status","Recovery Officer","Customer Name"};
+        String[] keys = {"account_no","series","legacy_account_no","client_nic","client_mobile","early_settlement","repayment_balance","future_capital","future_interest","maturity_date","loan_amount","rental","total_due","exposure","dpd","account_status","lock_status","recovery_officer","client_name"};
         writeExcel(response, xlsxFilename, headers, keys, data);
     }
 
