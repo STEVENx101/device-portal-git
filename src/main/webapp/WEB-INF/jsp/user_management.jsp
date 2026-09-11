@@ -440,7 +440,13 @@
                 // Uncheck all first
                 document.querySelectorAll('.permission-switch').forEach(cb => cb.checked = false);
 
-                fetch('<%= request.getContextPath() %>/user-management/api/permissions?userTypeId=' + userTypeId)
+                fetch('<%= request.getContextPath() %>/user-management/api/permissions?userTypeId=' + userTypeId + '&_t=' + new Date().getTime(), {
+                    cache: 'no-cache',
+                    headers: {
+                        'Cache-Control': 'no-cache, no-store, must-revalidate',
+                        'Pragma': 'no-cache'
+                    }
+                })
                     .then(res => res.json())
                     .then(screenIds => {
                         screenIds.forEach(id => {

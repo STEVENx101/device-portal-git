@@ -5,6 +5,7 @@ import com.fintrex.deviceportal.dto.UserType;
 import com.fintrex.deviceportal.dto.Screen;
 import com.fintrex.deviceportal.dto.HrisUser;
 import com.fintrex.deviceportal.service.UserService;
+import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -37,19 +38,31 @@ public class UserManagementController {
     @GetMapping("/api/users")
     @ResponseBody
     public ResponseEntity<List<User>> getUsers() {
-        return ResponseEntity.ok(userService.getAllUsers());
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.noCache().noStore().mustRevalidate())
+                .header("Pragma", "no-cache")
+                .header("Expires", "0")
+                .body(userService.getAllUsers());
     }
 
     @GetMapping("/api/user-types")
     @ResponseBody
     public ResponseEntity<List<UserType>> getUserTypes() {
-        return ResponseEntity.ok(userService.getAllUserTypes());
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.noCache().noStore().mustRevalidate())
+                .header("Pragma", "no-cache")
+                .header("Expires", "0")
+                .body(userService.getAllUserTypes());
     }
 
     @GetMapping("/api/screens")
     @ResponseBody
     public ResponseEntity<List<Screen>> getScreens() {
-        return ResponseEntity.ok(userService.getAllScreens());
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.noCache().noStore().mustRevalidate())
+                .header("Pragma", "no-cache")
+                .header("Expires", "0")
+                .body(userService.getAllScreens());
     }
 
     @GetMapping("/api/permissions")
@@ -59,7 +72,11 @@ public class UserManagementController {
                 .stream()
                 .map(Screen::getId)
                 .collect(Collectors.toList());
-        return ResponseEntity.ok(screenIds);
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.noCache().noStore().mustRevalidate())
+                .header("Pragma", "no-cache")
+                .header("Expires", "0")
+                .body(screenIds);
     }
 
     @GetMapping("/api/hris-users")

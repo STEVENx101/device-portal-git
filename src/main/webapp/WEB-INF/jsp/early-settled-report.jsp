@@ -72,9 +72,6 @@
             .bg-primary {
                 background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%) !important;
             }
-            #tableEarlySettled th, #tableEarlySettled td {
-                text-align: left !important;
-            }
             #tableEarlySettled tbody tr {
                 cursor: pointer;
             }
@@ -277,7 +274,7 @@
                         { 
                             data: 'early_settlement', 
                             defaultContent: '0.00',
-                            className: 'text-start',
+                            className: 'text-end',
                             render: function(data) {
                                 return data ? parseFloat(data).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '0.00';
                             }
@@ -285,7 +282,7 @@
                         { 
                             data: 'repayment_balance', 
                             defaultContent: '0.00',
-                            className: 'text-start',
+                            className: 'text-end',
                             render: function(data) {
                                 return data ? parseFloat(data).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '0.00';
                             }
@@ -293,7 +290,7 @@
                         { 
                             data: 'future_capital', 
                             defaultContent: '0.00',
-                            className: 'text-start',
+                            className: 'text-end',
                             render: function(data) {
                                 return data ? parseFloat(data).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '0.00';
                             }
@@ -301,16 +298,16 @@
                         { 
                             data: 'future_interest', 
                             defaultContent: '0.00',
-                            className: 'text-start',
+                            className: 'text-end',
                             render: function(data) {
                                 return data ? parseFloat(data).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '0.00';
                             }
                         },
-                        { data: 'maturity_date', defaultContent: '', className: 'text-start' },
+                        { data: 'maturity_date', defaultContent: '', className: 'text-center' },
                         { 
                             data: 'loan_amount', 
                             defaultContent: '0.00',
-                            className: 'text-start',
+                            className: 'text-end',
                             render: function(data) {
                                 return data ? parseFloat(data).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '0.00';
                             }
@@ -318,7 +315,7 @@
                         { 
                             data: 'rental', 
                             defaultContent: '0.00',
-                            className: 'text-start',
+                            className: 'text-end',
                             render: function(data) {
                                 return data ? parseFloat(data).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '0.00';
                             }
@@ -326,7 +323,7 @@
                         { 
                             data: 'total_due', 
                             defaultContent: '0.00',
-                            className: 'text-start',
+                            className: 'text-end',
                             render: function(data) {
                                 return data ? parseFloat(data).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '0.00';
                             }
@@ -334,12 +331,12 @@
                         { 
                             data: 'exposure', 
                             defaultContent: '0.00',
-                            className: 'text-start',
+                            className: 'text-end',
                             render: function(data) {
                                 return data ? parseFloat(data).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '0.00';
                             }
                         },
-                        { data: 'dpd', defaultContent: '0', className: 'text-start' },
+                        { data: 'dpd', defaultContent: '0', className: 'text-end' },
                         { data: 'account_status', defaultContent: '', className: 'text-start' },
                         { data: 'lock_status', defaultContent: '', className: 'text-start' },
                         { data: 'recovery_officer', defaultContent: '', className: 'text-start' },
