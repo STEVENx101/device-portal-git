@@ -18,6 +18,6 @@ server:
 
 api:
   nimble:
-    url: "https://api.nimble.example.com"
-    username: "deviceportal_user"
-    password: "deviceportal_password"
+    url: http://api.fintrex.test/stg
+    username: PAYMENTAPI
+    password: vd1ZO5*3pr#
