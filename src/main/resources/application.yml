@@ -18,6 +18,6 @@ server:
 
 api:
   nimble:
-    url: http://api.fintrex.test/stg
+    url: https://api.fintrex.lk/cbs
     username: PAYMENTAPI
     password: vd1ZO5*3pr#
