@@ -23,6 +23,62 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      # --------------------------------------------------
+      # IMPORT CERTIFICATE TO SERVER JAVA TRUSTSTORE
+      # --------------------------------------------------
+      - name: Import Certificate to Java Truststore
+        run: |
+          CERT_FILE="certs/fintrex.lk.crt"
+          CERT_ALIAS="deviceportal-cert"
+          CACERTS="/etc/ssl/certs/java/cacerts"
+
+          echo "Checking certificate file..."
+          ls -lh "$CERT_FILE"
+
+          echo "Certificate details:"
+          openssl x509 \
+            -in "$CERT_FILE" \
+            -noout \
+            -subject \
+            -issuer \
+            -dates \
+            -fingerprint \
+            -sha256
+
+          echo "Backing up Java truststore..."
+          sudo cp "$CACERTS" "${CACERTS}.backup"
+
+          echo "Checking existing certificate alias..."
+
+          if sudo keytool -list \
+              -keystore "$CACERTS" \
+              -storepass changeit \
+              -alias "$CERT_ALIAS" >/dev/null 2>&1; then
+
+            echo "Existing certificate found. Removing..."
+            sudo keytool -delete \
+              -alias "$CERT_ALIAS" \
+              -keystore "$CACERTS" \
+              -storepass changeit
+          fi
+
+          echo "Importing certificate..."
+
+          sudo keytool -importcert \
+            -trustcacerts \
+            -noprompt \
+            -alias "$CERT_ALIAS" \
+            -file "$CERT_FILE" \
+            -keystore "$CACERTS" \
+            -storepass changeit
+
+          echo "Verifying certificate..."
+
+          sudo keytool -list \
+            -keystore "$CACERTS" \
+            -storepass changeit \
+            -alias "$CERT_ALIAS"
+
       - name: Build WAR Package
         run: |
           chmod +x mvnw
@@ -41,3 +97,7 @@ jobs:
       - name: Start Tomcat
         run: |
           systemctl start tomcat-deviceportal
+
+      - name: Check Tomcat Status
+        run: |
+          systemctl status tomcat-deviceportal --no-pager
