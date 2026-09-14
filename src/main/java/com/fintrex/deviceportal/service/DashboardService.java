@@ -47,6 +47,10 @@ public class DashboardService {
         }
         try {
             System.out.println("WARMING UP/REFRESHING DASHBOARD SNAPSHOT STORE DATA...");
+            
+            
+            cache.clear();
+
 
             String[] products = { "MF", "LF" };
             for (String product : products) {
