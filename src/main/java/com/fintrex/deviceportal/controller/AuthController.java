@@ -51,7 +51,6 @@ public class AuthController {
             return v;
         }
     }
-    
 
     @PostMapping("/login")
     @ResponseBody
