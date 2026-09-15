@@ -18,9 +18,9 @@ public class DashboardRepository {
 
     private String getProductFilterSql(String product) {
         if ("MF".equalsIgnoreCase(product)) {
-            return " AND pr.product_code = 'MF' ";
+            return " AND (pr.product_code = 'MF' OR l.product = 'MF' OR pr.product_name = 'MF') ";
         } else if ("LF".equalsIgnoreCase(product)) {
-            return " AND pr.product_code IN ('LF', 'laptop') ";
+            return " AND (pr.product_code IN ('LF', 'laptop') OR l.product IN ('LF', 'laptop') OR pr.product_name IN ('LF', 'laptop')) ";
         }
         return "";
     }
@@ -104,7 +104,6 @@ public class DashboardRepository {
                     JOIN cbs.loan l ON l.account_no = p.account_no AND l.account_series = p.series
                     LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
                     WHERE p.portfolio_date = %s
-                      AND p.loan_status IN ('A', 'N')
                     %s
                 """, portfolioSubquery, filter);
         Map<String, Object> portfolioStats = jdbcTemplate.queryForMap(sqlPortfolio);
@@ -120,7 +119,6 @@ public class DashboardRepository {
                     LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
                     WHERE p.portfolio_date = %s
                       AND p.performing_status = 'Non-Performing'
-                      AND p.loan_status IN ('A', 'N')
                     %s
                 """, portfolioSubquery, filter);
         Map<String, Object> nplStats = jdbcTemplate.queryForMap(sqlNplStats);
@@ -180,7 +178,6 @@ public class DashboardRepository {
                     LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
                     WHERE p.portfolio_date = %s
                       AND p.total_due > 0
-                      AND p.loan_status IN ('A', 'N')
                       AND p.performing_status = 'Performing'
                     %s
                 """, portfolioSubquery, filter);
@@ -222,7 +219,6 @@ public class DashboardRepository {
                     LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
                     WHERE p.portfolio_date = %s
                     AND p.dpd BETWEEN 1 AND 90
-                    AND p.loan_status IN ('A', 'N')
                     AND p.performing_status = 'Performing'
                     %s
                 """, portfolioSubquery, filter);
@@ -238,7 +234,6 @@ public class DashboardRepository {
                     LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
                     WHERE p.portfolio_date = %s
                       AND p.dpd = 0
-                      AND p.loan_status IN ('A', 'N')
                     %s
                 """, portfolioSubquery, filter);
         Map<String, Object> dpdZeroPortfolioStats = jdbcTemplate.queryForMap(sqlDpdZeroPortfolio);
@@ -692,7 +687,6 @@ public class DashboardRepository {
                 LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
                 WHERE p.portfolio_date = %s
                 AND p.total_due > 0
-                AND p.loan_status IN ('A', 'N')
                 %s
                 GROUP BY dpd_bucket
                 ORDER BY FIELD(dpd_bucket, 'Current', '1-30 DPD', '31-60 DPD', '61-90 DPD', '90+ DPD')
