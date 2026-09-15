@@ -148,6 +148,7 @@ public class AuthController {
         return "redirect:/login?logout=true";
     }
 
+    
     @GetMapping("/api/keep-alive")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> keepAlive(jakarta.servlet.http.HttpServletRequest request) {
