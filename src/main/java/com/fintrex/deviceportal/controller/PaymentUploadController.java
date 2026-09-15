@@ -52,6 +52,50 @@ public class PaymentUploadController {
         return paymentUploadService.bulkDetail(request);
     }
 
+    @GetMapping("/api/payments/detail/download")
+    public void downloadBulkDetail(
+            @RequestParam("bulkId") String bulkId,
+            HttpSession session,
+            jakarta.servlet.http.HttpServletResponse response) throws java.io.IOException {
+        User currentUser = (User) session.getAttribute("currentUser");
+        String username = (currentUser != null) ? currentUser.getUsername() : "system";
+        cbsReportService.logReportActivity(username, "Bulk Upload Detail Report", "DOWNLOAD", "bulkId=" + bulkId);
+
+        response.setContentType("text/csv; charset=UTF-8");
+        response.setHeader("Content-Disposition", "attachment; filename=\"bulk_upload_detail_" + bulkId + ".csv\"");
+
+        java.util.List<java.util.Map<String, Object>> records = paymentUploadService.getBulkUploadDetailsForDownload(bulkId);
+
+        java.io.PrintWriter writer = response.getWriter();
+        writer.println("ID,Payment ID,Account No,Amount,Narration,Status,Response,Pushed At,Ended At");
+
+        for (java.util.Map<String, Object> row : records) {
+            writer.println(String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s",
+                    cleanCsv(row.get("id")),
+                    cleanCsv(row.get("payment_id")),
+                    cleanCsv(row.get("account_no")),
+                    cleanCsv(row.get("amount")),
+                    cleanCsv(row.get("narration")),
+                    cleanCsv(row.get("status")),
+                    cleanCsv(row.get("response")),
+                    cleanCsv(row.get("pushed")),
+                    cleanCsv(row.get("ended"))
+            ));
+        }
+        writer.flush();
+    }
+
+    private String cleanCsv(Object val) {
+        if (val == null) {
+            return "";
+        }
+        String s = val.toString().replace("\"", "\"\"");
+        if (s.contains(",") || s.contains("\n") || s.contains("\r")) {
+            return "\"" + s + "\"";
+        }
+        return s;
+    }
+
     @PostMapping("/api/payments/upload")
     @ResponseBody
     public ResponseEntity<?> uploadBulkPayments(

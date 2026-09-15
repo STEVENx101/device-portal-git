@@ -55,7 +55,11 @@ public class PaymentUploadService {
     }
 
     public DataTableResponse bulkDetail(DataTableRequest request) {
-        return this.dataTableRepo.dataTable(request, "SELECT d.id, d.payment_id, d.account_no, d.amount, d.narration, d.status, d.pushed, d.ended FROM device_portal.bulk_upload_detail d WHERE d.bulk_id=?", new Object[]{request.getData()});
+        return this.dataTableRepo.dataTable(request, "SELECT d.id, d.payment_id, d.account_no, d.amount, d.narration, d.status, d.response, d.pushed, d.ended FROM device_portal.bulk_upload_detail d WHERE d.bulk_id=?", new Object[]{request.getData()});
+    }
+
+    public List<java.util.Map<String, Object>> getBulkUploadDetailsForDownload(Object bulkId) {
+        return this.jdbc.getJdbcTemplate().queryForList("SELECT d.id, d.payment_id, d.account_no, d.amount, d.narration, d.status, d.response, DATE_FORMAT(d.pushed, '%Y-%m-%d %H:%i:%s') AS pushed, DATE_FORMAT(d.ended, '%Y-%m-%d %H:%i:%s') AS ended FROM device_portal.bulk_upload_detail d WHERE d.bulk_id=? ORDER BY d.id ASC", bulkId);
     }
 
     public void uploadBulkPayments(MultipartFile paymentFile, String service, String comment, String username) {

@@ -186,6 +186,7 @@
                                         <th>Amount</th>
                                         <th>Narration</th>
                                         <th>Status</th>
+                                        <th>Response</th>
                                         <th>Pushed At</th>
                                         <th>Ended At</th>
                                     </tr>
@@ -194,7 +195,10 @@
                             </table>
                         </div>
                     </div>
-                    <div class="modal-footer p-2">
+                    <div class="modal-footer p-2 d-flex justify-content-between">
+                        <button type="button" class="btn btn-outline-primary btn-sm" id="downloadDetailsBtn">
+                            <i class="fas fa-download me-1"></i>Download CSV
+                        </button>
                         <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
                     </div>
                 </div>
@@ -339,8 +343,9 @@
                                 return '<span class="badge ' + badgeClass + '">' + data + '</span>';
                             }
                         },
-                        { data: 'pushed' },
-                        { data: 'ended' }
+                        { data: 'response', defaultContent: '-' },
+                        { data: 'pushed', defaultContent: '-' },
+                        { data: 'ended', defaultContent: '-' }
                     ]
                 });
 
@@ -350,6 +355,11 @@
                     currentBulkId = $(this).data('id');
                     tableDetails.ajax.reload();
                     $('#detailsModal').modal('show');
+                });
+
+                $('#downloadDetailsBtn').on('click', function() {
+                    if (!currentBulkId) return;
+                    window.location.href = '${pageContext.request.contextPath}/api/payments/detail/download?bulkId=' + currentBulkId;
                 });
 
                 $('#showInstructionsBtn').on('click', function() {

@@ -144,6 +144,7 @@
                                         <th>Amount</th>
                                         <th>Narration</th>
                                         <th>Status</th>
+                                        <th>Response</th>
                                         <th>Pushed At</th>
                                         <th>Ended At</th>
                                     </tr>
@@ -153,6 +154,9 @@
                         </div>
                     </div>
                     <div class="modal-footer p-2">
+                        <button type="button" class="btn btn-outline-primary btn-sm me-auto" id="downloadDetailsBtn">
+                            <i class="fas fa-download me-1"></i>Download CSV
+                        </button>
                         <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
                         <button type="button" class="btn btn-success btn-sm" id="modalApproveBtn">
                             <i class="fas fa-check me-1"></i>Approve & Post Payments
@@ -233,8 +237,9 @@
                                 return '<span class="badge ' + badgeClass + '">' + data + '</span>';
                             }
                         },
-                        { data: 'pushed' },
-                        { data: 'ended' }
+                        { data: 'response', defaultContent: '-' },
+                        { data: 'pushed', defaultContent: '-' },
+                        { data: 'ended', defaultContent: '-' }
                     ]
                 });
 
@@ -244,6 +249,11 @@
                     currentBulkId = $(this).data('id');
                     tableDetails.ajax.reload();
                     $('#detailsModal').modal('show');
+                });
+
+                $('#downloadDetailsBtn').on('click', function() {
+                    if (!currentBulkId) return;
+                    window.location.href = '${pageContext.request.contextPath}/api/payments/detail/download?bulkId=' + currentBulkId;
                 });
 
                 $('#modalApproveBtn').on('click', function() {
