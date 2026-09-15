@@ -101,7 +101,7 @@ public class DashboardRepository {
                         COUNT(DISTINCT p.account_no) AS portfolio_count,
                         COALESCE(SUM(p.exposure), 0) AS portfolio_amount
                     FROM cbs.portfolio p
-                    JOIN cbs.loan l ON l.account_no = p.account_no
+                    JOIN cbs.loan l ON l.account_no = p.account_no AND l.account_series = p.series
                     LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
                     WHERE p.portfolio_date = %s
                       AND p.loan_status IN ('A', 'N')
@@ -113,10 +113,10 @@ public class DashboardRepository {
         String sqlNplStats = String.format("""
                     SELECT
                         COUNT(DISTINCT p.account_no) AS npl_count,
-                        SUM(p.exposure) AS npl_exposure,
-                        SUM(p.total_due) AS npl_arrears
+                        COALESCE(SUM(p.exposure), 0) AS npl_exposure,
+                        COALESCE(SUM(p.total_due), 0) AS npl_arrears
                     FROM cbs.portfolio p
-                    JOIN cbs.loan l ON l.account_no = p.account_no
+                    JOIN cbs.loan l ON l.account_no = p.account_no AND l.account_series = p.series
                     LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
                     WHERE p.portfolio_date = %s
                       AND p.performing_status = 'Non-Performing'
@@ -176,11 +176,11 @@ public class DashboardRepository {
                         COUNT(DISTINCT p.account_no) AS arrears_count,
                         COALESCE(SUM(p.total_due), 0) AS arrears_amount
                     FROM cbs.portfolio p
-                    JOIN cbs.loan l ON l.account_no = p.account_no
+                    JOIN cbs.loan l ON l.account_no = p.account_no AND l.account_series = p.series
                     LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
                     WHERE p.portfolio_date = %s
                       AND p.total_due > 0
-                      AND p.loan_status IN ('A')
+                      AND p.loan_status IN ('A', 'N')
                       AND p.performing_status = 'Performing'
                     %s
                 """, portfolioSubquery, filter);
@@ -195,6 +195,7 @@ public class DashboardRepository {
                     LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
                     WHERE l.closed_date >= %s
                       AND l.closed_date < %s
+                      AND l.account_status IN ('P', 'F')
                     %s
                 """, getMonthStartExpr(month), getMonthEndExpr(month), filter);
         Map<String, Object> settledStats = jdbcTemplate.queryForMap(sqlSettledStats);
@@ -217,10 +218,11 @@ public class DashboardRepository {
                         COUNT(DISTINCT p.account_no) AS count_val,
                         COALESCE(SUM(p.exposure), 0) AS amount_val
                     FROM cbs.portfolio p
-                    JOIN cbs.loan l ON l.account_no = p.account_no
+                    JOIN cbs.loan l ON l.account_no = p.account_no AND l.account_series = p.series
                     LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
                     WHERE p.portfolio_date = %s
                     AND p.dpd BETWEEN 1 AND 90
+                    AND p.loan_status IN ('A', 'N')
                     AND p.performing_status = 'Performing'
                     %s
                 """, portfolioSubquery, filter);
@@ -232,7 +234,7 @@ public class DashboardRepository {
                         COUNT(DISTINCT p.account_no) AS count_val,
                         COALESCE(SUM(p.exposure), 0) AS amount_val
                     FROM cbs.portfolio p
-                    JOIN cbs.loan l ON l.account_no = p.account_no
+                    JOIN cbs.loan l ON l.account_no = p.account_no AND l.account_series = p.series
                     LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
                     WHERE p.portfolio_date = %s
                       AND p.dpd = 0
@@ -686,10 +688,11 @@ public class DashboardRepository {
                     COALESCE(SUM(p.total_due), 0) AS arrears_amount,
                     COALESCE(SUM(p.exposure), 0) AS exposure_amount
                 FROM cbs.portfolio p
-                JOIN cbs.loan l ON l.account_no = p.account_no
+                JOIN cbs.loan l ON l.account_no = p.account_no AND l.account_series = p.series
                 LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
                 WHERE p.portfolio_date = %s
                 AND p.total_due > 0
+                AND p.loan_status IN ('A', 'N')
                 %s
                 GROUP BY dpd_bucket
                 ORDER BY FIELD(dpd_bucket, 'Current', '1-30 DPD', '31-60 DPD', '61-90 DPD', '90+ DPD')
@@ -861,9 +864,10 @@ public class DashboardRepository {
                 COUNT(DISTINCT p.account_no) AS account_count,
                 COALESCE(SUM(p.exposure), 0) AS total_exposure
             FROM cbs.portfolio p
-            JOIN cbs.loan l ON l.account_no = p.account_no
+            JOIN cbs.loan l ON l.account_no = p.account_no AND l.account_series = p.series
             LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
             WHERE p.portfolio_date = %s
+              AND p.loan_status IN ('A', 'N')
               %s
             GROUP BY outstanding_bucket
         """, portfolioSubquery, filter);
