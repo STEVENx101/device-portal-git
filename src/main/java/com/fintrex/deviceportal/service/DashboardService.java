@@ -19,12 +19,14 @@ import java.util.HashMap;
 public class DashboardService {
 
     private final DashboardRepository dashboardRepository;
+    private final CbsReportService cbsReportService;
     private final ConcurrentHashMap<String, Object> cache = new ConcurrentHashMap<>();
     private final AtomicBoolean isSyncing = new AtomicBoolean(false);
     private String lastSyncedTime = ZonedDateTime.now(ZoneId.of("Asia/Colombo")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
-    public DashboardService(DashboardRepository dashboardRepository) {
+    public DashboardService(DashboardRepository dashboardRepository, CbsReportService cbsReportService) {
         this.dashboardRepository = dashboardRepository;
+        this.cbsReportService = cbsReportService;
     }
 
     @PostConstruct
@@ -47,54 +49,60 @@ public class DashboardService {
         }
         try {
             System.out.println("WARMING UP/REFRESHING DASHBOARD SNAPSHOT STORE DATA...");
-            
-            
-            cache.clear();
 
+            // Invalidate report service caches so both dashboard and report caches synchronize
+            if (cbsReportService != null) {
+                cbsReportService.clearReportCaches();
+            }
+
+            Map<String, Object> newCache = new HashMap<>();
 
             String[] products = { "MF", "LF" };
             for (String product : products) {
                 String suffix = "_" + product.toUpperCase();
 
                 Map<String, Object> stats = dashboardRepository.getDashboardStats(product);
-                cache.put("stats" + suffix, stats != null ? stats : new HashMap<>());
+                newCache.put("stats" + suffix, stats != null ? stats : new HashMap<>());
 
                 List<Map<String, Object>> biz = dashboardRepository.getMonthWiseBusiness(product);
-                cache.put("business" + suffix, biz != null ? biz : new ArrayList<>());
+                newCache.put("business" + suffix, biz != null ? biz : new ArrayList<>());
 
                 List<Map<String, Object>> dpd = dashboardRepository.getMonthWiseDpdComparison(product);
-                cache.put("dpdComparison" + suffix, dpd != null ? dpd : new ArrayList<>());
+                newCache.put("dpdComparison" + suffix, dpd != null ? dpd : new ArrayList<>());
 
                 Map<String, Object> status = dashboardRepository.getDeviceStatusCharts(product);
-                cache.put("deviceStatus" + suffix, status != null ? status : new HashMap<>());
+                newCache.put("deviceStatus" + suffix, status != null ? status : new HashMap<>());
 
-
-                 List<Map<String, Object>> payments = dashboardRepository.getVendorPaymentsChannelChart(product);
-                cache.put("vendorPayments" + suffix, payments != null ? payments : new ArrayList<>());
+                List<Map<String, Object>> payments = dashboardRepository.getVendorPaymentsChannelChart(product);
+                newCache.put("vendorPayments" + suffix, payments != null ? payments : new ArrayList<>());
 
                 List<Map<String, Object>> coll = dashboardRepository.getCollectionsDealerWise(product);
-                cache.put("collections" + suffix, coll != null ? coll : new ArrayList<>());
+                newCache.put("collections" + suffix, coll != null ? coll : new ArrayList<>());
 
                 List<Map<String, Object>> prodBiz = dashboardRepository.getProductBusinessChart(product);
-                cache.put("productBusiness" + suffix, prodBiz != null ? prodBiz : new ArrayList<>());
+                newCache.put("productBusiness" + suffix, prodBiz != null ? prodBiz : new ArrayList<>());
 
                 // New analysis cache
                 List<Map<String, Object>> maturedNp = dashboardRepository.getMaturedNonPerformingAnalysis(product);
-                cache.put("maturedNp" + suffix, maturedNp != null ? maturedNp : new ArrayList<>());
+                newCache.put("maturedNp" + suffix, maturedNp != null ? maturedNp : new ArrayList<>());
 
                 List<Map<String, Object>> outstanding = dashboardRepository.getOutstandingAnalysis(product);
-                cache.put("outstanding" + suffix, outstanding != null ? outstanding : new ArrayList<>());
+                newCache.put("outstanding" + suffix, outstanding != null ? outstanding : new ArrayList<>());
 
                 List<Map<String, Object>> txnChannel = dashboardRepository.getTransactionChannelChartData(product);
-                cache.put("txnChannel" + suffix, txnChannel != null ? txnChannel : new ArrayList<>());
+                newCache.put("txnChannel" + suffix, txnChannel != null ? txnChannel : new ArrayList<>());
 
                 List<Map<String, Object>> pmtsStatus = dashboardRepository.getPaymentsStatusChart(product);
-                cache.put("paymentsStatus" + suffix, pmtsStatus != null ? pmtsStatus : new ArrayList<>());
+                newCache.put("paymentsStatus" + suffix, pmtsStatus != null ? pmtsStatus : new ArrayList<>());
             }
 
             // Mobile lock arrears is specific to MF, but cached standalone or with suffix
             Map<String, Object> mobileLockArrears = dashboardRepository.getMobileLockArrearsAnalysis();
-            cache.put("mobileLockArrears", mobileLockArrears != null ? mobileLockArrears : new HashMap<>());
+            newCache.put("mobileLockArrears", mobileLockArrears != null ? mobileLockArrears : new HashMap<>());
+
+            // Atomic update to avoid clearing cache upfront while queries execute
+            cache.clear();
+            cache.putAll(newCache);
 
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
             lastSyncedTime = ZonedDateTime.now(ZoneId.of("Asia/Colombo")).format(formatter);
