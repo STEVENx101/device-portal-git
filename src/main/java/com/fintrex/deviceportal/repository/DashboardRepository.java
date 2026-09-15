@@ -836,7 +836,7 @@ public class DashboardRepository {
                 AND p1.series = l.account_series
                 AND p1.portfolio_date = ?
             LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
-            WHERE p1.loan_status IN ('A', 'N')
+            WHERE 1=1
               %s
             GROUP BY 
                 CASE WHEN l.maturity_date <= %s THEN 'Matured' ELSE 'Non-Matured' END,
@@ -861,7 +861,6 @@ public class DashboardRepository {
             JOIN cbs.loan l ON l.account_no = p.account_no AND l.account_series = p.series
             LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
             WHERE p.portfolio_date = %s
-              AND p.loan_status IN ('A', 'N')
               %s
             GROUP BY outstanding_bucket
         """, portfolioSubquery, filter);
