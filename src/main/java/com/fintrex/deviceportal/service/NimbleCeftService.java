@@ -32,7 +32,7 @@ public class NimbleCeftService {
 
     ObjectMapper mapper = new ObjectMapper();
 
-    String baseUrl = "http://api.fintrex.test/stg";
+    String baseUrl = "https://api.fintrex.lk/cbs";
     String username = "MOB";
     String password = "k*u=J53pU2IN";
     String token = "";
