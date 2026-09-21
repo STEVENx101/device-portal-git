@@ -7,6 +7,7 @@ import com.fintrex.deviceportal.entity.BulkUpload;
 import com.fintrex.deviceportal.entity.BulkUploadDetail;
 import com.fintrex.deviceportal.repository.BulkUploadDetailRepository;
 import com.fintrex.deviceportal.repository.BulkUploadRepository;
+import com.fintrex.deviceportal.service.NimbleCeftService;
 import java.io.IOException;
 import java.net.http.HttpResponse;
 import java.time.LocalDateTime;
@@ -23,22 +24,33 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class PaymentUploadService {
+
     private final BulkUploadRepository bulkUploadRepository;
     private final BulkUploadDetailRepository bulkUploadDetailRepository;
     private final DataTableRepo dataTableRepo;
+
     private final NimbleService nimbleService;
+    private final NimbleCeftService nimbleCeftService;
+
     private final org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate jdbc;
+
     private final DataFormatter FORMATTER = new DataFormatter();
 
-    public PaymentUploadService(BulkUploadRepository bulkUploadRepository, 
-                                BulkUploadDetailRepository bulkUploadDetailRepository, 
-                                DataTableRepo dataTableRepo, 
-                                NimbleService nimbleService,
-                                org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate jdbc) {
+    public PaymentUploadService(
+            BulkUploadRepository bulkUploadRepository,
+            BulkUploadDetailRepository bulkUploadDetailRepository,
+            DataTableRepo dataTableRepo,
+            NimbleService nimbleService,
+            NimbleCeftService nimbleCeftService,
+            org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate jdbc) {
+
         this.bulkUploadRepository = bulkUploadRepository;
         this.bulkUploadDetailRepository = bulkUploadDetailRepository;
         this.dataTableRepo = dataTableRepo;
+
         this.nimbleService = nimbleService;
+        this.nimbleCeftService = nimbleCeftService;
+
         this.jdbc = jdbc;
     }
 
@@ -108,39 +120,92 @@ public class PaymentUploadService {
         }
     }
 
-    public void approveAndUploadPayments(String bulkId, String approvedUser) {
-        BulkUpload bulkUpload = this.bulkUploadRepository.findById(Long.valueOf(bulkId)).orElseThrow(() -> new RuntimeException("Bulk Upload not found"));
-        bulkUpload.setApprovedOn(LocalDateTime.now());
-        bulkUpload.setApprovedUser(approvedUser == null ? "" : approvedUser);
-        bulkUpload.setStatus("Updating");
-        this.bulkUploadRepository.save(bulkUpload);
-        new Thread(() -> {
-            BulkUpload bulk = this.bulkUploadRepository.findById(Long.valueOf(bulkId)).orElseThrow(() -> new RuntimeException("Bulk Upload not found"));
-            List<BulkUploadDetail> bulkDetails = this.bulkUploadDetailRepository.findAllByBulkId(bulk);
-            for (BulkUploadDetail bulkDetail : bulkDetails) {
-                bulkDetail.setPushed(LocalDateTime.now());
-                try {
-                    HttpResponse<String> resp = this.nimbleService.updatePayment(bulkDetail.getPaymentId(), bulkDetail.getAccountNo(), bulkDetail.getAmount(), bulkDetail.getNarration(), bulkUpload.getService(), approvedUser);
-                    bulkDetail.setEnded(LocalDateTime.now());
-                    if (resp.statusCode() == 200) {
-                        bulkDetail.setStatus("Success");
-                    } else {
-                        bulkDetail.setStatus("Error");
-                    }
-                    bulkDetail.setResponse(resp.body());
-                } catch (Exception e) {
-                    bulkDetail.setStatus("Error");
-                    bulkDetail.setResponse(e.getMessage());
+   public void approveAndUploadPayments(String bulkId, String approvedUser) {
+
+    BulkUpload bulkUpload = this.bulkUploadRepository
+            .findById(Long.valueOf(bulkId))
+            .orElseThrow(() -> new RuntimeException("Bulk Upload not found"));
+
+    bulkUpload.setApprovedOn(LocalDateTime.now());
+    bulkUpload.setApprovedUser(approvedUser == null ? "" : approvedUser);
+    bulkUpload.setStatus("Updating");
+
+    this.bulkUploadRepository.save(bulkUpload);
+
+    String service = bulkUpload.getService();
+
+    new Thread(() -> {
+
+        BulkUpload bulk = this.bulkUploadRepository
+                .findById(Long.valueOf(bulkId))
+                .orElseThrow(() -> new RuntimeException("Bulk Upload not found"));
+
+        List<BulkUploadDetail> bulkDetails =
+                this.bulkUploadDetailRepository.findAllByBulkId(bulk);
+
+        for (BulkUploadDetail bulkDetail : bulkDetails) {
+
+            bulkDetail.setPushed(LocalDateTime.now());
+
+            try {
+
+                HttpResponse<String> resp;
+
+                if ("CEFTS".equals(service)) {
+
+                    resp = this.nimbleCeftService.updatePayment(
+                            bulkDetail.getPaymentId(),
+                            bulkDetail.getAccountNo(),
+                            bulkDetail.getAmount(),
+                            bulkDetail.getNarration(),
+                            service
+                    );
+
+                } else {
+
+                    // Other payment services
+                    resp = this.nimbleService.updatePayment(
+                            bulkDetail.getPaymentId(),
+                            bulkDetail.getAccountNo(),
+                            bulkDetail.getAmount(),
+                            bulkDetail.getNarration(),
+                            service,
+                            approvedUser
+                    );
                 }
-                this.bulkUploadDetailRepository.save(bulkDetail);
-                try {
-                    Thread.sleep(200L);
-                } catch (InterruptedException interruptedException) {}
+
+                bulkDetail.setEnded(LocalDateTime.now());
+
+                if (resp.statusCode() == 200) {
+                    bulkDetail.setStatus("Success");
+                } else {
+                    bulkDetail.setStatus("Error");
+                }
+
+                bulkDetail.setResponse(resp.body());
+
+            } catch (Exception e) {
+
+                bulkDetail.setEnded(LocalDateTime.now());
+                bulkDetail.setStatus("Error");
+                bulkDetail.setResponse(e.getMessage());
             }
-            bulk.setStatus("Complete");
-            this.bulkUploadRepository.save(bulk);
-        }).start();
-    }
+
+            this.bulkUploadDetailRepository.save(bulkDetail);
+
+            try {
+                Thread.sleep(200L);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            }
+        }
+
+        bulk.setStatus("Complete");
+        this.bulkUploadRepository.save(bulk);
+
+    }).start();
+}
 
     public String getCellValue(Row row, int column) {
         if (row == null) {
