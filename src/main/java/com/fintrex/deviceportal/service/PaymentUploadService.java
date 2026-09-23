@@ -59,11 +59,11 @@ public class PaymentUploadService {
     }
 
     public DataTableResponse paymentUploadHistory(DataTableRequest request) {
-        return this.dataTableRepo.dataTable(request, "SELECT b.id, CONCAT(b.date) as date, b.user as uploaded, b.approved_user as approver, b.service, b.comment, COUNT(d.id) as total, SUM(CASE WHEN d.status = 'Success' THEN 1 ELSE 0 END) as success, SUM(CASE WHEN d.status != 'Success' THEN 1 ELSE 0 END) as failed, b.status FROM device_portal.bulk_upload b LEFT JOIN device_portal.bulk_upload_detail d ON d.bulk_id=b.id GROUP BY b.id, b.date, b.user, b.approved_user, b.service, b.comment, b.status", new Object[0]);
+        return this.dataTableRepo.dataTable(request, "SELECT b.id, DATE_FORMAT(b.date, '%Y-%m-%d %H:%i:%s') as date, b.user as uploaded, b.approved_user as approver, b.service, b.comment, COUNT(d.id) as total, SUM(CASE WHEN d.status = 'Success' THEN 1 ELSE 0 END) as success, SUM(CASE WHEN d.status != 'Success' THEN 1 ELSE 0 END) as failed, b.status FROM device_portal.bulk_upload b LEFT JOIN device_portal.bulk_upload_detail d ON d.bulk_id=b.id GROUP BY b.id, b.date, b.user, b.approved_user, b.service, b.comment, b.status", new Object[0]);
     }
 
     public DataTableResponse pendingApprovals(DataTableRequest request) {
-        return this.dataTableRepo.dataTable(request, "SELECT b.id, CONCAT(b.date) as date, b.user as uploaded, b.service, b.comment, COUNT(d.id) as total FROM device_portal.bulk_upload b LEFT JOIN device_portal.bulk_upload_detail d ON d.bulk_id=b.id WHERE b.status='Pending Approval' GROUP BY b.id, b.date, b.user, b.service, b.comment", new Object[0]);
+        return this.dataTableRepo.dataTable(request, "SELECT b.id, DATE_FORMAT(b.date, '%Y-%m-%d %H:%i:%s') as date, b.user as uploaded, b.service, b.comment, COUNT(d.id) as total FROM device_portal.bulk_upload b LEFT JOIN device_portal.bulk_upload_detail d ON d.bulk_id=b.id WHERE b.status='Pending Approval' GROUP BY b.id, b.date, b.user, b.service, b.comment", new Object[0]);
     }
 
     public DataTableResponse bulkDetail(DataTableRequest request) {

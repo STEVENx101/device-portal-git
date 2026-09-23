@@ -61,30 +61,34 @@
             .bg-primary {
                 background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%) !important;
             }
-            .card-header-gradient {
-                background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
-                color: white;
-            }
             .card-header-info {
                 background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%);
                 color: white;
             }
-            .nav-tabs .nav-link {
-                border: none;
-                color: #64748b;
+            .compact-tabs-nav {
+                display: inline-flex;
+                background: #e2e8f0;
+                padding: 3px;
+                border-radius: 8px;
+            }
+            .compact-tabs-nav .nav-link {
+                border: none !important;
+                border-radius: 6px !important;
+                color: #475569;
+                font-size: 0.8rem;
                 font-weight: 600;
-                border-bottom: 3px solid transparent;
-                transition: all 0.2s ease;
+                padding: 5px 14px;
+                transition: all 0.2s ease-in-out;
                 background: transparent;
+                cursor: pointer;
             }
-            .nav-tabs .nav-link.active {
-                color: #6366f1;
-                border-bottom: 3px solid #6366f1;
-                background: transparent;
+            .compact-tabs-nav .nav-link.active {
+                color: #6366f1 !important;
+                background: #ffffff !important;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
             }
-            .nav-tabs .nav-link:hover:not(.active) {
-                color: #4f46e5;
-                border-bottom: 3px solid #cbd5e1;
+            .compact-tabs-nav .nav-link:hover:not(.active) {
+                color: #1e293b;
             }
         </style>
     </head>
@@ -110,21 +114,15 @@
                         </div>
                     </div>
 
-                    <!-- 2-Page Navigation Tabs -->
-                    <div class="card glass-card mb-3">
-                        <div class="card-header p-0 border-bottom">
-                            <ul class="nav nav-tabs border-0" id="paymentsTab" role="tablist">
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link active py-3 px-4 fw-semi-bold" id="upload-tab" data-bs-toggle="tab" data-bs-target="#upload-pane" type="button" role="tab" aria-controls="upload-pane" aria-selected="true">
-                                        <i class="fas fa-file-upload me-2"></i>Upload Payments
-                                    </button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link py-3 px-4 fw-semi-bold" id="history-tab" data-bs-toggle="tab" data-bs-target="#history-pane" type="button" role="tab" aria-controls="history-pane" aria-selected="false">
-                                        <i class="fas fa-history me-2"></i>Uploaded History
-                                    </button>
-                                </li>
-                            </ul>
+                    <!-- Compact 2 Navigation Tabs -->
+                    <div class="mb-3">
+                        <div class="compact-tabs-nav" role="tablist" id="paymentsTab">
+                            <button class="nav-link active" id="upload-tab" data-bs-toggle="tab" data-bs-target="#upload-pane" type="button" role="tab" aria-controls="upload-pane" aria-selected="true">
+                                Upload Payments
+                            </button>
+                            <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history-pane" type="button" role="tab" aria-controls="history-pane" aria-selected="false">
+                                Uploaded History
+                            </button>
                         </div>
                     </div>
 
@@ -135,10 +133,7 @@
                                 <!-- Left Side: Upload Form -->
                                 <div class="col-lg-5 col-12">
                                     <div class="card glass-card h-100">
-                                        <div class="card-header card-header-gradient p-3">
-                                            <h6 class="mb-0 text-white"><i class="fas fa-file-excel me-2"></i>Upload Payments File</h6>
-                                        </div>
-                                        <div class="card-body">
+                                        <div class="card-body p-4">
                                             <form id="uploadForm" enctype="multipart/form-data">
                                                 <div class="mb-3">
                                                     <label class="form-label fw-semi-bold text-700" for="serviceSelect">Service Code</label>
@@ -228,9 +223,6 @@
                         <!-- PAGE 2: Uploaded History -->
                         <div class="tab-pane fade" id="history-pane" role="tabpanel" aria-labelledby="history-tab">
                             <div class="card glass-card">
-                                <div class="card-header p-3 border-bottom">
-                                    <h6 class="mb-0 text-primary"><i class="fas fa-history me-2"></i>Upload History</h6>
-                                </div>
                                 <div class="card-body p-3">
                                     <div class="table-responsive scrollbar">
                                         <table class="table table-hover table-striped align-middle mb-0 fs--1 w-100" id="tableUploadHistory">
