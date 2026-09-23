@@ -32,10 +32,13 @@ public class NimbleCeftService {
 
     ObjectMapper mapper = new ObjectMapper();
 
-    String baseUrl = "https://api.fintrex.lk/cbs";
-    String username = "MOB";
-    String password = "k*u=J53pU2IN";
-    String token = "";
+    @Value("${api.nimbleceft.url:https://api.fintrex.lk/cbs}")
+    private String baseUrl;
+    @Value("${api.nimbleceft.username:MOB}")
+    private String username;
+    @Value("${api.nimbleceft.password:k*u=J53pU2IN}")
+    private String password;
+    private String token = "";
 
     private synchronized void refreshAuth() throws Exception {
         HttpRequest request = HttpRequest.newBuilder()

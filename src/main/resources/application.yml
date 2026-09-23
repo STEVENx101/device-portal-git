@@ -21,3 +21,7 @@ api:
     url: https://api.fintrex.lk/cbs
     username: PAYMENTAPI
     password: vd1ZO5*3pr#
+  nimbleceft:
+    url: https://api.fintrex.lk/cbs
+    username: MOB
+    password: k*u=J53pU2IN

@@ -65,6 +65,27 @@
                 background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
                 color: white;
             }
+            .card-header-info {
+                background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%);
+                color: white;
+            }
+            .nav-tabs .nav-link {
+                border: none;
+                color: #64748b;
+                font-weight: 600;
+                border-bottom: 3px solid transparent;
+                transition: all 0.2s ease;
+                background: transparent;
+            }
+            .nav-tabs .nav-link.active {
+                color: #6366f1;
+                border-bottom: 3px solid #6366f1;
+                background: transparent;
+            }
+            .nav-tabs .nav-link:hover:not(.active) {
+                color: #4f46e5;
+                border-bottom: 3px solid #cbd5e1;
+            }
         </style>
     </head>
 
@@ -85,56 +106,127 @@
 
                     <div class="d-flex mb-3 align-items-center justify-content-between mt-2">
                         <div>
-                            <h4 class="mb-0 text-primary"><i class="fas fa-upload me-2"></i>Bulk Payments Upload</h4>
+                            <h4 class="mb-0 text-primary"><i class="fas fa-upload me-2"></i>Bulk Payments Management</h4>
                         </div>
                     </div>
 
-                    <div class="row g-3">
-                        <!-- Upload Form -->
-                        <div class="col-lg-3 col-12">
-                            <div class="card glass-card">
-                                <div class="card-header card-header-gradient p-3">
-                                    <h6 class="mb-0 text-white"><i class="fas fa-file-excel me-2"></i>Upload Payments File</h6>
+                    <!-- 2-Page Navigation Tabs -->
+                    <div class="card glass-card mb-3">
+                        <div class="card-header p-0 border-bottom">
+                            <ul class="nav nav-tabs border-0" id="paymentsTab" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active py-3 px-4 fw-semi-bold" id="upload-tab" data-bs-toggle="tab" data-bs-target="#upload-pane" type="button" role="tab" aria-controls="upload-pane" aria-selected="true">
+                                        <i class="fas fa-file-upload me-2"></i>Upload Payments
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link py-3 px-4 fw-semi-bold" id="history-tab" data-bs-toggle="tab" data-bs-target="#history-pane" type="button" role="tab" aria-controls="history-pane" aria-selected="false">
+                                        <i class="fas fa-history me-2"></i>Uploaded History
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="tab-content" id="paymentsTabContent">
+                        <!-- PAGE 1: Upload Payments -->
+                        <div class="tab-pane fade show active" id="upload-pane" role="tabpanel" aria-labelledby="upload-tab">
+                            <div class="row g-3">
+                                <!-- Left Side: Upload Form -->
+                                <div class="col-lg-5 col-12">
+                                    <div class="card glass-card h-100">
+                                        <div class="card-header card-header-gradient p-3">
+                                            <h6 class="mb-0 text-white"><i class="fas fa-file-excel me-2"></i>Upload Payments File</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <form id="uploadForm" enctype="multipart/form-data">
+                                                <div class="mb-3">
+                                                    <label class="form-label fw-semi-bold text-700" for="serviceSelect">Service Code</label>
+                                                    <select class="form-select" id="serviceSelect" name="service" required>
+                                                        <option value="" disabled selected>Select service...</option>
+                                                        <%
+                                                            List<Map<String, Object>> services = (List<Map<String, Object>>) request.getAttribute("services");
+                                                            if (services != null) {
+                                                                for (Map<String, Object> srv : services) {
+                                                                    String code = (String) srv.get("code");
+                                                                    String name = (String) srv.get("name");
+                                                        %>
+                                                        <option value="<%= code %>"><%= name %> (<%= code %>)</option>
+                                                        <%
+                                                                }
+                                                            }
+                                                        %>
+                                                    </select>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label fw-semi-bold text-700" for="fileInput">Excel File</label>
+                                                    <input class="form-control" type="file" id="fileInput" name="file" accept=".xlsx" required>
+                                                    <small class="text-muted d-block mt-1">Excel file columns format: [Request ID, Account No, Amount, Narration]</small>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label fw-semi-bold text-700" for="commentInput">Comment</label>
+                                                    <textarea class="form-control" id="commentInput" name="comment" rows="3" placeholder="Describe the upload..."></textarea>
+                                                </div>
+                                                <button class="btn btn-primary w-100 py-2 mt-2" type="button" id="uploadPaymentsBtn">
+                                                    <span class="fas fa-cloud-upload-alt me-1"></span> Upload Payments
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="card-body">
-                                    <form id="uploadForm" enctype="multipart/form-data">
-                                        <div class="mb-3">
-                                            <label class="form-label fw-semi-bold text-700" for="serviceSelect">Service Code</label>
-                                            <select class="form-select" id="serviceSelect" name="service" required>
-                                                <option value="" disabled selected>Select service...</option>
-                                                <%
-                                                    List<Map<String, Object>> services = (List<Map<String, Object>>) request.getAttribute("services");
-                                                    if (services != null) {
-                                                        for (Map<String, Object> srv : services) {
-                                                            String code = (String) srv.get("code");
-                                                            String name = (String) srv.get("name");
-                                                %>
-                                                <option value="<%= code %>"><%= name %> (<%= code %>)</option>
-                                                <%
-                                                        }
-                                                    }
-                                                %>
-                                            </select>
+
+                                <!-- Right Side: Upload Instructions -->
+                                <div class="col-lg-7 col-12">
+                                    <div class="card glass-card h-100">
+                                        <div class="card-header card-header-info p-3">
+                                            <h6 class="mb-0 text-white"><i class="fas fa-info-circle me-2"></i>Upload Instructions & Guidelines</h6>
                                         </div>
-                                        <div class="mb-3">
-                                            <label class="form-label fw-semi-bold text-700" for="fileInput">Excel File</label>
-                                            <input class="form-control" type="file" id="fileInput" name="file" accept=".xlsx" required>
-                                            <small class="text-muted d-block mt-1">Excel file columns format: [Request ID, Account No, Amount, Narration]</small>
+                                        <div class="card-body p-4">
+                                            <div class="alert alert-soft-primary mb-3 p-3 fs--1">
+                                                <i class="fas fa-lightbulb me-2 fs-0"></i><strong>Important Notice:</strong> Please review all guidelines below before uploading your payment file.
+                                            </div>
+                                            <ul class="text-900 fs--1 lh-lg mb-4">
+                                                <li><i class="fas fa-check-circle text-success me-2"></i>Only Excel (<strong>.xlsx</strong>) files are supported for bulk upload.</li>
+                                                <li><i class="fas fa-check-circle text-success me-2"></i>Ensure you select the appropriate <strong>Service Code</strong> from the dropdown list.</li>
+                                                <li><i class="fas fa-check-circle text-success me-2"></i>Double-check the <strong>Request ID / Payment ID</strong> to avoid submitting duplicate transactions.</li>
+                                                <li><i class="fas fa-check-circle text-success me-2"></i>Enter the full payment amount. Any applicable commissions or fees will be automatically processed in CBS.</li>
+                                            </ul>
+                                            
+                                            <h6 class="text-700 fw-bold mb-2"><i class="fas fa-table me-2"></i>Sample Template Format:</h6>
+                                            <div class="table-responsive scrollbar">
+                                                <table class="table table-bordered table-striped fs--1 mb-0">
+                                                    <thead class="bg-200 text-900">
+                                                        <tr>
+                                                            <th>Payment ID</th>
+                                                            <th>Account No</th>
+                                                            <th>Amount</th>
+                                                            <th>Narration</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td>20264895978</td>
+                                                            <td>5800125087247</td>
+                                                            <td>5000</td>
+                                                            <td>Payment 1</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>20256895978</td>
+                                                            <td>5800125032159</td>
+                                                            <td>10000</td>
+                                                            <td>Payment 2</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
                                         </div>
-                                        <div class="mb-3">
-                                            <label class="form-label fw-semi-bold text-700" for="commentInput">Comment</label>
-                                            <textarea class="form-control" id="commentInput" name="comment" rows="2" placeholder="Describe the upload..."></textarea>
-                                        </div>
-                                        <button class="btn btn-primary w-100" type="button" id="showInstructionsBtn">
-                                            <span class="fas fa-cloud-upload-alt me-1"></span> Upload Payments
-                                        </button>
-                                    </form>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Upload History Table -->
-                        <div class="col-lg-9 col-12">
+                        <!-- PAGE 2: Uploaded History -->
+                        <div class="tab-pane fade" id="history-pane" role="tabpanel" aria-labelledby="history-tab">
                             <div class="card glass-card">
                                 <div class="card-header p-3 border-bottom">
                                     <h6 class="mb-0 text-primary"><i class="fas fa-history me-2"></i>Upload History</h6>
@@ -149,6 +241,7 @@
                                                     <th>Uploaded By</th>
                                                     <th>Approver</th>
                                                     <th>Service</th>
+                                                    <th>Comment</th>
                                                     <th>Total</th>
                                                     <th>Success</th>
                                                     <th>Failed</th>
@@ -205,60 +298,6 @@
             </div>
         </div>
 
-        <!-- Instructions Modal -->
-        <div class="modal fade" id="instructionsModal" tabindex="-1" aria-labelledby="instructionsModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg modal-dialog-centered">
-                <div class="modal-content glass-card border-0">
-                    <div class="modal-header bg-warning text-white p-3">
-                        <h5 class="modal-title text-white" id="instructionsModalLabel"><i class="fas fa-exclamation-triangle me-2"></i>Upload Instructions</h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body p-4">
-                        <ul class="text-900 fs--1 lh-lg mb-4">
-                            <li>Only Excel (.xlsx) Files can be uploaded.</li>
-                            <li>Make sure you choose the correct service.</li>
-                            <li>Make sure to use the correct request id to avoid duplicate payments.</li>
-                            <li>Please Include the full amounts, Commisions will be reduced from CBS.</li>
-                        </ul>
-                        
-                        <h6 class="text-700 fw-bold mb-2">Below is a sample Template:</h6>
-                        <div class="table-responsive scrollbar">
-                            <table class="table table-bordered table-striped fs--1 mb-0">
-                                <thead class="bg-200 text-900">
-                                    <tr>
-                                        <th>Payment ID</th>
-                                        <th>Account No</th>
-                                        <th>Amount</th>
-                                        <th>Narration</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>20264895978</td>
-                                        <td>5800125087247</td>
-                                        <td>5000</td>
-                                        <td>Payment 1</td>
-                                    </tr>
-                                    <tr>
-                                        <td>20256895978</td>
-                                        <td>5800125032159</td>
-                                        <td>10000</td>
-                                        <td>Payment 2</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    <div class="modal-footer p-2">
-                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-primary btn-sm" id="confirmUploadBtn">
-                            <i class="fas fa-cloud-upload-alt me-1"></i>Proceed with Upload
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script src="${pageContext.request.contextPath}/vendors/bootstrap/bootstrap.min.js"></script>
         <script src="${pageContext.request.contextPath}/vendors/anchorjs/anchor.min.js"></script>
@@ -287,8 +326,9 @@
                         { data: 'id' },
                         { data: 'date' },
                         { data: 'uploaded' },
-                        { data: 'approver' },
+                        { data: 'approver', defaultContent: '-' },
                         { data: 'service' },
+                        { data: 'comment', defaultContent: '-' },
                         { data: 'total' },
                         { data: 'success' },
                         { data: 'failed' },
@@ -362,22 +402,32 @@
                     window.location.href = '${pageContext.request.contextPath}/api/payments/detail/download?bulkId=' + currentBulkId;
                 });
 
-                $('#showInstructionsBtn').on('click', function() {
+                // Adjust table columns when history tab is activated
+                $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function(e) {
+                    if (e.target.id === 'history-tab') {
+                        tableHistory.columns.adjust().draw();
+                    }
+                });
+
+                // Check URL hash for tab activation
+                if (window.location.hash === '#history') {
+                    var historyTab = new bootstrap.Tab(document.querySelector('#history-tab'));
+                    historyTab.show();
+                }
+
+                // Directly handle upload button click
+                $('#uploadPaymentsBtn').on('click', function() {
                     var form = $('#uploadForm')[0];
                     if (!form.checkValidity()) {
                         form.reportValidity();
                         return;
                     }
-                    $('#instructionsModal').modal('show');
-                });
 
-                $('#confirmUploadBtn').on('click', function() {
-                    $('#instructionsModal').modal('hide');
                     var selectedServiceText = $('#serviceSelect option:selected').text();
                     
                     Swal.fire({
-                        title: 'Confirm Upload',
-                        text: 'Are you sure you want to upload this Excel sheet for service: ' + selectedServiceText + '?',
+                        title: 'Confirm Payment Upload',
+                        text: 'Are you sure you want to upload this Excel file for service: ' + selectedServiceText + '?',
                         icon: 'question',
                         showCancelButton: true,
                         confirmButtonColor: '#6366f1',
@@ -393,7 +443,7 @@
                 function submitUploadForm() {
                     var form = $('#uploadForm')[0];
                     var formData = new FormData(form);
-                    $('#showInstructionsBtn').prop('disabled', true).text('Uploading...');
+                    $('#uploadPaymentsBtn').prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span> Uploading...');
 
                     $.ajax({
                         url: '${pageContext.request.contextPath}/api/payments/upload',
@@ -406,7 +456,15 @@
                                 title: 'Success!',
                                 text: response.message,
                                 icon: 'success',
-                                confirmButtonColor: '#6366f1'
+                                confirmButtonColor: '#6366f1',
+                                showCancelButton: true,
+                                confirmButtonText: 'View History',
+                                cancelButtonText: 'Close'
+                            }).then((res) => {
+                                if (res.isConfirmed) {
+                                    var historyTab = new bootstrap.Tab(document.querySelector('#history-tab'));
+                                    historyTab.show();
+                                }
                             });
                             form.reset();
                             tableHistory.ajax.reload();
@@ -424,7 +482,7 @@
                             });
                         },
                         complete: function() {
-                            $('#showInstructionsBtn').prop('disabled', false).html('<span class="fas fa-cloud-upload-alt me-1"></span> Upload Payments');
+                            $('#uploadPaymentsBtn').prop('disabled', false).html('<span class="fas fa-cloud-upload-alt me-1"></span> Upload Payments');
                         }
                     });
                 }
