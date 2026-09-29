@@ -641,9 +641,10 @@
         }
 
         function selectCustomer(clientCode, nic) {
-            document.getElementById('searchInput').value = clientCode || nic;
+            const targetQuery = (nic && nic !== 'NIC -' && nic.trim() !== '') ? nic.trim() : (clientCode || '');
+            document.getElementById('searchInput').value = targetQuery;
             document.getElementById('suggestionsDropdown').classList.remove('show');
-            fetchCustomer360(clientCode || nic);
+            fetchCustomer360(targetQuery);
         }
 
         function fetchCustomer360(query) {

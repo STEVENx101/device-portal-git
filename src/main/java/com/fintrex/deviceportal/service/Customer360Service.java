@@ -92,7 +92,7 @@ public class Customer360Service {
         String sql = """
             SELECT c.*
             FROM cbs.client c
-            WHERE c.id_no = ?
+            WHERE c.id_no = ? OR c.client_code = ?
             LIMIT 1
         """;
 
@@ -142,7 +142,7 @@ public class Customer360Service {
                 dto.setEmployee(emp.isEmpty() ? "-" : emp);
 
                 return dto;
-            }, cleanQuery);
+            }, cleanQuery, cleanQuery);
 
             if (!list.isEmpty()) {
                 return list.get(0);
