@@ -29,6 +29,7 @@
     boolean hasDpdBucketReport = false;
     boolean hasVendorPaymentsReport = false;
     boolean hasVendorPaymentsExceptionReport = false;
+    boolean hasCustomer360 = true;
     boolean canDownloadReports = false;
     boolean hasBulkUpload = false;
     boolean hasBulkApprove = false;
@@ -36,6 +37,7 @@
         for (Screen s : userScreens) {
             if (s.getPath().equalsIgnoreCase("/dashboard")) hasDashboard = true;
             if (s.getPath().equalsIgnoreCase("/mobile")) hasDeviceFinance = true;
+            if (s.getPath().equalsIgnoreCase("/customer-360")) hasCustomer360 = true;
             if (s.getPath().equalsIgnoreCase("/user-management")) hasUserManagement = true;
             if (s.getPath().equalsIgnoreCase("/access-logs")) hasAccessLogs = true;
             if (s.getPath().equalsIgnoreCase("/permission-logs")) hasPermissionLogs = true;
@@ -1240,6 +1242,13 @@ html.dark .dataTables_wrapper .dataTables_processing::after {
                     <span>Facility Information</span>
                 </a>
             <% } %>
+
+            <% if (hasCustomer360) { %>
+                <a class="nav-item-link" id="nav-customer360" href="<%= request.getContextPath() %>/customer-360">
+                    <span class="fas fa-id-card"></span>
+                    <span>Customer 360</span>
+                </a>
+            <% } %>
             
             <% if (hasPortfolio || hasClientReport || hasTransactionReport || hasAgreementReport || hasReportLogs || hasArrearsReport || hasNpaReport || hasNearingNpaReport || hasDuplicateLoansReport || hasUnlockArrearsReport || hasLockNoArrearsReport || hasOneRentalReport || hasSettledReport || hasMaturedLowBalanceReport || hasEarlySettledReport || hasLowBalanceReport || hasMultiplePaymentsReport || hasDpdBucketReport || hasVendorPaymentsReport || hasVendorPaymentsExceptionReport || hasUserManagement || hasAccessLogs || hasPermissionLogs) { %>
                 <div class="nav-item-dropdown-custom" id="nav-reports-group">
@@ -1462,6 +1471,9 @@ html.dark .dataTables_wrapper .dataTables_processing::after {
             if (el) el.classList.add("active");
         } else if (path.includes("mobile")) {
             const el = document.getElementById("nav-finance");
+            if (el) el.classList.add("active");
+        } else if (path.includes("customer-360")) {
+            const el = document.getElementById("nav-customer360");
             if (el) el.classList.add("active");
         } else if (path.includes("user-management")) {
             const el = document.getElementById("nav-users");

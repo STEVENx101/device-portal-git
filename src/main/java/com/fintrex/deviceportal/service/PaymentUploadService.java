@@ -11,6 +11,7 @@ import com.fintrex.deviceportal.service.NimbleCeftService;
 import java.io.IOException;
 import java.net.http.HttpResponse;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.poi.ss.usermodel.Cell;
@@ -79,7 +80,7 @@ public class PaymentUploadService {
             XSSFWorkbook workBook = new XSSFWorkbook(paymentFile.getInputStream());
             XSSFSheet workSheet = workBook.getSheetAt(0);
             BulkUpload bulkUpload = new BulkUpload();
-            bulkUpload.setDate(LocalDateTime.now());
+            bulkUpload.setDate(LocalDateTime.now(ZoneId.of("Asia/Colombo")));
             bulkUpload.setService(service);
             bulkUpload.setComment(comment);
             bulkUpload.setStatus("Error");
@@ -126,7 +127,7 @@ public class PaymentUploadService {
             .findById(Long.valueOf(bulkId))
             .orElseThrow(() -> new RuntimeException("Bulk Upload not found"));
 
-    bulkUpload.setApprovedOn(LocalDateTime.now());
+    bulkUpload.setApprovedOn(LocalDateTime.now(ZoneId.of("Asia/Colombo")));
     bulkUpload.setApprovedUser(approvedUser == null ? "" : approvedUser);
     bulkUpload.setStatus("Updating");
 
@@ -145,7 +146,7 @@ public class PaymentUploadService {
 
         for (BulkUploadDetail bulkDetail : bulkDetails) {
 
-            bulkDetail.setPushed(LocalDateTime.now());
+            bulkDetail.setPushed(LocalDateTime.now(ZoneId.of("Asia/Colombo")));
 
             try {
 
@@ -174,7 +175,7 @@ public class PaymentUploadService {
                     );
                 }
 
-                bulkDetail.setEnded(LocalDateTime.now());
+                bulkDetail.setEnded(LocalDateTime.now(ZoneId.of("Asia/Colombo")));
 
                 if (resp.statusCode() == 200) {
                     bulkDetail.setStatus("Success");
@@ -186,7 +187,7 @@ public class PaymentUploadService {
 
             } catch (Exception e) {
 
-                bulkDetail.setEnded(LocalDateTime.now());
+                bulkDetail.setEnded(LocalDateTime.now(ZoneId.of("Asia/Colombo")));
                 bulkDetail.setStatus("Error");
                 bulkDetail.setResponse(e.getMessage());
             }

@@ -24,6 +24,11 @@ public class PageController {
         return "mf-details";
     }
 
+    @GetMapping("/customer-360")
+    public String customer360() {
+        return "customer-360";
+    }
+
     @GetMapping("/login")
     public String login() {
         return "login";
