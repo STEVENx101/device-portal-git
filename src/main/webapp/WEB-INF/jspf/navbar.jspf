@@ -29,7 +29,7 @@
     boolean hasDpdBucketReport = false;
     boolean hasVendorPaymentsReport = false;
     boolean hasVendorPaymentsExceptionReport = false;
-    boolean hasCustomer360 = true;
+    boolean hasCustomer360 = false;
     boolean canDownloadReports = false;
     boolean hasBulkUpload = false;
     boolean hasBulkApprove = false;

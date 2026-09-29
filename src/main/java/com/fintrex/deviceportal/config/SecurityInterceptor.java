@@ -50,6 +50,8 @@ public class SecurityInterceptor implements HandlerInterceptor {
         API_SCREEN_MAP.put("/api/payments/upload", "/payments/upload");
         API_SCREEN_MAP.put("/api/payments/approve", "/payments/approve");
         API_SCREEN_MAP.put("/api/payments", "/payments/upload");
+        API_SCREEN_MAP.put("/api/customer360", "/customer-360");
+        API_SCREEN_MAP.put("/api/facility", "/customer-360");
     }
 
     public SecurityInterceptor(UserService userService) {

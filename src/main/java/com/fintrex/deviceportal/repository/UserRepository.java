@@ -82,7 +82,28 @@ public class UserRepository {
         ));
     }
 
+    public void ensureCustomer360ScreenExists() {
+        try {
+            String checkSql = "SELECT COUNT(*) FROM device_portal.screen WHERE path = '/customer-360'";
+            Integer count = jdbcTemplate.queryForObject(checkSql, Integer.class);
+            if (count == null || count == 0) {
+                String insertSql = "INSERT INTO device_portal.screen (name, path, icon, group_name) VALUES ('Customer 360', '/customer-360', 'fas fa-id-card', 'General')";
+                jdbcTemplate.update(insertSql);
+
+                try {
+                    Integer screenId = jdbcTemplate.queryForObject("SELECT id FROM device_portal.screen WHERE path = '/customer-360' LIMIT 1", Integer.class);
+                    if (screenId != null) {
+                        jdbcTemplate.update("INSERT IGNORE INTO device_portal.user_type_screen (user_type_id, screen_id) VALUES (1, ?)", screenId);
+                    }
+                } catch (Exception ignored) {}
+            }
+        } catch (Exception e) {
+            // Ignored if DB table not yet ready
+        }
+    }
+
     public List<Screen> findAllScreens() {
+        ensureCustomer360ScreenExists();
         String sql = """
             SELECT id, name, path, icon, group_name FROM device_portal.screen 
             WHERE path != '/paid-off-report' 
@@ -103,6 +124,7 @@ public class UserRepository {
     }
 
     public List<Screen> findPermittedScreens(int userTypeId) {
+        ensureCustomer360ScreenExists();
         String sql = """
             SELECT s.id, s.name, s.path, s.icon, s.group_name 
             FROM device_portal.screen s 
