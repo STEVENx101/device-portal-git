@@ -66,15 +66,7 @@ public class Customer360Service {
                 c.id_no AS ID_NO,
                 c.mobile AS MOBILE
             FROM cbs.client c
-            LEFT JOIN cbs.loan l ON c.client_code = l.client
             WHERE c.id_no LIKE ?
-               OR c.client_code LIKE ?
-               OR c.full_name LIKE ?
-               OR c.mobile LIKE ?
-               OR c.mobile2 LIKE ?
-               OR c.telephone LIKE ?
-               OR l.account_no LIKE ?
-               OR l.legacy_account_no LIKE ?
             LIMIT 10
         """;
 
@@ -84,7 +76,7 @@ public class Customer360Service {
                     rs.getString("FULL_NAME"),
                     rs.getString("ID_NO"),
                     rs.getString("MOBILE")
-            ), searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern);
+            ), searchPattern);
         } catch (Exception e) {
             logger.error("Error searching customers for query {}: {}", cleanQuery, e.getMessage());
             return Collections.emptyList();
@@ -100,12 +92,7 @@ public class Customer360Service {
         String sql = """
             SELECT DISTINCT c.*
             FROM cbs.client c
-            LEFT JOIN cbs.loan l ON c.client_code = l.client
-            WHERE c.client_code = ?
-               OR c.id_no = ?
-               OR c.mobile = ?
-               OR l.account_no = ?
-               OR l.legacy_account_no = ?
+            WHERE c.id_no = ?
             LIMIT 1
         """;
 

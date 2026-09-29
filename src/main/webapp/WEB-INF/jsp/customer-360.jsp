@@ -253,8 +253,8 @@
                     <div class="search-box w-50 position-relative">
                         <form class="position-relative w-100" id="searchForm" onsubmit="handleSearchSubmit(event)">
                             <input class="form-control search-input" type="search" id="searchInput"
-                                placeholder="Search Customer by NIC, Client Code, Name, Mobile, or Account No..."
-                                autocomplete="off" aria-label="Search Customer" />
+                                placeholder="Search Customer by NIC No..."
+                                autocomplete="off" aria-label="Search Customer by NIC" />
                             <span class="fas fa-search search-box-icon position-absolute top-50 start-0 translate-middle-y ms-3 text-400"></span>
                             <button type="submit" class="btn btn-primary btn-sm position-absolute end-0 top-50 translate-middle-y me-2 rounded-pill px-3">
                                 <span class="fas fa-arrow-right"></span>
@@ -264,12 +264,12 @@
                         <!-- Auto-suggest Dropdown -->
                         <div class="dropdown-menu border font-base start-0 mt-2 py-0 overflow-hidden w-100 shadow-lg" id="suggestionsDropdown">
                             <div class="scrollbar list py-2" id="suggestionsList" style="max-height: 22rem;">
-                                <div class="px-3 py-2 text-muted fs--1">Type at least 2 characters to search...</div>
+                                <div class="px-3 py-2 text-muted fs--1">Type NIC No to search...</div>
                             </div>
                         </div>
                     </div>
                     <div class="text-500 fs--2 mt-2" id="searchHelpText">
-                        <span class="fas fa-info-circle me-1 text-primary"></span>Search by <strong>NIC No</strong>, <strong>Client Code</strong>, <strong>Customer Name</strong>, <strong>Mobile</strong>, or <strong>Contract No</strong>
+                        <span class="fas fa-info-circle me-1 text-primary"></span>Search by <strong>Customer NIC No</strong> (e.g. 198853100605)
                     </div>
                 </div>
 
