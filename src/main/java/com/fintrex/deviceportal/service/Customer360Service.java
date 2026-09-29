@@ -60,7 +60,7 @@ public class Customer360Service {
         String searchPattern = "%" + cleanQuery + "%";
 
         String sql = """
-            SELECT DISTINCT
+            SELECT
                 c.client_code AS CLIENT_CODE,
                 c.full_name AS FULL_NAME,
                 c.id_no AS ID_NO,
@@ -90,7 +90,7 @@ public class Customer360Service {
         String cleanQuery = query.trim();
 
         String sql = """
-            SELECT DISTINCT c.*
+            SELECT c.*
             FROM cbs.client c
             WHERE c.id_no = ?
             LIMIT 1
@@ -142,7 +142,7 @@ public class Customer360Service {
                 dto.setEmployee(emp.isEmpty() ? "-" : emp);
 
                 return dto;
-            }, cleanQuery, cleanQuery, cleanQuery, cleanQuery, cleanQuery);
+            }, cleanQuery);
 
             if (!list.isEmpty()) {
                 return list.get(0);
