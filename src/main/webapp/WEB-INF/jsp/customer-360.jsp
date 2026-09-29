@@ -106,19 +106,6 @@
             box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.25), 0 4px 25px rgba(245, 158, 11, 0.2) !important;
         }
 
-        /* Customer 360 Header Gradient */
-        .c360-header {
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%);
-            border-radius: 16px;
-            border: 1px solid rgba(99, 102, 241, 0.2);
-            padding: 1rem 1.5rem;
-        }
-
-        html.dark .c360-header {
-            background: linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 41, 59, 0.8) 100%);
-            border: 1px solid rgba(245, 158, 11, 0.2);
-        }
-
         /* Profile Grid Card Fields */
         .field-label {
             font-size: 0.72rem;
@@ -202,25 +189,6 @@
             background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
         }
 
-        /* Metric Counters */
-        .stat-card {
-            background: rgba(255, 255, 255, 0.7);
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 0.85rem 1.1rem;
-            transition: all 0.2s ease;
-        }
-
-        html.dark .stat-card {
-            background: rgba(15, 23, 42, 0.5);
-            border-color: rgba(255, 255, 255, 0.08);
-        }
-
-        .stat-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
-        }
-
         /* Page height override for smooth scrolling */
         html, body, .main, [data-layout="container"], .container-fluid, .content {
             height: auto !important;
@@ -287,28 +255,12 @@
 
                 <!-- Customer Details Card -->
                 <div class="card glass-card mb-3" id="detailsCard" style="display: none;">
-                    <div class="card-header bg-light d-flex align-items-center justify-content-between py-3">
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="avatar avatar-2xl rounded-circle bg-soft-primary d-flex align-items-center justify-content-center text-primary fw-bold" id="val-cust-avatar" style="width: 48px; height: 48px; font-size: 1.25rem;">
-                                <i class="fas fa-user"></i>
-                            </div>
-                            <div>
-                                <h4 class="mb-0 text-primary fw-bold" id="val-full_name">-</h4>
-                                <div class="fs--2 text-600 d-flex align-items-center gap-2 mt-1">
-                                    <span>Client Code: <strong class="text-dark" id="val-client_code">-</strong></span>
-                                    <span>•</span>
-                                    <span>NIC: <strong class="text-dark" id="val-id_no">-</strong></span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="d-flex align-items-center gap-2">
-                            <span class="badge bg-soft-primary text-primary" id="val-client_type">-</span>
-                            <span class="badge bg-soft-info text-info" id="val-employee-badge">-</span>
-                        </div>
+                    <div class="card-header bg-light py-3">
+                        <h5 class="mb-0 text-primary fw-bold"><i class="fas fa-id-card me-2"></i>Customer Information Overview</h5>
                     </div>
 
                     <div class="card-body p-4">
-                        <!-- 13 Standard Customer Profile Fields Grid -->
+                        <!-- Standard Customer Profile Fields Grid -->
                         <div class="row g-3">
                             <div class="col-6 col-sm-4 col-md-3 col-lg-2">
                                 <div class="field-label"><i class="fas fa-tags me-1"></i>Client Type</div>
@@ -366,10 +318,6 @@
                                 <div class="field-label"><i class="fas fa-clock me-1"></i>Entered Date</div>
                                 <div class="field-value" id="val-entered_date">-</div>
                             </div>
-                            <div class="col-6 col-sm-4 col-md-3 col-lg-2">
-                                <div class="field-label"><i class="fas fa-user-tie me-1"></i>Employee</div>
-                                <div class="field-value" id="val-employee">-</div>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -412,34 +360,6 @@
                     </div>
 
                     <div class="card-body p-3">
-                        <!-- Summary Stats row -->
-                        <div class="row g-2 mb-3" id="tabSummaryStats">
-                            <div class="col-6 col-md-3">
-                                <div class="stat-card">
-                                    <div class="fs--2 text-muted fw-bold text-uppercase">Total Accounts</div>
-                                    <div class="fs-1 fw-bold text-primary mt-1" id="stat-total-accounts">0</div>
-                                </div>
-                            </div>
-                            <div class="col-6 col-md-3">
-                                <div class="stat-card">
-                                    <div class="fs--2 text-muted fw-bold text-uppercase">Total Amount</div>
-                                    <div class="fs-1 fw-bold text-dark mt-1" id="stat-total-amount">LKR 0.00</div>
-                                </div>
-                            </div>
-                            <div class="col-6 col-md-3">
-                                <div class="stat-card">
-                                    <div class="fs--2 text-muted fw-bold text-uppercase">Total Outstanding</div>
-                                    <div class="fs-1 fw-bold text-warning mt-1" id="stat-total-outstanding">LKR 0.00</div>
-                                </div>
-                            </div>
-                            <div class="col-6 col-md-3">
-                                <div class="stat-card">
-                                    <div class="fs--2 text-muted fw-bold text-uppercase">Total Arrears</div>
-                                    <div class="fs-1 fw-bold text-danger mt-1" id="stat-total-arrears">LKR 0.00</div>
-                                </div>
-                            </div>
-                        </div>
-
                         <!-- Tab Content -->
                         <div class="tab-content" id="facilityTabContent">
                             <div class="tab-pane fade show active" id="facilityPane" role="tabpanel">
@@ -465,12 +385,11 @@
                                                 <th>Due Date</th>
                                                 <th>Maturity Date</th>
                                                 <th>Last Payment</th>
-                                                <th class="text-center">Action</th>
                                             </tr>
                                         </thead>
                                         <tbody id="facilityTableBody">
                                             <tr>
-                                                <td colspan="19" class="text-center py-4 text-muted">
+                                                <td colspan="18" class="text-center py-4 text-muted">
                                                     Select a customer to view facilities.
                                                 </td>
                                             </tr>
@@ -504,12 +423,19 @@
         let currentActiveTab = "SAVINGS";
         let activeSuggestionIndex = -1;
         let dtFacility = null;
+        let allFacilityData = {
+            'SAVINGS': [],
+            'LEASING': [],
+            'LOAN': [],
+            'Gold Loan': [],
+            'FD': []
+        };
 
         document.addEventListener("DOMContentLoaded", () => {
             initSearchSuggestions();
             setupFloatingSearch();
 
-            // Check URL parameters (e.g. ?nic=... or ?query=...)
+            // Check URL parameters (e.g. ?nic=... or ?query=... or ?clientCode=...)
             const urlParams = new URLSearchParams(window.location.search);
             const queryParam = urlParams.get('nic') || urlParams.get('query') || urlParams.get('clientCode');
             if (queryParam) {
@@ -675,8 +601,8 @@
                     if (detailsCard) detailsCard.style.display = 'block';
                     if (tabsCard) tabsCard.style.display = 'block';
 
-                    // Trigger initial tab API call
-                    switchFacilityTab(currentActiveTab);
+                    // Call all 5 tabs API at once in parallel
+                    fetchAllTabsAtOnce(currentNic);
                 })
                 .catch(err => {
                     if (loader) loader.style.display = 'none';
@@ -686,37 +612,20 @@
         }
 
         function populateCustomerFields(data) {
-            document.getElementById('val-full_name').textContent = data.fullName || '-';
             document.getElementById('val-full_name_text').textContent = data.fullName || '-';
-            document.getElementById('val-client_code').textContent = data.clientCode || '-';
             document.getElementById('val-client_code_text').textContent = data.clientCode || '-';
-            document.getElementById('val-id_no').textContent = data.idNo || '-';
             document.getElementById('val-id_no_text').textContent = data.idNo || '-';
-            document.getElementById('val-client_type').textContent = data.clientType || 'Individual';
             document.getElementById('val-client_type_text').textContent = data.clientType || 'Individual';
             document.getElementById('val-title').textContent = data.title || '-';
             document.getElementById('val-short_name').textContent = data.shortName || '-';
             document.getElementById('val-dob-doe').textContent = data.dobDoe || '-';
             document.getElementById('val-address').textContent = data.address || '-';
             document.getElementById('val-entered_date').textContent = data.enteredDate || '-';
-            document.getElementById('val-employee').textContent = data.employee || '-';
-
-            const empBadge = document.getElementById('val-employee-badge');
-            if (empBadge) {
-                empBadge.textContent = 'Staff: ' + (data.employee || 'No');
-                empBadge.className = (data.employee === 'Yes') ? 'badge bg-soft-success text-success' : 'badge bg-soft-secondary text-secondary';
-            }
 
             // Mobile links
             bindPhoneLink('val-mobile', 'val-mobile-link', data.mobile);
             bindPhoneLink('val-mobile2', 'val-mobile2-link', data.mobile2);
             bindPhoneLink('val-telephone', 'val-telephone-link', data.telephone);
-
-            // Avatar initial
-            const avatarEl = document.getElementById('val-cust-avatar');
-            if (avatarEl && data.fullName) {
-                avatarEl.textContent = data.fullName.charAt(0).toUpperCase();
-            }
         }
 
         function bindPhoneLink(spanId, linkId, phoneNo) {
@@ -733,6 +642,74 @@
             }
         }
 
+        function fetchAllTabsAtOnce(nic) {
+            const tabTypes = ['SAVINGS', 'LEASING', 'LOAN', 'Gold Loan', 'FD'];
+            allFacilityData = { 'SAVINGS': [], 'LEASING': [], 'LOAN': [], 'Gold Loan': [], 'FD': [] };
+
+            // Set loading indicators on badge counts
+            tabTypes.forEach(t => {
+                const badgeEl = document.getElementById('count-' + t);
+                if (badgeEl) badgeEl.textContent = '...';
+            });
+
+            const tbody = document.getElementById('facilityTableBody');
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="18" class="text-center py-4">
+                        <div class="spinner-border text-primary spinner-border-sm me-2" role="status"></div>
+                        <span class="text-muted fw-bold fs--1">Loading facility accounts...</span>
+                    </td>
+                </tr>
+            `;
+
+            // Fire API requests for all 5 tabs simultaneously
+            tabTypes.forEach(tabType => {
+                const requestBody = {
+                    "type": tabType,
+                    "nic": nic,
+                    "page": 0,
+                    "size": 31
+                };
+
+                fetch(contextPath + '/api/facility/list', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody)
+                })
+                .then(res => res.json())
+                .then(resData => {
+                    let accounts = [];
+                    if (resData && resData.data && resData.data.accounts) {
+                        accounts = resData.data.accounts;
+                    } else if (resData && resData.accounts) {
+                        accounts = resData.accounts;
+                    }
+
+                    allFacilityData[tabType] = accounts;
+
+                    const badgeEl = document.getElementById('count-' + tabType);
+                    if (badgeEl) badgeEl.textContent = accounts.length;
+
+                    // If this tab is the currently active tab, render immediately
+                    if (tabType === currentActiveTab) {
+                        renderFacilityTable(accounts);
+                    }
+                })
+                .catch(err => {
+                    console.error('Error fetching ' + tabType + ' facilities:', err);
+                    allFacilityData[tabType] = [];
+                    const badgeEl = document.getElementById('count-' + tabType);
+                    if (badgeEl) badgeEl.textContent = '0';
+                    if (tabType === currentActiveTab) {
+                        renderFacilityTable([]);
+                    }
+                });
+            });
+        }
+
         function switchFacilityTab(tabType) {
             currentActiveTab = tabType;
 
@@ -744,62 +721,9 @@
             else if (tabType === 'Gold Loan') document.getElementById('tab-goldloan-btn').classList.add('active');
             else if (tabType === 'FD') document.getElementById('tab-fd-btn').classList.add('active');
 
-            if (!currentNic) return;
-
-            loadFacilityData(tabType, currentNic);
-        }
-
-        function loadFacilityData(tabType, nic) {
-            const tbody = document.getElementById('facilityTableBody');
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="19" class="text-center py-4">
-                        <div class="spinner-border text-primary spinner-border-sm me-2" role="status"></div>
-                        <span class="text-muted fw-bold fs--1">Loading \${tabType} facilities...</span>
-                    </td>
-                </tr>
-            `;
-
-            const requestBody = {
-                "type": tabType,
-                "nic": nic,
-                "page": 0,
-                "size": 31
-            };
-
-            fetch(contextPath + '/api/facility/list', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify(requestBody)
-            })
-            .then(res => res.json())
-            .then(resData => {
-                let accounts = [];
-                if (resData && resData.data && resData.data.accounts) {
-                    accounts = resData.data.accounts;
-                } else if (resData && resData.accounts) {
-                    accounts = resData.accounts;
-                }
-
-                // Update tab badge count
-                const badgeEl = document.getElementById('count-' + tabType);
-                if (badgeEl) badgeEl.textContent = accounts.length;
-
-                renderFacilityTable(accounts);
-            })
-            .catch(err => {
-                console.error('Error fetching facility list:', err);
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="19" class="text-center py-4 text-danger fw-bold fs--1">
-                            <i class="fas fa-exclamation-triangle me-2"></i>Failed to load \${tabType} facilities. Please try again.
-                        </td>
-                    </tr>
-                `;
-            });
+            // Instantly render cached tab data (0 delay)
+            const accounts = allFacilityData[tabType] || [];
+            renderFacilityTable(accounts);
         }
 
         function renderFacilityTable(accounts) {
@@ -813,18 +737,13 @@
             if (!accounts || accounts.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="19" class="text-center py-4 text-muted fs--1">
-                            <i class="fas fa-folder-open me-2"></i>No \${currentActiveTab} accounts found for this customer.
+                        <td colspan="18" class="text-center py-4 text-muted fs--1">
+                            <i class="fas fa-folder-open me-2"></i>No \${escapeHtml(currentActiveTab)} accounts found for this customer.
                         </td>
                     </tr>
                 `;
-                updateTabStats(0, 0, 0, 0);
                 return;
             }
-
-            let totalAmt = 0;
-            let totalOut = 0;
-            let totalArr = 0;
 
             let html = '';
             accounts.forEach(acc => {
@@ -835,10 +754,6 @@
                 const odiOutstanding = acc.odiOutstanding != null ? parseFloat(acc.odiOutstanding) : 0;
                 const totalArrears = acc.totalArrears != null ? parseFloat(acc.totalArrears) : 0;
                 const rental = acc.rental != null ? parseFloat(acc.rental) : 0;
-
-                totalAmt += amount;
-                totalOut += totalOutstanding;
-                totalArr += totalArrears;
 
                 const accId = acc.AccountID || acc.contractNo || '-';
                 const statusStr = acc.status || 'Active';
@@ -851,11 +766,7 @@
 
                 html += `
                     <tr>
-                        <td class="fw-bold text-primary">
-                            <a href="${pageContext.request.contextPath}/mobile?financeNo=\${encodeURIComponent(accId)}" class="text-decoration-none fw-bold text-primary" title="Open Facility Info">
-                                \${escapeHtml(accId)} <i class="fas fa-external-link-alt fs--2 ms-1"></i>
-                            </a>
-                        </td>
+                        <td class="fw-bold text-dark">\${escapeHtml(accId)}</td>
                         <td class="fw-semi-bold">\${escapeHtml(acc.product || '-')}</td>
                         <td>\${statusBadge}</td>
                         <td>\${escapeHtml(acc.location || '-')}</td>
@@ -878,36 +789,19 @@
                                 <div class="text-muted">\${escapeHtml(acc.lastPaymentDate || '-')}</div>
                             </div>
                         </td>
-                        <td class="text-center">
-                            <a class="btn btn-xs btn-outline-primary py-0 px-2 fw-bold" href="${pageContext.request.contextPath}/mobile?financeNo=\${encodeURIComponent(accId)}">
-                                <i class="fas fa-eye me-1"></i> View
-                            </a>
-                        </td>
                     </tr>
                 `;
             });
 
             tbody.innerHTML = html;
-            updateTabStats(accounts.length, totalAmt, totalOut, totalArr);
 
-            // Re-initialize DataTable for interactive sorting/filtering
+            // Render clean table without search filter inside tabs
             dtFacility = $('#facilityTable').DataTable({
                 paging: false,
                 info: false,
-                searching: true,
-                order: [],
-                language: {
-                    search: "_INPUT_",
-                    searchPlaceholder: "Filter accounts..."
-                }
+                searching: false,
+                order: []
             });
-        }
-
-        function updateTabStats(count, amount, outstanding, arrears) {
-            document.getElementById('stat-total-accounts').textContent = count;
-            document.getElementById('stat-total-amount').textContent = 'LKR ' + formatCurrency(amount);
-            document.getElementById('stat-total-outstanding').textContent = 'LKR ' + formatCurrency(outstanding);
-            document.getElementById('stat-total-arrears').textContent = 'LKR ' + formatCurrency(arrears);
         }
 
         function formatCurrency(num) {
