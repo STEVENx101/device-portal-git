@@ -162,32 +162,121 @@ public class Customer360Service {
         return "-";
     }
 
+    private String apiToken = null;
+
+    private synchronized String getApiToken() {
+        if (apiToken != null) {
+            return apiToken;
+        }
+
+        try {
+            String authUrl = "https://ma.fintrex.lk/mobile-banking/api/authenticate";
+            String authBody = "{\"username\": \"df\", \"password\": \"9wXE8nc9j1Uy\"}";
+
+            HttpRequest authRequest = HttpRequest.newBuilder()
+                    .uri(URI.create(authUrl))
+                    .header("Content-Type", "application/json")
+                    .timeout(Duration.ofSeconds(15))
+                    .POST(HttpRequest.BodyPublishers.ofString(authBody))
+                    .build();
+
+            HttpResponse<String> authResponse = httpClient.send(authRequest, HttpResponse.BodyHandlers.ofString());
+            if (authResponse.statusCode() != 200) {
+                logger.error("Facility API authentication failed with status: {}", authResponse.statusCode());
+                return null;
+            }
+
+            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+            com.fasterxml.jackson.databind.JsonNode authRoot = mapper.readTree(authResponse.body());
+            String token = null;
+            if (authRoot.has("access_token")) {
+                token = authRoot.get("access_token").asText();
+            } else if (authRoot.has("token")) {
+                token = authRoot.get("token").asText();
+            } else if (authRoot.has("accessToken")) {
+                token = authRoot.get("accessToken").asText();
+            } else if (authRoot.has("jwt")) {
+                token = authRoot.get("jwt").asText();
+            } else if (authRoot.has("data")) {
+                com.fasterxml.jackson.databind.JsonNode dataNode = authRoot.get("data");
+                if (dataNode.has("jwt")) {
+                    token = dataNode.get("jwt").asText();
+                } else if (dataNode.has("access_token")) {
+                    token = dataNode.get("access_token").asText();
+                } else if (dataNode.has("token")) {
+                    token = dataNode.get("token").asText();
+                } else if (dataNode.has("accessToken")) {
+                    token = dataNode.get("accessToken").asText();
+                } else if (dataNode.isTextual()) {
+                    token = dataNode.asText();
+                }
+            }
+
+            if (token != null && !token.isEmpty()) {
+                apiToken = token;
+            }
+        } catch (Exception e) {
+            logger.error("Error authenticating for Facility API token: {}", e.getMessage(), e);
+        }
+        return apiToken;
+    }
+
     public String fetchFacilityList(String requestJsonPayload) {
         logger.info("Calling facility list API with payload: {}", requestJsonPayload);
         
         try {
-            HttpRequest httpRequest = HttpRequest.newBuilder()
+            String token = getApiToken();
+            HttpRequest.Builder reqBuilder = HttpRequest.newBuilder()
                     .uri(URI.create(FACILITY_LIST_ENDPOINT))
                     .header("Content-Type", "application/json")
                     .header("Accept", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(requestJsonPayload))
-                    .build();
+                    .timeout(Duration.ofSeconds(15));
+            
+            if (token != null && !token.isEmpty()) {
+                reqBuilder.header("Authorization", "Bearer " + token);
+            }
 
+            HttpRequest httpRequest = reqBuilder.POST(HttpRequest.BodyPublishers.ofString(requestJsonPayload)).build();
             HttpResponse<String> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
             logger.info("Facility list API response status: {}", response.statusCode());
+
+            boolean isUnauthorized = (response.statusCode() == 401 || response.statusCode() == 403 ||
+                    (response.body() != null && response.body().contains("401") && response.body().contains("expired")));
+
+            // If token expired or invalid, invalidate cached token and retry
+            if (isUnauthorized) {
+                logger.warn("Token expired or unauthorized, refreshing token and retrying facility list API...");
+                apiToken = null;
+                token = getApiToken();
+                if (token != null && !token.isEmpty()) {
+                    HttpRequest retryReq = HttpRequest.newBuilder()
+                            .uri(URI.create(FACILITY_LIST_ENDPOINT))
+                            .header("Content-Type", "application/json")
+                            .header("Accept", "application/json")
+                            .header("Authorization", "Bearer " + token)
+                            .timeout(Duration.ofSeconds(15))
+                            .POST(HttpRequest.BodyPublishers.ofString(requestJsonPayload))
+                            .build();
+                    response = httpClient.send(retryReq, HttpResponse.BodyHandlers.ofString());
+                    logger.info("Facility list API retry response status: {}", response.statusCode());
+                }
+            }
 
             if (response.statusCode() == 200 && response.body() != null && !response.body().isEmpty()) {
                 return response.body();
             } else if (response.statusCode() == 404) {
                 // Try alt URL with single slash if double slash fails
-                HttpRequest httpRequestAlt = HttpRequest.newBuilder()
+                HttpRequest.Builder altBuilder = HttpRequest.newBuilder()
                         .uri(URI.create(FACILITY_LIST_ENDPOINT_ALT))
                         .header("Content-Type", "application/json")
                         .header("Accept", "application/json")
-                        .POST(HttpRequest.BodyPublishers.ofString(requestJsonPayload))
-                        .build();
+                        .timeout(Duration.ofSeconds(15));
+                
+                if (token != null && !token.isEmpty()) {
+                    altBuilder.header("Authorization", "Bearer " + token);
+                }
 
-                HttpResponse<String> responseAlt = httpClient.send(httpRequestAlt, HttpResponse.BodyHandlers.ofString());
+                HttpResponse<String> responseAlt = httpClient.send(altBuilder.POST(HttpRequest.BodyPublishers.ofString(requestJsonPayload)).build(), HttpResponse.BodyHandlers.ofString());
                 if (responseAlt.statusCode() == 200 && responseAlt.body() != null && !responseAlt.body().isEmpty()) {
                     return responseAlt.body();
                 }
