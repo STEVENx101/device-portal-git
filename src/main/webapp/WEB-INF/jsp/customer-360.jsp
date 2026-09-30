@@ -221,8 +221,8 @@
                     <div class="search-box w-50 position-relative">
                         <form class="position-relative w-100" id="searchForm" onsubmit="handleSearchSubmit(event)">
                             <input class="form-control search-input" type="search" id="searchInput"
-                                placeholder="Search Customer by NIC No..."
-                                autocomplete="off" aria-label="Search Customer by NIC" />
+                                placeholder="Search Customer by NIC No or Name..."
+                                autocomplete="off" aria-label="Search Customer by NIC or Name" />
                             <span class="fas fa-search search-box-icon position-absolute top-50 start-0 translate-middle-y ms-3 text-400"></span>
                             <button type="submit" class="btn btn-primary btn-sm position-absolute end-0 top-50 translate-middle-y me-2 rounded-pill px-3">
                                 <span class="fas fa-arrow-right"></span>
@@ -232,12 +232,12 @@
                         <!-- Auto-suggest Dropdown -->
                         <div class="dropdown-menu border font-base start-0 mt-2 py-0 overflow-hidden w-100 shadow-lg" id="suggestionsDropdown">
                             <div class="scrollbar list py-2" id="suggestionsList" style="max-height: 22rem;">
-                                <div class="px-3 py-2 text-muted fs--1">Type NIC No to search...</div>
+                                <div class="px-3 py-2 text-muted fs--1">Type NIC No or Name to search...</div>
                             </div>
                         </div>
                     </div>
                     <div class="text-500 fs--2 mt-2" id="searchHelpText">
-                        <span class="fas fa-info-circle me-1 text-primary"></span>Search by <strong>Customer NIC No</strong> (e.g. 198853100605)
+                        <span class="fas fa-info-circle me-1 text-primary"></span>Search by <strong>NIC No</strong> (e.g. 200076900989) or <strong>Customer Name</strong>
                     </div>
                 </div>
 
@@ -364,8 +364,8 @@
                         <div class="tab-content" id="facilityTabContent">
                             <div class="tab-pane fade show active" id="facilityPane" role="tabpanel">
                                 <div class="table-responsive scrollbar">
-                                    <table class="table table-hover table-striped align-middle mb-0 fs--1 w-100" id="facilityTable">
-                                        <thead class="bg-200 text-900">
+                                     <table class="table table-hover table-striped align-middle mb-0 fs--1 w-100" id="facilityTable">
+                                        <thead class="bg-200 text-900" id="facilityTableHead">
                                             <tr>
                                                 <th>Account ID</th>
                                                 <th>Product</th>
@@ -684,8 +684,16 @@
                     let accounts = [];
                     if (resData && resData.data && resData.data.accounts) {
                         accounts = resData.data.accounts;
+                    } else if (resData && resData.data && Array.isArray(resData.data)) {
+                        accounts = resData.data;
                     } else if (resData && resData.accounts) {
                         accounts = resData.accounts;
+                    } else if (resData && resData.content) {
+                        accounts = resData.content;
+                    } else if (Array.isArray(resData)) {
+                        accounts = resData;
+                    } else if (resData && typeof resData === 'object' && (resData.accountNumber || resData.id || resData.currentBalance)) {
+                        accounts = [resData];
                     }
 
                     allFacilityData[tabType] = accounts;
@@ -728,72 +736,154 @@
 
         function renderFacilityTable(accounts) {
             const tbody = document.getElementById('facilityTableBody');
+            const thead = document.getElementById('facilityTableHead');
 
             if (dtFacility) {
                 dtFacility.destroy();
                 dtFacility = null;
             }
 
-            if (!accounts || accounts.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="18" class="text-center py-4 text-muted fs--1">
-                            <i class="fas fa-folder-open me-2"></i>No \${escapeHtml(currentActiveTab)} accounts found for this customer.
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-
-            let html = '';
-            accounts.forEach(acc => {
-                const amount = acc.amount != null ? parseFloat(acc.amount) : 0;
-                const totalOutstanding = acc.totalOutstanding != null ? parseFloat(acc.totalOutstanding) : 0;
-                const capitalOutstanding = acc.capitalOutstanding != null ? parseFloat(acc.capitalOutstanding) : 0;
-                const interestOutstanding = acc.interestOutstanding != null ? parseFloat(acc.interestOutstanding) : 0;
-                const odiOutstanding = acc.odiOutstanding != null ? parseFloat(acc.odiOutstanding) : 0;
-                const totalArrears = acc.totalArrears != null ? parseFloat(acc.totalArrears) : 0;
-                const rental = acc.rental != null ? parseFloat(acc.rental) : 0;
-
-                const accId = acc.AccountID || acc.contractNo || '-';
-                const statusStr = acc.status || 'Active';
-                let statusBadge = '<span class="badge bg-soft-success text-success">Active</span>';
-                if (statusStr.equalsIgnoreCase && statusStr.equalsIgnoreCase('Closed')) {
-                    statusBadge = '<span class="badge bg-soft-secondary text-secondary">Closed</span>';
-                } else if (totalArrears > 0) {
-                    statusBadge = '<span class="badge bg-soft-danger text-danger">Arrears</span>';
+            if (currentActiveTab === 'SAVINGS') {
+                if (thead) {
+                    thead.innerHTML = `
+                        <tr>
+                            <th>Account Number</th>
+                            <th>Product</th>
+                            <th>Status</th>
+                            <th class="text-end">Current Balance</th>
+                            <th class="text-end">Amount On Hold</th>
+                            <th class="text-end text-success">Available Balance</th>
+                            <th>Start Date</th>
+                        </tr>
+                    `;
                 }
 
-                html += `
-                    <tr>
-                        <td class="fw-bold text-dark">\${escapeHtml(accId)}</td>
-                        <td class="fw-semi-bold">\${escapeHtml(acc.product || '-')}</td>
-                        <td>\${statusBadge}</td>
-                        <td>\${escapeHtml(acc.location || '-')}</td>
-                        <td class="text-end fw-bold">\${formatCurrency(amount)}</td>
-                        <td class="text-end fw-bold text-warning">\${formatCurrency(totalOutstanding)}</td>
-                        <td class="text-end">\${formatCurrency(capitalOutstanding)}</td>
-                        <td class="text-end">\${formatCurrency(interestOutstanding)}</td>
-                        <td class="text-end">\${formatCurrency(odiOutstanding)}</td>
-                        <td class="text-end fw-bold text-danger">\${formatCurrency(totalArrears)}</td>
-                        <td class="text-end">\${formatCurrency(rental)}</td>
-                        <td class="text-center fw-bold">\${acc.rate != null ? acc.rate + '%' : '-'}</td>
-                        <td class="text-center">\${acc.period != null ? acc.period + ' M' : '-'}</td>
-                        <td class="text-center">\${escapeHtml(acc.frequency || 'M')}</td>
-                        <td>\${escapeHtml(acc.startDate || '-')}</td>
-                        <td>\${escapeHtml(acc.dueDate || '-')}</td>
-                        <td>\${escapeHtml(acc.maturityDate || '-')}</td>
-                        <td>
-                            <div class="fs--2">
-                                <span class="fw-bold">\${formatCurrency(acc.lastPayment)}</span>
-                                <div class="text-muted">\${escapeHtml(acc.lastPaymentDate || '-')}</div>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            });
+                if (!accounts || accounts.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-muted fs--1">
+                                <i class="fas fa-folder-open me-2"></i>No Savings accounts found for this customer.
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
 
-            tbody.innerHTML = html;
+                let html = '';
+                accounts.forEach(acc => {
+                    const accNo = acc.accountNumber || acc.AccountID || acc.contractNo || '-';
+                    const currentBal = acc.currentBalance != null ? parseFloat(acc.currentBalance) : (acc.amount != null ? parseFloat(acc.amount) : 0);
+                    const holdAmt = acc.amountOnHold != null ? parseFloat(acc.amountOnHold) : 0;
+                    const availBal = acc.availableBalance != null ? parseFloat(acc.availableBalance) : (currentBal - holdAmt);
+                    const statusStr = acc.status || 'Active';
+                    let statusBadge = '<span class="badge bg-soft-success text-success"><i class="fas fa-check-circle me-1"></i>Active</span>';
+                    if (String(statusStr).toLowerCase() === 'closed') {
+                        statusBadge = '<span class="badge bg-soft-secondary text-secondary">Closed</span>';
+                    } else if (String(statusStr).toLowerCase() === 'inactive') {
+                        statusBadge = '<span class="badge bg-soft-warning text-warning">Inactive</span>';
+                    }
+
+                    html += `
+                        <tr>
+                            <td class="fw-bold text-dark">\${escapeHtml(accNo)}</td>
+                            <td class="fw-semi-bold">\${escapeHtml(acc.product || '-')}</td>
+                            <td>\${statusBadge}</td>
+                            <td class="text-end fw-bold">\${formatCurrency(currentBal)}</td>
+                            <td class="text-end text-muted">\${formatCurrency(holdAmt)}</td>
+                            <td class="text-end fw-bold text-success">\${formatCurrency(availBal)}</td>
+                            <td>\${escapeHtml(acc.startDate || '-')}</td>
+                        </tr>
+                    `;
+                });
+
+                tbody.innerHTML = html;
+            } else {
+                if (thead) {
+                    thead.innerHTML = `
+                        <tr>
+                            <th>Account ID</th>
+                            <th>Product</th>
+                            <th>Status</th>
+                            <th>Location</th>
+                            <th class="text-end">Amount</th>
+                            <th class="text-end">Total Outstanding</th>
+                            <th class="text-end">Capital Outstanding</th>
+                            <th class="text-end">Interest Outstanding</th>
+                            <th class="text-end">ODI Outstanding</th>
+                            <th class="text-end">Total Arrears</th>
+                            <th class="text-end">Rental</th>
+                            <th class="text-center">Rate (%)</th>
+                            <th class="text-center">Tenor</th>
+                            <th class="text-center">Frequency</th>
+                            <th>Start Date</th>
+                            <th>Due Date</th>
+                            <th>Maturity Date</th>
+                            <th>Last Payment</th>
+                        </tr>
+                    `;
+                }
+
+                if (!accounts || accounts.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="18" class="text-center py-4 text-muted fs--1">
+                                <i class="fas fa-folder-open me-2"></i>No \${escapeHtml(currentActiveTab)} accounts found for this customer.
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                let html = '';
+                accounts.forEach(acc => {
+                    const amount = acc.amount != null ? parseFloat(acc.amount) : 0;
+                    const totalOutstanding = acc.totalOutstanding != null ? parseFloat(acc.totalOutstanding) : 0;
+                    const capitalOutstanding = acc.capitalOutstanding != null ? parseFloat(acc.capitalOutstanding) : 0;
+                    const interestOutstanding = acc.interestOutstanding != null ? parseFloat(acc.interestOutstanding) : 0;
+                    const odiOutstanding = acc.odiOutstanding != null ? parseFloat(acc.odiOutstanding) : 0;
+                    const totalArrears = acc.totalArrears != null ? parseFloat(acc.totalArrears) : 0;
+                    const rental = acc.rental != null ? parseFloat(acc.rental) : 0;
+
+                    const accId = acc.AccountID || acc.contractNo || acc.accountNumber || '-';
+                    const statusStr = acc.status || 'Active';
+                    let statusBadge = '<span class="badge bg-soft-success text-success">Active</span>';
+                    if (String(statusStr).toLowerCase() === 'closed') {
+                        statusBadge = '<span class="badge bg-soft-secondary text-secondary">Closed</span>';
+                    } else if (totalArrears > 0) {
+                        statusBadge = '<span class="badge bg-soft-danger text-danger">Arrears</span>';
+                    }
+
+                    html += `
+                        <tr>
+                            <td class="fw-bold text-dark">\${escapeHtml(accId)}</td>
+                            <td class="fw-semi-bold">\${escapeHtml(acc.product || '-')}</td>
+                            <td>\${statusBadge}</td>
+                            <td>\${escapeHtml(acc.location || '-')}</td>
+                            <td class="text-end fw-bold">\${formatCurrency(amount)}</td>
+                            <td class="text-end fw-bold text-warning">\${formatCurrency(totalOutstanding)}</td>
+                            <td class="text-end">\${formatCurrency(capitalOutstanding)}</td>
+                            <td class="text-end">\${formatCurrency(interestOutstanding)}</td>
+                            <td class="text-end">\${formatCurrency(odiOutstanding)}</td>
+                            <td class="text-end fw-bold text-danger">\${formatCurrency(totalArrears)}</td>
+                            <td class="text-end">\${formatCurrency(rental)}</td>
+                            <td class="text-center fw-bold">\${acc.rate != null ? acc.rate + '%' : '-'}</td>
+                            <td class="text-center">\${acc.period != null ? acc.period + ' M' : '-'}</td>
+                            <td class="text-center">\${escapeHtml(acc.frequency || 'M')}</td>
+                            <td>\${escapeHtml(acc.startDate || '-')}</td>
+                            <td>\${escapeHtml(acc.dueDate || '-')}</td>
+                            <td>\${escapeHtml(acc.maturityDate || '-')}</td>
+                            <td>
+                                <div class="fs--2">
+                                    <span class="fw-bold">\${formatCurrency(acc.lastPayment)}</span>
+                                    <div class="text-muted">\${escapeHtml(acc.lastPaymentDate || '-')}</div>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                tbody.innerHTML = html;
+            }
 
             // Render clean table without search filter inside tabs
             dtFacility = $('#facilityTable').DataTable({

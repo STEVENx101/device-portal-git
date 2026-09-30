@@ -26,6 +26,8 @@ public class Customer360Service {
     private final HttpClient httpClient;
     private static final String FACILITY_LIST_ENDPOINT = "https://ma.fintrex.lk/mobile-banking/api//facility/list";
     private static final String FACILITY_LIST_ENDPOINT_ALT = "https://ma.fintrex.lk/mobile-banking/api/facility/list";
+    private static final String ACCOUNT_LIST_ENDPOINT = "https://ma.fintrex.lk/mobile-banking/api/account/list";
+    private static final String ACCOUNT_LIST_ENDPOINT_ALT = "https://ma.fintrex.lk/mobile-banking/api//account/list";
 
     public Customer360Service(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -59,27 +61,54 @@ public class Customer360Service {
         String cleanQuery = query.trim();
         String searchPattern = "%" + cleanQuery + "%";
 
-        String sql = """
-            SELECT
-                c.client_code AS CLIENT_CODE,
-                c.full_name AS FULL_NAME,
-                c.id_no AS ID_NO,
-                c.mobile AS MOBILE
-            FROM cbs.client c
-            WHERE c.id_no LIKE ?
-            LIMIT 10
-        """;
+        // Check if query is numeric or NIC pattern (e.g. 1988... or 8853...V)
+        boolean isNumericOrNic = cleanQuery.matches("^\\d+[vVxX]?$");
 
-        try {
-            return jdbcTemplate.query(sql, (rs, rowNum) -> new Customer360SearchResult(
-                    rs.getString("CLIENT_CODE"),
-                    rs.getString("FULL_NAME"),
-                    rs.getString("ID_NO"),
-                    rs.getString("MOBILE")
-            ), searchPattern);
-        } catch (Exception e) {
-            logger.error("Error searching customers for query {}: {}", cleanQuery, e.getMessage());
-            return Collections.emptyList();
+        String sql;
+        if (isNumericOrNic) {
+            sql = """
+                SELECT
+                    c.client_code AS CLIENT_CODE,
+                    c.full_name AS FULL_NAME,
+                    c.id_no AS ID_NO,
+                    c.mobile AS MOBILE
+                FROM cbs.client c
+                WHERE c.id_no LIKE ? OR c.client_code LIKE ?
+                LIMIT 10
+            """;
+            try {
+                return jdbcTemplate.query(sql, (rs, rowNum) -> new Customer360SearchResult(
+                        rs.getString("CLIENT_CODE"),
+                        rs.getString("FULL_NAME"),
+                        rs.getString("ID_NO"),
+                        rs.getString("MOBILE")
+                ), searchPattern, searchPattern);
+            } catch (Exception e) {
+                logger.error("Error searching customers for NIC/Code query {}: {}", cleanQuery, e.getMessage());
+                return Collections.emptyList();
+            }
+        } else {
+            sql = """
+                SELECT
+                    c.client_code AS CLIENT_CODE,
+                    c.full_name AS FULL_NAME,
+                    c.id_no AS ID_NO,
+                    c.mobile AS MOBILE
+                FROM cbs.client c
+                WHERE c.full_name LIKE ? OR c.short_name LIKE ?
+                LIMIT 10
+            """;
+            try {
+                return jdbcTemplate.query(sql, (rs, rowNum) -> new Customer360SearchResult(
+                        rs.getString("CLIENT_CODE"),
+                        rs.getString("FULL_NAME"),
+                        rs.getString("ID_NO"),
+                        rs.getString("MOBILE")
+                ), searchPattern, searchPattern);
+            } catch (Exception e) {
+                logger.error("Error searching customers for Name query {}: {}", cleanQuery, e.getMessage());
+                return Collections.emptyList();
+            }
         }
     }
 
@@ -88,11 +117,12 @@ public class Customer360Service {
             return null;
         }
         String cleanQuery = query.trim();
+        String searchPattern = "%" + cleanQuery + "%";
 
         String sql = """
             SELECT c.*
             FROM cbs.client c
-            WHERE c.id_no = ? OR c.client_code = ?
+            WHERE c.id_no = ? OR c.client_code = ? OR c.full_name LIKE ? OR c.short_name LIKE ?
             LIMIT 1
         """;
 
@@ -142,7 +172,7 @@ public class Customer360Service {
                 dto.setEmployee(emp.isEmpty() ? "-" : emp);
 
                 return dto;
-            }, cleanQuery, cleanQuery);
+            }, cleanQuery, cleanQuery, searchPattern, searchPattern);
 
             if (!list.isEmpty()) {
                 return list.get(0);
@@ -225,6 +255,14 @@ public class Customer360Service {
         logger.info("Calling facility list API with payload: {}", requestJsonPayload);
         
         try {
+            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+            com.fasterxml.jackson.databind.JsonNode rootNode = mapper.readTree(requestJsonPayload);
+            String type = rootNode.has("type") ? rootNode.get("type").asText() : "";
+
+            if ("SAVINGS".equalsIgnoreCase(type)) {
+                return fetchSavingsAccountList(rootNode);
+            }
+
             String token = getApiToken();
             HttpRequest.Builder reqBuilder = HttpRequest.newBuilder()
                     .uri(URI.create(FACILITY_LIST_ENDPOINT))
@@ -284,6 +322,85 @@ public class Customer360Service {
             return response.body() != null ? response.body() : createEmptyFacilityResponse();
         } catch (Exception e) {
             logger.error("Error calling facility list API: {}", e.getMessage(), e);
+            return createEmptyFacilityResponse();
+        }
+    }
+
+    private String fetchSavingsAccountList(com.fasterxml.jackson.databind.JsonNode rootNode) {
+        try {
+            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+            String nic = rootNode.has("nic") ? rootNode.get("nic").asText() : "";
+            if (nic.isEmpty() && rootNode.has("query")) {
+                nic = rootNode.get("query").asText();
+            }
+            int page = rootNode.has("page") ? rootNode.get("page").asInt() : 0;
+            int size = rootNode.has("size") ? rootNode.get("size").asInt() : 10;
+
+            com.fasterxml.jackson.databind.node.ObjectNode payloadNode = mapper.createObjectNode();
+            payloadNode.put("page", page);
+            payloadNode.put("size", size);
+            payloadNode.put("nic", nic);
+            String savingsPayload = mapper.writeValueAsString(payloadNode);
+
+            logger.info("Calling savings account list API ({}) with payload: {}", ACCOUNT_LIST_ENDPOINT, savingsPayload);
+
+            String token = getApiToken();
+            HttpRequest.Builder reqBuilder = HttpRequest.newBuilder()
+                    .uri(URI.create(ACCOUNT_LIST_ENDPOINT))
+                    .header("Content-Type", "application/json")
+                    .header("Accept", "application/json")
+                    .timeout(Duration.ofSeconds(15));
+            
+            if (token != null && !token.isEmpty()) {
+                reqBuilder.header("Authorization", "Bearer " + token);
+            }
+
+            HttpRequest httpRequest = reqBuilder.POST(HttpRequest.BodyPublishers.ofString(savingsPayload)).build();
+            HttpResponse<String> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+            logger.info("Savings account list API response status: {}", response.statusCode());
+
+            boolean isUnauthorized = (response.statusCode() == 401 || response.statusCode() == 403 ||
+                    (response.body() != null && response.body().contains("401") && response.body().contains("expired")));
+
+            if (isUnauthorized) {
+                logger.warn("Token expired or unauthorized, refreshing token and retrying savings account list API...");
+                apiToken = null;
+                token = getApiToken();
+                if (token != null && !token.isEmpty()) {
+                    HttpRequest retryReq = HttpRequest.newBuilder()
+                            .uri(URI.create(ACCOUNT_LIST_ENDPOINT))
+                            .header("Content-Type", "application/json")
+                            .header("Accept", "application/json")
+                            .header("Authorization", "Bearer " + token)
+                            .timeout(Duration.ofSeconds(15))
+                            .POST(HttpRequest.BodyPublishers.ofString(savingsPayload))
+                            .build();
+                    response = httpClient.send(retryReq, HttpResponse.BodyHandlers.ofString());
+                    logger.info("Savings account list API retry response status: {}", response.statusCode());
+                }
+            }
+
+            if (response.statusCode() == 200 && response.body() != null && !response.body().isEmpty()) {
+                return response.body();
+            } else if (response.statusCode() == 404) {
+                HttpRequest.Builder altBuilder = HttpRequest.newBuilder()
+                        .uri(URI.create(ACCOUNT_LIST_ENDPOINT_ALT))
+                        .header("Content-Type", "application/json")
+                        .header("Accept", "application/json")
+                        .timeout(Duration.ofSeconds(15));
+                
+                if (token != null && !token.isEmpty()) {
+                    altBuilder.header("Authorization", "Bearer " + token);
+                }
+
+                HttpResponse<String> responseAlt = httpClient.send(altBuilder.POST(HttpRequest.BodyPublishers.ofString(savingsPayload)).build(), HttpResponse.BodyHandlers.ofString());
+                if (responseAlt.statusCode() == 200 && responseAlt.body() != null && !responseAlt.body().isEmpty()) {
+                    return responseAlt.body();
+                }
+            }
+            return response.body() != null ? response.body() : createEmptyFacilityResponse();
+        } catch (Exception e) {
+            logger.error("Error calling savings account list API: {}", e.getMessage(), e);
             return createEmptyFacilityResponse();
         }
     }
