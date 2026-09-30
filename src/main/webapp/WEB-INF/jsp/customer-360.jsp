@@ -791,7 +791,7 @@
                             <td class="text-end fw-bold">\${formatCurrency(currentBal)}</td>
                             <td class="text-end text-muted">\${formatCurrency(holdAmt)}</td>
                             <td class="text-end fw-bold text-success">\${formatCurrency(availBal)}</td>
-                            <td>\${escapeHtml(acc.startDate || '-')}</td>
+                            <td>\${escapeHtml(formatDate(acc.startDate))}</td>
                         </tr>
                     `;
                 });
@@ -815,7 +815,8 @@
                             <th class="text-center">Rate (%)</th>
                             <th class="text-center">Tenor</th>
                             <th class="text-center">Frequency</th>
-                            <th>Start Date</th>
+                            <th>Grant Date</th>
+                            <th>Disbursed Date</th>
                             <th>Due Date</th>
                             <th>Maturity Date</th>
                             <th>Last Payment</th>
@@ -826,7 +827,7 @@
                 if (!accounts || accounts.length === 0) {
                     tbody.innerHTML = `
                         <tr>
-                            <td colspan="18" class="text-center py-4 text-muted fs--1">
+                            <td colspan="19" class="text-center py-4 text-muted fs--1">
                                 <i class="fas fa-folder-open me-2"></i>No \${escapeHtml(currentActiveTab)} accounts found for this customer.
                             </td>
                         </tr>
@@ -853,6 +854,9 @@
                         statusBadge = '<span class="badge bg-soft-danger text-danger">Arrears</span>';
                     }
 
+                    const grantDateStr = formatDate(acc.grantDate || acc.startDate);
+                    const disbursedDateStr = formatDate(acc.disbursedDate);
+
                     html += `
                         <tr>
                             <td class="fw-bold text-dark">\${escapeHtml(accId)}</td>
@@ -867,15 +871,16 @@
                             <td class="text-end fw-bold text-danger">\${formatCurrency(totalArrears)}</td>
                             <td class="text-end">\${formatCurrency(rental)}</td>
                             <td class="text-center fw-bold">\${acc.rate != null ? acc.rate + '%' : '-'}</td>
-                            <td class="text-center">\${acc.period != null ? acc.period + ' M' : '-'}</td>
+                            <td class="text-center">\${acc.period != null ? acc.period + ' M' : (acc.PERIOD != null ? acc.PERIOD + ' M' : '-')}</td>
                             <td class="text-center">\${escapeHtml(acc.frequency || 'M')}</td>
-                            <td>\${escapeHtml(acc.startDate || '-')}</td>
+                            <td>\${escapeHtml(grantDateStr)}</td>
+                            <td>\${escapeHtml(disbursedDateStr)}</td>
                             <td>\${escapeHtml(acc.dueDate || '-')}</td>
-                            <td>\${escapeHtml(acc.maturityDate || '-')}</td>
+                            <td>\${escapeHtml(formatDate(acc.maturityDate))}</td>
                             <td>
                                 <div class="fs--2">
                                     <span class="fw-bold">\${formatCurrency(acc.lastPayment)}</span>
-                                    <div class="text-muted">\${escapeHtml(acc.lastPaymentDate || '-')}</div>
+                                    <div class="text-muted">\${escapeHtml(formatDate(acc.lastPaymentDate))}</div>
                                 </div>
                             </td>
                         </tr>
@@ -897,6 +902,24 @@
         function formatCurrency(num) {
             if (num === null || num === undefined || isNaN(num)) return '0.00';
             return parseFloat(num).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function formatDate(val) {
+            if (val === null || val === undefined || val === '' || val === '-' || val === 'null' || val === 'undefined') return '-';
+            const strVal = String(val).trim();
+            if (/^\d{10,}$/.test(strVal)) {
+                const d = new Date(Number(strVal));
+                if (!isNaN(d.getTime())) {
+                    const yyyy = d.getFullYear();
+                    const mm = String(d.getMonth() + 1).padStart(2, '0');
+                    const dd = String(d.getDate()).padStart(2, '0');
+                    return `\${yyyy}-\${mm}-\${dd}`;
+                }
+            }
+            if (strVal.includes(' ')) {
+                return strVal.split(' ')[0];
+            }
+            return strVal;
         }
 
         function escapeHtml(str) {

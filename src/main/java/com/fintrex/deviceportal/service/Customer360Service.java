@@ -438,10 +438,11 @@ public class Customer360Service {
                 c.RATE AS rate,
                 c.PERIOD AS period,
                 'M' AS frequency,
-                COALESCE(c.FACILITY_GRANT_DATE, c.DISBURSED_DATE) AS startDate,
+                COALESCE(DATE_FORMAT(c.FACILITY_GRANT_DATE, '%Y-%m-%d'), c.FACILITY_GRANT_DATE) AS grantDate,
+                COALESCE(DATE_FORMAT(c.DISBURSED_DATE, '%Y-%m-%d'), c.DISBURSED_DATE) AS disbursedDate,
                 c.DUE_DATE AS dueDate,
-                c.MATURITY_DATE AS maturityDate,
-                s.LAST_PAY_DATE AS lastPaymentDate,
+                COALESCE(DATE_FORMAT(c.MATURITY_DATE, '%Y-%m-%d'), c.MATURITY_DATE) AS maturityDate,
+                COALESCE(DATE_FORMAT(s.LAST_PAY_DATE, '%Y-%m-%d'), s.LAST_PAY_DATE) AS lastPaymentDate,
                 s.LAST_PAY_AMT AS lastPayment
             FROM call_center.contract c
             LEFT JOIN call_center.snapshot s 
