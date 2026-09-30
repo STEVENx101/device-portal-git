@@ -258,9 +258,20 @@ public class Customer360Service {
             com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
             com.fasterxml.jackson.databind.JsonNode rootNode = mapper.readTree(requestJsonPayload);
             String type = rootNode.has("type") ? rootNode.get("type").asText() : "";
+            String nic = rootNode.has("nic") ? rootNode.get("nic").asText() : "";
+            if (nic.isEmpty() && rootNode.has("query")) {
+                nic = rootNode.get("query").asText();
+            }
 
             if ("SAVINGS".equalsIgnoreCase(type)) {
                 return fetchSavingsAccountList(rootNode);
+            }
+
+            if ("LEASING".equalsIgnoreCase(type)) {
+                String dbResponse = fetchDbFacilityListJson(type, nic);
+                if (dbResponse != null) {
+                    return dbResponse;
+                }
             }
 
             String token = getApiToken();
@@ -403,6 +414,64 @@ public class Customer360Service {
             logger.error("Error calling savings account list API: {}", e.getMessage(), e);
             return createEmptyFacilityResponse();
         }
+    }
+
+    private String fetchDbFacilityListJson(String type, String nic) {
+        if (nic == null || nic.trim().isEmpty()) {
+            return null;
+        }
+        String cleanNic = nic.trim();
+
+        String baseSql = """
+            SELECT 
+                c.FINANCE_NO AS AccountID,
+                c.PRODUCT AS product,
+                COALESCE(s.CONTRACT_STATUS, c.CLIENT_STATUS, 'Active') AS status,
+                c.BRANCH AS location,
+                c.FINANCE_AMOUNT AS amount,
+                COALESCE(s.AMT_TO_COLLECTED, s.EXPOSURE, 0) AS totalOutstanding,
+                COALESCE(s.FUTURE_CAPITAL, c.TOT_CAPITAL, 0) AS capitalOutstanding,
+                COALESCE(s.FUTURE_INT, c.TOT_INTEREST, 0) AS interestOutstanding,
+                COALESCE(s.TOT_ODI, s.ODI_ARREARS, 0) AS odiOutstanding,
+                COALESCE(s.DUE_AS_AT, s.CURRENT_DUE, 0) AS totalArrears,
+                c.RENTAL AS rental,
+                c.RATE AS rate,
+                c.PERIOD AS period,
+                'M' AS frequency,
+                COALESCE(c.FACILITY_GRANT_DATE, c.DISBURSED_DATE) AS startDate,
+                c.DUE_DATE AS dueDate,
+                c.MATURITY_DATE AS maturityDate,
+                s.LAST_PAY_DATE AS lastPaymentDate,
+                s.LAST_PAY_AMT AS lastPayment
+            FROM call_center.contract c
+            LEFT JOIN call_center.snapshot s 
+                ON c.FINANCE_NO = s.FINANCE_NO
+                AND s.SNAP_DATE = (SELECT MAX(SNAP_DATE) FROM call_center.snapshot)
+            WHERE (c.NIC_NO = ? OR c.CLIENT_CODE = ?)
+              AND (c.PRODUCT IS NULL OR UPPER(TRIM(c.PRODUCT)) NOT IN ('MF', 'LF'))
+        """;
+
+        try {
+            List<Map<String, Object>> rows = jdbcTemplate.queryForList(baseSql, cleanNic, cleanNic);
+
+            if (rows != null && !rows.isEmpty()) {
+                com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+                com.fasterxml.jackson.databind.node.ObjectNode res = mapper.createObjectNode();
+                res.put("status", 200);
+                res.put("message", "Successful");
+                com.fasterxml.jackson.databind.node.ObjectNode data = res.putObject("data");
+                com.fasterxml.jackson.databind.node.ArrayNode accounts = data.putArray("accounts");
+                for (Map<String, Object> row : rows) {
+                    accounts.add(mapper.valueToTree(row));
+                }
+                data.put("hasNext", false);
+                data.put("totalElements", rows.size());
+                return mapper.writeValueAsString(res);
+            }
+        } catch (Exception e) {
+            logger.warn("Could not fetch leasing facility list from call_center.contract/snapshot for NIC {}: {}", cleanNic, e.getMessage());
+        }
+        return null;
     }
 
     private String createEmptyFacilityResponse() {
