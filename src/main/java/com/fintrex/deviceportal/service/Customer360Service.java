@@ -445,15 +445,15 @@ public class Customer360Service {
                 COALESCE(DATE_FORMAT(s.LAST_PAY_DATE, '%Y-%m-%d'), s.LAST_PAY_DATE) AS lastPaymentDate,
                 s.LAST_PAY_AMT AS lastPayment
             FROM call_center.contract c
-            LEFT JOIN call_center.snapshot s 
+            JOIN call_center.snapshot s 
                 ON c.FINANCE_NO = s.FINANCE_NO
                 AND s.SNAP_DATE = (SELECT MAX(SNAP_DATE) FROM call_center.snapshot)
-            WHERE (c.NIC_NO = ? OR c.CLIENT_CODE = ?)
-              AND (c.PRODUCT IS NULL OR UPPER(TRIM(c.PRODUCT)) NOT IN ('MF', 'LF'))
+            WHERE c.NIC_NO = ?
+              AND (c.PRODUCT IS NULL OR UPPER(TRIM(c.PRODUCT)) NOT IN ('MF', 'LF', 'CBL'))
         """;
 
         try {
-            List<Map<String, Object>> rows = jdbcTemplate.queryForList(baseSql, cleanNic, cleanNic);
+            List<Map<String, Object>> rows = jdbcTemplate.queryForList(baseSql, cleanNic);
 
             if (rows != null && !rows.isEmpty()) {
                 com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
