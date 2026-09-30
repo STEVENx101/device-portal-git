@@ -775,12 +775,19 @@
                     const currentBal = acc.currentBalance != null ? parseFloat(acc.currentBalance) : (acc.amount != null ? parseFloat(acc.amount) : 0);
                     const holdAmt = acc.amountOnHold != null ? parseFloat(acc.amountOnHold) : 0;
                     const availBal = acc.availableBalance != null ? parseFloat(acc.availableBalance) : (currentBal - holdAmt);
-                    const statusStr = acc.status || 'Active';
-                    let statusBadge = '<span class="badge bg-soft-success text-success"><i class="fas fa-check-circle me-1"></i>Active</span>';
-                    if (String(statusStr).toLowerCase() === 'closed') {
-                        statusBadge = '<span class="badge bg-soft-secondary text-secondary">Closed</span>';
-                    } else if (String(statusStr).toLowerCase() === 'inactive') {
-                        statusBadge = '<span class="badge bg-soft-warning text-warning">Inactive</span>';
+                    const statusStr = acc.status != null ? String(acc.status).trim() : '';
+                    let statusBadge = '<span class="badge bg-soft-secondary text-secondary">-</span>';
+                    if (statusStr) {
+                        const sLower = statusStr.toLowerCase();
+                        if (sLower === 'active') {
+                            statusBadge = '<span class="badge bg-soft-success text-success"><i class="fas fa-check-circle me-1"></i>Active</span>';
+                        } else if (sLower === 'closed') {
+                            statusBadge = '<span class="badge bg-soft-secondary text-secondary">Closed</span>';
+                        } else if (sLower === 'inactive') {
+                            statusBadge = '<span class="badge bg-soft-warning text-warning">Inactive</span>';
+                        } else {
+                            statusBadge = `<span class="badge bg-soft-primary text-primary">\${escapeHtml(statusStr)}</span>`;
+                        }
                     }
 
                     html += `
@@ -846,12 +853,19 @@
                     const rental = acc.rental != null ? parseFloat(acc.rental) : 0;
 
                     const accId = acc.AccountID || acc.contractNo || acc.accountNumber || '-';
-                    const statusStr = acc.status || 'Active';
-                    let statusBadge = '<span class="badge bg-soft-success text-success">Active</span>';
-                    if (String(statusStr).toLowerCase() === 'closed') {
-                        statusBadge = '<span class="badge bg-soft-secondary text-secondary">Closed</span>';
-                    } else if (totalArrears > 0) {
-                        statusBadge = '<span class="badge bg-soft-danger text-danger">Arrears</span>';
+                    const statusStr = acc.status != null ? String(acc.status).trim() : '';
+                    let statusBadge = '<span class="badge bg-soft-secondary text-secondary">-</span>';
+                    if (statusStr) {
+                        const sLower = statusStr.toLowerCase();
+                        if (sLower === 'active') {
+                            statusBadge = '<span class="badge bg-soft-success text-success">Active</span>';
+                        } else if (sLower === 'closed') {
+                            statusBadge = '<span class="badge bg-soft-secondary text-secondary">Closed</span>';
+                        } else if (totalArrears > 0 || sLower === 'arrears') {
+                            statusBadge = '<span class="badge bg-soft-danger text-danger">' + escapeHtml(statusStr) + '</span>';
+                        } else {
+                            statusBadge = '<span class="badge bg-soft-primary text-primary">' + escapeHtml(statusStr) + '</span>';
+                        }
                     }
 
                     const grantDateStr = formatDate(acc.grantDate || acc.startDate);

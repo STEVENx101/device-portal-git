@@ -426,7 +426,7 @@ public class Customer360Service {
             SELECT 
                 c.FINANCE_NO AS AccountID,
                 c.PRODUCT AS product,
-                COALESCE(s.CONTRACT_STATUS, c.CLIENT_STATUS, 'Active') AS status,
+                COALESCE(s.CONTRACT_STATUS, c.CLIENT_STATUS) AS status,
                 c.BRANCH AS location,
                 c.FINANCE_AMOUNT AS amount,
                 COALESCE(s.AMT_TO_COLLECTED, s.EXPOSURE, 0) AS totalOutstanding,
