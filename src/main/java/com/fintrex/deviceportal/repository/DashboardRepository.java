@@ -21,6 +21,10 @@ public class DashboardRepository {
             return " AND (pr.product_code = 'MF' OR l.product = 'MF' OR pr.product_name = 'MF') ";
         } else if ("LF".equalsIgnoreCase(product)) {
             return " AND (pr.product_code IN ('LF', 'laptop') OR l.product IN ('LF', 'laptop') OR pr.product_name IN ('LF', 'laptop')) ";
+        } else if ("RD".equalsIgnoreCase(product) || "202".equalsIgnoreCase(product)) {
+            return " AND (pr.product_code IN ('RD', '202') OR l.product IN ('RD', '202') OR pr.product_name LIKE '%Recurring Deposit%' OR pr.code_val = 202) ";
+        } else if ("TF".equalsIgnoreCase(product) || "009".equalsIgnoreCase(product) || "9".equalsIgnoreCase(product)) {
+            return " AND (pr.product_code IN ('TF', '009', '9') OR l.product IN ('TF', '009', '9') OR pr.product_name LIKE '%Travel Finance%' OR pr.code_val IN (9, 009)) ";
         }
         return "";
     }
@@ -735,6 +739,10 @@ public class DashboardRepository {
             productFilter = "AND EXISTS (SELECT 1 FROM cbs.loan l LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val WHERE (vp.account_id = l.account_no OR vp.account_id = l.legacy_account_no) AND pr.product_code = 'MF')";
         } else if ("LF".equalsIgnoreCase(product)) {
             productFilter = "AND EXISTS (SELECT 1 FROM cbs.loan l LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val WHERE (vp.account_id = l.account_no OR vp.account_id = l.legacy_account_no) AND pr.product_code IN ('LF', 'laptop'))";
+        } else if ("RD".equalsIgnoreCase(product) || "202".equalsIgnoreCase(product)) {
+            productFilter = "AND EXISTS (SELECT 1 FROM cbs.loan l LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val WHERE (vp.account_id = l.account_no OR vp.account_id = l.legacy_account_no) AND (pr.product_code IN ('RD', '202') OR l.product IN ('RD', '202') OR pr.code_val = 202))";
+        } else if ("TF".equalsIgnoreCase(product) || "009".equalsIgnoreCase(product) || "9".equalsIgnoreCase(product)) {
+            productFilter = "AND EXISTS (SELECT 1 FROM cbs.loan l LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val WHERE (vp.account_id = l.account_no OR vp.account_id = l.legacy_account_no) AND (pr.product_code IN ('TF', '009', '9') OR l.product IN ('TF', '009', '9') OR pr.code_val = 9))";
         }
 
         String sql = String.format("""
@@ -902,6 +910,10 @@ public class DashboardRepository {
             productFilter = "AND EXISTS (SELECT 1 FROM cbs.loan l LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val WHERE (vp.account_id = l.account_no OR vp.account_id = l.legacy_account_no) AND pr.product_code = 'MF')";
         } else if ("LF".equalsIgnoreCase(product)) {
             productFilter = "AND EXISTS (SELECT 1 FROM cbs.loan l LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val WHERE (vp.account_id = l.account_no OR vp.account_id = l.legacy_account_no) AND pr.product_code IN ('LF', 'laptop'))";
+        } else if ("RD".equalsIgnoreCase(product) || "202".equalsIgnoreCase(product)) {
+            productFilter = "AND EXISTS (SELECT 1 FROM cbs.loan l LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val WHERE (vp.account_id = l.account_no OR vp.account_id = l.legacy_account_no) AND (pr.product_code IN ('RD', '202') OR l.product IN ('RD', '202') OR pr.code_val = 202))";
+        } else if ("TF".equalsIgnoreCase(product) || "009".equalsIgnoreCase(product) || "9".equalsIgnoreCase(product)) {
+            productFilter = "AND EXISTS (SELECT 1 FROM cbs.loan l LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val WHERE (vp.account_id = l.account_no OR vp.account_id = l.legacy_account_no) AND (pr.product_code IN ('TF', '009', '9') OR l.product IN ('TF', '009', '9') OR pr.code_val = 9))";
         }
 
         String sql = String.format("""
@@ -934,6 +946,10 @@ public class DashboardRepository {
             productFilter = "AND EXISTS (SELECT 1 FROM cbs.loan l LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val WHERE t.account_no = l.account_no AND pr.product_code = 'MF')";
         } else if ("LF".equalsIgnoreCase(product)) {
             productFilter = "AND EXISTS (SELECT 1 FROM cbs.loan l LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val WHERE t.account_no = l.account_no AND pr.product_code IN ('LF', 'laptop'))";
+        } else if ("RD".equalsIgnoreCase(product) || "202".equalsIgnoreCase(product)) {
+            productFilter = "AND EXISTS (SELECT 1 FROM cbs.loan l LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val WHERE t.account_no = l.account_no AND (pr.product_code IN ('RD', '202') OR l.product IN ('RD', '202') OR pr.code_val = 202))";
+        } else if ("TF".equalsIgnoreCase(product) || "009".equalsIgnoreCase(product) || "9".equalsIgnoreCase(product)) {
+            productFilter = "AND EXISTS (SELECT 1 FROM cbs.loan l LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val WHERE t.account_no = l.account_no AND (pr.product_code IN ('TF', '009', '9') OR l.product IN ('TF', '009', '9') OR pr.code_val = 9))";
         }
 
         String targetMonth = (month != null && month.matches("^\\d{4}-\\d{2}$"))

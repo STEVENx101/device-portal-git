@@ -275,6 +275,8 @@
                                             style="font-size: 0.75rem; padding: 2px 25px 2px 10px; width: auto; border-radius: 4px; border: 1px solid #cbd5e1; cursor: pointer;">
                                             <option value="MF" selected>Mobile Finance (MF)</option>
                                             <option value="LF">Laptop Finance (LF)</option>
+                                            <option value="RD">Recurring Deposits (RD)</option>
+                                            <option value="TF">Travel Finance (TF)</option>
                                         </select>
                                     </div>
                                     <div class="d-flex align-items-center gap-2"
@@ -1189,7 +1191,7 @@
                     const securityCard = document.getElementById('device-security-status-card');
                     const paymentsCard = document.getElementById('payments-status-wise-card');
 
-                    if (selectedProduct === 'LF') {
+                    if (selectedProduct === 'LF' || selectedProduct === 'RD' || selectedProduct === 'TF') {
                         if (arrearsCard) arrearsCard.style.display = 'none';
                         if (channelsCard) { channelsCard.style.flex = '0 0 30%'; channelsCard.style.maxWidth = '30%'; }
                         if (maturedCard) { maturedCard.style.flex = '0 0 16%'; maturedCard.style.maxWidth = '16%'; }
@@ -1203,7 +1205,7 @@
                         if (paymentsCard) { paymentsCard.style.flex = '0 0 26%'; paymentsCard.style.maxWidth = '26%'; }
                     }
 
-                    if (selectedProduct !== 'LF') {
+                    if (selectedProduct !== 'LF' && selectedProduct !== 'RD' && selectedProduct !== 'TF') {
                         promises.push(
                             fetch('${pageContext.request.contextPath}/api/dashboard/mobile-lock-arrears')
                                 .then(checkApiResponse)

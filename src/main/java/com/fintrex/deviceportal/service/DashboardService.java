@@ -57,7 +57,7 @@ public class DashboardService {
 
             Map<String, Object> newCache = new HashMap<>();
 
-            String[] products = { "MF", "LF" };
+            String[] products = { "MF", "LF", "RD", "TF" };
             for (String product : products) {
                 String suffix = "_" + product.toUpperCase();
 
