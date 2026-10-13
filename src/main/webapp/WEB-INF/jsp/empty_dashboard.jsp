@@ -275,7 +275,6 @@
                                             style="font-size: 0.75rem; padding: 2px 25px 2px 10px; width: auto; border-radius: 4px; border: 1px solid #cbd5e1; cursor: pointer;">
                                             <option value="MF" selected>Mobile Finance (MF)</option>
                                             <option value="LF">Laptop Finance (LF)</option>
-                                            <option value="RD">Recurring Deposits (RD)</option>
                                             <option value="TF">Travel Finance (TF)</option>
                                         </select>
                                     </div>
@@ -985,171 +984,176 @@
 
 
                     // ============ 6. Device Status Charts ============
-                    promises.push(
-                        fetch('${pageContext.request.contextPath}/api/dashboard/device-status-charts' + singleMonthParam)
-                            .then(checkApiResponse)
-                            .then(data => {
-                                // Helper function for small doughnut charts
-                                const buildDoughnut = (canvasId, dataset, labelsList, colorsList) => {
-                                    destroyChart(canvasId);
-                                    const labels = dataset.map(item => item.state_name);
-                                    const counts = dataset.map(item => item.count_val);
+                    if (selectedProduct !== 'TF') {
+                        promises.push(
+                            fetch('${pageContext.request.contextPath}/api/dashboard/device-status-charts' + singleMonthParam)
+                                .then(checkApiResponse)
+                                .then(data => {
+                                    // Helper function for small doughnut charts
+                                    const buildDoughnut = (canvasId, dataset, labelsList, colorsList) => {
+                                        destroyChart(canvasId);
+                                        const labels = dataset.map(item => item.state_name);
+                                        const counts = dataset.map(item => item.count_val);
 
-                                    let finalColors = colorsList;
-                                    if (labels.length) {
-                                        finalColors = labels.map(label => {
-                                            const lowerLabel = label.toLowerCase();
-                                            if (lowerLabel === 'performing' || lowerLabel === 'unlocked' || lowerLabel === 'active' || lowerLabel === 'un-locked') {
-                                                return 'rgba(16, 185, 129, 0.85)'; // Green
-                                            }
-                                            if (lowerLabel === 'non-performing' || lowerLabel === 'locked') {
-                                                return 'rgba(239, 68, 68, 0.85)'; // Red
-                                            }
-                                            return 'rgba(156, 163, 175, 0.85)'; // Gray fallback
-                                        });
-                                    }
-
-                                    const centerTextPlugin = {
-                                        id: 'centerTextPlugin',
-                                        beforeDraw: function (chart) {
-                                            const width = chart.width, height = chart.height, ctx = chart.ctx;
-                                            ctx.restore();
-                                            const total = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                                            ctx.font = "bold 0.85em 'Plus Jakarta Sans', sans-serif";
-                                            ctx.textBaseline = "middle";
-                                            ctx.fillStyle = isDark ? "#f8fafc" : "#1e293b";
-                                            const text = total.toLocaleString(),
-                                                textX = Math.round((width - ctx.measureText(text).width) / 2),
-                                                textY = chart.chartArea.top + (chart.chartArea.bottom - chart.chartArea.top) / 2;
-                                            ctx.fillText(text, textX, textY);
-                                            ctx.save();
+                                        let finalColors = colorsList;
+                                        if (labels.length) {
+                                            finalColors = labels.map(label => {
+                                                const lowerLabel = label.toLowerCase();
+                                                if (lowerLabel === 'performing' || lowerLabel === 'unlocked' || lowerLabel === 'active' || lowerLabel === 'un-locked') {
+                                                    return 'rgba(16, 185, 129, 0.85)'; // Green
+                                                }
+                                                if (lowerLabel === 'non-performing' || lowerLabel === 'locked') {
+                                                    return 'rgba(239, 68, 68, 0.85)'; // Red
+                                                }
+                                                return 'rgba(156, 163, 175, 0.85)'; // Gray fallback
+                                            });
                                         }
-                                    };
 
-                                    const ctx = document.getElementById(canvasId).getContext('2d');
-                                    activeCharts[canvasId] = new Chart(ctx, {
-                                        type: 'doughnut',
-                                        data: {
-                                            labels: labels.length ? labels : labelsList,
-                                            datasets: [{
-                                                data: counts.length ? counts : [0, 0],
-                                                backgroundColor: finalColors,
-                                                borderWidth: 0
-                                            }]
-                                        },
-                                        plugins: [centerTextPlugin],
-                                        options: {
-                                            responsive: true,
-                                            maintainAspectRatio: false,
-                                            cutout: '72%',
-                                            plugins: {
-                                                legend: { display: false },
-                                                tooltip: { enabled: true },
-                                                datalabels: {
-                                                    display: true,
-                                                    color: '#ffffff',
-                                                    font: { weight: 'bold', size: 9 },
-                                                    formatter: (value, context) => {
-                                                        let sum = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                                                        if (sum === 0) return '';
-                                                        let percentage = Math.round(value * 100 / sum);
-                                                        return percentage >= 5 ? percentage + "%" : '';
-                                                    },
-                                                    anchor: 'center',
-                                                    align: 'center'
+                                        const centerTextPlugin = {
+                                            id: 'centerTextPlugin',
+                                            beforeDraw: function (chart) {
+                                                const width = chart.width, height = chart.height, ctx = chart.ctx;
+                                                ctx.restore();
+                                                const total = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                                ctx.font = "bold 0.85em 'Plus Jakarta Sans', sans-serif";
+                                                ctx.textBaseline = "middle";
+                                                ctx.fillStyle = isDark ? "#f8fafc" : "#1e293b";
+                                                const text = total.toLocaleString(),
+                                                    textX = Math.round((width - ctx.measureText(text).width) / 2),
+                                                    textY = chart.chartArea.top + (chart.chartArea.bottom - chart.chartArea.top) / 2;
+                                                ctx.fillText(text, textX, textY);
+                                                ctx.save();
+                                            }
+                                        };
+
+                                        const ctx = document.getElementById(canvasId).getContext('2d');
+                                        activeCharts[canvasId] = new Chart(ctx, {
+                                            type: 'doughnut',
+                                            data: {
+                                                labels: labels.length ? labels : labelsList,
+                                                datasets: [{
+                                                    data: counts.length ? counts : [0, 0],
+                                                    backgroundColor: finalColors,
+                                                    borderWidth: 0
+                                                }]
+                                            },
+                                            plugins: [centerTextPlugin],
+                                            options: {
+                                                responsive: true,
+                                                maintainAspectRatio: false,
+                                                cutout: '72%',
+                                                plugins: {
+                                                    legend: { display: false },
+                                                    tooltip: { enabled: true },
+                                                    datalabels: {
+                                                        display: true,
+                                                        color: '#ffffff',
+                                                        font: { weight: 'bold', size: 9 },
+                                                        formatter: (value, context) => {
+                                                            let sum = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                                            if (sum === 0) return '';
+                                                            let percentage = Math.round(value * 100 / sum);
+                                                            return percentage >= 5 ? percentage + "%" : '';
+                                                        },
+                                                        anchor: 'center',
+                                                        align: 'center'
+                                                    }
                                                 }
                                             }
-                                        }
-                                    });
-                                };
-
-                                if (selectedProduct === 'MF') {
-                                    document.querySelectorAll('.mobile-sec-col').forEach(el => el.style.display = '');
-                                    document.querySelectorAll('.laptop-sec-col').forEach(el => el.style.display = 'none');
-
-                                    // Populate HTML Progress Bars for Mobiles
-                                    const barData = data.mobileSecurityBarData || { knox: [0,0,0,0], datacultr: [0,0,0,0] };
-                                    
-                                    const keys = ['locked', 'unlocked', 'perf', 'np'];
-                                    keys.forEach((key, idx) => {
-                                        const knoxVal = barData.knox[idx] || 0;
-                                        const dcVal = barData.datacultr[idx] || 0;
-                                        const total = knoxVal + dcVal;
-                                        
-                                        document.getElementById('lbl-' + key + '-knox').innerText = formatNum(knoxVal);
-                                        document.getElementById('lbl-' + key + '-dc').innerText = formatNum(dcVal);
-                                        const totalEl = document.getElementById('lbl-' + key + '-total');
-                                        if (totalEl) totalEl.innerText = formatNum(total);
-                                        
-                                        let knoxPct = 0;
-                                        let dcPct = 0;
-                                        if (total > 0) {
-                                            knoxPct = Math.round((knoxVal / total) * 100);
-                                            dcPct = Math.round((dcVal / total) * 100);
-                                        }
-                                        
-                                        const kBar = document.getElementById('bar-' + key + '-knox');
-                                        const dBar = document.getElementById('bar-' + key + '-dc');
-                                        
-                                        kBar.style.width = knoxPct + '%';
-                                        kBar.innerText = knoxPct > 0 ? knoxPct + '%' : '';
-                                        
-                                        dBar.style.width = dcPct + '%';
-                                        dBar.innerText = dcPct > 0 ? dcPct + '%' : '';
-                                    });
-
-                                    const lockedTot = (barData.knox[0] || 0) + (barData.datacultr[0] || 0);
-                                    const unlockedTot = (barData.knox[1] || 0) + (barData.datacultr[1] || 0);
-                                    const perfTot = (barData.knox[2] || 0) + (barData.datacultr[2] || 0);
-                                    const npTot = (barData.knox[3] || 0) + (barData.datacultr[3] || 0);
-
-                                    const perfSum = perfTot + npTot;
-                                    const lockSum = lockedTot + unlockedTot;
-
-                                    const perfPctStr = perfSum > 0 ? ' (' + Math.round((perfTot / perfSum) * 100) + '%)' : '';
-                                    const npPctStr = perfSum > 0 ? ' (' + Math.round((npTot / perfSum) * 100) + '%)' : '';
-                                    const lockedPctStr = lockSum > 0 ? ' (' + Math.round((lockedTot / lockSum) * 100) + '%)' : '';
-                                    const unlockedPctStr = lockSum > 0 ? ' (' + Math.round((unlockedTot / lockSum) * 100) + '%)' : '';
-
-                                     document.getElementById("device-sec-text").innerHTML =
-                                        '<span class="fw-bold text-700">Totals:Perf: ' + formatNum(perfTot) + perfPctStr + ' | Non-Perf: ' + formatNum(npTot) + npPctStr + '</span><br>' +
-                                        '<span class="fw-bold text-700">Locked: ' + formatNum(lockedTot) + lockedPctStr + ' | Unlocked: ' + formatNum(unlockedTot) + unlockedPctStr + '</span>';
-                                } else {
-                                    document.querySelectorAll('.mobile-sec-col').forEach(el => el.style.display = 'none');
-                                    document.querySelectorAll('.laptop-sec-col').forEach(el => el.style.display = '');
-
-                                    let perfTot = 0, npTot = 0, lockedTot = 0, unlockedTot = 0;
-                                    if (data.laptopPerforming) {
-                                        data.laptopPerforming.forEach(item => {
-                                            if (item.state_name === 'Non-Performing') npTot = item.count_val || 0;
-                                            else perfTot += item.count_val || 0;
                                         });
-                                    }
-                                    if (data.laptopLock) {
-                                        data.laptopLock.forEach(item => {
-                                            if (item.state_name === 'Locked') lockedTot = item.count_val || 0;
-                                            else unlockedTot += item.count_val || 0;
+                                    };
+
+                                    if (selectedProduct === 'MF') {
+                                        document.querySelectorAll('.mobile-sec-col').forEach(el => el.style.display = '');
+                                        document.querySelectorAll('.laptop-sec-col').forEach(el => el.style.display = 'none');
+
+                                        // Populate HTML Progress Bars for Mobiles
+                                        const barData = data.mobileSecurityBarData || { knox: [0,0,0,0], datacultr: [0,0,0,0] };
+                                        
+                                        const keys = ['locked', 'unlocked', 'perf', 'np'];
+                                        keys.forEach((key, idx) => {
+                                            const knoxVal = barData.knox[idx] || 0;
+                                            const dcVal = barData.datacultr[idx] || 0;
+                                            const total = knoxVal + dcVal;
+                                            
+                                            document.getElementById('lbl-' + key + '-knox').innerText = formatNum(knoxVal);
+                                            document.getElementById('lbl-' + key + '-dc').innerText = formatNum(dcVal);
+                                            const totalEl = document.getElementById('lbl-' + key + '-total');
+                                            if (totalEl) totalEl.innerText = formatNum(total);
+                                            
+                                            let knoxPct = 0;
+                                            let dcPct = 0;
+                                            if (total > 0) {
+                                                knoxPct = Math.round((knoxVal / total) * 100);
+                                                dcPct = Math.round((dcVal / total) * 100);
+                                            }
+                                            
+                                            const kBar = document.getElementById('bar-' + key + '-knox');
+                                            const dBar = document.getElementById('bar-' + key + '-dc');
+                                            
+                                            kBar.style.width = knoxPct + '%';
+                                            kBar.innerText = knoxPct > 0 ? knoxPct + '%' : '';
+                                            
+                                            dBar.style.width = dcPct + '%';
+                                            dBar.innerText = dcPct > 0 ? dcPct + '%' : '';
                                         });
+
+                                        const lockedTot = (barData.knox[0] || 0) + (barData.datacultr[0] || 0);
+                                        const unlockedTot = (barData.knox[1] || 0) + (barData.datacultr[1] || 0);
+                                        const perfTot = (barData.knox[2] || 0) + (barData.datacultr[2] || 0);
+                                        const npTot = (barData.knox[3] || 0) + (barData.datacultr[3] || 0);
+
+                                        const perfSum = perfTot + npTot;
+                                        const lockSum = lockedTot + unlockedTot;
+
+                                        const perfPctStr = perfSum > 0 ? ' (' + Math.round((perfTot / perfSum) * 100) + '%)' : '';
+                                        const npPctStr = perfSum > 0 ? ' (' + Math.round((npTot / perfSum) * 100) + '%)' : '';
+                                        const lockedPctStr = lockSum > 0 ? ' (' + Math.round((lockedTot / lockSum) * 100) + '%)' : '';
+                                        const unlockedPctStr = lockSum > 0 ? ' (' + Math.round((unlockedTot / lockSum) * 100) + '%)' : '';
+
+                                         document.getElementById("device-sec-text").innerHTML =
+                                            '<span class="fw-bold text-700">Totals:Perf: ' + formatNum(perfTot) + perfPctStr + ' | Non-Perf: ' + formatNum(npTot) + npPctStr + '</span><br>' +
+                                            '<span class="fw-bold text-700">Locked: ' + formatNum(lockedTot) + lockedPctStr + ' | Unlocked: ' + formatNum(unlockedTot) + unlockedPctStr + '</span>';
+                                    } else {
+                                        document.querySelectorAll('.mobile-sec-col').forEach(el => el.style.display = 'none');
+                                        document.querySelectorAll('.laptop-sec-col').forEach(el => el.style.display = '');
+
+                                        let perfTot = 0, npTot = 0, lockedTot = 0, unlockedTot = 0;
+                                        if (data.laptopPerforming) {
+                                            data.laptopPerforming.forEach(item => {
+                                                if (item.state_name === 'Non-Performing') npTot = item.count_val || 0;
+                                                else perfTot += item.count_val || 0;
+                                            });
+                                        }
+                                        if (data.laptopLock) {
+                                            data.laptopLock.forEach(item => {
+                                                if (item.state_name === 'Locked') lockedTot = item.count_val || 0;
+                                                else unlockedTot += item.count_val || 0;
+                                            });
+                                        }
+
+                                        const perfSum = perfTot + npTot;
+                                        const lockSum = lockedTot + unlockedTot;
+
+                                        const perfPctStr = perfSum > 0 ? ' (' + Math.round((perfTot / perfSum) * 100) + '%)' : '';
+                                        const npPctStr = perfSum > 0 ? ' (' + Math.round((npTot / perfSum) * 100) + '%)' : '';
+                                        const lockedPctStr = lockSum > 0 ? ' (' + Math.round((lockedTot / lockSum) * 100) + '%)' : '';
+                                        const unlockedPctStr = lockSum > 0 ? ' (' + Math.round((unlockedTot / lockSum) * 100) + '%)' : '';
+
+                                        document.getElementById("device-sec-text").innerHTML =
+                                            '<span class="fw-bold text-700">Totals:Perf: ' + formatNum(perfTot) + perfPctStr + ' | Non-Perf: ' + formatNum(npTot) + npPctStr + '</span><br>' +
+                                            '<span class="fw-bold text-700">Locked: ' + formatNum(lockedTot) + lockedPctStr + ' | Unlocked: ' + formatNum(unlockedTot) + unlockedPctStr + '</span>';
+
+                                        buildDoughnut('laptopPerformingChart', data.laptopPerforming || [], ['Performing', 'Non-Performing'], ['rgba(16, 185, 129, 0.85)', 'rgba(244, 63, 94, 0.85)']);
+                                        buildDoughnut('laptopLockChart', data.laptopLock || [], ['Active', 'Locked'], ['rgba(99, 102, 241, 0.85)', 'rgba(245, 158, 11, 0.85)']);
                                     }
-
-                                    const perfSum = perfTot + npTot;
-                                    const lockSum = lockedTot + unlockedTot;
-
-                                    const perfPctStr = perfSum > 0 ? ' (' + Math.round((perfTot / perfSum) * 100) + '%)' : '';
-                                    const npPctStr = perfSum > 0 ? ' (' + Math.round((npTot / perfSum) * 100) + '%)' : '';
-                                    const lockedPctStr = lockSum > 0 ? ' (' + Math.round((lockedTot / lockSum) * 100) + '%)' : '';
-                                    const unlockedPctStr = lockSum > 0 ? ' (' + Math.round((unlockedTot / lockSum) * 100) + '%)' : '';
-
-                                    document.getElementById("device-sec-text").innerHTML =
-                                        '<span class="fw-bold text-700">Totals:Perf: ' + formatNum(perfTot) + perfPctStr + ' | Non-Perf: ' + formatNum(npTot) + npPctStr + '</span><br>' +
-                                        '<span class="fw-bold text-700">Locked: ' + formatNum(lockedTot) + lockedPctStr + ' | Unlocked: ' + formatNum(unlockedTot) + unlockedPctStr + '</span>';
-
-                                    buildDoughnut('laptopPerformingChart', data.laptopPerforming || [], ['Performing', 'Non-Performing'], ['rgba(16, 185, 129, 0.85)', 'rgba(244, 63, 94, 0.85)']);
-                                    buildDoughnut('laptopLockChart', data.laptopLock || [], ['Active', 'Locked'], ['rgba(99, 102, 241, 0.85)', 'rgba(245, 158, 11, 0.85)']);
-                                }
-                            })
-                            .catch(err => console.error("Error loading security doughnut status:", err))
-                    );
+                                })
+                                .catch(err => console.error("Error loading security doughnut status:", err))
+                        );
+                    } else {
+                        destroyChart('laptopPerformingChart');
+                        destroyChart('laptopLockChart');
+                    }
 
                     // ============ 7. Daily Disbursements (Last 6-7 Days of Month) ============
                     promises.push(
@@ -1190,19 +1194,82 @@
                     const maturedCard = document.getElementById('matured-np-card');
                     const securityCard = document.getElementById('device-security-status-card');
                     const paymentsCard = document.getElementById('payments-status-wise-card');
+                    const row3Container = document.getElementById('row-3-container');
 
-                    if (selectedProduct === 'LF' || selectedProduct === 'RD' || selectedProduct === 'TF') {
-                        if (arrearsCard) arrearsCard.style.display = 'none';
-                        if (channelsCard) { channelsCard.style.flex = '0 0 30%'; channelsCard.style.maxWidth = '30%'; }
-                        if (maturedCard) { maturedCard.style.flex = '0 0 16%'; maturedCard.style.maxWidth = '16%'; }
-                        if (securityCard) { securityCard.style.flex = '0 0 24%'; securityCard.style.maxWidth = '24%'; }
-                        if (paymentsCard) { paymentsCard.style.flex = '0 0 30%'; paymentsCard.style.maxWidth = '30%'; }
+                    if (row3Container) {
+                        row3Container.classList.toggle('product-tf', selectedProduct === 'TF');
+                    }
+
+                    if (selectedProduct === 'TF') {
+                        if (arrearsCard) arrearsCard.style.setProperty('display', 'none', 'important');
+                        if (securityCard) securityCard.style.setProperty('display', 'none', 'important');
+                        if (channelsCard) {
+                            channelsCard.style.setProperty('flex', '0 0 38%', 'important');
+                            channelsCard.style.setProperty('max-width', '38%', 'important');
+                            channelsCard.style.setProperty('width', '38%', 'important');
+                        }
+                        if (maturedCard) {
+                            maturedCard.style.setProperty('flex', '0 0 24%', 'important');
+                            maturedCard.style.setProperty('max-width', '24%', 'important');
+                            maturedCard.style.setProperty('width', '24%', 'important');
+                        }
+                        if (paymentsCard) {
+                            paymentsCard.style.setProperty('flex', '0 0 38%', 'important');
+                            paymentsCard.style.setProperty('max-width', '38%', 'important');
+                            paymentsCard.style.setProperty('width', '38%', 'important');
+                        }
+                    } else if (selectedProduct === 'LF' || selectedProduct === 'RD') {
+                        if (arrearsCard) arrearsCard.style.setProperty('display', 'none', 'important');
+                        if (securityCard) {
+                            securityCard.style.removeProperty('display');
+                            securityCard.style.setProperty('flex', '0 0 24%', 'important');
+                            securityCard.style.setProperty('max-width', '24%', 'important');
+                            securityCard.style.setProperty('width', '24%', 'important');
+                        }
+                        if (channelsCard) {
+                            channelsCard.style.setProperty('flex', '0 0 30%', 'important');
+                            channelsCard.style.setProperty('max-width', '30%', 'important');
+                            channelsCard.style.setProperty('width', '30%', 'important');
+                        }
+                        if (maturedCard) {
+                            maturedCard.style.setProperty('flex', '0 0 16%', 'important');
+                            maturedCard.style.setProperty('max-width', '16%', 'important');
+                            maturedCard.style.setProperty('width', '16%', 'important');
+                        }
+                        if (paymentsCard) {
+                            paymentsCard.style.setProperty('flex', '0 0 30%', 'important');
+                            paymentsCard.style.setProperty('max-width', '30%', 'important');
+                            paymentsCard.style.setProperty('width', '30%', 'important');
+                        }
                     } else {
-                        if (arrearsCard) { arrearsCard.style.display = ''; arrearsCard.style.flex = '0 0 14%'; arrearsCard.style.maxWidth = '14%'; }
-                        if (channelsCard) { channelsCard.style.flex = '0 0 26%'; channelsCard.style.maxWidth = '26%'; }
-                        if (maturedCard) { maturedCard.style.flex = '0 0 14%'; maturedCard.style.maxWidth = '14%'; }
-                        if (securityCard) { securityCard.style.flex = '0 0 20%'; securityCard.style.maxWidth = '20%'; }
-                        if (paymentsCard) { paymentsCard.style.flex = '0 0 26%'; paymentsCard.style.maxWidth = '26%'; }
+                        // MF (default)
+                        if (arrearsCard) {
+                            arrearsCard.style.removeProperty('display');
+                            arrearsCard.style.setProperty('flex', '0 0 14%', 'important');
+                            arrearsCard.style.setProperty('max-width', '14%', 'important');
+                            arrearsCard.style.setProperty('width', '14%', 'important');
+                        }
+                        if (channelsCard) {
+                            channelsCard.style.setProperty('flex', '0 0 26%', 'important');
+                            channelsCard.style.setProperty('max-width', '26%', 'important');
+                            channelsCard.style.setProperty('width', '26%', 'important');
+                        }
+                        if (maturedCard) {
+                            maturedCard.style.setProperty('flex', '0 0 14%', 'important');
+                            maturedCard.style.setProperty('max-width', '14%', 'important');
+                            maturedCard.style.setProperty('width', '14%', 'important');
+                        }
+                        if (securityCard) {
+                            securityCard.style.removeProperty('display');
+                            securityCard.style.setProperty('flex', '0 0 20%', 'important');
+                            securityCard.style.setProperty('max-width', '20%', 'important');
+                            securityCard.style.setProperty('width', '20%', 'important');
+                        }
+                        if (paymentsCard) {
+                            paymentsCard.style.setProperty('flex', '0 0 26%', 'important');
+                            paymentsCard.style.setProperty('max-width', '26%', 'important');
+                            paymentsCard.style.setProperty('width', '26%', 'important');
+                        }
                     }
 
                     if (selectedProduct !== 'LF' && selectedProduct !== 'RD' && selectedProduct !== 'TF') {

@@ -384,6 +384,28 @@ table.dataTable thead th {
     width: 30% !important;
 }
 
+/* Travel Finance (TF) adjustment when Card 1 and Card 4 (Device Security Status) are hidden */
+#row-3-container.product-tf #mobile-lock-arrears-card,
+#row-3-container.product-tf #device-security-status-card {
+    display: none !important;
+}
+#row-3-container.product-tf #transaction-channels-card {
+    flex: 0 0 38% !important;
+    max-width: 38% !important;
+    width: 38% !important;
+}
+#row-3-container.product-tf #matured-np-card {
+    flex: 0 0 24% !important;
+    max-width: 24% !important;
+    width: 24% !important;
+}
+#row-3-container.product-tf #payments-status-wise-card {
+    flex: 0 0 38% !important;
+    max-width: 38% !important;
+    width: 38% !important;
+}
+
+
 
 
 
