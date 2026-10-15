@@ -12,12 +12,17 @@
 
             <title>Fintrex | Dashboard &amp; Device Finance Portal</title>
 
-            <link rel="apple-touch-icon" sizes="180x180" href="${pageContext.request.contextPath}/assets/img/favicons/apple-touch-icon.png">
-            <link rel="icon" type="image/png" sizes="32x32" href="${pageContext.request.contextPath}/assets/img/favicons/favicon-32x32.png">
-            <link rel="icon" type="image/png" sizes="16x16" href="${pageContext.request.contextPath}/assets/img/favicons/favicon-16x16.png">
-            <link rel="shortcut icon" type="image/x-icon" href="${pageContext.request.contextPath}/assets/img/favicons/favicon.ico">
+            <link rel="apple-touch-icon" sizes="180x180"
+                href="${pageContext.request.contextPath}/assets/img/favicons/apple-touch-icon.png">
+            <link rel="icon" type="image/png" sizes="32x32"
+                href="${pageContext.request.contextPath}/assets/img/favicons/favicon-32x32.png">
+            <link rel="icon" type="image/png" sizes="16x16"
+                href="${pageContext.request.contextPath}/assets/img/favicons/favicon-16x16.png">
+            <link rel="shortcut icon" type="image/x-icon"
+                href="${pageContext.request.contextPath}/assets/img/favicons/favicon.ico">
             <link rel="manifest" href="${pageContext.request.contextPath}/assets/img/favicons/manifest.json">
-            <meta name="msapplication-TileImage" content="${pageContext.request.contextPath}/assets/img/favicons/mstile-150x150.png">
+            <meta name="msapplication-TileImage"
+                content="${pageContext.request.contextPath}/assets/img/favicons/mstile-150x150.png">
             <meta name="theme-color" content="#ffffff">
             <script src="${pageContext.request.contextPath}/assets/js/config.js"></script>
             <script src="${pageContext.request.contextPath}/vendors/simplebar/simplebar.min.js"></script>
@@ -27,10 +32,14 @@
                 href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,500,600,700%7cPoppins:300,400,500,600,700,800,900&amp;display=swap"
                 rel="stylesheet">
             <link href="${pageContext.request.contextPath}/vendors/simplebar/simplebar.min.css" rel="stylesheet">
-            <link href="${pageContext.request.contextPath}/assets/css/theme-rtl.min.css" rel="stylesheet" id="style-rtl">
-            <link href="${pageContext.request.contextPath}/assets/css/theme.min.css" rel="stylesheet" id="style-default">
-            <link href="${pageContext.request.contextPath}/assets/css/user-rtl.min.css" rel="stylesheet" id="user-style-rtl">
-            <link href="${pageContext.request.contextPath}/assets/css/user.min.css" rel="stylesheet" id="user-style-default">
+            <link href="${pageContext.request.contextPath}/assets/css/theme-rtl.min.css" rel="stylesheet"
+                id="style-rtl">
+            <link href="${pageContext.request.contextPath}/assets/css/theme.min.css" rel="stylesheet"
+                id="style-default">
+            <link href="${pageContext.request.contextPath}/assets/css/user-rtl.min.css" rel="stylesheet"
+                id="user-style-rtl">
+            <link href="${pageContext.request.contextPath}/assets/css/user.min.css" rel="stylesheet"
+                id="user-style-default">
             <script>
                 var isRTL = JSON.parse(localStorage.getItem('isRTL'));
                 if (isRTL) {
@@ -51,7 +60,7 @@
         <style>
             body {
                 background-color: #f8fafc !important;
-                background-image: 
+                background-image:
                     radial-gradient(at 0% 0%, rgba(139, 92, 246, 0.03) 0px, transparent 50%),
                     radial-gradient(at 100% 100%, rgba(99, 102, 241, 0.03) 0px, transparent 50%),
                     linear-gradient(rgba(99, 102, 241, 0.02) 1px, transparent 1px),
@@ -63,7 +72,7 @@
             /* Dark theme background override */
             html.dark body {
                 background-color: #0b0f19 !important;
-                background-image: 
+                background-image:
                     radial-gradient(at 0% 0%, rgba(139, 92, 246, 0.08) 0px, transparent 50%),
                     radial-gradient(at 100% 100%, rgba(99, 102, 241, 0.05) 0px, transparent 50%),
                     linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
@@ -107,6 +116,7 @@
                 background: linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, rgba(99, 102, 241, 0.03) 100%) !important;
                 border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
             }
+
 
             /* Text styles override */
             html.dark h3 {
@@ -179,7 +189,8 @@
                                                 <div id="error-message" class="alert alert-danger p-2 fs--1"
                                                     style="display: none;"></div>
 
-                                                <button id="ssoLoginBtn" class="btn btn-sso d-block w-100" type="button">
+                                                <button id="ssoLoginBtn" class="btn btn-sso d-block w-100"
+                                                    type="button">
                                                     <span class="fas fa-key me-2"></span>Login with SSO
                                                 </button>
                                             </div>
@@ -199,7 +210,8 @@
             <script src="${pageContext.request.contextPath}/vendors/is/is.min.js"></script>
             <script src="${pageContext.request.contextPath}/vendors/fontawesome/all.min.js"></script>
             <script src="${pageContext.request.contextPath}/vendors/lodash/lodash.min.js"></script>
-            <script src="${pageContext.request.contextPath}/polyfill.io/v3/polyfill.min58be.js?features=window.scroll"></script>
+            <script
+                src="${pageContext.request.contextPath}/polyfill.io/v3/polyfill.min58be.js?features=window.scroll"></script>
             <script src="${pageContext.request.contextPath}/vendors/list.js/list.min.js"></script>
             <script src="${pageContext.request.contextPath}/assets/js/theme.js"></script>
 
@@ -235,30 +247,30 @@
 
                             // Establish local session
                             const localRes = await fetch(CTX + '/api/login-callback', {
-                                  method: 'POST',
-                                  headers: { 'Content-Type': 'application/json' },
-                                  credentials: 'same-origin',
-                                  body: JSON.stringify(ssoUser)
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                credentials: 'same-origin',
+                                body: JSON.stringify(ssoUser)
                             });
 
-                             if (localRes.ok) {
-                                 // Asynchronously fire pre-fetch dashboard data into browser cache in parallel background
-                                 const endpoints = [
-                                     '/api/dashboard/stats',
-                                     '/api/dashboard/business-chart',
-                                     '/api/dashboard/dpd-comparison-chart',
-                                     '/api/dashboard/device-status-charts',
-                                     '/api/dashboard/highest-npl-model',
-                                     '/api/dashboard/highest-npl-dealer',
-                                     '/api/dashboard/vendor-payments-chart',
-                                     '/api/dashboard/collections-dealer-wise'
-                                 ];
-                                 endpoints.forEach(ep => {
-                                     fetch(CTX + ep).catch(err => console.warn("Preload failed for " + ep, err));
-                                 });
-                                 window.location.replace(CTX + getRedirectTarget());
-                                 return;
-                             }
+                            if (localRes.ok) {
+                                // Asynchronously fire pre-fetch dashboard data into browser cache in parallel background
+                                const endpoints = [
+                                    '/api/dashboard/stats',
+                                    '/api/dashboard/business-chart',
+                                    '/api/dashboard/dpd-comparison-chart',
+                                    '/api/dashboard/device-status-charts',
+                                    '/api/dashboard/highest-npl-model',
+                                    '/api/dashboard/highest-npl-dealer',
+                                    '/api/dashboard/vendor-payments-chart',
+                                    '/api/dashboard/collections-dealer-wise'
+                                ];
+                                endpoints.forEach(ep => {
+                                    fetch(CTX + ep).catch(err => console.warn("Preload failed for " + ep, err));
+                                });
+                                window.location.replace(CTX + getRedirectTarget());
+                                return;
+                            }
                         }
                     } catch (err) {
                         console.error('SSO verification check failed:', err);
