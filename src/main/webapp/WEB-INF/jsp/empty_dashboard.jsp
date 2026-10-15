@@ -276,6 +276,7 @@
                                             <option value="MF" selected>Mobile Finance (MF)</option>
                                             <option value="LF">Laptop Finance (LF)</option>
                                             <option value="TF">Travel Finance (TF)</option>
+                                            <option value="TVF">TV Finance (TVF)</option>
                                         </select>
                                     </div>
                                     <div class="d-flex align-items-center gap-2"
@@ -682,8 +683,22 @@
             <script>
                 // Global chart instances to allow clean redrawing without hover issues
                 const activeCharts = {};
+                const clientDashboardCache = {};
+                let isPrefetching = false;
                 let selectedProduct = 'MF';
                 let selectedMonth = '';
+
+                function fetchCached(url) {
+                    if (clientDashboardCache[url]) {
+                        return Promise.resolve(clientDashboardCache[url]);
+                    }
+                    return fetch(url)
+                        .then(checkApiResponse)
+                        .then(data => {
+                            clientDashboardCache[url] = data;
+                            return data;
+                        });
+                }
 
                 function getSingleMonthQueryParams() {
                     let params = [];
@@ -694,6 +709,7 @@
 
                 function onMonthChange() {
                     selectedMonth = document.getElementById('monthFilterInput').value;
+                    isPrefetching = false;
                     loadDashboardData();
                 }
 
@@ -856,6 +872,13 @@
                     });
                 };
 
+                function clearClientDashboardCache() {
+                    for (const key in clientDashboardCache) {
+                        delete clientDashboardCache[key];
+                    }
+                    isPrefetching = false;
+                }
+
                 function checkSyncStatus() {
                     fetch('${pageContext.request.contextPath}/api/dashboard/sync-info')
                         .then(checkApiResponse)
@@ -880,6 +903,7 @@
                                     btn.classList.add('btn-primary');
                                     icon.classList.remove('fa-spin');
                                     text.innerText = "Sync Now";
+                                    clearClientDashboardCache();
                                     loadDashboardData();
                                 }
                             }
@@ -897,6 +921,8 @@
                     btn.classList.add('btn-secondary');
                     icon.classList.add('fa-spin');
                     text.innerText = "Syncing...";
+
+                    clearClientDashboardCache();
 
                     fetch('${pageContext.request.contextPath}/api/dashboard/sync-now', {
                         method: 'POST'
@@ -917,18 +943,29 @@
                 }
 
                 function loadDashboardData() {
-                    const loader = document.getElementById('dashboardLoader');
-                    if (loader) loader.style.display = 'flex';
-
                     const productParam = selectedProduct ? '?product=' + encodeURIComponent(selectedProduct) : '';
                     const singleMonthParam = getSingleMonthQueryParams();
+
+                    const statsUrl = '${pageContext.request.contextPath}/api/dashboard/stats' + singleMonthParam;
+                    const businessUrl = '${pageContext.request.contextPath}/api/dashboard/business-chart' + productParam;
+                    const vendorPaymentsUrl = '${pageContext.request.contextPath}/api/dashboard/vendor-payments-chart' + singleMonthParam;
+                    const dpdComparisonUrl = '${pageContext.request.contextPath}/api/dashboard/dpd-comparison-chart' + productParam;
+                    const paymentsStatusUrl = '${pageContext.request.contextPath}/api/dashboard/payments-status-chart' + productParam;
+
+                    const isAllCached = !!clientDashboardCache[statsUrl] &&
+                                        !!clientDashboardCache[businessUrl] &&
+                                        !!clientDashboardCache[vendorPaymentsUrl] &&
+                                        !!clientDashboardCache[dpdComparisonUrl] &&
+                                        !!clientDashboardCache[paymentsStatusUrl];
+
+                    const loader = document.getElementById('dashboardLoader');
+                    if (loader && !isAllCached) loader.style.display = 'flex';
 
                     const promises = [];
 
                     // ============ 1. Dashboard Stats (KPI Cards) ============
                     promises.push(
-                        fetch('${pageContext.request.contextPath}/api/dashboard/stats' + singleMonthParam)
-                            .then(checkApiResponse)
+                        fetchCached(statsUrl)
                             .then(data => {
                                 // Primary KPIs
                                 document.getElementById("kpi-month-count").innerText = formatNum(data.nMonthCount || 0) + " Accounts";
@@ -960,8 +997,7 @@
 
                     // ============ 2. Month Wise Business Chart (Multi-Month Trend) ============
                     promises.push(
-                        fetch('${pageContext.request.contextPath}/api/dashboard/business-chart' + productParam)
-                            .then(checkApiResponse)
+                        fetchCached(businessUrl)
                             .then(data => {
                                 const labels = data.map(i => i.month_name);
                                 const amounts = data.map(i => i.business_amount || 0);
@@ -984,10 +1020,9 @@
 
 
                     // ============ 6. Device Status Charts ============
-                    if (selectedProduct !== 'TF') {
+                    if (selectedProduct !== 'TF' && selectedProduct !== 'TVF') {
                         promises.push(
-                            fetch('${pageContext.request.contextPath}/api/dashboard/device-status-charts' + singleMonthParam)
-                                .then(checkApiResponse)
+                            fetchCached('${pageContext.request.contextPath}/api/dashboard/device-status-charts' + singleMonthParam)
                                 .then(data => {
                                     // Helper function for small doughnut charts
                                     const buildDoughnut = (canvasId, dataset, labelsList, colorsList) => {
@@ -1157,8 +1192,7 @@
 
                     // ============ 7. Daily Disbursements (Last 6-7 Days of Month) ============
                     promises.push(
-                        fetch('${pageContext.request.contextPath}/api/dashboard/vendor-payments-chart' + singleMonthParam)
-                            .then(checkApiResponse)
+                        fetchCached(vendorPaymentsUrl)
                             .then(data => {
                                 let chartData = data;
                                 const titleTextEl = document.getElementById('dailyDisbursementsTitleText');
@@ -1197,10 +1231,11 @@
                     const row3Container = document.getElementById('row-3-container');
 
                     if (row3Container) {
-                        row3Container.classList.toggle('product-tf', selectedProduct === 'TF');
+                        row3Container.classList.toggle('product-tf', selectedProduct === 'TF' || selectedProduct === 'TVF');
+                        row3Container.classList.toggle('product-tvf', selectedProduct === 'TF' || selectedProduct === 'TVF');
                     }
 
-                    if (selectedProduct === 'TF') {
+                    if (selectedProduct === 'TF' || selectedProduct === 'TVF') {
                         if (arrearsCard) arrearsCard.style.setProperty('display', 'none', 'important');
                         if (securityCard) securityCard.style.setProperty('display', 'none', 'important');
                         if (channelsCard) {
@@ -1272,10 +1307,9 @@
                         }
                     }
 
-                    if (selectedProduct !== 'LF' && selectedProduct !== 'RD' && selectedProduct !== 'TF') {
+                    if (selectedProduct !== 'LF' && selectedProduct !== 'RD' && selectedProduct !== 'TF' && selectedProduct !== 'TVF') {
                         promises.push(
-                            fetch('${pageContext.request.contextPath}/api/dashboard/mobile-lock-arrears')
-                                .then(checkApiResponse)
+                            fetchCached('${pageContext.request.contextPath}/api/dashboard/mobile-lock-arrears')
                                 .then(data => {
                                     // 1. Mobile Lock vs Unlock Chart
                                     destroyChart('mobileLockArrearsChart');
@@ -1327,8 +1361,7 @@
 
                     // ============ 9.1 Transaction Channels Table ============
                     promises.push(
-                        fetch('${pageContext.request.contextPath}/api/dashboard/transaction-channel-chart' + singleMonthParam)
-                            .then(checkApiResponse)
+                        fetchCached('${pageContext.request.contextPath}/api/dashboard/transaction-channel-chart' + singleMonthParam)
                             .then(data => {
                                 const tbody = document.getElementById('transactionChannelTableBody');
                                 let html = '';
@@ -1348,8 +1381,7 @@
 
                     // ============ 10. Matured vs Non-Matured Contracts Performance ============
                     promises.push(
-                        fetch('${pageContext.request.contextPath}/api/dashboard/matured-nonperforming' + singleMonthParam)
-                            .then(checkApiResponse)
+                        fetchCached('${pageContext.request.contextPath}/api/dashboard/matured-nonperforming' + singleMonthParam)
                             .then(data => {
                                 let maturedPerf = 0, maturedNp = 0, nonMaturedPerf = 0, nonMaturedNp = 0;
                                 data.forEach(item => {
@@ -1429,13 +1461,13 @@
 
                     Promise.allSettled(promises).finally(() => {
                         if (loader) loader.style.display = 'none';
+                        prefetchOtherDashboards();
                     });
                 }
 
                 function loadPaymentsStatusChart() {
                     const productParam = selectedProduct ? '?product=' + encodeURIComponent(selectedProduct) : '';
-                    return fetch('${pageContext.request.contextPath}/api/dashboard/payments-status-chart' + productParam)
-                        .then(checkApiResponse)
+                    return fetchCached('${pageContext.request.contextPath}/api/dashboard/payments-status-chart' + productParam)
                         .then(data => {
                             const months = [...new Set(data.map(i => i.month_name))];
 
@@ -1484,8 +1516,7 @@
 
                 function loadDpdComparisonChart() {
                     const productParam = selectedProduct ? '?product=' + encodeURIComponent(selectedProduct) : '';
-                    return fetch('${pageContext.request.contextPath}/api/dashboard/dpd-comparison-chart' + productParam)
-                        .then(checkApiResponse)
+                    return fetchCached('${pageContext.request.contextPath}/api/dashboard/dpd-comparison-chart' + productParam)
                         .then(data => {
                             const labels = data.map(i => i.month_name);
                             const dpd0 = data.map(item => Math.round(((item.dpd0_val || 0) / 1000000) * 100) / 100);
@@ -1574,6 +1605,35 @@
                             });
                         })
                         .catch(err => console.error("Error loading monthly DPD comparison:", err));
+                }
+
+                function prefetchOtherDashboards() {
+                    if (isPrefetching) return;
+                    isPrefetching = true;
+                    const allProducts = ['MF', 'LF', 'TF', 'TVF'];
+                    const otherProducts = allProducts.filter(p => p !== selectedProduct);
+
+                    let sequence = Promise.resolve();
+                    otherProducts.forEach(prod => {
+                        sequence = sequence.then(() => {
+                            const pParam = '?product=' + encodeURIComponent(prod);
+                            const mParam = selectedMonth ? '?product=' + encodeURIComponent(prod) + '&month=' + encodeURIComponent(selectedMonth) : pParam;
+
+                            const urls = [
+                                '${pageContext.request.contextPath}/api/dashboard/stats' + mParam,
+                                '${pageContext.request.contextPath}/api/dashboard/business-chart' + pParam,
+                                '${pageContext.request.contextPath}/api/dashboard/vendor-payments-chart' + mParam,
+                                '${pageContext.request.contextPath}/api/dashboard/payments-status-chart' + pParam,
+                                '${pageContext.request.contextPath}/api/dashboard/dpd-comparison-chart' + pParam,
+                                '${pageContext.request.contextPath}/api/dashboard/transaction-channel-chart' + mParam,
+                                '${pageContext.request.contextPath}/api/dashboard/matured-nonperforming' + mParam
+                            ];
+                            if (prod !== 'TF' && prod !== 'TVF') {
+                                urls.push('${pageContext.request.contextPath}/api/dashboard/device-status-charts' + mParam);
+                            }
+                            return Promise.allSettled(urls.map(url => fetchCached(url)));
+                        });
+                    });
                 }
 
                 document.addEventListener("DOMContentLoaded", function () {

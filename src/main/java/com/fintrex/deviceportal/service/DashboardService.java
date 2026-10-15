@@ -35,8 +35,8 @@ public class DashboardService {
         new Thread(this::refreshCache, "dashboard-cache-warmup-thread").start();
     }
 
-    // Refresh dashboard snapshot data cache (scheduled to run every 30 minutes: 1800000 ms)
-    @Scheduled(fixedRate = 1800000)
+    // Refresh dashboard snapshot data cache (scheduled to run every 1 hour: 3600000 ms)
+    @Scheduled(fixedRate = 3600000)
     public void scheduledRefresh() {
         if (!isSyncing.get()) {
             refreshCache();
@@ -57,43 +57,57 @@ public class DashboardService {
 
             Map<String, Object> newCache = new HashMap<>();
 
-            String[] products = { "MF", "LF", "RD", "TF" };
+            String[] products = { "MF", "LF", "TF", "TVF", "RD" };
+            String currentMonth = ZonedDateTime.now(ZoneId.of("Asia/Colombo")).format(DateTimeFormatter.ofPattern("yyyy-MM"));
+
             for (String product : products) {
-                String suffix = "_" + product.toUpperCase();
+                try {
+                    String suffix = "_" + product.toUpperCase();
+                    String monthSuffix = suffix + "_" + currentMonth;
 
-                Map<String, Object> stats = dashboardRepository.getDashboardStats(product);
-                newCache.put("stats" + suffix, stats != null ? stats : new HashMap<>());
+                    Map<String, Object> stats = dashboardRepository.getDashboardStats(product);
+                    newCache.put("stats" + suffix, stats != null ? stats : new HashMap<>());
+                    newCache.put("stats" + monthSuffix, stats != null ? stats : new HashMap<>());
 
-                List<Map<String, Object>> biz = dashboardRepository.getMonthWiseBusiness(product);
-                newCache.put("business" + suffix, biz != null ? biz : new ArrayList<>());
+                    List<Map<String, Object>> biz = dashboardRepository.getMonthWiseBusiness(product);
+                    newCache.put("business" + suffix, biz != null ? biz : new ArrayList<>());
 
-                List<Map<String, Object>> dpd = dashboardRepository.getMonthWiseDpdComparison(product);
-                newCache.put("dpdComparison" + suffix, dpd != null ? dpd : new ArrayList<>());
+                    List<Map<String, Object>> dpd = dashboardRepository.getMonthWiseDpdComparison(product);
+                    newCache.put("dpdComparison" + suffix, dpd != null ? dpd : new ArrayList<>());
 
-                Map<String, Object> status = dashboardRepository.getDeviceStatusCharts(product);
-                newCache.put("deviceStatus" + suffix, status != null ? status : new HashMap<>());
+                    Map<String, Object> status = dashboardRepository.getDeviceStatusCharts(product);
+                    newCache.put("deviceStatus" + suffix, status != null ? status : new HashMap<>());
+                    newCache.put("deviceStatus" + monthSuffix, status != null ? status : new HashMap<>());
 
-                List<Map<String, Object>> payments = dashboardRepository.getVendorPaymentsChannelChart(product);
-                newCache.put("vendorPayments" + suffix, payments != null ? payments : new ArrayList<>());
+                    List<Map<String, Object>> payments = dashboardRepository.getVendorPaymentsChannelChart(product);
+                    newCache.put("vendorPayments" + suffix, payments != null ? payments : new ArrayList<>());
+                    newCache.put("vendorPayments" + monthSuffix, payments != null ? payments : new ArrayList<>());
 
-                List<Map<String, Object>> coll = dashboardRepository.getCollectionsDealerWise(product);
-                newCache.put("collections" + suffix, coll != null ? coll : new ArrayList<>());
+                    List<Map<String, Object>> coll = dashboardRepository.getCollectionsDealerWise(product);
+                    newCache.put("collections" + suffix, coll != null ? coll : new ArrayList<>());
 
-                List<Map<String, Object>> prodBiz = dashboardRepository.getProductBusinessChart(product);
-                newCache.put("productBusiness" + suffix, prodBiz != null ? prodBiz : new ArrayList<>());
+                    List<Map<String, Object>> prodBiz = dashboardRepository.getProductBusinessChart(product);
+                    newCache.put("productBusiness" + suffix, prodBiz != null ? prodBiz : new ArrayList<>());
+                    newCache.put("productBusiness" + monthSuffix, prodBiz != null ? prodBiz : new ArrayList<>());
 
-                // New analysis cache
-                List<Map<String, Object>> maturedNp = dashboardRepository.getMaturedNonPerformingAnalysis(product);
-                newCache.put("maturedNp" + suffix, maturedNp != null ? maturedNp : new ArrayList<>());
+                    // New analysis cache
+                    List<Map<String, Object>> maturedNp = dashboardRepository.getMaturedNonPerformingAnalysis(product);
+                    newCache.put("maturedNp" + suffix, maturedNp != null ? maturedNp : new ArrayList<>());
+                    newCache.put("maturedNp" + monthSuffix, maturedNp != null ? maturedNp : new ArrayList<>());
 
-                List<Map<String, Object>> outstanding = dashboardRepository.getOutstandingAnalysis(product);
-                newCache.put("outstanding" + suffix, outstanding != null ? outstanding : new ArrayList<>());
+                    List<Map<String, Object>> outstanding = dashboardRepository.getOutstandingAnalysis(product);
+                    newCache.put("outstanding" + suffix, outstanding != null ? outstanding : new ArrayList<>());
+                    newCache.put("outstanding" + monthSuffix, outstanding != null ? outstanding : new ArrayList<>());
 
-                List<Map<String, Object>> txnChannel = dashboardRepository.getTransactionChannelChartData(product);
-                newCache.put("txnChannel" + suffix, txnChannel != null ? txnChannel : new ArrayList<>());
+                    List<Map<String, Object>> txnChannel = dashboardRepository.getTransactionChannelChartData(product);
+                    newCache.put("txnChannel" + suffix, txnChannel != null ? txnChannel : new ArrayList<>());
+                    newCache.put("txnChannel" + monthSuffix, txnChannel != null ? txnChannel : new ArrayList<>());
 
-                List<Map<String, Object>> pmtsStatus = dashboardRepository.getPaymentsStatusChart(product);
-                newCache.put("paymentsStatus" + suffix, pmtsStatus != null ? pmtsStatus : new ArrayList<>());
+                    List<Map<String, Object>> pmtsStatus = dashboardRepository.getPaymentsStatusChart(product);
+                    newCache.put("paymentsStatus" + suffix, pmtsStatus != null ? pmtsStatus : new ArrayList<>());
+                } catch (Exception pe) {
+                    System.err.println("Error warming cache for product " + product + ": " + pe.getMessage());
+                }
             }
 
             // Mobile lock arrears is specific to MF, but cached standalone or with suffix

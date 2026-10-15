@@ -384,22 +384,27 @@ table.dataTable thead th {
     width: 30% !important;
 }
 
-/* Travel Finance (TF) adjustment when Card 1 and Card 4 (Device Security Status) are hidden */
+/* Travel Finance (TF) and TV Finance (TVF) adjustment when Card 1 and Card 4 (Device Security Status) are hidden */
 #row-3-container.product-tf #mobile-lock-arrears-card,
-#row-3-container.product-tf #device-security-status-card {
+#row-3-container.product-tf #device-security-status-card,
+#row-3-container.product-tvf #mobile-lock-arrears-card,
+#row-3-container.product-tvf #device-security-status-card {
     display: none !important;
 }
-#row-3-container.product-tf #transaction-channels-card {
+#row-3-container.product-tf #transaction-channels-card,
+#row-3-container.product-tvf #transaction-channels-card {
     flex: 0 0 38% !important;
     max-width: 38% !important;
     width: 38% !important;
 }
-#row-3-container.product-tf #matured-np-card {
+#row-3-container.product-tf #matured-np-card,
+#row-3-container.product-tvf #matured-np-card {
     flex: 0 0 24% !important;
     max-width: 24% !important;
     width: 24% !important;
 }
-#row-3-container.product-tf #payments-status-wise-card {
+#row-3-container.product-tf #payments-status-wise-card,
+#row-3-container.product-tvf #payments-status-wise-card {
     flex: 0 0 38% !important;
     max-width: 38% !important;
     width: 38% !important;

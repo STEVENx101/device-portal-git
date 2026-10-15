@@ -25,6 +25,8 @@ public class DashboardRepository {
             return " AND (pr.product_code IN ('RD', '202') OR l.product IN ('RD', '202') OR pr.product_name LIKE '%Recurring Deposit%' OR pr.code_val = 202) ";
         } else if ("TF".equalsIgnoreCase(product) || "009".equalsIgnoreCase(product) || "9".equalsIgnoreCase(product)) {
             return " AND (pr.product_code IN ('TF', '009', '9') OR l.product IN ('TF', '009', '9') OR pr.product_name LIKE '%Travel Finance%' OR pr.code_val IN (9, 009)) ";
+        } else if ("TVF".equalsIgnoreCase(product) || "TV".equalsIgnoreCase(product) || "008".equalsIgnoreCase(product) || "8".equalsIgnoreCase(product)) {
+            return " AND (pr.product_code IN ('TVF', 'TV', '008', '8') OR l.product IN ('TVF', 'TV', '008', '8') OR pr.product_name LIKE '%TV Finance%' OR pr.code_val IN (8, 008)) ";
         }
         return "";
     }
@@ -519,7 +521,7 @@ public class DashboardRepository {
                     GROUP BY state_name
                     ORDER BY state_name
                 """, filter);
-        List<Map<String, Object>> laptopPerf = "MF".equalsIgnoreCase(product) ? new ArrayList<>()
+        List<Map<String, Object>> laptopPerf = !"LF".equalsIgnoreCase(product) ? new ArrayList<>()
                 : jdbcTemplate.queryForList(laptopPerfSql, latestPortfolioDate);
 
         String laptopLockSql = String.format("""
@@ -538,7 +540,7 @@ public class DashboardRepository {
                 """, filter);
 
         List<Map<String, Object>> laptopLock = new ArrayList<>();
-        if (!"MF".equalsIgnoreCase(product)) {
+        if ("LF".equalsIgnoreCase(product)) {
             List<Map<String, Object>> laptopLockRaw = jdbcTemplate.queryForList(laptopLockSql);
             for (Map<String, Object> raw : laptopLockRaw) {
                 Map<String, Object> map = new HashMap<>();
@@ -743,6 +745,8 @@ public class DashboardRepository {
             productFilter = "AND EXISTS (SELECT 1 FROM cbs.loan l LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val WHERE (vp.account_id = l.account_no OR vp.account_id = l.legacy_account_no) AND (pr.product_code IN ('RD', '202') OR l.product IN ('RD', '202') OR pr.code_val = 202))";
         } else if ("TF".equalsIgnoreCase(product) || "009".equalsIgnoreCase(product) || "9".equalsIgnoreCase(product)) {
             productFilter = "AND EXISTS (SELECT 1 FROM cbs.loan l LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val WHERE (vp.account_id = l.account_no OR vp.account_id = l.legacy_account_no) AND (pr.product_code IN ('TF', '009', '9') OR l.product IN ('TF', '009', '9') OR pr.code_val = 9))";
+        } else if ("TVF".equalsIgnoreCase(product) || "TV".equalsIgnoreCase(product) || "008".equalsIgnoreCase(product) || "8".equalsIgnoreCase(product)) {
+            productFilter = "AND EXISTS (SELECT 1 FROM cbs.loan l LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val WHERE (vp.account_id = l.account_no OR vp.account_id = l.legacy_account_no) AND (pr.product_code IN ('TVF', 'TV', '008', '8') OR l.product IN ('TVF', 'TV', '008', '8') OR pr.code_val IN (8, 008)))";
         }
 
         String sql = String.format("""
@@ -914,6 +918,8 @@ public class DashboardRepository {
             productFilter = "AND EXISTS (SELECT 1 FROM cbs.loan l LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val WHERE (vp.account_id = l.account_no OR vp.account_id = l.legacy_account_no) AND (pr.product_code IN ('RD', '202') OR l.product IN ('RD', '202') OR pr.code_val = 202))";
         } else if ("TF".equalsIgnoreCase(product) || "009".equalsIgnoreCase(product) || "9".equalsIgnoreCase(product)) {
             productFilter = "AND EXISTS (SELECT 1 FROM cbs.loan l LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val WHERE (vp.account_id = l.account_no OR vp.account_id = l.legacy_account_no) AND (pr.product_code IN ('TF', '009', '9') OR l.product IN ('TF', '009', '9') OR pr.code_val = 9))";
+        } else if ("TVF".equalsIgnoreCase(product) || "TV".equalsIgnoreCase(product) || "008".equalsIgnoreCase(product) || "8".equalsIgnoreCase(product)) {
+            productFilter = "AND EXISTS (SELECT 1 FROM cbs.loan l LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val WHERE (vp.account_id = l.account_no OR vp.account_id = l.legacy_account_no) AND (pr.product_code IN ('TVF', 'TV', '008', '8') OR l.product IN ('TVF', 'TV', '008', '8') OR pr.code_val IN (8, 008)))";
         }
 
         String sql = String.format("""
@@ -950,6 +956,8 @@ public class DashboardRepository {
             productFilter = "AND EXISTS (SELECT 1 FROM cbs.loan l LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val WHERE t.account_no = l.account_no AND (pr.product_code IN ('RD', '202') OR l.product IN ('RD', '202') OR pr.code_val = 202))";
         } else if ("TF".equalsIgnoreCase(product) || "009".equalsIgnoreCase(product) || "9".equalsIgnoreCase(product)) {
             productFilter = "AND EXISTS (SELECT 1 FROM cbs.loan l LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val WHERE t.account_no = l.account_no AND (pr.product_code IN ('TF', '009', '9') OR l.product IN ('TF', '009', '9') OR pr.code_val = 9))";
+        } else if ("TVF".equalsIgnoreCase(product) || "TV".equalsIgnoreCase(product) || "008".equalsIgnoreCase(product) || "8".equalsIgnoreCase(product)) {
+            productFilter = "AND EXISTS (SELECT 1 FROM cbs.loan l LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val WHERE t.account_no = l.account_no AND (pr.product_code IN ('TVF', 'TV', '008', '8') OR l.product IN ('TVF', 'TV', '008', '8') OR pr.code_val IN (8, 008)))";
         }
 
         String targetMonth = (month != null && month.matches("^\\d{4}-\\d{2}$"))
