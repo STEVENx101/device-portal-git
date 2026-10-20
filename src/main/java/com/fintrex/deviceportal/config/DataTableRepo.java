@@ -16,12 +16,10 @@ public class DataTableRepo {
     @Autowired
     NamedParameterJdbcTemplate jdbc;
 
-    private final Pattern columnSelectorPattern =
-            Pattern.compile("(?<=select)(.*?)(?=from\\s*(?![^(]*\\)))",
-                    Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+    private final Pattern columnSelectorPattern = Pattern.compile("(?<=select)(.*?)(?=from\\s*(?![^(]*\\)))",
+            Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 
-    private final Pattern removeAsPattern =
-            Pattern.compile("\\bAS\\b\\s+[`']?(\\w+)[`']?", Pattern.CASE_INSENSITIVE);
+    private final Pattern removeAsPattern = Pattern.compile("\\bAS\\b\\s+[`']?(\\w+)[`']?", Pattern.CASE_INSENSITIVE);
 
     public DataTableResponse dataTable(DataTableRequest request, String sql, Object... args) {
         return getDataTable(request, sql, false, null, args);
@@ -146,11 +144,10 @@ public class DataTableRepo {
         }
 
         // FINAL PAGINATED QUERY
-        String finalQuery =
-                "SELECT * FROM (" + innerQuery + ") t WHERE 1=1 "
-                        + search
-                        + orderBy
-                        + " LIMIT " + param.getStart() + "," + limit;
+        String finalQuery = "SELECT * FROM (" + innerQuery + ") t WHERE 1=1 "
+                + search
+                + orderBy
+                + " LIMIT " + param.getStart() + "," + limit;
 
         List<Map<String, Object>> data = isNamedParam
                 ? jdbc.queryForList(finalQuery, paramMap)
@@ -163,10 +160,9 @@ public class DataTableRepo {
                 && searchval.getValue() != null
                 && !searchval.getValue().isEmpty()) {
 
-            String filQry =
-                    "SELECT COUNT(*) FROM (" +
-                            "SELECT * FROM (" + innerQuery + ") t WHERE 1=1 " + search +
-                            ") tb";
+            String filQry = "SELECT COUNT(*) FROM (" +
+                    "SELECT * FROM (" + innerQuery + ") t WHERE 1=1 " + search +
+                    ") tb";
 
             int filtered = isNamedParam
                     ? jdbc.queryForObject(filQry, paramMap, Integer.class)
