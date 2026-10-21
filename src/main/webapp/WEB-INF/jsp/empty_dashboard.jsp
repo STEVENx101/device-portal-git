@@ -367,11 +367,15 @@
                                         style="border-left: 3px solid #2563eb !important; cursor: pointer; transition: all 0.2s ease-in-out;">
                                         <div class="card-body p-2 d-flex flex-column justify-content-between">
                                             <div>
-                                                <span class="card-title-sub text-muted">DPD 0 PORTFOLIO</span>
+                                                <div class="d-flex align-items-center justify-content-between">
+                                                    <span class="card-title-sub text-muted">DPD 0 PORTFOLIO</span>
+                                                    <span class="badge rounded-pill badge-soft-primary" id="kpi-dpd-zero-pct"
+                                                        style="font-size: 0.62rem; padding: 2px 5px;">0.00%</span>
+                                                </div>
                                                 <div class="card-value text-primary" id="kpi-dpd-zero-amount">0.00 Mn
                                                 </div>
                                                 <div class="card-detail-text text-muted" id="kpi-dpd-zero-count">0
-                                                    Accounts</div>
+                                                    Accounts (0.00%)</div>
                                             </div>
                                         </div>
                                     </div>
@@ -382,11 +386,15 @@
                                         style="border-left: 3px solid #dc2626 !important; cursor: pointer; transition: all 0.2s ease-in-out;">
                                         <div class="card-body p-2 d-flex flex-column justify-content-between">
                                             <div>
-                                                <span class="card-title-sub text-muted">Arrears Portfolio</span>
+                                                <div class="d-flex align-items-center justify-content-between">
+                                                    <span class="card-title-sub text-muted">Arrears Portfolio</span>
+                                                    <span class="badge rounded-pill badge-soft-danger" id="kpi-perf-arrears-pct"
+                                                        style="font-size: 0.62rem; padding: 2px 5px;">0.00%</span>
+                                                </div>
                                                 <div class="card-value text-danger" id="kpi-perf-arrears-amount">0.00 Mn
                                                 </div>
                                                 <div class="card-detail-text text-muted" id="kpi-perf-arrears-count">0
-                                                    Accounts</div>
+                                                    Accounts (0.00%)</div>
                                             </div>
                                         </div>
                                     </div>
@@ -397,9 +405,13 @@
                                         style="border-left: 3px solid #ef4444 !important; cursor: pointer; transition: all 0.2s ease-in-out;">
                                         <div class="card-body p-2 d-flex flex-column justify-content-between">
                                             <div>
-                                                <span class="card-title-sub text-muted">NPL PORTFOLIO</span>
+                                                <div class="d-flex align-items-center justify-content-between">
+                                                    <span class="card-title-sub text-muted">NPL PORTFOLIO</span>
+                                                    <span class="badge rounded-pill badge-soft-danger" id="kpi-npl-pct"
+                                                        style="font-size: 0.62rem; padding: 2px 5px;">0.00%</span>
+                                                </div>
                                                 <div class="card-value text-danger" id="kpi-npl-exposure">0.00 Mn</div>
-                                                <div class="card-detail-text text-muted" id="kpi-npl-count">0 Accounts
+                                                <div class="card-detail-text text-muted" id="kpi-npl-count">0 Accounts (0.00%)
                                                 </div>
                                             </div>
                                         </div>
@@ -971,20 +983,53 @@
                                 document.getElementById("kpi-month-count").innerText = formatNum(data.nMonthCount || 0) + " Accounts";
                                 document.getElementById("kpi-month-amount").innerText = formatLKR(data.nMonthAmount || 0);
 
-                                document.getElementById("kpi-portfolio-amount").innerText = formatLKR(data.nPortfolioAmount || 0);
-                                document.getElementById("kpi-portfolio-count").innerText = formatNum(data.nPortfolioCount || 0) + " Accounts";
+                                const totalPortAmount = Number(data.nPortfolioAmount || 0);
+                                const totalPortCount = Number(data.nPortfolioCount || 0);
 
-                                document.getElementById("kpi-npl-exposure").innerText = formatLKR(data.nNplExposure || 0);
-                                document.getElementById("kpi-npl-count").innerText = formatNum(data.nNplCount || 0) + " Accounts";
+                                document.getElementById("kpi-portfolio-amount").innerText = formatLKR(totalPortAmount);
+                                document.getElementById("kpi-portfolio-count").innerText = formatNum(totalPortCount) + " Accounts";
+
+                                // 3. DPD 0 Portfolio
+                                const dpd0Amount = Number(data.dpdZeroPortfolioAmount || 0);
+                                const dpd0Count = Number(data.dpdZeroPortfolioCount || 0);
+                                const dpd0ValPct = totalPortAmount > 0 ? ((dpd0Amount / totalPortAmount) * 100).toFixed(2) : "0.00";
+                                const dpd0CntPct = totalPortCount > 0 ? ((dpd0Count / totalPortCount) * 100).toFixed(2) : "0.00";
+                                document.getElementById("kpi-dpd-zero-amount").innerText = formatLKR(dpd0Amount);
+                                const dpd0PctEl = document.getElementById("kpi-dpd-zero-pct");
+                                if (dpd0PctEl) {
+                                    dpd0PctEl.innerText = dpd0ValPct + "%";
+                                    dpd0PctEl.title = "Value share: " + dpd0ValPct + "% of Active Portfolio";
+                                }
+                                document.getElementById("kpi-dpd-zero-count").innerText = formatNum(dpd0Count) + " Accounts (" + dpd0CntPct + "%)";
+
+                                // 4. Arrears Portfolio
+                                const perfArrearsAmount = Number(data.perfArrearsAmount || 0);
+                                const perfArrearsCount = Number(data.perfArrearsCount || 0);
+                                const arrearsValPct = totalPortAmount > 0 ? ((perfArrearsAmount / totalPortAmount) * 100).toFixed(2) : "0.00";
+                                const arrearsCntPct = totalPortCount > 0 ? ((perfArrearsCount / totalPortCount) * 100).toFixed(2) : "0.00";
+                                document.getElementById("kpi-perf-arrears-amount").innerText = formatLKR(perfArrearsAmount);
+                                const arrearsPctEl = document.getElementById("kpi-perf-arrears-pct");
+                                if (arrearsPctEl) {
+                                    arrearsPctEl.innerText = arrearsValPct + "%";
+                                    arrearsPctEl.title = "Value share: " + arrearsValPct + "% of Active Portfolio";
+                                }
+                                document.getElementById("kpi-perf-arrears-count").innerText = formatNum(perfArrearsCount) + " Accounts (" + arrearsCntPct + "%)";
+
+                                // 5. NPL Portfolio
+                                const nplAmount = Number(data.nNplExposure || 0);
+                                const nplCount = Number(data.nNplCount || 0);
+                                const nplValPct = totalPortAmount > 0 ? ((nplAmount / totalPortAmount) * 100).toFixed(2) : "0.00";
+                                const nplCntPct = totalPortCount > 0 ? ((nplCount / totalPortCount) * 100).toFixed(2) : "0.00";
+                                document.getElementById("kpi-npl-exposure").innerText = formatLKR(nplAmount);
+                                const nplPctEl = document.getElementById("kpi-npl-pct");
+                                if (nplPctEl) {
+                                    nplPctEl.innerText = nplValPct + "%";
+                                    nplPctEl.title = "NPL Ratio: " + nplValPct + "% of Active Portfolio";
+                                }
+                                document.getElementById("kpi-npl-count").innerText = formatNum(nplCount) + " Accounts (" + nplCntPct + "%)";
 
                                 document.getElementById("kpi-settled-amount").innerText = formatLKR(data.settledAmount || 0);
                                 document.getElementById("kpi-settled-count").innerText = formatNum(data.settledCount || 0) + " Accounts";
-
-                                document.getElementById("kpi-perf-arrears-amount").innerText = formatLKR(data.perfArrearsAmount || 0);
-                                document.getElementById("kpi-perf-arrears-count").innerText = formatNum(data.perfArrearsCount || 0) + " Accounts";
-
-                                document.getElementById("kpi-dpd-zero-amount").innerText = formatLKR(data.dpdZeroPortfolioAmount || 0);
-                                document.getElementById("kpi-dpd-zero-count").innerText = formatNum(data.dpdZeroPortfolioCount || 0) + " Accounts";
 
                                 // YTD & Overall Business
                                 document.getElementById("kpi-ytd-amount").innerText = formatLKR(data.nYtdAmount || 0);
