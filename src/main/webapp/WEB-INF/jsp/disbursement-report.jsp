@@ -234,32 +234,40 @@
                         </div>
                     </div>
 
-                    <!-- Summary KPI Cards (Current Month & Year to Date) -->
+                    <!-- Summary KPI Cards (Current Month & Financial Year to Date) -->
                     <div class="row row-cols-1 row-cols-md-2 g-3 mb-3">
                         <!-- Current / Selected Month Card -->
                         <div class="col">
                             <div class="kpi-card border-start border-4 border-primary h-100">
-                                <div class="kpi-title">
-                                    <i class="fas fa-calendar-alt text-primary me-2"></i>
-                                    <span id="kpiMonthLabel">CURRENT MONTH</span>
+                                <div class="kpi-title d-flex justify-content-between align-items-center">
+                                    <span>
+                                        <i class="fas fa-calendar-alt text-primary me-2"></i>
+                                        <span id="kpiMonthLabel">CURRENT MONTH</span>
+                                    </span>
+                                    <span class="badge bg-soft-primary text-primary fs--2" id="kpiMonthBadge">Monthly</span>
                                 </div>
-                                <div class="kpi-value text-primary" id="kpiMonthAmount">LKR 0.00</div>
+                                <div class="kpi-value text-primary" id="kpiMonthAmount" title="0.00">0.00 Mn</div>
                                 <div class="kpi-subtext" id="kpiMonthSub">
                                     <span class="badge bg-soft-primary"><i class="fas fa-file-contract me-1"></i><span id="kpiMonthCount">0</span> Loans</span>
+                                    <span class="text-500 fs--2 ms-1" id="kpiMonthPeriodText">Selected Month</span>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Year to Date (YTD) Card -->
+                        <!-- Financial Year to Date (FYTD) Card -->
                         <div class="col">
                             <div class="kpi-card border-start border-4 border-success h-100">
-                                <div class="kpi-title">
-                                    <i class="fas fa-chart-line text-success me-2"></i>
-                                    <span id="kpiYtdLabel">YEAR TO DATE</span>
+                                <div class="kpi-title d-flex justify-content-between align-items-center">
+                                    <span>
+                                        <i class="fas fa-chart-line text-success me-2"></i>
+                                        <span id="kpiYtdLabel">FINANCIAL YEAR TO DATE</span>
+                                    </span>
+                                    <span class="badge bg-soft-success text-success fs--2" id="kpiFyBadge">Financial Year</span>
                                 </div>
-                                <div class="kpi-value text-success" id="kpiYtdAmount">LKR 0.00</div>
+                                <div class="kpi-value text-success" id="kpiYtdAmount" title="0.00">0.00 Mn</div>
                                 <div class="kpi-subtext" id="kpiYtdSub">
                                     <span class="badge bg-soft-success"><i class="fas fa-check-circle me-1"></i><span id="kpiYtdCount">0</span> Total Loans</span>
+                                    <span class="text-500 fs--2 ms-1" id="kpiFyPeriodText">Financial Year (Apr - Mar)</span>
                                 </div>
                             </div>
                         </div>
@@ -317,14 +325,6 @@
 
                     <!-- Table Card -->
                     <div class="card glass-card mb-3" style="position: relative; z-index: 1;">
-                        <div class="card-header border-bottom py-2 d-flex justify-content-between align-items-center">
-                            <h6 class="mb-0 fw-bold text-900">
-                                <i class="fas fa-table me-2 text-primary"></i>Disbursed Loans Record
-                            </h6>
-                            <span class="fs--2 text-muted">
-                                <i class="fas fa-info-circle me-1"></i>Click any loan to open Facility Information
-                            </span>
-                        </div>
                         <div class="card-body p-3">
                             <div class="table-responsive scrollbar">
                                 <table class="table table-hover table-striped align-middle mb-0 fs--1 w-100" id="tableDisbursement">
@@ -413,13 +413,21 @@
                 return 'LKR ' + Number(val).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             }
 
+            function formatCurrencyInMillions(val) {
+                if (val === null || val === undefined || isNaN(val)) return '0.00 Mn';
+                const millions = Number(val) / 1000000.0;
+                return millions.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' Mn';
+            }
+
             function loadSummaryCards() {
                 const filters = getFilters();
                 if (!filters.products || filters.products.length === 0) {
-                    $('#kpiMonthAmount').text('LKR 0.00');
+                    $('#kpiMonthAmount').text('0.00 Mn').attr('title', '0.00');
                     $('#kpiMonthCount').text('0');
-                    $('#kpiYtdAmount').text('LKR 0.00');
+                    $('#kpiYtdAmount').text('0.00 Mn').attr('title', '0.00');
                     $('#kpiYtdCount').text('0');
+                    $('#kpiFyBadge').text('Financial Year');
+                    $('#kpiFyPeriodText').text('Financial Year (Apr - Mar)');
                     return;
                 }
 
@@ -433,18 +441,25 @@
                         // Month KPI
                         $('#kpiMonthLabel').text(data.curMonthLabel ? data.curMonthLabel.toUpperCase() : 'CURRENT MONTH');
                         $('#badgeMonthText').text(data.curMonthLabel || 'Selected Month');
-                        $('#kpiMonthAmount').text(formatCurrency(data.curMonthAmount));
+                        $('#kpiMonthAmount').text(formatCurrencyInMillions(data.curMonthAmount)).attr('title', formatCurrency(data.curMonthAmount));
                         $('#kpiMonthCount').text(Number(data.curMonthCount || 0).toLocaleString());
+                        $('#kpiMonthPeriodText').text(data.curMonthLabel || 'Selected Month');
 
-                        // YTD KPI (strictly "YEAR TO DATE")
-                        $('#kpiYtdLabel').text('YEAR TO DATE');
-                        $('#kpiYtdAmount').text(formatCurrency(data.ytdAmount));
+                        // Financial Year to Date KPI
+                        $('#kpiYtdLabel').text(data.ytdLabel || 'FINANCIAL YEAR TO DATE');
+                        $('#kpiYtdAmount').text(formatCurrencyInMillions(data.ytdAmount)).attr('title', formatCurrency(data.ytdAmount));
                         $('#kpiYtdCount').text(Number(data.ytdCount || 0).toLocaleString());
+                        if (data.fyLabel) {
+                            $('#kpiFyBadge').text(data.fyLabel);
+                        }
+                        if (data.fyStartYear) {
+                            $('#kpiFyPeriodText').text('Financial Year (From 01 Apr ' + data.fyStartYear + ')');
+                        }
                     })
                     .catch(err => {
                         console.error("Error loading disbursement summary cards:", err);
-                        $('#kpiMonthAmount').text('LKR 0.00');
-                        $('#kpiYtdAmount').text('LKR 0.00');
+                        $('#kpiMonthAmount').text('0.00 Mn');
+                        $('#kpiYtdAmount').text('0.00 Mn');
                     });
             }
 
@@ -639,10 +654,15 @@
                         productChoices.removeActiveItems();
                     }
                     $('#productAlert').addClass('d-none').removeClass('d-flex');
-                    $('#kpiMonthAmount').text('LKR 0.00');
+                    $('#kpiMonthAmount').text('0.00 Mn').attr('title', '0.00');
                     $('#kpiMonthCount').text('0');
-                    $('#kpiYtdAmount').text('LKR 0.00');
+                    $('#kpiYtdAmount').text('0.00 Mn').attr('title', '0.00');
                     $('#kpiYtdCount').text('0');
+                    $('#kpiMonthLabel').text('CURRENT MONTH');
+                    $('#kpiYtdLabel').text('FINANCIAL YEAR TO DATE');
+                    $('#kpiFyBadge').text('Financial Year');
+                    $('#kpiFyPeriodText').text('Financial Year (Apr - Mar)');
+                    $('#kpiMonthPeriodText').text('Selected Month');
                     $('#badgeMonthText').text('Current Month');
                     dtDisbursement.clear().draw();
                 });

@@ -2746,8 +2746,19 @@ public class CbsReportService {
         int year = Integer.parseInt(parts[0]);
         int mon = Integer.parseInt(parts[1]);
 
+        int fyStartYear;
+        int fyEndYear;
+        if (mon >= 4) {
+            fyStartYear = year;
+            fyEndYear = year + 1;
+        } else {
+            fyStartYear = year - 1;
+            fyEndYear = year;
+        }
+
         String curMonthStart = String.format("%04d-%02d-01", year, mon);
-        String ytdStart = String.format("%04d-01-01", year);
+        String ytdStart = String.format("%04d-04-01", fyStartYear);
+        String fyLabel = String.format("FY %d/%s", fyStartYear, String.valueOf(fyEndYear).substring(2));
 
         Map<String, Object> params = new HashMap<>();
         params.put("curMonthStart", curMonthStart);
@@ -2798,7 +2809,10 @@ public class CbsReportService {
                 result.put("ytdAmount", ytdAmount);
                 result.put("ytdCount", ytdCount);
                 result.put("ytdAvg", ytdAvg);
-                result.put("ytdLabel", "YEAR TO DATE");
+                result.put("ytdLabel", "FINANCIAL YEAR TO DATE");
+                result.put("fyLabel", fyLabel);
+                result.put("fyStartYear", fyStartYear);
+                result.put("fyEndYear", fyEndYear);
 
                 result.put("avgRate", curMonthAvgRate);
                 result.put("avgPeriod", Math.round(curMonthAvgPeriod));
@@ -2812,7 +2826,10 @@ public class CbsReportService {
             result.put("ytdAmount", 0.0);
             result.put("ytdCount", 0);
             result.put("ytdAvg", 0.0);
-            result.put("ytdLabel", "YEAR TO DATE");
+            result.put("ytdLabel", "FINANCIAL YEAR TO DATE");
+            result.put("fyLabel", fyLabel);
+            result.put("fyStartYear", fyStartYear);
+            result.put("fyEndYear", fyEndYear);
             result.put("avgRate", 0.0);
             result.put("avgPeriod", 0);
         }
