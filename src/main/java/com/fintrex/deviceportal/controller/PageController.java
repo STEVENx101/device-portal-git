@@ -154,5 +154,10 @@ public class PageController {
         return "vendor-payments-exception";
     }
 
+    @GetMapping("/disbursement-report")
+    public String disbursementReport() {
+        return "disbursement-report";
+    }
+
 }
 

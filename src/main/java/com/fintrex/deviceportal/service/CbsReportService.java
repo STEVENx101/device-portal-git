@@ -40,6 +40,7 @@ public class CbsReportService {
         initReportLogTable();
         initDownloadScreen();
         initAgreementScreen();
+        initDisbursementScreen();
         initRecoveryScreens();
         initVendorPaymentScreens();
         initPaymentUploadScreens();
@@ -2704,5 +2705,216 @@ public class CbsReportService {
         } catch (Exception e) {
             log.error("Payment Staging configuration database operation failed", e);
         }
+    }
+
+    private void initDisbursementScreen() {
+        try {
+            jdbc.getJdbcTemplate().execute("""
+                        INSERT INTO device_portal.screen (name, path, icon, group_name)
+                        SELECT 'Disbursement Report', '/disbursement-report', 'fas fa-hand-holding-usd', 'General'
+                        WHERE NOT EXISTS (SELECT 1 FROM device_portal.screen WHERE path = '/disbursement-report')
+                    """);
+        } catch (Exception e) {
+            log.error("Disbursement report configuration database operation failed", e);
+        }
+    }
+
+    public DataTableResponse fetchDisbursementReport(DataTableRequest request) {
+        Map<String, Object> params = new HashMap<>();
+        String sql = buildDisbursementReportQuery(request.getData(), params);
+        return executePagedReport(request, sql, params);
+    }
+
+    public List<Map<String, Object>> getDisbursementReportData(String month, List<String> products) {
+        Map<String, Object> filterMap = new HashMap<>();
+        filterMap.put("month", month);
+        filterMap.put("products", products);
+        Map<String, Object> params = new HashMap<>();
+        String sql = buildDisbursementReportQuery(filterMap, params);
+        return executeDownloadReport(sql, params);
+    }
+
+    public Map<String, Object> getDisbursementSummary(String month, List<String> products) {
+        Map<String, Object> result = new HashMap<>();
+
+        java.time.LocalDate now = java.time.LocalDate.now();
+        String targetMonth = (month != null && !month.trim().isEmpty() && !month.equalsIgnoreCase("ALL"))
+                ? month.trim()
+                : String.format("%04d-%02d", now.getYear(), now.getMonthValue());
+
+        String[] parts = targetMonth.split("-");
+        int year = Integer.parseInt(parts[0]);
+        int mon = Integer.parseInt(parts[1]);
+
+        String curMonthStart = String.format("%04d-%02d-01", year, mon);
+        String ytdStart = String.format("%04d-01-01", year);
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("curMonthStart", curMonthStart);
+        params.put("ytdStart", ytdStart);
+
+        String productCondition = "";
+        if (products != null && !products.isEmpty()) {
+            productCondition = " AND (pr.product_code IN (:products) OR l.product IN (:products))";
+            params.put("products", products);
+        }
+
+        String sql = """
+            SELECT
+                COALESCE(SUM(CASE WHEN l.disbursed_date >= :curMonthStart AND l.disbursed_date < DATE_ADD(STR_TO_DATE(:curMonthStart, '%Y-%m-%d'), INTERVAL 1 MONTH) THEN l.loan_amount ELSE 0 END), 0) AS cur_month_amount,
+                COALESCE(SUM(CASE WHEN l.disbursed_date >= :curMonthStart AND l.disbursed_date < DATE_ADD(STR_TO_DATE(:curMonthStart, '%Y-%m-%d'), INTERVAL 1 MONTH) THEN 1 ELSE 0 END), 0) AS cur_month_count,
+                COALESCE(SUM(CASE WHEN l.disbursed_date >= :ytdStart AND l.disbursed_date < DATE_ADD(STR_TO_DATE(:curMonthStart, '%Y-%m-%d'), INTERVAL 1 MONTH) THEN l.loan_amount ELSE 0 END), 0) AS ytd_amount,
+                COALESCE(SUM(CASE WHEN l.disbursed_date >= :ytdStart AND l.disbursed_date < DATE_ADD(STR_TO_DATE(:curMonthStart, '%Y-%m-%d'), INTERVAL 1 MONTH) THEN 1 ELSE 0 END), 0) AS ytd_count,
+                COALESCE(AVG(CASE WHEN l.disbursed_date >= :curMonthStart AND l.disbursed_date < DATE_ADD(STR_TO_DATE(:curMonthStart, '%Y-%m-%d'), INTERVAL 1 MONTH) THEN l.rate ELSE NULL END), 0) AS cur_month_avg_rate,
+                COALESCE(AVG(CASE WHEN l.disbursed_date >= :curMonthStart AND l.disbursed_date < DATE_ADD(STR_TO_DATE(:curMonthStart, '%Y-%m-%d'), INTERVAL 1 MONTH) THEN l.period ELSE NULL END), 0) AS cur_month_avg_period
+            FROM cbs.loan l
+            LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val OR pr.product_code = l.product
+            WHERE l.disbursed_date >= :ytdStart
+              AND l.disbursed_date < DATE_ADD(STR_TO_DATE(:curMonthStart, '%Y-%m-%d'), INTERVAL 1 MONTH)
+        """ + productCondition;
+
+        try {
+            List<Map<String, Object>> rows = jdbc.queryForList(sql, params);
+            if (rows != null && !rows.isEmpty()) {
+                Map<String, Object> row = rows.get(0);
+                double curMonthAmount = ((Number) row.getOrDefault("cur_month_amount", 0)).doubleValue();
+                long curMonthCount = ((Number) row.getOrDefault("cur_month_count", 0)).longValue();
+                double ytdAmount = ((Number) row.getOrDefault("ytd_amount", 0)).doubleValue();
+                long ytdCount = ((Number) row.getOrDefault("ytd_count", 0)).longValue();
+                double curMonthAvgRate = ((Number) row.getOrDefault("cur_month_avg_rate", 0)).doubleValue();
+                double curMonthAvgPeriod = ((Number) row.getOrDefault("cur_month_avg_period", 0)).doubleValue();
+
+                double curMonthAvg = curMonthCount > 0 ? (curMonthAmount / curMonthCount) : 0.0;
+                double ytdAvg = ytdCount > 0 ? (ytdAmount / ytdCount) : 0.0;
+
+                java.time.Month monthEnum = java.time.Month.of(mon);
+                String monthName = monthEnum.name().substring(0, 1).toUpperCase() + monthEnum.name().substring(1).toLowerCase();
+
+                result.put("curMonthAmount", curMonthAmount);
+                result.put("curMonthCount", curMonthCount);
+                result.put("curMonthAvg", curMonthAvg);
+                result.put("curMonthLabel", monthName + " " + year);
+
+                result.put("ytdAmount", ytdAmount);
+                result.put("ytdCount", ytdCount);
+                result.put("ytdAvg", ytdAvg);
+                result.put("ytdLabel", "YTD (Jan - " + monthName + " " + year + ")");
+
+                result.put("avgRate", curMonthAvgRate);
+                result.put("avgPeriod", Math.round(curMonthAvgPeriod));
+            }
+        } catch (Exception e) {
+            log.error("Error calculating disbursement summary", e);
+            result.put("curMonthAmount", 0.0);
+            result.put("curMonthCount", 0);
+            result.put("curMonthAvg", 0.0);
+            result.put("curMonthLabel", targetMonth);
+            result.put("ytdAmount", 0.0);
+            result.put("ytdCount", 0);
+            result.put("ytdAvg", 0.0);
+            result.put("ytdLabel", "YTD " + year);
+            result.put("avgRate", 0.0);
+            result.put("avgPeriod", 0);
+        }
+
+        return result;
+    }
+
+    private String buildDisbursementReportQuery(Object rawFilter, Map<String, Object> params) {
+        String subQuery = """
+                SELECT
+                    l.application_no,
+                    l.account_no,
+                    l.account_series AS `series`,
+                    l.account_status,
+                    l.legacy_account_no,
+                    l.repayment_account,
+                    l.product,
+                    COALESCE(pr.product_name, l.product) AS `product_name`,
+                    l.branch,
+                    COALESCE(br.branch_name, l.branch) AS `branch_name`,
+                    l.CLIENT AS `client_code`,
+                    c.full_name AS `client_name`,
+                    c.id_no AS `client_nic`,
+                    DATE_FORMAT(l.start_date, '%Y-%m-%d') AS `start_date`,
+                    DATE_FORMAT(l.maturity_date, '%Y-%m-%d') AS `maturity_date`,
+                    DATE_FORMAT(l.disbursed_date, '%Y-%m-%d') AS `disbursed_date`,
+                    DATE_FORMAT(l.closed_date, '%Y-%m-%d') AS `closed_date`,
+                    l.loan_amount,
+                    l.rate,
+                    l.PERIOD AS `period`,
+                    l.rental,
+                    l.due_day,
+                    l.sector,
+                    l.sub_sector,
+                    l.marketing_officer,
+                    l.guarantor1,
+                    l.guarantor2,
+                    l.guarantor3,
+                    l.guarantor4,
+                    l.guarantor5,
+                    l.SECURITY AS `security`,
+                    l.vendor,
+                    l.key_account
+                FROM cbs.loan l
+                LEFT JOIN cbs.client c ON l.CLIENT = c.client_code
+                LEFT JOIN cbs.branch br ON CAST(l.branch AS UNSIGNED) = br.branch_code OR br.legacy_branch_code = l.branch
+                LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val OR pr.product_code = l.product
+                WHERE l.disbursed_date IS NOT NULL""";
+
+        if (rawFilter instanceof Map) {
+            Map<?, ?> filter = (Map<?, ?>) rawFilter;
+            String month = (String) filter.get("month");
+            if (month != null && !month.trim().isEmpty() && !month.equalsIgnoreCase("ALL")) {
+                subQuery += " AND l.disbursed_date >= :monthStart AND l.disbursed_date < DATE_ADD(STR_TO_DATE(:monthStart, '%Y-%m-%d'), INTERVAL 1 MONTH)";
+                params.put("monthStart", month.trim() + "-01");
+            }
+
+            Object productsObj = filter.get("products");
+            if (productsObj instanceof List) {
+                List<?> products = (List<?>) productsObj;
+                if (!products.isEmpty()) {
+                    subQuery += " AND (pr.product_code IN (:products) OR l.product IN (:products))";
+                    params.put("products", products);
+                }
+            }
+        }
+
+        return """
+                SELECT
+                    t.application_no,
+                    t.account_no,
+                    t.series,
+                    t.account_status,
+                    t.legacy_account_no,
+                    t.repayment_account,
+                    t.product,
+                    t.product_name,
+                    t.branch,
+                    t.branch_name,
+                    t.client_code,
+                    t.client_name,
+                    t.client_nic,
+                    t.start_date,
+                    t.maturity_date,
+                    t.disbursed_date,
+                    t.closed_date,
+                    t.loan_amount,
+                    t.rate,
+                    t.period,
+                    t.rental,
+                    t.due_day,
+                    t.sector,
+                    t.sub_sector,
+                    t.marketing_officer,
+                    t.guarantor1,
+                    t.guarantor2,
+                    t.guarantor3,
+                    t.guarantor4,
+                    t.guarantor5,
+                    t.security,
+                    t.vendor,
+                    t.key_account
+                FROM (""" + subQuery + ") t ORDER BY t.disbursed_date DESC, t.account_no DESC";
     }
 }

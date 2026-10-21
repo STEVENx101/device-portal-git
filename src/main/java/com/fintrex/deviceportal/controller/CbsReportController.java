@@ -464,6 +464,59 @@ public class CbsReportController {
         writeExcel(response, xlsxFilename, headers, keys, data);
     }
 
+    @PostMapping("/disbursement")
+    public DataTableResponse getDisbursementReport(@RequestBody DataTableRequest request, HttpSession session) {
+        com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");
+        String username = currentUser != null ? currentUser.getUsername() : "system";
+        String filtersStr = request.getData() != null ? request.getData().toString() : "none";
+        cbsReportService.logReportActivity(username, "Disbursement Report", "VIEW", filtersStr);
+        return cbsReportService.fetchDisbursementReport(request);
+    }
+
+    @GetMapping("/disbursement/summary")
+    public ResponseEntity<Map<String, Object>> getDisbursementSummary(
+            @RequestParam(value = "month", required = false) String month,
+            @RequestParam(value = "products", required = false) List<String> products) {
+        return ResponseEntity.ok(cbsReportService.getDisbursementSummary(month, products));
+    }
+
+    @GetMapping("/disbursement/download")
+    public void downloadDisbursementReport(
+            @RequestParam(value = "month", required = false) String month,
+            @RequestParam(value = "products", required = false) List<String> products,
+            @RequestParam(value = "downloadToken", required = false) String downloadToken,
+            HttpSession session,
+            HttpServletResponse response) throws Exception {
+        verifyDownloadPermission(session, response);
+        com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");
+        String username = currentUser != null ? currentUser.getUsername() : "system";
+        String filtersStr = String.format("month=%s, products=%s", month, products);
+        cbsReportService.logReportActivity(username, "Disbursement Report", "DOWNLOAD", filtersStr);
+
+        setDownloadTokenCookie(response, downloadToken);
+        List<Map<String, Object>> data = cbsReportService.getDisbursementReportData(month, products);
+        String xlsxFilename = "disbursement_report.xlsx";
+        String[] headers = {
+            "Application No", "Account No", "Series", "Account Status", "Legacy Account No",
+            "Repayment Account", "Product Code", "Product Name", "Branch Code", "Branch Name",
+            "Client Code", "Customer Name", "Client NIC", "Start Date", "Maturity Date",
+            "Disbursed Date", "Closed Date", "Loan Amount", "Rate (%)", "Period",
+            "Rental", "Due Day", "Sector", "Sub Sector", "Marketing Officer",
+            "Guarantor 1", "Guarantor 2", "Guarantor 3", "Guarantor 4", "Guarantor 5",
+            "Security", "Vendor", "Key Account"
+        };
+        String[] keys = {
+            "application_no", "account_no", "series", "account_status", "legacy_account_no",
+            "repayment_account", "product", "product_name", "branch", "branch_name",
+            "client_code", "client_name", "client_nic", "start_date", "maturity_date",
+            "disbursed_date", "closed_date", "loan_amount", "rate", "period",
+            "rental", "due_day", "sector", "sub_sector", "marketing_officer",
+            "guarantor1", "guarantor2", "guarantor3", "guarantor4", "guarantor5",
+            "security", "vendor", "key_account"
+        };
+        writeExcel(response, xlsxFilename, headers, keys, data);
+    }
+
     @PostMapping("/multiple-payments-report")
     public DataTableResponse getMultiplePaymentsReport(@RequestBody DataTableRequest request, HttpSession session) {
         com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");

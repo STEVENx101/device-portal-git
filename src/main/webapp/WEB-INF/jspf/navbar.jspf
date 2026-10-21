@@ -33,6 +33,7 @@
     boolean canDownloadReports = false;
     boolean hasBulkUpload = false;
     boolean hasBulkApprove = false;
+    boolean hasDisbursementReport = false;
     if (userScreens != null) {
         for (Screen s : userScreens) {
             if (s.getPath().equalsIgnoreCase("/dashboard")) hasDashboard = true;
@@ -42,6 +43,7 @@
             if (s.getPath().equalsIgnoreCase("/access-logs")) hasAccessLogs = true;
             if (s.getPath().equalsIgnoreCase("/permission-logs")) hasPermissionLogs = true;
             if (s.getPath().equalsIgnoreCase("/portfolio")) hasPortfolio = true;
+            if (s.getPath().equalsIgnoreCase("/disbursement-report")) hasDisbursementReport = true;
             if (s.getPath().equalsIgnoreCase("/client")) hasClientReport = true;
             if (s.getPath().equalsIgnoreCase("/transaction")) hasTransactionReport = true;
             if (s.getPath().equalsIgnoreCase("/agreement")) hasAgreementReport = true;
@@ -1250,7 +1252,7 @@ html.dark .dataTables_wrapper .dataTables_processing::after {
                 </a>
             <% } %>
             
-            <% if (hasPortfolio || hasClientReport || hasTransactionReport || hasAgreementReport || hasReportLogs || hasArrearsReport || hasNpaReport || hasNearingNpaReport || hasDuplicateLoansReport || hasUnlockArrearsReport || hasLockNoArrearsReport || hasOneRentalReport || hasSettledReport || hasMaturedLowBalanceReport || hasEarlySettledReport || hasLowBalanceReport || hasMultiplePaymentsReport || hasDpdBucketReport || hasVendorPaymentsReport || hasVendorPaymentsExceptionReport || hasUserManagement || hasAccessLogs || hasPermissionLogs) { %>
+            <% if (hasPortfolio || hasDisbursementReport || hasClientReport || hasTransactionReport || hasAgreementReport || hasReportLogs || hasArrearsReport || hasNpaReport || hasNearingNpaReport || hasDuplicateLoansReport || hasUnlockArrearsReport || hasLockNoArrearsReport || hasOneRentalReport || hasSettledReport || hasMaturedLowBalanceReport || hasEarlySettledReport || hasLowBalanceReport || hasMultiplePaymentsReport || hasDpdBucketReport || hasVendorPaymentsReport || hasVendorPaymentsExceptionReport || hasUserManagement || hasAccessLogs || hasPermissionLogs) { %>
                 <div class="nav-item-dropdown-custom" id="nav-reports-group">
                     <a class="nav-item-link dropdown-trigger" href="javascript:void(0)" id="nav-reports-trigger">
                         <span class="fas fa-file-invoice-dollar"></span>
@@ -1267,6 +1269,11 @@ html.dark .dataTables_wrapper .dataTables_processing::after {
                                 <% if (hasPortfolio) { %>
                                 <a href="<%= request.getContextPath() %>/portfolio" class="dropdown-item-custom" id="nav-report-portfolio">
                                     Portfolio
+                                </a>
+                                <% } %>
+                                <% if (hasDisbursementReport) { %>
+                                <a href="<%= request.getContextPath() %>/disbursement-report" class="dropdown-item-custom" id="nav-report-disbursement">
+                                    Disbursement Report
                                 </a>
                                 <% } %>
                                 <% if (hasAgreementReport) { %>
