@@ -2798,7 +2798,7 @@ public class CbsReportService {
                 result.put("ytdAmount", ytdAmount);
                 result.put("ytdCount", ytdCount);
                 result.put("ytdAvg", ytdAvg);
-                result.put("ytdLabel", "YTD (Jan - " + monthName + " " + year + ")");
+                result.put("ytdLabel", "YEAR TO DATE");
 
                 result.put("avgRate", curMonthAvgRate);
                 result.put("avgPeriod", Math.round(curMonthAvgPeriod));
@@ -2812,7 +2812,7 @@ public class CbsReportService {
             result.put("ytdAmount", 0.0);
             result.put("ytdCount", 0);
             result.put("ytdAvg", 0.0);
-            result.put("ytdLabel", "YTD " + year);
+            result.put("ytdLabel", "YEAR TO DATE");
             result.put("avgRate", 0.0);
             result.put("avgPeriod", 0);
         }

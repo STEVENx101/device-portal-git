@@ -234,8 +234,8 @@
                         </div>
                     </div>
 
-                    <!-- Summary KPI Cards -->
-                    <div class="row row-cols-1 row-cols-sm-2 row-cols-xl-4 g-3 mb-3">
+                    <!-- Summary KPI Cards (Current Month & Year to Date) -->
+                    <div class="row row-cols-1 row-cols-md-2 g-3 mb-3">
                         <!-- Current / Selected Month Card -->
                         <div class="col">
                             <div class="kpi-card border-start border-4 border-primary h-100">
@@ -243,12 +243,9 @@
                                     <i class="fas fa-calendar-alt text-primary me-2"></i>
                                     <span id="kpiMonthLabel">CURRENT MONTH</span>
                                 </div>
-                                <div class="kpi-value text-primary" id="kpiMonthAmount">
-                                    <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
-                                </div>
+                                <div class="kpi-value text-primary" id="kpiMonthAmount">LKR 0.00</div>
                                 <div class="kpi-subtext" id="kpiMonthSub">
                                     <span class="badge bg-soft-primary"><i class="fas fa-file-contract me-1"></i><span id="kpiMonthCount">0</span> Loans</span>
-                                    <span id="kpiMonthAvg">Avg: LKR 0.00</span>
                                 </div>
                             </div>
                         </div>
@@ -258,47 +255,11 @@
                             <div class="kpi-card border-start border-4 border-success h-100">
                                 <div class="kpi-title">
                                     <i class="fas fa-chart-line text-success me-2"></i>
-                                    <span id="kpiYtdLabel">YEAR TO DATE (YTD)</span>
+                                    <span id="kpiYtdLabel">YEAR TO DATE</span>
                                 </div>
-                                <div class="kpi-value text-success" id="kpiYtdAmount">
-                                    <div class="spinner-border spinner-border-sm text-success" role="status"></div>
-                                </div>
+                                <div class="kpi-value text-success" id="kpiYtdAmount">LKR 0.00</div>
                                 <div class="kpi-subtext" id="kpiYtdSub">
                                     <span class="badge bg-soft-success"><i class="fas fa-check-circle me-1"></i><span id="kpiYtdCount">0</span> Total Loans</span>
-                                    <span id="kpiYtdAvg">Avg: LKR 0.00</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Average Ticket Size Card -->
-                        <div class="col">
-                            <div class="kpi-card border-start border-4 border-info h-100">
-                                <div class="kpi-title">
-                                    <i class="fas fa-calculator text-info me-2"></i>
-                                    <span>AVERAGE TICKET SIZE</span>
-                                </div>
-                                <div class="kpi-value text-info" id="kpiAvgAmount">
-                                    <div class="spinner-border spinner-border-sm text-info" role="status"></div>
-                                </div>
-                                <div class="kpi-subtext">
-                                    <span class="text-muted"><i class="fas fa-info-circle me-1"></i>Average Disbursed Amount</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Portfolio Terms Card -->
-                        <div class="col">
-                            <div class="kpi-card border-start border-4 border-warning h-100">
-                                <div class="kpi-title">
-                                    <i class="fas fa-percentage text-warning me-2"></i>
-                                    <span>PORTFOLIO METRICS</span>
-                                </div>
-                                <div class="kpi-value text-warning" id="kpiAvgRate">
-                                    0.00%
-                                </div>
-                                <div class="kpi-subtext">
-                                    <span class="badge bg-soft-warning"><i class="fas fa-clock me-1"></i>Avg <span id="kpiAvgPeriod">0</span> Mos</span>
-                                    <span class="text-muted">Avg Rate & Tenor</span>
                                 </div>
                             </div>
                         </div>
@@ -307,6 +268,9 @@
                     <!-- Filter panel -->
                     <div class="card glass-card mb-3" style="position: relative; z-index: 10;">
                         <div class="card-body p-3">
+                            <div id="productAlert" class="alert alert-warning py-2 px-3 fs--1 mb-3 d-none align-items-center" role="alert">
+                                <i class="fas fa-exclamation-triangle me-2"></i> Please select at least one <strong>Product</strong>, then click <strong>Load Data</strong>.
+                            </div>
                             <form id="filterForm">
                                 <div class="row g-3 align-items-end">
                                     <div class="col-md-3 col-sm-6">
@@ -358,7 +322,7 @@
                                 <i class="fas fa-table me-2 text-primary"></i>Disbursed Loans Record
                             </h6>
                             <span class="fs--2 text-muted">
-                                <i class="fas fa-info-circle me-1"></i>Click any row to view full loan details or inspect facility
+                                <i class="fas fa-info-circle me-1"></i>Click any loan to open Facility Information
                             </span>
                         </div>
                         <div class="card-body p-3">
@@ -386,7 +350,6 @@
                                             <th>Security</th>
                                             <th>Vendor</th>
                                             <th>Key Account</th>
-                                            <th class="text-center">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -398,31 +361,6 @@
                 </div>
             </div>
         </main>
-
-        <!-- Loan Details Modal -->
-        <div class="modal fade" id="modalLoanDetails" tabindex="-1" aria-labelledby="modalLoanDetailsLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-                <div class="modal-content border-0 shadow-lg">
-                    <div class="modal-header bg-soft-primary text-primary py-3">
-                        <h5 class="modal-title fw-bold" id="modalLoanDetailsLabel">
-                            <i class="fas fa-file-invoice-dollar me-2 text-primary"></i>Loan Facility Complete Profile
-                        </h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body p-4">
-                        <div class="row g-3" id="modalDetailsContent">
-                            <!-- Populated dynamically via JS -->
-                        </div>
-                    </div>
-                    <div class="modal-footer bg-light py-2">
-                        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Close</button>
-                        <a href="javascript:void(0)" class="btn btn-primary btn-sm" id="btnOpenFacilityInfo" target="_blank">
-                            <i class="fas fa-external-link-alt me-1"></i> Open Facility Information
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
 
         <!-- Loading spinner overlay -->
         <div id="cbsLoader" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.75); backdrop-filter:blur(3px); z-index:9999; align-items:center; justify-content:center; flex-direction:column;">
@@ -448,7 +386,6 @@
         <script>
             let productChoices;
             let dtDisbursement;
-            let currentLoansData = {};
 
             function getCurrentYearMonth() {
                 const now = new Date();
@@ -478,11 +415,17 @@
 
             function loadSummaryCards() {
                 const filters = getFilters();
+                if (!filters.products || filters.products.length === 0) {
+                    $('#kpiMonthAmount').text('LKR 0.00');
+                    $('#kpiMonthCount').text('0');
+                    $('#kpiYtdAmount').text('LKR 0.00');
+                    $('#kpiYtdCount').text('0');
+                    return;
+                }
+
                 const queryParams = new URLSearchParams();
                 if (filters.month) queryParams.append('month', filters.month);
-                if (filters.products && filters.products.length > 0) {
-                    filters.products.forEach(p => queryParams.append('products', p));
-                }
+                filters.products.forEach(p => queryParams.append('products', p));
 
                 fetch('${pageContext.request.contextPath}/api/cbs/disbursement/summary?' + queryParams.toString())
                     .then(res => res.json())
@@ -492,99 +435,17 @@
                         $('#badgeMonthText').text(data.curMonthLabel || 'Selected Month');
                         $('#kpiMonthAmount').text(formatCurrency(data.curMonthAmount));
                         $('#kpiMonthCount').text(Number(data.curMonthCount || 0).toLocaleString());
-                        $('#kpiMonthAvg').text('Avg: ' + formatCurrency(data.curMonthAvg));
 
-                        // YTD KPI
-                        $('#kpiYtdLabel').text(data.ytdLabel ? data.ytdLabel.toUpperCase() : 'YEAR TO DATE (YTD)');
+                        // YTD KPI (strictly "YEAR TO DATE")
+                        $('#kpiYtdLabel').text('YEAR TO DATE');
                         $('#kpiYtdAmount').text(formatCurrency(data.ytdAmount));
                         $('#kpiYtdCount').text(Number(data.ytdCount || 0).toLocaleString());
-                        $('#kpiYtdAvg').text('Avg: ' + formatCurrency(data.ytdAvg));
-
-                        // Ticket Size
-                        $('#kpiAvgAmount').text(formatCurrency(data.curMonthAvg));
-
-                        // Rate & Tenor
-                        const rate = data.avgRate ? Number(data.avgRate).toFixed(2) : '0.00';
-                        $('#kpiAvgRate').html(rate + '% <span class="fs--1 text-muted fw-normal">Rate</span>');
-                        $('#kpiAvgPeriod').text(data.avgPeriod || '0');
                     })
                     .catch(err => {
                         console.error("Error loading disbursement summary cards:", err);
                         $('#kpiMonthAmount').text('LKR 0.00');
                         $('#kpiYtdAmount').text('LKR 0.00');
-                        $('#kpiAvgAmount').text('LKR 0.00');
                     });
-            }
-
-            function showLoanDetails(accountNo) {
-                const loan = currentLoansData[accountNo];
-                if (!loan) return;
-
-                let html = `
-                    <div class="col-md-6">
-                        <div class="card bg-light p-3 h-100 border-0">
-                            <h6 class="fw-bold text-primary mb-2"><i class="fas fa-file-contract me-2"></i>Account & Identification</h6>
-                            <div class="d-flex justify-content-between py-1 border-bottom"><span class="text-muted">Account No:</span> <span class="fw-bold">` + (loan.account_no || '-') + `</span></div>
-                            <div class="d-flex justify-content-between py-1 border-bottom"><span class="text-muted">Application No:</span> <span>` + (loan.application_no || '-') + `</span></div>
-                            <div class="d-flex justify-content-between py-1 border-bottom"><span class="text-muted">Series:</span> <span>` + (loan.series || loan.account_series || '-') + `</span></div>
-                            <div class="d-flex justify-content-between py-1 border-bottom"><span class="text-muted">Status:</span> <span class="badge bg-soft-primary">` + (loan.account_status || '-') + `</span></div>
-                            <div class="d-flex justify-content-between py-1 border-bottom"><span class="text-muted">Legacy Account:</span> <span>` + (loan.legacy_account_no || '-') + `</span></div>
-                            <div class="d-flex justify-content-between py-1 border-bottom"><span class="text-muted">Repayment Account:</span> <span>` + (loan.repayment_account || '-') + `</span></div>
-                            <div class="d-flex justify-content-between py-1"><span class="text-muted">Key Account:</span> <span>` + (loan.key_account || '-') + `</span></div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="card bg-light p-3 h-100 border-0">
-                            <h6 class="fw-bold text-success mb-2"><i class="fas fa-coins me-2"></i>Financial Terms</h6>
-                            <div class="d-flex justify-content-between py-1 border-bottom"><span class="text-muted">Loan Amount:</span> <span class="fw-bold text-success">` + formatCurrency(loan.loan_amount) + `</span></div>
-                            <div class="d-flex justify-content-between py-1 border-bottom"><span class="text-muted">Monthly Rental:</span> <span class="fw-bold">` + formatCurrency(loan.rental) + `</span></div>
-                            <div class="d-flex justify-content-between py-1 border-bottom"><span class="text-muted">Interest Rate:</span> <span>` + (loan.rate ? Number(loan.rate).toFixed(2) + '%' : '-') + `</span></div>
-                            <div class="d-flex justify-content-between py-1 border-bottom"><span class="text-muted">Period / Tenor:</span> <span>` + (loan.period ? loan.period + ' Months' : '-') + `</span></div>
-                            <div class="d-flex justify-content-between py-1 border-bottom"><span class="text-muted">Due Day:</span> <span>` + (loan.due_day || '-') + `</span></div>
-                            <div class="d-flex justify-content-between py-1 border-bottom"><span class="text-muted">Disbursed Date:</span> <span class="fw-semi-bold">` + (loan.disbursed_date || '-') + `</span></div>
-                            <div class="d-flex justify-content-between py-1"><span class="text-muted">Maturity Date:</span> <span>` + (loan.maturity_date || '-') + `</span></div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="card bg-light p-3 h-100 border-0">
-                            <h6 class="fw-bold text-info mb-2"><i class="fas fa-user me-2"></i>Client & Branch Details</h6>
-                            <div class="d-flex justify-content-between py-1 border-bottom"><span class="text-muted">Client Code:</span> <span class="fw-bold">` + (loan.client_code || loan.CLIENT || '-') + `</span></div>
-                            <div class="d-flex justify-content-between py-1 border-bottom"><span class="text-muted">Client Name:</span> <span class="fw-bold">` + (loan.client_name || '-') + `</span></div>
-                            <div class="d-flex justify-content-between py-1 border-bottom"><span class="text-muted">NIC / ID No:</span> <span>` + (loan.client_nic || '-') + `</span></div>
-                            <div class="d-flex justify-content-between py-1 border-bottom"><span class="text-muted">Product:</span> <span class="badge bg-soft-info">` + (loan.product_name || loan.product || '-') + `</span></div>
-                            <div class="d-flex justify-content-between py-1"><span class="text-muted">Branch:</span> <span>` + (loan.branch_name || loan.branch || '-') + `</span></div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="card bg-light p-3 h-100 border-0">
-                            <h6 class="fw-bold text-warning mb-2"><i class="fas fa-shield-alt me-2"></i>Operational & Security</h6>
-                            <div class="d-flex justify-content-between py-1 border-bottom"><span class="text-muted">Security:</span> <span>` + (loan.security || loan.SECURITY || '-') + `</span></div>
-                            <div class="d-flex justify-content-between py-1 border-bottom"><span class="text-muted">Vendor:</span> <span>` + (loan.vendor || '-') + `</span></div>
-                            <div class="d-flex justify-content-between py-1 border-bottom"><span class="text-muted">Marketing Officer:</span> <span>` + (loan.marketing_officer || '-') + `</span></div>
-                            <div class="d-flex justify-content-between py-1 border-bottom"><span class="text-muted">Sector / Sub:</span> <span>` + (loan.sector || '-') + ` / ` + (loan.sub_sector || '-') + `</span></div>
-                            <div class="d-flex justify-content-between py-1"><span class="text-muted">Closed Date:</span> <span>` + (loan.closed_date || '-') + `</span></div>
-                        </div>
-                    </div>
-                    <div class="col-12">
-                        <div class="card bg-light p-3 border-0">
-                            <h6 class="fw-bold text-secondary mb-2"><i class="fas fa-users me-2"></i>Guarantors Information</h6>
-                            <div class="row g-2">
-                                <div class="col-md-4 col-sm-6"><div class="p-2 border rounded bg-white"><small class="text-muted d-block">Guarantor 1</small><span class="fw-semi-bold">` + (loan.guarantor1 || 'None') + `</span></div></div>
-                                <div class="col-md-4 col-sm-6"><div class="p-2 border rounded bg-white"><small class="text-muted d-block">Guarantor 2</small><span class="fw-semi-bold">` + (loan.guarantor2 || 'None') + `</span></div></div>
-                                <div class="col-md-4 col-sm-6"><div class="p-2 border rounded bg-white"><small class="text-muted d-block">Guarantor 3</small><span class="fw-semi-bold">` + (loan.guarantor3 || 'None') + `</span></div></div>
-                                <div class="col-md-6 col-sm-6"><div class="p-2 border rounded bg-white"><small class="text-muted d-block">Guarantor 4</small><span class="fw-semi-bold">` + (loan.guarantor4 || 'None') + `</span></div></div>
-                                <div class="col-md-6 col-sm-6"><div class="p-2 border rounded bg-white"><small class="text-muted d-block">Guarantor 5</small><span class="fw-semi-bold">` + (loan.guarantor5 || 'None') + `</span></div></div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-
-                $('#modalDetailsContent').html(html);
-                const searchVal = loan.legacy_account_no && loan.legacy_account_no !== '-' ? loan.legacy_account_no : loan.account_no;
-                $('#btnOpenFacilityInfo').attr('href', '${pageContext.request.contextPath}/mobile?query=' + encodeURIComponent(searchVal));
-
-                const modal = new bootstrap.Modal(document.getElementById('modalLoanDetails'));
-                modal.show();
             }
 
             $(document).ready(function() {
@@ -594,16 +455,21 @@
 
                 $('#btnCurrentMonth').on('click', function() {
                     $('#selectMonth').val(getCurrentYearMonth());
-                    loadSummaryCards();
-                    dtDisbursement.draw();
                 });
 
                 // Initialize Choices for product selection
                 productChoices = new Choices('#selectProducts', {
                     removeItemButton: true,
                     placeholder: true,
-                    placeholderValue: 'All Products',
+                    placeholderValue: 'Select Product(s)...',
                     shouldSort: false
+                });
+
+                $('#selectProducts').on('change', function() {
+                    const products = productChoices ? productChoices.getValue(true) : [];
+                    if (products && products.length > 0) {
+                        $('#productAlert').addClass('d-none').removeClass('d-flex');
+                    }
                 });
 
                 // Load Metadata for product filter
@@ -629,10 +495,20 @@
                     order: [[8, 'desc']],
                     pageLength: 25,
                     lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
+                    language: {
+                        emptyTable: "Please select a product and click 'Load Data' to view records.",
+                        zeroRecords: "No matching disbursed loans found for the selected criteria."
+                    },
                     ajax: function(data, callback, settings) {
+                        const filters = getFilters();
+                        if (!filters.products || filters.products.length === 0) {
+                            callback({ draw: data.draw, recordsTotal: 0, recordsFiltered: 0, data: [] });
+                            return;
+                        }
+
                         $('#loaderText').text('Loading disbursement data...');
                         $('#cbsLoader').css('display', 'flex');
-                        data.data = getFilters();
+                        data.data = filters;
 
                         $.ajax({
                             url: '${pageContext.request.contextPath}/api/cbs/disbursement',
@@ -640,12 +516,6 @@
                             contentType: 'application/json',
                             data: JSON.stringify(data),
                             success: function(res) {
-                                currentLoansData = {};
-                                if (res && res.data) {
-                                    res.data.forEach(item => {
-                                        currentLoansData[item.account_no] = item;
-                                    });
-                                }
                                 callback(res);
                             },
                             error: function(xhr, error, thrown) {
@@ -727,43 +597,33 @@
                         { data: 'marketing_officer', defaultContent: '-' },
                         { data: 'security', defaultContent: '-' },
                         { data: 'vendor', defaultContent: '-' },
-                        { data: 'key_account', defaultContent: '-' },
-                        {
-                            data: null,
-                            orderable: false,
-                            className: 'text-center',
-                            render: function(data, type, row) {
-                                return '<button class="btn btn-sm btn-outline-primary py-0 px-2 fs--2 btn-view-loan" data-acc="' + row.account_no + '"><i class="fas fa-eye me-1"></i>Details</button>';
-                            }
-                        }
+                        { data: 'key_account', defaultContent: '-' }
                     ],
                     rowCallback: function(row, data) {
                         $(row).addClass('clickable-row');
                     }
                 });
 
-                // Row click handler (clicks on row open details modal, unless clicking action button)
-                $('#tableDisbursement tbody').on('click', 'tr', function(e) {
-                    if ($(e.target).closest('button').length) return;
+                // Row click handler to open facility info directly
+                $('#tableDisbursement tbody').on('click', 'tr', function () {
                     const rowData = dtDisbursement.row(this).data();
-                    if (rowData && rowData.account_no) {
-                        showLoanDetails(rowData.account_no);
+                    if (rowData) {
+                        const searchVal = (rowData.legacy_account_no && rowData.legacy_account_no !== '-') ? rowData.legacy_account_no : rowData.account_no;
+                        if (searchVal) {
+                            window.open('${pageContext.request.contextPath}/mobile?query=' + encodeURIComponent(searchVal), '_blank');
+                        }
                     }
                 });
 
-                // Details button click handler
-                $('#tableDisbursement tbody').on('click', '.btn-view-loan', function(e) {
-                    e.stopPropagation();
-                    const acc = $(this).data('acc');
-                    showLoanDetails(acc);
-                });
-
-                // Load initial KPI cards & trigger first table draw
-                loadSummaryCards();
-                dtDisbursement.draw();
-
                 // Apply Filters button click
                 $('#applyFiltersBtn').on('click', function() {
+                    const filters = getFilters();
+                    if (!filters.products || filters.products.length === 0) {
+                        $('#productAlert').removeClass('d-none').addClass('d-flex');
+                        return;
+                    }
+                    $('#productAlert').addClass('d-none').removeClass('d-flex');
+
                     $(this).html('<span class="fas fa-sync-alt me-1 fa-spin"></span> Loading...');
                     loadSummaryCards();
                     dtDisbursement.draw();
@@ -772,33 +632,36 @@
                     }, 500);
                 });
 
-                // Month input change auto-reloads cards
-                $('#selectMonth').on('change', function() {
-                    loadSummaryCards();
-                    dtDisbursement.draw();
-                });
-
                 // Reset button click
                 $('#resetFiltersBtn').on('click', function() {
                     $('#selectMonth').val(getCurrentYearMonth());
                     if (productChoices) {
                         productChoices.removeActiveItems();
                     }
-                    loadSummaryCards();
-                    dtDisbursement.draw();
+                    $('#productAlert').addClass('d-none').removeClass('d-flex');
+                    $('#kpiMonthAmount').text('LKR 0.00');
+                    $('#kpiMonthCount').text('0');
+                    $('#kpiYtdAmount').text('LKR 0.00');
+                    $('#kpiYtdCount').text('0');
+                    $('#badgeMonthText').text('Current Month');
+                    dtDisbursement.clear().draw();
                 });
 
                 // Download Excel handler
                 if ($('#downloadExcelBtn').length) {
                     $('#downloadExcelBtn').on('click', function() {
                         const filters = getFilters();
+                        if (!filters.products || filters.products.length === 0) {
+                            $('#productAlert').removeClass('d-none').addClass('d-flex');
+                            return;
+                        }
+                        $('#productAlert').addClass('d-none').removeClass('d-flex');
+
                         let downloadUrl = '${pageContext.request.contextPath}/api/cbs/disbursement/download';
 
                         const queryParams = new URLSearchParams();
                         if (filters.month) queryParams.append('month', filters.month);
-                        if (filters.products && filters.products.length > 0) {
-                            filters.products.forEach(p => queryParams.append('products', p));
-                        }
+                        filters.products.forEach(p => queryParams.append('products', p));
 
                         const token = new Date().getTime();
                         queryParams.append('downloadToken', token);
