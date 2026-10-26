@@ -124,7 +124,6 @@ public class UserRepository {
 
     public List<Screen> findAllScreens() {
         ensureCustomer360ScreenExists();
-        ensureDisbursementScreenExists();
         String sql = """
             SELECT id, name, path, icon, group_name FROM device_portal.screen 
             WHERE path != '/paid-off-report' 
