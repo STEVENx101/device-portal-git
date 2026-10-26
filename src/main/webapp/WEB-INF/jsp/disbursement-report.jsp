@@ -316,7 +316,7 @@
                                         <a class="btn btn-info btn-sm text-nowrap" href="${pageContext.request.contextPath}/report-logs" style="background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%) !important; border: none !important; color: #ffffff !important; box-shadow: 0 4px 12px rgba(14, 165, 233, 0.2) !important;">
                                             <span class="fas fa-history me-1"></span> View Logs
                                         </a>
-                                        <% } %>
+                                        <% }%>
                                     </div>
                                 </div>
                             </form>
@@ -384,340 +384,349 @@
         <script src="${pageContext.request.contextPath}/assets/js/theme.js"></script>
 
         <script>
-            let productChoices;
-            let dtDisbursement;
+                    let productChoices;
+                    let dtDisbursement;
 
-            function getCurrentYearMonth() {
-                const now = new Date();
-                const year = now.getFullYear();
-                const month = String(now.getMonth() + 1).padStart(2, '0');
-                return year + '-' + month;
-            }
-
-            function getFilters() {
-                const products = productChoices ? productChoices.getValue(true) : [];
-                return {
-                    month: $('#selectMonth').val(),
-                    products: products
-                };
-            }
-
-            function getCookie(name) {
-                const value = `; ` + document.cookie;
-                const parts = value.split(`; ` + name + `=`);
-                if (parts.length === 2) return parts.pop().split(';').shift();
-            }
-
-            function formatCurrency(val) {
-                if (val === null || val === undefined || isNaN(val)) return 'LKR 0.00';
-                return 'LKR ' + Number(val).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            }
-
-            function formatCurrencyInMillions(val) {
-                if (val === null || val === undefined || isNaN(val)) return '0.00 Mn';
-                const millions = Number(val) / 1000000.0;
-                return millions.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' Mn';
-            }
-
-            function loadSummaryCards() {
-                const filters = getFilters();
-                if (!filters.products || filters.products.length === 0) {
-                    $('#kpiMonthAmount').text('0.00 Mn').attr('title', '0.00');
-                    $('#kpiMonthCount').text('0');
-                    $('#kpiYtdAmount').text('0.00 Mn').attr('title', '0.00');
-                    $('#kpiYtdCount').text('0');
-                    $('#kpiFyBadge').text('Financial Year');
-                    $('#kpiFyPeriodText').text('Financial Year (Apr - Mar)');
-                    return;
-                }
-
-                const queryParams = new URLSearchParams();
-                if (filters.month) queryParams.append('month', filters.month);
-                filters.products.forEach(p => queryParams.append('products', p));
-
-                fetch('${pageContext.request.contextPath}/api/cbs/disbursement/summary?' + queryParams.toString())
-                    .then(res => res.json())
-                    .then(data => {
-                        // Month KPI
-                        $('#kpiMonthLabel').text(data.curMonthLabel ? data.curMonthLabel.toUpperCase() : 'CURRENT MONTH');
-                        $('#badgeMonthText').text(data.curMonthLabel || 'Selected Month');
-                        $('#kpiMonthAmount').text(formatCurrencyInMillions(data.curMonthAmount)).attr('title', formatCurrency(data.curMonthAmount));
-                        $('#kpiMonthCount').text(Number(data.curMonthCount || 0).toLocaleString());
-                        $('#kpiMonthPeriodText').text(data.curMonthLabel || 'Selected Month');
-
-                        // Financial Year to Date KPI
-                        $('#kpiYtdLabel').text(data.ytdLabel || 'FINANCIAL YEAR TO DATE');
-                        $('#kpiYtdAmount').text(formatCurrencyInMillions(data.ytdAmount)).attr('title', formatCurrency(data.ytdAmount));
-                        $('#kpiYtdCount').text(Number(data.ytdCount || 0).toLocaleString());
-                        if (data.fyLabel) {
-                            $('#kpiFyBadge').text(data.fyLabel);
-                        }
-                        if (data.fyStartYear) {
-                            $('#kpiFyPeriodText').text('Financial Year (From 01 Apr ' + data.fyStartYear + ')');
-                        }
-                    })
-                    .catch(err => {
-                        console.error("Error loading disbursement summary cards:", err);
-                        $('#kpiMonthAmount').text('0.00 Mn');
-                        $('#kpiYtdAmount').text('0.00 Mn');
-                    });
-            }
-
-            $(document).ready(function() {
-                // Initialize Month filter to current year-month
-                const curYm = getCurrentYearMonth();
-                $('#selectMonth').val(curYm);
-
-                $('#btnCurrentMonth').on('click', function() {
-                    $('#selectMonth').val(getCurrentYearMonth());
-                });
-
-                // Initialize Choices for product selection
-                productChoices = new Choices('#selectProducts', {
-                    removeItemButton: true,
-                    placeholder: true,
-                    placeholderValue: 'Select Product(s)...',
-                    shouldSort: false
-                });
-
-                $('#selectProducts').on('change', function() {
-                    const products = productChoices ? productChoices.getValue(true) : [];
-                    if (products && products.length > 0) {
-                        $('#productAlert').addClass('d-none').removeClass('d-flex');
+                    function getCurrentYearMonth() {
+                        const now = new Date();
+                        const year = now.getFullYear();
+                        const month = String(now.getMonth() + 1).padStart(2, '0');
+                        return year + '-' + month;
                     }
-                });
 
-                // Load Metadata for product filter
-                fetch('${pageContext.request.contextPath}/api/cbs/metadata')
-                    .then(res => res.json())
-                    .then(data => {
-                        if (data && data.products) {
+                    function getFilters() {
+                        const products = productChoices ? productChoices.getValue(true) : [];
+                        return {
+                            month: $('#selectMonth').val(),
+                            products: products
+                        };
+                    }
 
-    // Only these products will appear in the dropdown
-    const allowedProducts = [
-        'MF',
-        'LF',
-    ];
+                    function getCookie(name) {
+                        const value = `; ` + document.cookie;
+                        const parts = value.split(`; ` + name + `=`);
+                        if (parts.length === 2)
+                            return parts.pop().split(';').shift();
+                    }
 
-    const productList = data.products
-        .filter(p => allowedProducts.includes(String(p.product_code)))
-        .map(p => ({
-            value: p.product_code,
-            label: p.product_name + ' (' + p.product_code + ')',
-            selected: false
-        }));
+                    function formatCurrency(val) {
+                        if (val === null || val === undefined || isNaN(val))
+                            return 'LKR 0.00';
+                        return 'LKR ' + Number(val).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                    }
 
-    productChoices.setChoices(productList, 'value', 'label', true);
-}
-                    })
-                    .catch(err => console.error("Error loading filter metadata:", err));
+                    function formatCurrencyInMillions(val) {
+                        if (val === null || val === undefined || isNaN(val))
+                            return '0.00 Mn';
+                        const millions = Number(val) / 1000000.0;
+                        return millions.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' Mn';
+                    }
 
-                // Initialize DataTable
-                dtDisbursement = $('#tableDisbursement').DataTable({
-                    processing: false,
-                    serverSide: true,
-                    deferLoading: 0,
-                    order: [[8, 'desc']],
-                    pageLength: 25,
-                    lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
-                    language: {
-                        emptyTable: "Please select a product and click 'Load Data' to view records.",
-                        zeroRecords: "No matching disbursed loans found for the selected criteria."
-                    },
-                    ajax: function(data, callback, settings) {
+                    function loadSummaryCards() {
                         const filters = getFilters();
                         if (!filters.products || filters.products.length === 0) {
-                            callback({ draw: data.draw, recordsTotal: 0, recordsFiltered: 0, data: [] });
+                            $('#kpiMonthAmount').text('0.00 Mn').attr('title', '0.00');
+                            $('#kpiMonthCount').text('0');
+                            $('#kpiYtdAmount').text('0.00 Mn').attr('title', '0.00');
+                            $('#kpiYtdCount').text('0');
+                            $('#kpiFyBadge').text('Financial Year');
+                            $('#kpiFyPeriodText').text('Financial Year (Apr - Mar)');
                             return;
                         }
-
-                        $('#loaderText').text('Loading disbursement data...');
-                        $('#cbsLoader').css('display', 'flex');
-                        data.data = filters;
-
-                        $.ajax({
-                            url: '${pageContext.request.contextPath}/api/cbs/disbursement',
-                            type: 'POST',
-                            contentType: 'application/json',
-                            data: JSON.stringify(data),
-                            success: function(res) {
-                                callback(res);
-                            },
-                            error: function(xhr, error, thrown) {
-                                console.error("Error fetching disbursement report:", thrown);
-                                callback({ draw: data.draw, recordsTotal: 0, recordsFiltered: 0, data: [] });
-                            },
-                            complete: function() {
-                                $('#cbsLoader').hide();
-                            }
-                        });
-                    },
-                    columns: [
-                        {
-                            data: 'account_no',
-                            render: function(data, type, row) {
-                                let legacy = (row.legacy_account_no && row.legacy_account_no !== '-') ? '<small class="text-muted d-block fs--2">Legacy: ' + row.legacy_account_no + '</small>' : '';
-                                return '<span class="badge-account">' + data + '</span>' + legacy;
-                            }
-                        },
-                        { data: 'application_no', defaultContent: '-' },
-                        { data: 'series', defaultContent: '-' },
-                        {
-                            data: 'account_status',
-                            render: function(data) {
-                                if (!data) return '-';
-                                let bg = 'bg-soft-primary';
-                                if (data === 'A' || data === 'ACTIVE') bg = 'bg-soft-success';
-                                else if (data === 'C' || data === 'CLOSED') bg = 'bg-soft-secondary';
-                                else if (data === 'P' || data === 'F') bg = 'bg-soft-info';
-                                return '<span class="badge ' + bg + '">' + data + '</span>';
-                            }
-                        },
-                        {
-                            data: 'product_name',
-                            render: function(data, type, row) {
-                                return '<span class="badge-product">' + (data || row.product || '-') + '</span>';
-                            }
-                        },
-                        { data: 'branch_name', defaultContent: '-' },
-                        { data: 'client_code', defaultContent: '-' },
-                        { data: 'client_name', defaultContent: '-' },
-                        {
-                            data: 'disbursed_date',
-                            render: function(data) {
-                                return data ? '<span class="fw-semi-bold text-dark">' + data + '</span>' : '-';
-                            }
-                        },
-                        { data: 'start_date', defaultContent: '-' },
-                        { data: 'maturity_date', defaultContent: '-' },
-                        {
-                            data: 'loan_amount',
-                            className: 'text-end',
-                            render: function(data) {
-                                return '<span class="fw-bold text-900">' + (data ? Number(data).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00') + '</span>';
-                            }
-                        },
-                        {
-                            data: 'rate',
-                            className: 'text-end',
-                            render: function(data) {
-                                return data ? Number(data).toFixed(2) + '%' : '-';
-                            }
-                        },
-                        {
-                            data: 'period',
-                            className: 'text-center',
-                            render: function(data) {
-                                return data ? data + ' M' : '-';
-                            }
-                        },
-                        {
-                            data: 'rental',
-                            className: 'text-end',
-                            render: function(data) {
-                                return data ? Number(data).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00';
-                            }
-                        },
-                        { data: 'due_day', className: 'text-center', defaultContent: '-' },
-                        { data: 'marketing_officer', defaultContent: '-' },
-                        { data: 'security', defaultContent: '-' },
-                        { data: 'vendor', defaultContent: '-' },
-                        { data: 'key_account', defaultContent: '-' }
-                    ],
-                    rowCallback: function(row, data) {
-                        $(row).addClass('clickable-row');
-                    }
-                });
-
-                // Row click handler to open facility info directly
-                $('#tableDisbursement tbody').on('click', 'tr', function () {
-                    const rowData = dtDisbursement.row(this).data();
-                    if (rowData) {
-                        const searchVal = (rowData.legacy_account_no && rowData.legacy_account_no !== '-') ? rowData.legacy_account_no : rowData.account_no;
-                        if (searchVal) {
-                            window.open('${pageContext.request.contextPath}/mobile?query=' + encodeURIComponent(searchVal), '_blank');
-                        }
-                    }
-                });
-
-                // Apply Filters button click
-                $('#applyFiltersBtn').on('click', function() {
-                    const filters = getFilters();
-                    if (!filters.products || filters.products.length === 0) {
-                        $('#productAlert').removeClass('d-none').addClass('d-flex');
-                        return;
-                    }
-                    $('#productAlert').addClass('d-none').removeClass('d-flex');
-
-                    $(this).html('<span class="fas fa-sync-alt me-1 fa-spin"></span> Loading...');
-                    loadSummaryCards();
-                    dtDisbursement.draw();
-                    setTimeout(() => {
-                        $('#applyFiltersBtn').html('<span class="fas fa-search me-1"></span> Load Data');
-                    }, 500);
-                });
-
-                // Reset button click
-                $('#resetFiltersBtn').on('click', function() {
-                    $('#selectMonth').val(getCurrentYearMonth());
-                    if (productChoices) {
-                        productChoices.removeActiveItems();
-                    }
-                    $('#productAlert').addClass('d-none').removeClass('d-flex');
-                    $('#kpiMonthAmount').text('0.00 Mn').attr('title', '0.00');
-                    $('#kpiMonthCount').text('0');
-                    $('#kpiYtdAmount').text('0.00 Mn').attr('title', '0.00');
-                    $('#kpiYtdCount').text('0');
-                    $('#kpiMonthLabel').text('CURRENT MONTH');
-                    $('#kpiYtdLabel').text('FINANCIAL YEAR TO DATE');
-                    $('#kpiFyBadge').text('Financial Year');
-                    $('#kpiFyPeriodText').text('Financial Year (Apr - Mar)');
-                    $('#kpiMonthPeriodText').text('Selected Month');
-                    $('#badgeMonthText').text('Current Month');
-                    dtDisbursement.clear().draw();
-                });
-
-                // Download Excel handler
-                if ($('#downloadExcelBtn').length) {
-                    $('#downloadExcelBtn').on('click', function() {
-                        const filters = getFilters();
-                        if (!filters.products || filters.products.length === 0) {
-                            $('#productAlert').removeClass('d-none').addClass('d-flex');
-                            return;
-                        }
-                        $('#productAlert').addClass('d-none').removeClass('d-flex');
-
-                        let downloadUrl = '${pageContext.request.contextPath}/api/cbs/disbursement/download';
 
                         const queryParams = new URLSearchParams();
-                        if (filters.month) queryParams.append('month', filters.month);
+                        if (filters.month)
+                            queryParams.append('month', filters.month);
                         filters.products.forEach(p => queryParams.append('products', p));
 
-                        const token = new Date().getTime();
-                        queryParams.append('downloadToken', token);
+                        fetch('${pageContext.request.contextPath}/api/cbs/disbursement/summary?' + queryParams.toString())
+                                .then(res => res.json())
+                                .then(data => {
+                                    // Month KPI
+                                    $('#kpiMonthLabel').text(data.curMonthLabel ? data.curMonthLabel.toUpperCase() : 'CURRENT MONTH');
+                                    $('#badgeMonthText').text(data.curMonthLabel || 'Selected Month');
+                                    $('#kpiMonthAmount').text(formatCurrencyInMillions(data.curMonthAmount)).attr('title', formatCurrency(data.curMonthAmount));
+                                    $('#kpiMonthCount').text(Number(data.curMonthCount || 0).toLocaleString());
+                                    $('#kpiMonthPeriodText').text(data.curMonthLabel || 'Selected Month');
 
-                        $('#loaderText').text('Generating Excel download for ' + (filters.month || 'selected period') + '...');
-                        $('#cbsLoader').css('display', 'flex');
+                                    // Financial Year to Date KPI
+                                    $('#kpiYtdLabel').text(data.ytdLabel || 'FINANCIAL YEAR TO DATE');
+                                    $('#kpiYtdAmount').text(formatCurrencyInMillions(data.ytdAmount)).attr('title', formatCurrency(data.ytdAmount));
+                                    $('#kpiYtdCount').text(Number(data.ytdCount || 0).toLocaleString());
+                                    if (data.fyLabel) {
+                                        $('#kpiFyBadge').text(data.fyLabel);
+                                    }
+                                    if (data.fyStartYear) {
+                                        $('#kpiFyPeriodText').text('Financial Year (From 01 Apr ' + data.fyStartYear + ')');
+                                    }
+                                })
+                                .catch(err => {
+                                    console.error("Error loading disbursement summary cards:", err);
+                                    $('#kpiMonthAmount').text('0.00 Mn');
+                                    $('#kpiYtdAmount').text('0.00 Mn');
+                                });
+                    }
 
-                        window.location.href = downloadUrl + '?' + queryParams.toString();
+                    $(document).ready(function () {
+                        // Initialize Month filter to current year-month
+                        const curYm = getCurrentYearMonth();
+                        $('#selectMonth').val(curYm);
 
-                        const fallbackTimer = setTimeout(function() {
-                            $('#cbsLoader').hide();
-                            clearInterval(checkTimer);
-                        }, 5000);
+                        $('#btnCurrentMonth').on('click', function () {
+                            $('#selectMonth').val(getCurrentYearMonth());
+                        });
 
-                        const checkTimer = setInterval(function() {
-                            const cookieValue = getCookie("downloadToken");
-                            if (cookieValue == token) {
-                                $('#cbsLoader').hide();
-                                document.cookie = "downloadToken=; Max-Age=-99999999; path=/";
-                                clearTimeout(fallbackTimer);
-                                clearInterval(checkTimer);
+                        // Initialize Choices for product selection
+                        productChoices = new Choices('#selectProducts', {
+                            removeItemButton: true,
+                            placeholder: true,
+                            placeholderValue: 'Select Product(s)...',
+                            shouldSort: false
+                        });
+
+                        $('#selectProducts').on('change', function () {
+                            const products = productChoices ? productChoices.getValue(true) : [];
+                            if (products && products.length > 0) {
+                                $('#productAlert').addClass('d-none').removeClass('d-flex');
                             }
-                        }, 500);
+                        });
+
+                        // Load Metadata for product filter
+                        fetch('${pageContext.request.contextPath}/api/cbs/metadata')
+                                .then(res => res.json())
+                                .then(data => {
+                                    if (data && data.products) {
+
+                                        // Only these products will appear in the dropdown
+                                        const allowedProducts = [
+                                            'MF',
+                                            'LF'
+                                        ];
+
+                                        const productList = data.products
+                                                .filter(p => allowedProducts.includes(String(p.product_code)))
+                                                .map(p => ({
+                                                        value: p.product_code,
+                                                        label: p.product_name + ' (' + p.product_code + ')',
+                                                        selected: false
+                                                    }));
+
+                                        productChoices.setChoices(productList, 'value', 'label', true);
+                                    }
+                                })
+                                .catch(err => console.error("Error loading filter metadata:", err));
+
+                        // Initialize DataTable
+                        dtDisbursement = $('#tableDisbursement').DataTable({
+                            processing: false,
+                            serverSide: true,
+                            deferLoading: 0,
+                            order: [[8, 'desc']],
+                            pageLength: 25,
+                            lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
+                            language: {
+                                emptyTable: "Please select a product and click 'Load Data' to view records.",
+                                zeroRecords: "No matching disbursed loans found for the selected criteria."
+                            },
+                            ajax: function (data, callback, settings) {
+                                const filters = getFilters();
+                                if (!filters.products || filters.products.length === 0) {
+                                    callback({draw: data.draw, recordsTotal: 0, recordsFiltered: 0, data: []});
+                                    return;
+                                }
+
+                                $('#loaderText').text('Loading disbursement data...');
+                                $('#cbsLoader').css('display', 'flex');
+                                data.data = filters;
+
+                                $.ajax({
+                                    url: '${pageContext.request.contextPath}/api/cbs/disbursement',
+                                    type: 'POST',
+                                    contentType: 'application/json',
+                                    data: JSON.stringify(data),
+                                    success: function (res) {
+                                        callback(res);
+                                    },
+                                    error: function (xhr, error, thrown) {
+                                        console.error("Error fetching disbursement report:", thrown);
+                                        callback({draw: data.draw, recordsTotal: 0, recordsFiltered: 0, data: []});
+                                    },
+                                    complete: function () {
+                                        $('#cbsLoader').hide();
+                                    }
+                                });
+                            },
+                            columns: [
+                                {
+                                    data: 'account_no',
+                                    render: function (data, type, row) {
+                                        let legacy = (row.legacy_account_no && row.legacy_account_no !== '-') ? '<small class="text-muted d-block fs--2">Legacy: ' + row.legacy_account_no + '</small>' : '';
+                                        return '<span class="badge-account">' + data + '</span>' + legacy;
+                                    }
+                                },
+                                {data: 'application_no', defaultContent: '-'},
+                                {data: 'series', defaultContent: '-'},
+                                {
+                                    data: 'account_status',
+                                    render: function (data) {
+                                        if (!data)
+                                            return '-';
+                                        let bg = 'bg-soft-primary';
+                                        if (data === 'A' || data === 'ACTIVE')
+                                            bg = 'bg-soft-success';
+                                        else if (data === 'C' || data === 'CLOSED')
+                                            bg = 'bg-soft-secondary';
+                                        else if (data === 'P' || data === 'F')
+                                            bg = 'bg-soft-info';
+                                        return '<span class="badge ' + bg + '">' + data + '</span>';
+                                    }
+                                },
+                                {
+                                    data: 'product_name',
+                                    render: function (data, type, row) {
+                                        return '<span class="badge-product">' + (data || row.product || '-') + '</span>';
+                                    }
+                                },
+                                {data: 'branch_name', defaultContent: '-'},
+                                {data: 'client_code', defaultContent: '-'},
+                                {data: 'client_name', defaultContent: '-'},
+                                {
+                                    data: 'disbursed_date',
+                                    render: function (data) {
+                                        return data ? '<span class="fw-semi-bold text-dark">' + data + '</span>' : '-';
+                                    }
+                                },
+                                {data: 'start_date', defaultContent: '-'},
+                                {data: 'maturity_date', defaultContent: '-'},
+                                {
+                                    data: 'loan_amount',
+                                    className: 'text-end',
+                                    render: function (data) {
+                                        return '<span class="fw-bold text-900">' + (data ? Number(data).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '0.00') + '</span>';
+                                    }
+                                },
+                                {
+                                    data: 'rate',
+                                    className: 'text-end',
+                                    render: function (data) {
+                                        return data ? Number(data).toFixed(2) + '%' : '-';
+                                    }
+                                },
+                                {
+                                    data: 'period',
+                                    className: 'text-center',
+                                    render: function (data) {
+                                        return data ? data + ' M' : '-';
+                                    }
+                                },
+                                {
+                                    data: 'rental',
+                                    className: 'text-end',
+                                    render: function (data) {
+                                        return data ? Number(data).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '0.00';
+                                    }
+                                },
+                                {data: 'due_day', className: 'text-center', defaultContent: '-'},
+                                {data: 'marketing_officer', defaultContent: '-'},
+                                {data: 'security', defaultContent: '-'},
+                                {data: 'vendor', defaultContent: '-'},
+                                {data: 'key_account', defaultContent: '-'}
+                            ],
+                            rowCallback: function (row, data) {
+                                $(row).addClass('clickable-row');
+                            }
+                        });
+
+                        // Row click handler to open facility info directly
+                        $('#tableDisbursement tbody').on('click', 'tr', function () {
+                            const rowData = dtDisbursement.row(this).data();
+                            if (rowData) {
+                                const searchVal = (rowData.legacy_account_no && rowData.legacy_account_no !== '-') ? rowData.legacy_account_no : rowData.account_no;
+                                if (searchVal) {
+                                    window.open('${pageContext.request.contextPath}/mobile?query=' + encodeURIComponent(searchVal), '_blank');
+                                }
+                            }
+                        });
+
+                        // Apply Filters button click
+                        $('#applyFiltersBtn').on('click', function () {
+                            const filters = getFilters();
+                            if (!filters.products || filters.products.length === 0) {
+                                $('#productAlert').removeClass('d-none').addClass('d-flex');
+                                return;
+                            }
+                            $('#productAlert').addClass('d-none').removeClass('d-flex');
+
+                            $(this).html('<span class="fas fa-sync-alt me-1 fa-spin"></span> Loading...');
+                            loadSummaryCards();
+                            dtDisbursement.draw();
+                            setTimeout(() => {
+                                $('#applyFiltersBtn').html('<span class="fas fa-search me-1"></span> Load Data');
+                            }, 500);
+                        });
+
+                        // Reset button click
+                        $('#resetFiltersBtn').on('click', function () {
+                            $('#selectMonth').val(getCurrentYearMonth());
+                            if (productChoices) {
+                                productChoices.removeActiveItems();
+                            }
+                            $('#productAlert').addClass('d-none').removeClass('d-flex');
+                            $('#kpiMonthAmount').text('0.00 Mn').attr('title', '0.00');
+                            $('#kpiMonthCount').text('0');
+                            $('#kpiYtdAmount').text('0.00 Mn').attr('title', '0.00');
+                            $('#kpiYtdCount').text('0');
+                            $('#kpiMonthLabel').text('CURRENT MONTH');
+                            $('#kpiYtdLabel').text('FINANCIAL YEAR TO DATE');
+                            $('#kpiFyBadge').text('Financial Year');
+                            $('#kpiFyPeriodText').text('Financial Year (Apr - Mar)');
+                            $('#kpiMonthPeriodText').text('Selected Month');
+                            $('#badgeMonthText').text('Current Month');
+                            dtDisbursement.clear().draw();
+                        });
+
+                        // Download Excel handler
+                        if ($('#downloadExcelBtn').length) {
+                            $('#downloadExcelBtn').on('click', function () {
+                                const filters = getFilters();
+                                if (!filters.products || filters.products.length === 0) {
+                                    $('#productAlert').removeClass('d-none').addClass('d-flex');
+                                    return;
+                                }
+                                $('#productAlert').addClass('d-none').removeClass('d-flex');
+
+                                let downloadUrl = '${pageContext.request.contextPath}/api/cbs/disbursement/download';
+
+                                const queryParams = new URLSearchParams();
+                                if (filters.month)
+                                    queryParams.append('month', filters.month);
+                                filters.products.forEach(p => queryParams.append('products', p));
+
+                                const token = new Date().getTime();
+                                queryParams.append('downloadToken', token);
+
+                                $('#loaderText').text('Generating Excel download for ' + (filters.month || 'selected period') + '...');
+                                $('#cbsLoader').css('display', 'flex');
+
+                                window.location.href = downloadUrl + '?' + queryParams.toString();
+
+                                const fallbackTimer = setTimeout(function () {
+                                    $('#cbsLoader').hide();
+                                    clearInterval(checkTimer);
+                                }, 5000);
+
+                                const checkTimer = setInterval(function () {
+                                    const cookieValue = getCookie("downloadToken");
+                                    if (cookieValue == token) {
+                                        $('#cbsLoader').hide();
+                                        document.cookie = "downloadToken=; Max-Age=-99999999; path=/";
+                                        clearTimeout(fallbackTimer);
+                                        clearInterval(checkTimer);
+                                    }
+                                }, 500);
+                            });
+                        }
                     });
-                }
-            });
         </script>
     </body>
 </html>
