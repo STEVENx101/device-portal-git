@@ -492,13 +492,23 @@
                     .then(res => res.json())
                     .then(data => {
                         if (data && data.products) {
-                            const productList = data.products.map(p => ({
-                                value: p.product_code,
-                                label: p.product_name + ' (' + p.product_code + ')',
-                                selected: false
-                            }));
-                            productChoices.setChoices(productList, 'value', 'label', true);
-                        }
+
+    // Only these products will appear in the dropdown
+    const allowedProducts = [
+        'MF',
+        'LF',
+    ];
+
+    const productList = data.products
+        .filter(p => allowedProducts.includes(String(p.product_code)))
+        .map(p => ({
+            value: p.product_code,
+            label: p.product_name + ' (' + p.product_code + ')',
+            selected: false
+        }));
+
+    productChoices.setChoices(productList, 'value', 'label', true);
+}
                     })
                     .catch(err => console.error("Error loading filter metadata:", err));
 
