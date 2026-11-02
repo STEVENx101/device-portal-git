@@ -738,7 +738,7 @@
                 };
 
                 // Helper: build horizontal bar chart with direct data labels
-                function buildHorizontalBar(canvasId, labels, amounts, gradientStart, gradientEnd, borderColor, isCollected) {
+                function buildHorizontalBar(canvasId, labels, amounts, gradientStart, gradientEnd, borderColor, isCollected, counts) {
                     destroyChart(canvasId);
                     const ctx = document.getElementById(canvasId).getContext('2d');
                     activeCharts[canvasId] = new Chart(ctx, {
@@ -780,18 +780,38 @@
                             responsive: true,
                             maintainAspectRatio: false,
                             layout: {
-                                padding: { right: 40 }
+                                padding: { right: 55 }
                             },
                             plugins: {
                                 legend: { display: false },
-                                tooltip: { enabled: true },
+                                tooltip: {
+                                    enabled: true,
+                                    callbacks: {
+                                        label: function (context) {
+                                            const val = context.raw || 0;
+                                            const count = (counts && counts[context.dataIndex] !== undefined && counts[context.dataIndex] !== null)
+                                                ? counts[context.dataIndex]
+                                                : null;
+                                            if (count !== null) {
+                                                return ' Amount: ' + formatLKR(val) + ' (' + formatNum(count) + ' Accounts)';
+                                            }
+                                            return ' Amount: ' + formatLKR(val);
+                                        }
+                                    }
+                                },
                                 datalabels: {
                                     display: true,
                                     anchor: 'end',
                                     align: 'end',
                                     color: isDark ? '#cbd5e1' : '#1e293b',
                                     font: { weight: 'bold', size: 9 },
-                                    formatter: (val) => formatLKR(val)
+                                    formatter: (val, ctx) => {
+                                        let label = formatLKR(val);
+                                        if (counts && counts[ctx.dataIndex] !== undefined && counts[ctx.dataIndex] !== null) {
+                                            label += ' (' + formatNum(counts[ctx.dataIndex]) + ')';
+                                        }
+                                        return label;
+                                    }
                                 }
                             },
                             scales: {
@@ -1046,6 +1066,7 @@
                             .then(data => {
                                 const labels = data.map(i => i.month_name);
                                 const amounts = data.map(i => i.business_amount || 0);
+                                const counts = data.map(i => i.business_count || 0);
 
                                 buildHorizontalBar(
                                     'businessChart',
@@ -1054,7 +1075,8 @@
                                     'rgba(16, 185, 129, 0.15)',
                                     'rgba(16, 185, 129, 0.85)',
                                     '#10b981',
-                                    false
+                                    false,
+                                    counts
                                 );
                             })
                             .catch(err => console.error("Error loading month wise business:", err))
@@ -1124,7 +1146,21 @@
                                                 cutout: '72%',
                                                 plugins: {
                                                     legend: { display: false },
-                                                    tooltip: { enabled: true },
+                                                    tooltip: {
+                                    enabled: true,
+                                    callbacks: {
+                                        label: function (context) {
+                                            const val = context.raw || 0;
+                                            const count = (counts && counts[context.dataIndex] !== undefined && counts[context.dataIndex] !== null)
+                                                ? counts[context.dataIndex]
+                                                : null;
+                                            if (count !== null) {
+                                                return ' Amount: ' + formatLKR(val) + ' (' + formatNum(count) + ' Accounts)';
+                                            }
+                                            return ' Amount: ' + formatLKR(val);
+                                        }
+                                    }
+                                },
                                                     datalabels: {
                                                         display: true,
                                                         color: '#ffffff',
@@ -1258,7 +1294,8 @@
                                     'rgba(16, 185, 129, 0.15)',
                                     'rgba(16, 185, 129, 0.85)',
                                     '#10b981',
-                                    false
+                                    false,
+                                    chartData.map(i => i.account_count || i.business_count || 0)
                                 );
                             })
                             .catch(err => console.error("Error loading daily disbursements chart:", err))
@@ -1383,7 +1420,21 @@
                                             layout: { padding: { top: 20 } },
                                             plugins: {
                                                 legend: { display: false },
-                                                tooltip: { enabled: true },
+                                                tooltip: {
+                                    enabled: true,
+                                    callbacks: {
+                                        label: function (context) {
+                                            const val = context.raw || 0;
+                                            const count = (counts && counts[context.dataIndex] !== undefined && counts[context.dataIndex] !== null)
+                                                ? counts[context.dataIndex]
+                                                : null;
+                                            if (count !== null) {
+                                                return ' Amount: ' + formatLKR(val) + ' (' + formatNum(count) + ' Accounts)';
+                                            }
+                                            return ' Amount: ' + formatLKR(val);
+                                        }
+                                    }
+                                },
                                                 datalabels: {
                                                     display: true,
                                                     anchor: 'end',
@@ -1462,7 +1513,21 @@
                                             maintainAspectRatio: false,
                                             plugins: {
                                                                 legend: { display: false },
-                                                                tooltip: { enabled: true },
+                                                                tooltip: {
+                                    enabled: true,
+                                    callbacks: {
+                                        label: function (context) {
+                                            const val = context.raw || 0;
+                                            const count = (counts && counts[context.dataIndex] !== undefined && counts[context.dataIndex] !== null)
+                                                ? counts[context.dataIndex]
+                                                : null;
+                                            if (count !== null) {
+                                                return ' Amount: ' + formatLKR(val) + ' (' + formatNum(count) + ' Accounts)';
+                                            }
+                                            return ' Amount: ' + formatLKR(val);
+                                        }
+                                    }
+                                },
                                                                 datalabels: {
                                                                     display: true,
                                                                     color: '#ffffff',
@@ -1643,7 +1708,21 @@
                                             position: 'top',
                                             labels: { boxWidth: 8, padding: 4, font: { size: 8, weight: 'bold' } }
                                         },
-                                        tooltip: { enabled: true },
+                                        tooltip: {
+                                    enabled: true,
+                                    callbacks: {
+                                        label: function (context) {
+                                            const val = context.raw || 0;
+                                            const count = (counts && counts[context.dataIndex] !== undefined && counts[context.dataIndex] !== null)
+                                                ? counts[context.dataIndex]
+                                                : null;
+                                            if (count !== null) {
+                                                return ' Amount: ' + formatLKR(val) + ' (' + formatNum(count) + ' Accounts)';
+                                            }
+                                            return ' Amount: ' + formatLKR(val);
+                                        }
+                                    }
+                                },
                                         datalabels: { display: false }
                                     }
                                 }

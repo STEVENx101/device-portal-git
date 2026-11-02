@@ -440,6 +440,7 @@ public class DashboardRepository {
                 SELECT
                     DATE_FORMAT(l.disbursed_date, '%%d %%b') AS channel_name,
                     DATE_FORMAT(l.disbursed_date, '%%Y-%%m-%%d') AS db_date,
+                    COUNT(*) AS account_count,
                     COALESCE(SUM(l.loan_amount), 0) AS total_amount
                 FROM cbs.loan l
                 LEFT JOIN cbs.product pr ON CAST(l.product AS UNSIGNED) = pr.code_val
