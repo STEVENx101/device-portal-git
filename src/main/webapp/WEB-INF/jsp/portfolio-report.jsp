@@ -142,7 +142,7 @@
                                     </div>
                                     <div class="col-md-2">
                                         <label class="form-label text-700 fw-semi-bold" for="asAtDate">As at</label>
-                                        <input class="form-control" type="date" id="asAtDate" value="2026-07-13">
+                                        <input class="form-control" type="date" id="asAtDate" value="">
                                     </div>
                                     <div class="col-12 d-flex justify-content-end gap-2 mt-2">
                                         <button class="btn btn-primary btn-sm text-nowrap" type="button" id="applyFiltersBtn">
@@ -174,11 +174,11 @@
                                             <th>Account No</th>
                                             <th>Series</th>
                                             <th>Legacy Account</th>
-                                            <th>Loan Amount</th>
-                                            <th>Rental</th>
-                                            <th>Total Due</th>
-                                            <th>Exposure</th>
-                                            <th>DPD</th>
+                                            <th class="text-end">Loan Amount</th>
+                                            <th class="text-end">Rental</th>
+                                            <th class="text-end">Total Due</th>
+                                            <th class="text-end">Exposure</th>
+                                            <th class="text-end">DPD</th>
                                             <th>Perf. Status</th>
                                             <th>Status</th>
                                             <th>Disbursed Date</th>
@@ -231,6 +231,11 @@
             }
 
             $(document).ready(function() {
+                // Set default As at date to current date
+                const now = new Date();
+                const today = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+                $('#asAtDate').val(today);
+
                 productChoices = new Choices('#selectProducts', {
                     removeItemButton: true,
                     placeholderValue: 'Select products',
@@ -279,11 +284,11 @@
                         { data: 'account_no' },
                         { data: 'series' },
                         { data: 'legacy_account_no', defaultContent: '-' },
-                        { data: 'loan_amount', render: $.fn.dataTable.render.number(',', '.', 2) },
-                        { data: 'rental', render: $.fn.dataTable.render.number(',', '.', 2) },
-                        { data: 'total_due', render: $.fn.dataTable.render.number(',', '.', 2) },
-                        { data: 'exposure', render: $.fn.dataTable.render.number(',', '.', 2) },
-                        { data: 'dpd' },
+                        { data: 'loan_amount', className: 'text-end', render: $.fn.dataTable.render.number(',', '.', 2) },
+                        { data: 'rental', className: 'text-end', render: $.fn.dataTable.render.number(',', '.', 2) },
+                        { data: 'total_due', className: 'text-end', render: $.fn.dataTable.render.number(',', '.', 2) },
+                        { data: 'exposure', className: 'text-end', render: $.fn.dataTable.render.number(',', '.', 2) },
+                        { data: 'dpd', className: 'text-end' },
                         { data: 'performing_status' },
                         { data: 'portfolio_loan_status' },
                         { data: 'disbursed_date', defaultContent: '-' },
