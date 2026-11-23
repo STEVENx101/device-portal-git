@@ -39,6 +39,11 @@ public class PageController {
         return "empty_dashboard";
     }
 
+    @GetMapping("/mobile-app-dashboard")
+    public String mobileAppDashboard() {
+        return "mobile-app-dashboard";
+    }
+
     @GetMapping("/cbs-reports")
     public String cbsReports() {
         return "redirect:/portfolio";

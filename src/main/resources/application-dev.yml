@@ -14,3 +14,10 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
   main:
     allow-circular-references: false
+
+mobileapp:
+  datasource:
+    url: jdbc:mysql://10.16.2.38:3306/fintrex_live_app_backend?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Colombo
+    username: fintrex_read_only
+    password: Fin])g/p{Ltr^g41MAex
+    driver-class-name: com.mysql.cj.jdbc.Driver
