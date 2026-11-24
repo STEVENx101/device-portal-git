@@ -1,9 +1,9 @@
 package com.fintrex.deviceportal.service;
 
+import com.fintrex.deviceportal.config.MobileAppDataSourceConfig;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -30,14 +30,18 @@ public class MobileAppDashboardService {
         CEFT_CODES.put("FT_OWN_TO_OTHER", "Fintrex to Other Bank");
     }
 
-    private final NamedParameterJdbcTemplate mobileAppJdbc;
+    private final MobileAppDataSourceConfig mobileAppDataSourceConfig;
     private final JdbcTemplate primaryJdbc;
 
     public MobileAppDashboardService(
-            @Qualifier("mobileAppJdbcTemplate") NamedParameterJdbcTemplate mobileAppJdbc,
+            MobileAppDataSourceConfig mobileAppDataSourceConfig,
             JdbcTemplate primaryJdbc) {
-        this.mobileAppJdbc = mobileAppJdbc;
+        this.mobileAppDataSourceConfig = mobileAppDataSourceConfig;
         this.primaryJdbc = primaryJdbc;
+    }
+
+    private NamedParameterJdbcTemplate mobileAppJdbc() {
+        return mobileAppDataSourceConfig.getJdbcTemplate();
     }
 
     @PostConstruct
@@ -103,7 +107,7 @@ public class MobileAppDashboardService {
                    OR (registered_at IS NULL AND created_date_time IS NULL)
                 """;
 
-        Map<String, Object> userRow = mobileAppJdbc.queryForMap(userSql, params);
+        Map<String, Object> userRow = mobileAppJdbc().queryForMap(userSql, params);
 
         // 2. Total Savings Accounts Opened from savings_account
         String savingsSql = """
@@ -116,7 +120,7 @@ public class MobileAppDashboardService {
                   AND UPPER(COALESCE(status, '')) NOT IN ('FAILED', 'REJECTED', 'PENDING', 'CANCELLED')
                 """;
 
-        Map<String, Object> savingsRow = mobileAppJdbc.queryForMap(savingsSql, params);
+        Map<String, Object> savingsRow = mobileAppJdbc().queryForMap(savingsSql, params);
 
         Map<String, Object> customerInfo = new LinkedHashMap<>();
         customerInfo.put("totalInitiated", toLong(userRow.get("total_initiated")));
@@ -157,7 +161,7 @@ public class MobileAppDashboardService {
                 ORDER BY total_value DESC, total_count DESC
                 """;
 
-        List<Map<String, Object>> rawBreakdown = mobileAppJdbc.queryForList(txnBreakdownSql, params);
+        List<Map<String, Object>> rawBreakdown = mobileAppJdbc().queryForList(txnBreakdownSql, params);
 
         long totalTxnCount = 0L;
         BigDecimal totalTxnValue = BigDecimal.ZERO;
@@ -273,7 +277,7 @@ public class MobileAppDashboardService {
                 ORDER BY txn_day ASC
                 """;
 
-        List<Map<String, Object>> trendRows = mobileAppJdbc.queryForList(trendSql, params);
+        List<Map<String, Object>> trendRows = mobileAppJdbc().queryForList(trendSql, params);
         Map<String, Map<String, Object>> trendByDay = new HashMap<>();
         for (Map<String, Object> r : trendRows) {
             trendByDay.put(String.valueOf(r.get("txn_day")), r);
