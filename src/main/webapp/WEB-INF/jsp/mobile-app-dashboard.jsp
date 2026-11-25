@@ -37,10 +37,11 @@
 
     <style>
         :root {
-            --ma-primary: #1E40AF;
-            --ma-secondary: #3B82F6;
-            --ma-amber: #F59E0B;
-            --ma-emerald: #059669;
+            --ma-primary: #4f46e5;
+            --ma-secondary: #6366f1;
+            --ma-purple: #a855f7;
+            --ma-amber: #f59e0b;
+            --ma-emerald: #10b981;
             --ma-surface: #FFFFFF;
             --ma-bg: #F8FAFC;
             --ma-border: #E2E8F0;
@@ -61,11 +62,11 @@
         .ma-header-bar {
             flex: 0 0 auto;
             flex-shrink: 0;
-            background: linear-gradient(125deg, #1E3A8A 0%, #1E40AF 52%, #2563EB 100%);
+            background: linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #a855f7 100%);
             border-radius: 14px;
             padding: 1.15rem 1.5rem;
             color: #FFFFFF;
-            box-shadow: 0 10px 28px -8px rgba(30, 64, 175, 0.35);
+            box-shadow: 0 10px 26px -8px rgba(99, 102, 241, 0.38);
             position: relative;
             overflow: hidden;
         }
@@ -84,7 +85,7 @@
             width: 320px;
             height: 320px;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(245, 158, 11, 0.22) 0%, rgba(59, 130, 246, 0) 70%);
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.16) 0%, rgba(168, 85, 247, 0) 70%);
             pointer-events: none;
         }
         .ma-header-title {
@@ -122,21 +123,21 @@
             color-scheme: dark;
         }
         .ma-btn-refresh {
-            background: #F59E0B;
-            color: #0F172A;
+            background: #FFFFFF;
+            color: #4f46e5;
             border: none;
             border-radius: 10px;
             font-weight: 700;
             font-size: 0.82rem;
             padding: 0.5rem 1.05rem;
             cursor: pointer;
-            transition: background-color 0.2s ease, box-shadow 0.2s ease;
-            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+            transition: background-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.14);
         }
         .ma-btn-refresh:hover {
-            background: #D97706;
-            color: #FFFFFF;
-            box-shadow: 0 6px 16px rgba(217, 119, 6, 0.35);
+            background: #EEF2FF;
+            color: #4338ca;
+            box-shadow: 0 6px 16px rgba(15, 23, 42, 0.2);
         }
         .ma-btn-refresh:disabled {
             opacity: 0.65;
@@ -160,7 +161,7 @@
             width: 18px;
             height: 3px;
             border-radius: 99px;
-            background: #1E40AF;
+            background: linear-gradient(90deg, #6366f1, #a855f7);
         }
 
         /* KPI Cards (Icon-Free, Typographic Precision) */
@@ -228,11 +229,11 @@
 
         /* Highlight CEFT Revenue Card */
         .ma-kpi-ceft {
-            background: linear-gradient(145deg, #EFF6FF 0%, #FFFFFF 65%);
-            border: 1px solid #BFDBFE;
+            background: linear-gradient(145deg, #EEF2FF 0%, #FFFFFF 68%);
+            border: 1px solid #C7D2FE;
         }
         .ma-kpi-ceft .ma-kpi-value {
-            color: #1E40AF;
+            color: #4f46e5;
         }
 
         /* Delta Badges */
@@ -414,7 +415,7 @@
             <div class="ma-section-label">Customer &amp; App Overview</div>
             <div class="row g-3 mb-4">
                 <div class="col-12 col-sm-6 col-xl-3">
-                    <div class="ma-kpi-card" style="--accent-color: #1E40AF;">
+                    <div class="ma-kpi-card" style="--accent-color: #6366f1;">
                         <div class="ma-kpi-label">Total App Downloads / Initiated</div>
                         <div class="ma-kpi-value num-mono" id="kpiInitiated">-</div>
                         <div class="ma-kpi-meta">
@@ -462,7 +463,7 @@
             <div class="ma-section-label">Transactions &amp; CEFT Revenue</div>
             <div class="row g-3 mb-4">
                 <div class="col-12 col-md-4">
-                    <div class="ma-kpi-card" style="--accent-color: #3B82F6;">
+                    <div class="ma-kpi-card" style="--accent-color: #8b5cf6;">
                         <div class="ma-kpi-label">Total Successful Transactions</div>
                         <div class="ma-kpi-value num-mono" id="kpiTxnCount">-</div>
                         <div class="ma-kpi-meta">
@@ -482,7 +483,7 @@
                     </div>
                 </div>
                 <div class="col-12 col-md-4">
-                    <div class="ma-kpi-card ma-kpi-ceft" style="--accent-color: #F59E0B;">
+                    <div class="ma-kpi-card ma-kpi-ceft" style="--accent-color: #6366f1;">
                         <div class="ma-kpi-label">Total CEFT Revenue</div>
                         <div class="ma-kpi-value num-mono" id="kpiCeftRevenue">-</div>
                         <div class="ma-kpi-meta">
@@ -727,7 +728,7 @@
                 '<td class="text-end num-mono fw-semi-bold">' + fmtInt(r.successCount) + '</td>' +
                 '<td class="text-end num-mono">' + fmtInt(r.todayCount) + ' ' + deltaPillHtml(r.todayCount, r.prevCount) + '</td>' +
                 '<td class="text-end num-mono text-muted">' + fmtCurrency(r.feePerTxn) + '</td>' +
-                '<td class="text-end num-mono fw-bold" style="color:#1E40AF;">' + fmtCurrency(r.revenue) + '</td>' +
+                '<td class="text-end num-mono fw-bold" style="color:#4f46e5;">' + fmtCurrency(r.revenue) + '</td>' +
             '</tr>';
         });
         $('#ceftTableBody').html(html || '<tr><td colspan="6" class="text-center text-muted py-4">No CEFT transactions found</td></tr>');
@@ -738,7 +739,7 @@
                 '<td class="text-end num-mono">' + fmtInt(ceft.totalCeftCount) + '</td>' +
                 '<td class="text-end num-mono">' + fmtInt(ceft.todayCeftCount) + ' ' + deltaPillHtml(ceft.todayCeftCount, ceft.prevCeftCount) + '</td>' +
                 '<td class="text-end num-mono text-muted">' + fmtCurrency(ceft.feePerTxn || 25) + '</td>' +
-                '<td class="text-end num-mono" style="color:#1E40AF;">LKR ' + fmtCurrency(ceft.totalCeftRevenue) + '</td>' +
+                '<td class="text-end num-mono" style="color:#4f46e5;">LKR ' + fmtCurrency(ceft.totalCeftRevenue) + '</td>' +
             '</tr>'
         );
     }
@@ -792,8 +793,8 @@
                     {
                         label: 'Successful Txns',
                         data: counts,
-                        backgroundColor: 'rgba(30, 64, 175, 0.78)',
-                        hoverBackgroundColor: '#1E40AF',
+                        backgroundColor: 'rgba(99, 102, 241, 0.78)',
+                        hoverBackgroundColor: '#4f46e5',
                         borderRadius: 6,
                         yAxisID: 'y'
                     },
@@ -846,7 +847,7 @@
                 datasets: [{
                     label: 'Value (LKR)',
                     data: values,
-                    backgroundColor: top.map(i => i.isCeft ? '#1E40AF' : '#3B82F6'),
+                    backgroundColor: top.map(i => i.isCeft ? '#6366f1' : '#a855f7'),
                     borderRadius: 6,
                     barThickness: 18
                 }]
