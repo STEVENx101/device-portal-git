@@ -84,7 +84,7 @@ public class SecurityInterceptor implements HandlerInterceptor {
         // Bypass static assets, login/logout, and public resource requests
         if (path.startsWith("/assets/") || path.startsWith("/vendors/") || 
             path.equals("/login") || path.equals("/logout") || path.equals("/sso-logout") ||
-            path.equals("/api/login-callback") ||
+            path.equals("/api/login-callback") || path.equals("/api/logout") ||
             path.contains(".")) {
             return true;
         }

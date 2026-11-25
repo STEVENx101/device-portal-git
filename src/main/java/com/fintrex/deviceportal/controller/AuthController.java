@@ -2,6 +2,9 @@ package com.fintrex.deviceportal.controller;
 
 import com.fintrex.deviceportal.dto.User;
 import com.fintrex.deviceportal.service.UserService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -137,15 +140,41 @@ public class AuthController {
     }
 
     @GetMapping("/logout")
-    public String logout(jakarta.servlet.http.HttpServletRequest request) {
+    public String logout(HttpServletRequest request, HttpServletResponse response) {
         HttpSession session = request.getSession(false);
         if (session != null) {
             session.invalidate();
         }
-        // Set loggedOut flag in a new session to prevent immediate auto-login
-        HttpSession newSession = request.getSession(true);
-        newSession.setAttribute("loggedOut", true);
-        return "redirect:/login?logout=true";
+        expireSessionCookies(request, response);
+        return "redirect:/login";
+    }
+
+    @GetMapping("/api/logout")
+    @ResponseBody
+    public ResponseEntity<Void> apiLogout(HttpServletRequest request, HttpServletResponse response) {
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.invalidate();
+        }
+        expireSessionCookies(request, response);
+        return ResponseEntity.ok().build();
+    }
+
+    private void expireSessionCookies(HttpServletRequest req, HttpServletResponse resp) {
+        killCookie(resp, "JSESSIONID", "/", req.isSecure());
+        String ctx = req.getContextPath();
+        if (ctx != null && !ctx.isBlank() && !"/".equals(ctx)) {
+            killCookie(resp, "JSESSIONID", ctx, req.isSecure());
+        }
+    }
+
+    private static void killCookie(HttpServletResponse resp, String name, String path, boolean secure) {
+        Cookie c = new Cookie(name, "");
+        c.setHttpOnly(true);
+        c.setSecure(secure);
+        c.setPath(path);
+        c.setMaxAge(0);
+        resp.addCookie(c);
     }
 
     

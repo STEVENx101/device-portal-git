@@ -52,7 +52,7 @@
                         <span class="fas fa-clock me-2"></span>Extend Session
                     </a>
                     <div class="dropdown-divider my-1"></div>
-                    <a class="dropdown-item text-danger py-2" href="<%= request.getContextPath() %>/sso-logout">Logout</a>
+                    <a class="dropdown-item text-danger py-2" href="<%= request.getContextPath() %>/logout" onclick="performAppLogout(event)">Logout</a>
                 </div>
             </div>
         </li>
@@ -73,7 +73,7 @@
                 <p class="mb-0 fs--1 text-600">Time remaining: <span id="sessionCountdown" class="badge bg-soft-warning text-warning fw-bold fs-0 font-monospace">02:00</span></p>
             </div>
             <div class="modal-footer bg-light py-2 justify-content-center">
-                <button type="button" class="btn btn-secondary btn-sm" onclick="location.href='<%= request.getContextPath() %>/sso-logout'">Logout</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="performAppLogout(event)">Logout</button>
                 <button type="button" class="btn btn-primary btn-sm" onclick="extendUserSession(true)"><i class="fas fa-clock me-1"></i>Extend Session</button>
             </div>
         </div>
@@ -148,7 +148,11 @@
 
             if (remainingSeconds <= 0) {
                 clearInterval(countdownInterval);
-                window.location.href = '<%= request.getContextPath() %>/sso-logout';
+                if (typeof window.performAppLogout === 'function') {
+                    window.performAppLogout();
+                } else {
+                    window.location.replace('<%= request.getContextPath() %>/logout');
+                }
             }
         }, 1000);
     }

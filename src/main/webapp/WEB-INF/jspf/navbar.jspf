@@ -1470,12 +1470,91 @@ html.dark .dataTables_wrapper .dataTables_processing::after {
                 <span class="user-role"><%= navUserRole %></span>
             </div>
         </div>
-        <a class="logout-btn" href="<%= request.getContextPath() %>/sso-logout">
+        <a class="logout-btn" id="logoutLink" href="<%= request.getContextPath() %>/logout" onclick="performAppLogout(event)">
             <span class="fas fa-sign-out-alt"></span>
             <span>Logout</span>
         </a>
     </div>
 </div>
+
+<script>
+    (function () {
+        const LOGOUT_CTX = '<%= request.getContextPath() %>' || '';
+
+        function buildPathVariants(pathname) {
+            const parts = pathname.split('/').filter(Boolean);
+            const variants = ['/'];
+            for (let i = parts.length; i > 0; i--) {
+                variants.push('/' + parts.slice(0, i).join('/'));
+            }
+            return Array.from(new Set(variants));
+        }
+
+        function buildDomainVariants(hostname) {
+            const segs = hostname.split('.');
+            const out = [];
+            for (let i = 0; i < segs.length - 1; i++) {
+                out.push('.' + segs.slice(i).join('.'));
+            }
+            return out;
+        }
+
+        function clearNonHttpOnlyCookies() {
+            const cookies = document.cookie ? document.cookie.split(';') : [];
+            if (!cookies.length) return;
+
+            const paths = buildPathVariants(location.pathname);
+            const domains = buildDomainVariants(location.hostname);
+
+            for (const c of cookies) {
+                const eq = c.indexOf('=');
+                const name = (eq > -1 ? c.substring(0, eq) : c).trim();
+
+                for (const p of paths) {
+                    document.cookie = name + '=; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Path=' + p;
+                }
+                for (const d of domains) {
+                    for (const p of paths) {
+                        document.cookie = name + '=; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Path=' + p + '; Domain=' + d;
+                    }
+                }
+            }
+        }
+
+        window.performAppLogout = async function (event) {
+            if (event && typeof event.preventDefault === 'function') {
+                event.preventDefault();
+            }
+
+            try {
+                // 1) Client storage
+                sessionStorage.clear();
+
+                // 2) Best-effort: clear any non-HttpOnly cookies on this domain
+                clearNonHttpOnlyCookies();
+
+                // 3) Local Spring session + JSESSIONID cookie (server will delete cookie)
+                await fetch(LOGOUT_CTX + '/api/logout', {
+                    method: 'GET',
+                    credentials: 'same-origin',
+                    cache: 'no-store'
+                });
+
+                // 4) Auth server cookie (SameSite=None;Secure) — clears session_token
+                await fetch('https://auth.fintrexfinance.com:2083/auth/app-logout', {
+                    method: 'GET',
+                    credentials: 'include',
+                    cache: 'no-store'
+                });
+            } catch (err) {
+                console.warn('Logout cleanup warning:', err);
+            } finally {
+                // 5) Redirect (use replace to avoid back-button revisiting an authed page)
+                window.location.replace(LOGOUT_CTX + '/login');
+            }
+        };
+    })();
+</script>
 
 <script>
     document.addEventListener("DOMContentLoaded", () => {
