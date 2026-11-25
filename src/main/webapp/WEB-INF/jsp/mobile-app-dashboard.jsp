@@ -59,13 +59,22 @@
 
         /* Hero Header Banner */
         .ma-header-bar {
+            flex: 0 0 auto;
+            flex-shrink: 0;
             background: linear-gradient(125deg, #1E3A8A 0%, #1E40AF 52%, #2563EB 100%);
             border-radius: 14px;
-            padding: 1.35rem 1.6rem;
+            padding: 1.15rem 1.5rem;
             color: #FFFFFF;
             box-shadow: 0 10px 28px -8px rgba(30, 64, 175, 0.35);
             position: relative;
             overflow: hidden;
+        }
+        .ma-scroll-body {
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 2px 4px 16px 2px;
         }
         .ma-header-bar::after {
             content: "";
@@ -378,7 +387,7 @@
             <%@include file="../jspf/topbar.jspf" %>
 
             <!-- Clean Executive Header -->
-            <div class="ma-header-bar d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4 mt-2">
+            <div class="ma-header-bar d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3 mt-2">
                 <div>
                     <h4 class="ma-header-title">My Fintrex — Mobile App Dashboard</h4>
                     <div class="ma-header-sub">Real-time customer adoption, transaction volume, and CEFT revenue analytics</div>
@@ -394,6 +403,7 @@
                 </div>
             </div>
 
+            <div class="ma-scroll-body">
             <!-- Error Alert -->
             <div id="errorAlert" class="alert alert-danger d-none align-items-center justify-content-between mb-4 rounded-3" role="alert">
                 <span id="errorMessage">Unable to load Mobile App dashboard data.</span>
@@ -575,6 +585,7 @@
                 </div>
             </div>
 
+            </div><!-- /.ma-scroll-body -->
         </div>
     </div>
 </main>
