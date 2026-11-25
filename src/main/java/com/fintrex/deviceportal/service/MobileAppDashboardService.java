@@ -11,8 +11,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
@@ -53,7 +51,7 @@ public class MobileAppDashboardService {
             if (count != null && count == 0) {
                 primaryJdbc.update(
                         "INSERT INTO device_portal.screen (name, path, icon, group_name) VALUES (?, ?, ?, ?)",
-                        "Mobile App", "/mobile-app-dashboard", "fas fa-mobile-alt", "General");
+                        "Mobile App", "/mobile-app-dashboard", "fas fa-signal", "General");
                 Integer screenId = primaryJdbc.queryForObject(
                         "SELECT id FROM device_portal.screen WHERE path = '/mobile-app-dashboard' LIMIT 1",
                         Integer.class);
@@ -82,25 +80,34 @@ public class MobileAppDashboardService {
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("asAtDate", asAtDate.toString());
         result.put("prevDate", prevDate.toString());
-        result.put("lastUpdated", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
 
-        // 1. Customer / App Information from app_user
-        String userSql = """
+        // 1. Total App Downloads / Initiated from user_device
+        String deviceSql = """
                 SELECT
                     COUNT(*) AS total_initiated,
-                    SUM(CASE WHEN DATE(COALESCE(registered_at, created_date_time)) = :asAtDate THEN 1 ELSE 0 END) AS initiated_today,
-                    SUM(CASE WHEN DATE(COALESCE(registered_at, created_date_time)) = :prevDate THEN 1 ELSE 0 END) AS initiated_prev,
+                    SUM(CASE WHEN DATE(created_date_time) = :asAtDate THEN 1 ELSE 0 END) AS initiated_today,
+                    SUM(CASE WHEN DATE(created_date_time) = :prevDate THEN 1 ELSE 0 END) AS initiated_prev
+                FROM user_device
+                WHERE DATE(created_date_time) <= :asAtDate
+                   OR created_date_time IS NULL
+                """;
 
-                    SUM(CASE WHEN UPPER(COALESCE(status, '')) = 'ACTIVE' THEN 1 ELSE 0 END) AS total_active,
-                    SUM(CASE WHEN UPPER(COALESCE(status, '')) = 'ACTIVE'
+        Map<String, Object> deviceRow = mobileAppJdbc().queryForMap(deviceSql, params);
+
+        // 2 & 3. Total Active Customers (status = 'ACTIVE' AND is_approved = 1, including Non-Fintrex)
+        //        and Non-Fintrex Users (valid_fintrex_user = b'0') from app_user
+        String userSql = """
+                SELECT
+                    SUM(CASE WHEN UPPER(COALESCE(status, '')) = 'ACTIVE' AND is_approved = 1 THEN 1 ELSE 0 END) AS total_active,
+                    SUM(CASE WHEN UPPER(COALESCE(status, '')) = 'ACTIVE' AND is_approved = 1
                               AND DATE(COALESCE(approved_at, registered_at, created_date_time)) = :asAtDate THEN 1 ELSE 0 END) AS active_today,
-                    SUM(CASE WHEN UPPER(COALESCE(status, '')) = 'ACTIVE'
+                    SUM(CASE WHEN UPPER(COALESCE(status, '')) = 'ACTIVE' AND is_approved = 1
                               AND DATE(COALESCE(approved_at, registered_at, created_date_time)) = :prevDate THEN 1 ELSE 0 END) AS active_prev,
 
-                    SUM(CASE WHEN valid_fintrex_user = 0 THEN 1 ELSE 0 END) AS total_non_fintrex,
-                    SUM(CASE WHEN valid_fintrex_user = 0
+                    SUM(CASE WHEN valid_fintrex_user IS NOT NULL AND CAST(valid_fintrex_user AS UNSIGNED) = 0 THEN 1 ELSE 0 END) AS total_non_fintrex,
+                    SUM(CASE WHEN valid_fintrex_user IS NOT NULL AND CAST(valid_fintrex_user AS UNSIGNED) = 0
                               AND DATE(COALESCE(registered_at, created_date_time)) = :asAtDate THEN 1 ELSE 0 END) AS non_fintrex_today,
-                    SUM(CASE WHEN valid_fintrex_user = 0
+                    SUM(CASE WHEN valid_fintrex_user IS NOT NULL AND CAST(valid_fintrex_user AS UNSIGNED) = 0
                               AND DATE(COALESCE(registered_at, created_date_time)) = :prevDate THEN 1 ELSE 0 END) AS non_fintrex_prev
                 FROM app_user
                 WHERE DATE(COALESCE(registered_at, created_date_time)) <= :asAtDate
@@ -109,23 +116,28 @@ public class MobileAppDashboardService {
 
         Map<String, Object> userRow = mobileAppJdbc().queryForMap(userSql, params);
 
-        // 2. Total Savings Accounts Opened from savings_account
+        // 4. Total & Active Savings Accounts Opened from savings_account
+        //    status = 'success', acc_status = 'Active'
         String savingsSql = """
                 SELECT
-                    COUNT(*) AS total_savings,
-                    SUM(CASE WHEN DATE(created_date_time) = :asAtDate THEN 1 ELSE 0 END) AS savings_today,
-                    SUM(CASE WHEN DATE(created_date_time) = :prevDate THEN 1 ELSE 0 END) AS savings_prev
+                    SUM(CASE WHEN LOWER(COALESCE(status, '')) = 'success' THEN 1 ELSE 0 END) AS total_savings,
+                    SUM(CASE WHEN LOWER(COALESCE(status, '')) = 'success'
+                              AND LOWER(COALESCE(acc_status, '')) = 'active' THEN 1 ELSE 0 END) AS active_savings,
+                    SUM(CASE WHEN LOWER(COALESCE(status, '')) = 'success'
+                              AND DATE(created_date_time) = :asAtDate THEN 1 ELSE 0 END) AS savings_today,
+                    SUM(CASE WHEN LOWER(COALESCE(status, '')) = 'success'
+                              AND DATE(created_date_time) = :prevDate THEN 1 ELSE 0 END) AS savings_prev
                 FROM savings_account
-                WHERE (DATE(created_date_time) <= :asAtDate OR created_date_time IS NULL)
-                  AND UPPER(COALESCE(status, '')) NOT IN ('FAILED', 'REJECTED', 'PENDING', 'CANCELLED')
+                WHERE DATE(created_date_time) <= :asAtDate
+                   OR created_date_time IS NULL
                 """;
 
         Map<String, Object> savingsRow = mobileAppJdbc().queryForMap(savingsSql, params);
 
         Map<String, Object> customerInfo = new LinkedHashMap<>();
-        customerInfo.put("totalInitiated", toLong(userRow.get("total_initiated")));
-        customerInfo.put("initiatedToday", toLong(userRow.get("initiated_today")));
-        customerInfo.put("initiatedPrev", toLong(userRow.get("initiated_prev")));
+        customerInfo.put("totalInitiated", toLong(deviceRow.get("total_initiated")));
+        customerInfo.put("initiatedToday", toLong(deviceRow.get("initiated_today")));
+        customerInfo.put("initiatedPrev", toLong(deviceRow.get("initiated_prev")));
 
         customerInfo.put("totalActive", toLong(userRow.get("total_active")));
         customerInfo.put("activeToday", toLong(userRow.get("active_today")));
@@ -136,15 +148,17 @@ public class MobileAppDashboardService {
         customerInfo.put("nonFintrexPrev", toLong(userRow.get("non_fintrex_prev")));
 
         customerInfo.put("totalSavings", toLong(savingsRow.get("total_savings")));
+        customerInfo.put("activeSavings", toLong(savingsRow.get("active_savings")));
         customerInfo.put("savingsToday", toLong(savingsRow.get("savings_today")));
         customerInfo.put("savingsPrev", toLong(savingsRow.get("savings_prev")));
 
         result.put("customerInfo", customerInfo);
 
-        // 3. Successful Transactions & Type-wise Breakdown from transaction
+        // 5 & 6. Successful Transactions & Type-wise Breakdown from `transaction`
+        //        status = 'SUCCESS', transaction_type holds the codes
         String txnBreakdownSql = """
                 SELECT
-                    UPPER(COALESCE(NULLIF(TRIM(transaction_type), ''), NULLIF(TRIM(payment_type), ''), 'OTHER')) AS txn_code,
+                    UPPER(COALESCE(NULLIF(TRIM(transaction_type), ''), 'OTHER')) AS txn_code,
                     COUNT(*) AS total_count,
                     COALESCE(SUM(COALESCE(raw_amount, paying_amount, 0)), 0) AS total_value,
                     SUM(CASE WHEN DATE(COALESCE(transaction_date, created_date_time)) = :asAtDate THEN 1 ELSE 0 END) AS today_count,
@@ -154,7 +168,7 @@ public class MobileAppDashboardService {
                     COALESCE(SUM(CASE WHEN DATE(COALESCE(transaction_date, created_date_time)) = :prevDate
                                       THEN COALESCE(raw_amount, paying_amount, 0) ELSE 0 END), 0) AS prev_value
                 FROM `transaction`
-                WHERE UPPER(COALESCE(status, '')) IN ('SUCCESS', 'SUCCESSFUL', 'COMPLETED')
+                WHERE UPPER(COALESCE(status, '')) = 'SUCCESS'
                   AND (DATE(COALESCE(transaction_date, created_date_time)) <= :asAtDate
                        OR (transaction_date IS NULL AND created_date_time IS NULL))
                 GROUP BY txn_code
@@ -216,7 +230,7 @@ public class MobileAppDashboardService {
         result.put("transactionInfo", transactionInfo);
         result.put("transactionBreakdown", transactionBreakdown);
 
-        // 4. CEFT Revenue Breakdown (always includes the 4 specified CEFT codes)
+        // 7. CEFT Revenue Breakdown (4 specified CEFT codes x LKR 25)
         List<Map<String, Object>> ceftBreakdown = new ArrayList<>();
         long ceftTotalCount = 0L;
         long ceftTodayCount = 0L;
@@ -261,17 +275,17 @@ public class MobileAppDashboardService {
         ceftSummary.put("breakdown", ceftBreakdown);
         result.put("ceftRevenue", ceftSummary);
 
-        // 5. Last 14 Days Daily Trend (Transactions & CEFT Revenue)
+        // 8. Last 14 Days Daily Trend (Transactions & CEFT Revenue)
         String trendSql = """
                 SELECT
                     DATE_FORMAT(DATE(COALESCE(transaction_date, created_date_time)), '%Y-%m-%d') AS txn_day,
                     COUNT(*) AS txn_count,
                     COALESCE(SUM(COALESCE(raw_amount, paying_amount, 0)), 0) AS txn_value,
-                    SUM(CASE WHEN UPPER(COALESCE(NULLIF(TRIM(transaction_type), ''), NULLIF(TRIM(payment_type), ''), ''))
+                    SUM(CASE WHEN UPPER(COALESCE(TRIM(transaction_type), ''))
                                   IN ('CC_OTHER_TO_OTHER', 'CC_OWN_TO_OTHER', 'FT_OTHER_TO_OTHER', 'FT_OWN_TO_OTHER')
                              THEN 1 ELSE 0 END) AS ceft_count
                 FROM `transaction`
-                WHERE UPPER(COALESCE(status, '')) IN ('SUCCESS', 'SUCCESSFUL', 'COMPLETED')
+                WHERE UPPER(COALESCE(status, '')) = 'SUCCESS'
                   AND DATE(COALESCE(transaction_date, created_date_time)) BETWEEN :trendStartDate AND :asAtDate
                 GROUP BY txn_day
                 ORDER BY txn_day ASC

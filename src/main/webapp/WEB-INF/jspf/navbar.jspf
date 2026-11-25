@@ -1242,7 +1242,7 @@ html.dark .dataTables_wrapper .dataTables_processing::after {
 
             <% if (hasMobileAppDashboard) { %>
                 <a class="nav-item-link" id="nav-mobile-app" href="<%= request.getContextPath() %>/mobile-app-dashboard">
-                    <span class="fas fa-mobile-alt"></span>
+                    <span class="fas fa-signal"></span>
                     <span>Mobile App</span>
                 </a>
             <% } %>
