@@ -21,3 +21,26 @@ mobileapp:
     username: fintrex_read_only
     password: Fin])g/p{Ltr^g41MAex
     driver-class-name: com.mysql.cj.jdbc.Driver
+
+letters:
+  templates-dir: ${catalina.base:.}/letters
+  cms-schema: cms
+
+oracle:
+  datasource:
+    enabled: false
+    url: jdbc:oracle:thin:@ORACLE_HOST:1521:ORCL
+    username: ORACLE_USER
+    password: ORACLE_PASSWORD
+    driver-class-name: oracle.jdbc.OracleDriver
+
+letters:
+  templates-dir: ${catalina.base:.}/letters
+
+oracle:
+  datasource:
+    enabled: false
+    url: jdbc:oracle:thin:@ORACLE_HOST:1521:ORCL
+    username: ORACLE_USER
+    password: ORACLE_PASSWORD
+    driver-class-name: oracle.jdbc.OracleDriver

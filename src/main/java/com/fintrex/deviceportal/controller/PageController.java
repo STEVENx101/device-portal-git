@@ -44,6 +44,11 @@ public class PageController {
         return "mobile-app-dashboard";
     }
 
+    @GetMapping("/facility-letters")
+    public String facilityLetters() {
+        return "facility-letters";
+    }
+
     @GetMapping("/cbs-reports")
     public String cbsReports() {
         return "redirect:/portfolio";

@@ -6,6 +6,7 @@
     List<Screen> userScreens = (List<Screen>) session.getAttribute("permittedScreens");
     boolean hasDashboard = false;
     boolean hasMobileAppDashboard = false;
+    boolean hasFacilityLetters = false;
     boolean hasDeviceFinance = false;
     boolean hasUserManagement = false;
     boolean hasAccessLogs = false;
@@ -39,6 +40,7 @@
         for (Screen s : userScreens) {
             if (s.getPath().equalsIgnoreCase("/dashboard")) hasDashboard = true;
             if (s.getPath().equalsIgnoreCase("/mobile-app-dashboard")) hasMobileAppDashboard = true;
+            if (s.getPath().equalsIgnoreCase("/facility-letters")) hasFacilityLetters = true;
             if (s.getPath().equalsIgnoreCase("/mobile")) hasDeviceFinance = true;
             if (s.getPath().equalsIgnoreCase("/customer-360")) hasCustomer360 = true;
             if (s.getPath().equalsIgnoreCase("/user-management")) hasUserManagement = true;
@@ -1246,6 +1248,13 @@ html.dark .dataTables_wrapper .dataTables_processing::after {
                     <span>Mobile App</span>
                 </a>
             <% } %>
+
+            <% if (hasFacilityLetters) { %>
+                <a class="nav-item-link" id="nav-facility-letters" href="<%= request.getContextPath() %>/facility-letters">
+                    <span class="fas fa-file-signature"></span>
+                    <span>Facility Letters</span>
+                </a>
+            <% } %>
             
             <% if (hasDeviceFinance) { %>
                 <a class="nav-item-link" id="nav-finance" href="<%= request.getContextPath() %>/mobile">
@@ -1563,6 +1572,9 @@ html.dark .dataTables_wrapper .dataTables_processing::after {
         
         if (path.includes("mobile-app-dashboard")) {
             const el = document.getElementById("nav-mobile-app");
+            if (el) el.classList.add("active");
+        } else if (path.includes("facility-letters")) {
+            const el = document.getElementById("nav-facility-letters");
             if (el) el.classList.add("active");
         } else if (path.includes("dashboard")) {
             const el = document.getElementById("nav-dash");
