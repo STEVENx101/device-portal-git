@@ -93,6 +93,29 @@ public class FacilityLetterService {
         ensureTemplatesDirectoryAndSyncDefaults();
         ensureDatabaseTablesAndSeed();
         ensureScreenRegistered();
+        resolveCmsSchema();
+    }
+
+    private void resolveCmsSchema() {
+        try {
+            String configured = (cmsSchema == null || cmsSchema.isBlank()) ? "cms" : cmsSchema.trim();
+            Integer exists = primaryJdbc.queryForObject(
+                    "SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA = ? AND TABLE_NAME = 'lease'",
+                    Integer.class, configured);
+            if (exists != null && exists > 0) {
+                this.cmsSchema = configured;
+                return;
+            }
+            List<String> matches = primaryJdbc.queryForList(
+                    "SELECT TABLE_SCHEMA FROM information_schema.TABLES WHERE TABLE_NAME = 'lease' LIMIT 1",
+                    String.class);
+            if (!matches.isEmpty()) {
+                this.cmsSchema = matches.get(0);
+                log.info("Auto-detected CMS schema on primary DB: '{}'", this.cmsSchema);
+            }
+        } catch (Exception e) {
+            log.warn("Could not auto-detect CMS schema (using '{}'): {}", cmsSchema, e.getMessage());
+        }
     }
 
     public Path getTemplatesDirectory() {
@@ -209,11 +232,11 @@ public class FacilityLetterService {
     }
 
     public List<Map<String, Object>> searchProducts(String category, String query) {
-        String sql = "SELECT id AS value, description AS text FROM " + cms("product") + " " +
-                "WHERE status LIKE '%active%' " +
-                "  AND (:category = '' OR sub_product = :category) " +
-                "  AND (:q = '' OR description LIKE :qLike) " +
-                "ORDER BY description ASC LIMIT 100";
+        String sql = "SELECT `id` AS `value`, `description` AS `text` FROM " + cms("`product`") + " " +
+                "WHERE `status` LIKE '%active%' " +
+                "  AND (:category = '' OR `sub_product` = :category) " +
+                "  AND (:q = '' OR `description` LIKE :qLike) " +
+                "ORDER BY `description` ASC LIMIT 100";
         String q = query == null ? "" : query.trim();
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("category", category == null ? "" : category.trim())
@@ -230,18 +253,18 @@ public class FacilityLetterService {
                 .addValue("qLike", "%" + q + "%");
 
         if ("Cash Backed Loan".equalsIgnoreCase(productName != null ? productName.trim() : "")) {
-            String sql = "SELECT id AS value, code AS text FROM " + cms("cashback") + " " +
-                    "WHERE status IN ('active', 'Credit Approval') " +
-                    "  AND (:q = '' OR code LIKE :qLike) " +
-                    "ORDER BY code DESC LIMIT 100";
+            String sql = "SELECT `id` AS `value`, `code` AS `text` FROM " + cms("`cashback`") + " " +
+                    "WHERE `status` IN ('active', 'Credit Approval') " +
+                    "  AND (:q = '' OR `code` LIKE :qLike) " +
+                    "ORDER BY `code` DESC LIMIT 100";
             return primaryNamedJdbc.queryForList(sql, params);
         }
 
-        String sql = "SELECT id AS value, code AS text FROM " + cms("lease") + " " +
-                "WHERE product = :product " +
-                "  AND status IN ('Pending Verification', 'active', 'Document Pending') " +
-                "  AND (:q = '' OR code LIKE :qLike OR finance_no LIKE :qLike) " +
-                "ORDER BY code DESC LIMIT 100";
+        String sql = "SELECT `id` AS `value`, `code` AS `text` FROM " + cms("`lease`") + " " +
+                "WHERE `product` = :product " +
+                "  AND `status` IN ('Pending Verification', 'active', 'Document Pending') " +
+                "  AND (:q = '' OR `code` LIKE :qLike OR `finance_no` LIKE :qLike) " +
+                "ORDER BY `code` DESC LIMIT 100";
         return primaryNamedJdbc.queryForList(sql, params);
     }
 

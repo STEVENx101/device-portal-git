@@ -5,6 +5,7 @@ import com.fintrex.deviceportal.service.FacilityLetterService;
 import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.NestedExceptionUtils;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -45,9 +46,11 @@ public class FacilityLetterController {
         try {
             return ResponseEntity.ok(facilityLetterService.searchProducts(category, q));
         } catch (Exception e) {
-            log.warn("CMS product search failed: {}", e.getMessage());
+            Throwable root = NestedExceptionUtils.getMostSpecificCause(e);
+            String msg = root != null && root.getMessage() != null ? root.getMessage() : e.getMessage();
+            log.warn("CMS product search failed: {}", msg);
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
-                    .body(Map.of("error", true, "message", e.getMessage()));
+                    .body(Map.of("error", true, "message", msg));
         }
     }
 
@@ -59,9 +62,11 @@ public class FacilityLetterController {
         try {
             return ResponseEntity.ok(facilityLetterService.searchLeases(productId, productName, q));
         } catch (Exception e) {
-            log.warn("CMS lease search failed: {}", e.getMessage());
+            Throwable root = NestedExceptionUtils.getMostSpecificCause(e);
+            String msg = root != null && root.getMessage() != null ? root.getMessage() : e.getMessage();
+            log.warn("CMS lease search failed: {}", msg);
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
-                    .body(Map.of("error", true, "message", e.getMessage()));
+                    .body(Map.of("error", true, "message", msg));
         }
     }
 
