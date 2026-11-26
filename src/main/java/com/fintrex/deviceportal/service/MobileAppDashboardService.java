@@ -127,8 +127,10 @@ public class MobileAppDashboardService {
                     SUM(CASE WHEN UPPER(COALESCE(status, '')) = 'ACTIVE'
                               AND DATE(COALESCE(registered_at, created_date_time)) <= :prevCutoff THEN 1 ELSE 0 END) AS prev_active,
 
-                    SUM(CASE WHEN valid_fintrex_user IS NOT NULL AND CAST(valid_fintrex_user AS UNSIGNED) = 0 THEN 1 ELSE 0 END) AS total_non_fintrex,
-                    SUM(CASE WHEN valid_fintrex_user IS NOT NULL AND CAST(valid_fintrex_user AS UNSIGNED) = 0
+                    SUM(CASE WHEN UPPER(COALESCE(status, '')) = 'ACTIVE'
+                              AND valid_fintrex_user IS NOT NULL AND CAST(valid_fintrex_user AS UNSIGNED) = 0 THEN 1 ELSE 0 END) AS total_non_fintrex,
+                    SUM(CASE WHEN UPPER(COALESCE(status, '')) = 'ACTIVE'
+                              AND valid_fintrex_user IS NOT NULL AND CAST(valid_fintrex_user AS UNSIGNED) = 0
                               AND DATE(COALESCE(registered_at, created_date_time)) <= :prevCutoff THEN 1 ELSE 0 END) AS prev_non_fintrex
                 FROM app_user
                 WHERE DATE(COALESCE(registered_at, created_date_time)) >= :fromDate

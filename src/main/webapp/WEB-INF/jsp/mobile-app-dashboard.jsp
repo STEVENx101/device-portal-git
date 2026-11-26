@@ -470,7 +470,7 @@
                     </div>
                     <div class="col-12 col-sm-6 col-xl-3">
                         <div class="ma-kpi-card" style="--accent-color: #F59E0B;">
-                            <div class="ma-kpi-label">Non-Fintrex Users</div>
+                            <div class="ma-kpi-label">Active Non-Fintrex Users</div>
                             <div class="ma-kpi-value num-mono" id="kpiNonFintrex">-</div>
                             <div class="ma-kpi-meta">
                                 <span id="kpiNonFintrexPrev">Prev: -</span>
