@@ -27,9 +27,13 @@ public class MobileAppDashboardController {
 
     @GetMapping("/summary")
     public ResponseEntity<Map<String, Object>> getSummary(
-            @RequestParam(value = "asAt", required = false) String asAt) {
+            @RequestParam(value = "fromDate", required = false) String fromDate,
+            @RequestParam(value = "toDate", required = false) String toDate,
+            @RequestParam(value = "asAt", required = false) String asAt,
+            @RequestParam(value = "compareMode", required = false, defaultValue = "DAY") String compareMode) {
         try {
-            return ResponseEntity.ok(mobileAppDashboardService.getDashboardSummary(asAt));
+            String effectiveToDate = (toDate != null && !toDate.isBlank()) ? toDate : asAt;
+            return ResponseEntity.ok(mobileAppDashboardService.getDashboardSummary(fromDate, effectiveToDate, compareMode));
         } catch (Exception e) {
             log.error("Failed to fetch Mobile App dashboard summary", e);
             Map<String, Object> err = new LinkedHashMap<>();
