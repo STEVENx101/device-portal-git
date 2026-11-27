@@ -992,8 +992,8 @@ public class CbsReportController {
             rows = new ArrayList<>();
         }
 
-        String[] headers = {"Tran ID", "Account No", "Legacy Account", "Date", "Month", "Amount", "Narration", "SMS Sent", "Occurrences"};
-        String[] keys = {"tran_id", "account_no", "legacy_account", "trx_date", "debit_month", "amount", "narration", "sms_sent", "dup_count"};
+        String[] headers = {"Tran ID", "Account No", "Legacy Account", "Date", "Amount", "Narration", "SMS Sent", "Occurrences"};
+        String[] keys = {"tran_id", "account_no", "legacy_account", "trx_date", "amount", "narration", "sms_sent", "dup_count"};
         writeExcel(response, "loan_debits_exception_report.xlsx", headers, keys, rows);
     }
 }

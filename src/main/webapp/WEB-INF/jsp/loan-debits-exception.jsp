@@ -135,7 +135,6 @@
                                             <th>Account No</th>
                                             <th>Legacy Account</th>
                                             <th>Date</th>
-                                            <th>Month</th>
                                             <th class="text-end">Amount (LKR)</th>
                                             <th>Narration</th>
                                             <th class="text-center">SMS Sent</th>
@@ -197,13 +196,12 @@
                             dtReport = $('#tableLoanDebitsException').DataTable({
                                 data: rows,
                                 pageLength: 25,
-                                order: [[4, 'desc'], [1, 'asc'], [6, 'asc'], [3, 'asc']],
+                                order: [[3, 'desc'], [1, 'asc'], [5, 'asc']],
                                 columns: [
                                     { data: 'tran_id', defaultContent: '-' },
                                     { data: 'account_no', defaultContent: '-' },
                                     { data: 'legacy_account', defaultContent: '-' },
                                     { data: 'trx_date', defaultContent: '-' },
-                                    { data: 'debit_month', defaultContent: '-' },
                                     {
                                         data: 'amount',
                                         className: 'text-end fw-semi-bold',
