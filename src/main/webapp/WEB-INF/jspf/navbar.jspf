@@ -31,6 +31,7 @@
     boolean hasDpdBucketReport = false;
     boolean hasVendorPaymentsReport = false;
     boolean hasVendorPaymentsExceptionReport = false;
+    boolean hasLoanDebitsExceptionReport = false;
     boolean hasCustomer360 = false;
     boolean canDownloadReports = false;
     boolean hasBulkUpload = false;
@@ -67,6 +68,7 @@
             if (s.getPath().equalsIgnoreCase("/dpd-bucket-report")) hasDpdBucketReport = true;
             if (s.getPath().equalsIgnoreCase("/vendor-payments")) hasVendorPaymentsReport = true;
             if (s.getPath().equalsIgnoreCase("/vendor-payments-exception")) hasVendorPaymentsExceptionReport = true;
+            if (s.getPath().equalsIgnoreCase("/loan-debits-exception")) hasLoanDebitsExceptionReport = true;
             if (s.getPath().equalsIgnoreCase("/download-reports")) canDownloadReports = true;
             if (s.getPath().equalsIgnoreCase("/payments/upload")) hasBulkUpload = true;
             if (s.getPath().equalsIgnoreCase("/payments/approve")) hasBulkApprove = true;
@@ -1270,7 +1272,7 @@ html.dark .dataTables_wrapper .dataTables_processing::after {
                 </a>
             <% } %>
             
-            <% if (hasPortfolio || hasDisbursementReport || hasClientReport || hasTransactionReport || hasAgreementReport || hasReportLogs || hasArrearsReport || hasNpaReport || hasNearingNpaReport || hasDuplicateLoansReport || hasUnlockArrearsReport || hasLockNoArrearsReport || hasOneRentalReport || hasSettledReport || hasMaturedLowBalanceReport || hasEarlySettledReport || hasLowBalanceReport || hasMultiplePaymentsReport || hasDpdBucketReport || hasVendorPaymentsReport || hasVendorPaymentsExceptionReport || hasUserManagement || hasAccessLogs || hasPermissionLogs) { %>
+            <% if (hasPortfolio || hasDisbursementReport || hasClientReport || hasTransactionReport || hasAgreementReport || hasReportLogs || hasArrearsReport || hasNpaReport || hasNearingNpaReport || hasDuplicateLoansReport || hasUnlockArrearsReport || hasLockNoArrearsReport || hasOneRentalReport || hasSettledReport || hasMaturedLowBalanceReport || hasEarlySettledReport || hasLowBalanceReport || hasMultiplePaymentsReport || hasDpdBucketReport || hasVendorPaymentsReport || hasVendorPaymentsExceptionReport || hasLoanDebitsExceptionReport || hasUserManagement || hasAccessLogs || hasPermissionLogs) { %>
                 <div class="nav-item-dropdown-custom" id="nav-reports-group">
                     <a class="nav-item-link dropdown-trigger" href="javascript:void(0)" id="nav-reports-trigger">
                         <span class="fas fa-file-invoice-dollar"></span>
@@ -1401,6 +1403,11 @@ html.dark .dataTables_wrapper .dataTables_processing::after {
                                 <% if (hasVendorPaymentsExceptionReport) { %>
                                 <a href="<%= request.getContextPath() %>/vendor-payments-exception" class="dropdown-item-custom" id="nav-report-vendor-payments-exception">
                                     Vendor Payment Exceptions
+                                </a>
+                                <% } %>
+                                <% if (hasLoanDebitsExceptionReport) { %>
+                                <a href="<%= request.getContextPath() %>/loan-debits-exception" class="dropdown-item-custom" id="nav-report-loan-debits-exception">
+                                    Loan Debits Exception
                                 </a>
                                 <% } %>
                             </div>
@@ -1598,7 +1605,7 @@ html.dark .dataTables_wrapper .dataTables_processing::after {
                 const item = document.getElementById("nav-payments-approve");
                 if (item) item.classList.add("active");
             }
-        } else if (path.includes("portfolio") || path.includes("client") || path.includes("transaction") || path.includes("vendor-payments") || path.includes("agreement") || path.includes("report-logs") || path.includes("arrears-report") || path.includes("npa-report") || path.includes("nearing-npa-report") || path.includes("duplicate-loans-report") || path.includes("unlock-arrears-report") || path.includes("lock-no-arrears-report") || path.includes("access-logs") || path.includes("permission-logs")) {
+        } else if (path.includes("portfolio") || path.includes("client") || path.includes("transaction") || path.includes("vendor-payments") || path.includes("loan-debits-exception") || path.includes("agreement") || path.includes("report-logs") || path.includes("arrears-report") || path.includes("npa-report") || path.includes("nearing-npa-report") || path.includes("duplicate-loans-report") || path.includes("unlock-arrears-report") || path.includes("lock-no-arrears-report") || path.includes("access-logs") || path.includes("permission-logs")) {
             const group = document.getElementById("nav-reports-group");
             if (group) group.classList.add("open");
             
@@ -1619,6 +1626,11 @@ html.dark .dataTables_wrapper .dataTables_processing::after {
                 if (sub) sub.classList.add("open");
             } else if (path.includes("vendor-payments-exception")) {
                 const item = document.getElementById("nav-report-vendor-payments-exception");
+                if (item) item.classList.add("active");
+                const sub = document.getElementById("submenu-exception");
+                if (sub) sub.classList.add("open");
+            } else if (path.includes("loan-debits-exception")) {
+                const item = document.getElementById("nav-report-loan-debits-exception");
                 if (item) item.classList.add("active");
                 const sub = document.getElementById("submenu-exception");
                 if (sub) sub.classList.add("open");

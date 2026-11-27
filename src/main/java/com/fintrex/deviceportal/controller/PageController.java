@@ -164,6 +164,11 @@ public class PageController {
         return "vendor-payments-exception";
     }
 
+    @GetMapping("/loan-debits-exception")
+    public String loanDebitsExceptionReport() {
+        return "loan-debits-exception";
+    }
+
     @GetMapping("/disbursement-report")
     public String disbursementReport() {
         return "disbursement-report";

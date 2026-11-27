@@ -998,6 +998,22 @@ public class CbsReportService {
                                 SELECT 'Vendor Payments Exception', '/vendor-payments-exception', 'fas fa-exclamation-circle', 'Reports'
                                 WHERE NOT EXISTS (SELECT 1 FROM device_portal.screen WHERE path = '/vendor-payments-exception')
                             """);
+
+            // Loan Debits Exception Report (Duplicate debits in same month for same account & narration)
+            jdbc.getJdbcTemplate().execute(
+                    """
+                                INSERT INTO device_portal.screen (name, path, icon, group_name)
+                                SELECT 'Loan Debits Exception', '/loan-debits-exception', 'fas fa-exclamation-triangle', 'Reports'
+                                WHERE NOT EXISTS (SELECT 1 FROM device_portal.screen WHERE path = '/loan-debits-exception')
+                            """);
+            Integer loanDebitScreenId = jdbc.getJdbcTemplate().queryForObject(
+                    "SELECT id FROM device_portal.screen WHERE path = '/loan-debits-exception' LIMIT 1",
+                    Integer.class);
+            if (loanDebitScreenId != null) {
+                jdbc.getJdbcTemplate().update(
+                        "INSERT IGNORE INTO device_portal.user_type_screen (user_type_id, screen_id) VALUES (1, ?)",
+                        loanDebitScreenId);
+            }
         } catch (Exception e) {
             log.error("Report configuration database operation failed for Vendor Payments", e);
         }
@@ -2933,5 +2949,100 @@ public class CbsReportService {
                     t.vendor,
                     t.key_account
                 FROM (""" + subQuery + ") t ORDER BY t.disbursed_date DESC, t.account_no DESC";
+    }
+
+    public Map<String, Object> fetchLoanDebitsExceptionReport(Map<String, Object> filters) {
+        String month = filters != null && filters.get("month") != null ? String.valueOf(filters.get("month")).trim() : "";
+        String fromDate = filters != null && filters.get("fromDate") != null ? String.valueOf(filters.get("fromDate")).trim() : "";
+        String toDate = filters != null && filters.get("toDate") != null ? String.valueOf(filters.get("toDate")).trim() : "";
+        String narration = filters != null && filters.get("narration") != null ? String.valueOf(filters.get("narration")).trim() : "";
+        String account = filters != null && filters.get("account") != null ? String.valueOf(filters.get("account")).trim() : "";
+
+        Map<String, Object> params = new HashMap<>();
+        StringBuilder innerWhere = new StringBuilder(" WHERE 1=1 ");
+        StringBuilder outerWhere = new StringBuilder(" WHERE 1=1 ");
+
+        if (!month.isEmpty()) {
+            innerWhere.append(" AND DATE_FORMAT(`date`, '%Y-%m') = :month ");
+            outerWhere.append(" AND DATE_FORMAT(d.`date`, '%Y-%m') = :month ");
+            params.put("month", month);
+        }
+        if (!fromDate.isEmpty()) {
+            innerWhere.append(" AND DATE(`date`) >= :fromDate ");
+            outerWhere.append(" AND DATE(d.`date`) >= :fromDate ");
+            params.put("fromDate", fromDate);
+        }
+        if (!toDate.isEmpty()) {
+            innerWhere.append(" AND DATE(`date`) <= :toDate ");
+            outerWhere.append(" AND DATE(d.`date`) <= :toDate ");
+            params.put("toDate", toDate);
+        }
+        if (!narration.isEmpty()) {
+            innerWhere.append(" AND LOWER(COALESCE(narration, '')) LIKE LOWER(:narration) ");
+            outerWhere.append(" AND LOWER(COALESCE(d.narration, '')) LIKE LOWER(:narration) ");
+            params.put("narration", "%" + narration + "%");
+        }
+        if (!account.isEmpty()) {
+            innerWhere.append(" AND (account_no LIKE :account OR COALESCE(legacy_account, '') LIKE :account) ");
+            outerWhere.append(" AND (d.account_no LIKE :account OR COALESCE(d.legacy_account, '') LIKE :account) ");
+            params.put("account", "%" + account + "%");
+        }
+
+        String sql = "SELECT " +
+                "d.tran_id, " +
+                "d.account_no, " +
+                "COALESCE(d.legacy_account, '-') AS legacy_account, " +
+                "DATE_FORMAT(d.`date`, '%Y-%m-%d') AS trx_date, " +
+                "DATE_FORMAT(d.`date`, '%Y-%m') AS debit_month, " +
+                "d.amount, " +
+                "COALESCE(d.narration, '') AS narration, " +
+                "COALESCE(d.sms_sent, '') AS sms_sent, " +
+                "dup.dup_count " +
+                "FROM cbs.loan_debits d " +
+                "INNER JOIN ( " +
+                "    SELECT account_no, COALESCE(narration, '') AS narration_key, DATE_FORMAT(`date`, '%Y-%m') AS debit_month, COUNT(*) AS dup_count " +
+                "    FROM cbs.loan_debits " +
+                innerWhere +
+                "    GROUP BY account_no, COALESCE(narration, ''), DATE_FORMAT(`date`, '%Y-%m') " +
+                "    HAVING COUNT(*) > 1 " +
+                ") dup " +
+                "  ON d.account_no = dup.account_no " +
+                " AND COALESCE(d.narration, '') = dup.narration_key " +
+                " AND DATE_FORMAT(d.`date`, '%Y-%m') = dup.debit_month " +
+                outerWhere +
+                "ORDER BY dup.debit_month DESC, d.account_no ASC, d.narration ASC, d.`date` ASC, d.tran_id ASC";
+
+        List<Map<String, Object>> rows = jdbc.queryForList(sql, params);
+
+        java.math.BigDecimal totalAmount = java.math.BigDecimal.ZERO;
+        Set<String> affectedAccounts = new HashSet<>();
+        Set<String> duplicateGroups = new HashSet<>();
+
+        for (Map<String, Object> row : rows) {
+            Object amtObj = row.get("amount");
+            if (amtObj instanceof java.math.BigDecimal bd) {
+                totalAmount = totalAmount.add(bd);
+            } else if (amtObj instanceof Number n) {
+                totalAmount = totalAmount.add(java.math.BigDecimal.valueOf(n.doubleValue()));
+            }
+            String acc = row.get("account_no") != null ? String.valueOf(row.get("account_no")) : "";
+            String narr = row.get("narration") != null ? String.valueOf(row.get("narration")) : "";
+            String m = row.get("debit_month") != null ? String.valueOf(row.get("debit_month")) : "";
+            if (!acc.isEmpty()) {
+                affectedAccounts.add(acc);
+                duplicateGroups.add(acc + "|" + narr + "|" + m);
+            }
+        }
+
+        Map<String, Object> kpis = new HashMap<>();
+        kpis.put("totalCount", rows.size());
+        kpis.put("totalAmount", totalAmount);
+        kpis.put("duplicateGroups", duplicateGroups.size());
+        kpis.put("affectedAccounts", affectedAccounts.size());
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("kpis", kpis);
+        result.put("rows", rows);
+        return result;
     }
 }

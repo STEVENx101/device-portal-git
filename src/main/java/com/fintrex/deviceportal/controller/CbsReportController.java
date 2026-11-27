@@ -944,4 +944,56 @@ public class CbsReportController {
         }
         writeExcel(response, filename, headers, keys, rows);
     }
+
+    @PostMapping("/loan-debits-exception")
+    @ResponseBody
+    public Map<String, Object> getLoanDebitsExceptionReport(@RequestBody Map<String, Object> filters, HttpSession session) {
+        com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");
+        String username = currentUser != null ? currentUser.getUsername() : "system";
+        cbsReportService.logReportActivity(username, "Loan Debits Exception Report", "VIEW", String.valueOf(filters));
+        return cbsReportService.fetchLoanDebitsExceptionReport(filters);
+    }
+
+    @GetMapping("/loan-debits-exception/download")
+    public void downloadLoanDebitsExceptionReport(
+            @RequestParam(required = false) String month,
+            @RequestParam(required = false) String fromDate,
+            @RequestParam(required = false) String toDate,
+            @RequestParam(required = false) String narration,
+            @RequestParam(required = false) String account,
+            HttpSession session,
+            HttpServletResponse response) throws Exception {
+
+        @SuppressWarnings("unchecked")
+        List<com.fintrex.deviceportal.dto.Screen> permittedScreens =
+                (List<com.fintrex.deviceportal.dto.Screen>) session.getAttribute("permittedScreens");
+        boolean canDownload = permittedScreens != null && permittedScreens.stream()
+                .anyMatch(s -> s.getPath().equalsIgnoreCase("/download-reports"));
+        if (!canDownload) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "You do not have permission to download reports.");
+            return;
+        }
+
+        Map<String, Object> filters = new HashMap<>();
+        filters.put("month", month);
+        filters.put("fromDate", fromDate);
+        filters.put("toDate", toDate);
+        filters.put("narration", narration);
+        filters.put("account", account);
+
+        com.fintrex.deviceportal.dto.User currentUser = (com.fintrex.deviceportal.dto.User) session.getAttribute("currentUser");
+        String username = currentUser != null ? currentUser.getUsername() : "system";
+        cbsReportService.logReportActivity(username, "Loan Debits Exception Report", "DOWNLOAD", filters.toString());
+
+        Map<String, Object> reportData = cbsReportService.fetchLoanDebitsExceptionReport(filters);
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> rows = (List<Map<String, Object>>) reportData.get("rows");
+        if (rows == null) {
+            rows = new ArrayList<>();
+        }
+
+        String[] headers = {"Tran ID", "Account No", "Legacy Account", "Date", "Month", "Amount", "Narration", "SMS Sent", "Occurrences"};
+        String[] keys = {"tran_id", "account_no", "legacy_account", "trx_date", "debit_month", "amount", "narration", "sms_sent", "dup_count"};
+        writeExcel(response, "loan_debits_exception_report.xlsx", headers, keys, rows);
+    }
 }
