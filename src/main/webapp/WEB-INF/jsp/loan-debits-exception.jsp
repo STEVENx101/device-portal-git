@@ -52,6 +52,9 @@
                 box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2) !important;
                 color: #ffffff !important;
             }
+            .text-primary {
+                color: #6366f1 !important;
+            }
             #tableLoanDebitsException tbody tr {
                 cursor: pointer;
             }
@@ -74,8 +77,7 @@
 
                     <div class="d-flex mb-2 align-items-center justify-content-between mt-2">
                         <div>
-                            <h4 class="mb-0 text-danger"><i class="fas fa-exclamation-triangle me-2"></i>Exception Reports - Loan Debits (Duplicate Monthly Debits)</h4>
-                            <small class="text-muted">Accounts debited more than once in the same month with the same narration (<code>cbs.loan_debits</code>)</small>
+                            <h4 class="mb-0 text-primary"><i class="fas fa-exclamation-triangle me-2"></i>Exception Reports - Loan Debits (Duplicate Monthly Debits)</h4>
                         </div>
                     </div>
 
