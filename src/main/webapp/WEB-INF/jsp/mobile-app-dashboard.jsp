@@ -692,36 +692,23 @@
                     <input type="text" id="modalTxnSearch" class="form-control form-control-sm" placeholder="Search type or code..." style="max-width: 210px; border-radius: 999px; padding-left: 14px;">
                 </div>
 
-                <!-- Spacious Table + Group Chart -->
-                <div class="row g-3">
-                    <div class="col-12 col-lg-8">
-                        <div class="ma-modal-table-wrap">
-                            <div class="ma-modal-table-scroll">
-                                <table class="ma-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Transaction Type</th>
-                                            <th>Group</th>
-                                            <th>Code</th>
-                                            <th class="text-end">Count</th>
-                                            <th class="text-end">Value (LKR)</th>
-                                            <th class="text-end" id="txnDiffColHeader">vs Prev Day</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="txnBreakdownBody"></tbody>
-                                    <tfoot id="txnBreakdownFoot"></tfoot>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-12 col-lg-4">
-                        <div class="border rounded-3 p-3 h-100 d-flex flex-column" style="border-color: #E2E8F0 !important;">
-                            <div class="fw-bold mb-1" style="font-size: 0.88rem; color: #0F172A;">Value by Category Group</div>
-                            <div class="text-muted mb-2" style="font-size: 0.74rem;">Total successful value (LKR)</div>
-                            <div class="flex-grow-1" style="min-height: 290px; position: relative;">
-                                <canvas id="modalGroupChart"></canvas>
-                            </div>
-                        </div>
+                <!-- Full-Width Spacious Transaction Breakdown Table -->
+                <div class="ma-modal-table-wrap">
+                    <div class="ma-modal-table-scroll">
+                        <table class="ma-table">
+                            <thead>
+                                <tr>
+                                    <th>Transaction Type</th>
+                                    <th>Group</th>
+                                    <th>Code</th>
+                                    <th class="text-end">Count</th>
+                                    <th class="text-end">Value (LKR)</th>
+                                    <th class="text-end" id="txnDiffColHeader">vs Prev Day</th>
+                                </tr>
+                            </thead>
+                            <tbody id="txnBreakdownBody"></tbody>
+                            <tfoot id="txnBreakdownFoot"></tfoot>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -739,7 +726,6 @@
 <script>
     const DATA_FLOOR = '2026-06-01';
     let dailyTrendChart = null;
-    let modalGroupChart = null;
     let lastPayload = null;
     let activeTxnGroup = 'ALL';
     let detailModal = null;
@@ -1011,49 +997,6 @@
         });
     }
 
-    function renderModalGroupChart() {
-        if (!lastPayload) return;
-        const ctx = document.getElementById('modalGroupChart');
-        if (modalGroupChart) modalGroupChart.destroy();
-
-        const groups = (lastPayload.groupSummary || []).filter(g => Number(g.totalValue || 0) > 0);
-        const palette = ['#4f46e5', '#6366f1', '#8b5cf6', '#a855f7', '#0ea5e9', '#10b981', '#f59e0b', '#64748b'];
-
-        modalGroupChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: groups.map(g => g.group),
-                datasets: [{
-                    label: 'Value (LKR)',
-                    data: groups.map(g => Number(g.totalValue || 0)),
-                    backgroundColor: groups.map((_, idx) => palette[idx % palette.length]),
-                    borderRadius: 6,
-                    barThickness: 18
-                }]
-            },
-            options: {
-                indexAxis: 'y',
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: { callbacks: { label: c => 'LKR ' + fmtCurrency(c.parsed.x) } }
-                },
-                scales: {
-                    y: { grid: { display: false }, ticks: { color: '#0F172A', font: { size: 11, weight: '600' } } },
-                    x: {
-                        beginAtZero: true,
-                        grid: { color: '#F1F5F9' },
-                        ticks: {
-                            color: '#475569',
-                            callback: v => v >= 1e6 ? (v / 1e6).toFixed(1) + 'M' : (v >= 1e3 ? (v / 1e3).toFixed(0) + 'K' : v)
-                        }
-                    }
-                }
-            }
-        });
-    }
-
     $(document).ready(function () {
         $('#fromDate').val(DATA_FLOOR);
         $('#toDate').val(getLocalToday());
@@ -1067,10 +1010,6 @@
         $('#openDetailedViewBtn').on('click', function () {
             renderTxnBreakdownModalTable();
             detailModal.show();
-        });
-
-        modalEl.addEventListener('shown.bs.modal', function () {
-            renderModalGroupChart();
         });
 
         $('#txnGroupFilterBar').on('click', '.ma-filter-pill', function () {
