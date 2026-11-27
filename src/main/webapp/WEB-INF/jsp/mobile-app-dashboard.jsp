@@ -7,7 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Fintrex | Mobile App Dashboard</title>
+    <title>Fintrex | Mobile App Executive Dashboard</title>
 
     <link rel="apple-touch-icon" sizes="180x180" href="${pageContext.request.contextPath}/assets/img/favicons/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="${pageContext.request.contextPath}/assets/img/favicons/favicon-32x32.png">
@@ -37,385 +37,487 @@
 
     <style>
         :root {
-            --ma-primary: #4f46e5;
-            --ma-secondary: #6366f1;
-            --ma-purple: #a855f7;
-            --ma-surface: #FFFFFF;
-            --ma-border: #E2E8F0;
-            --ma-text: #0F172A;
-            --ma-muted: #475569;
+            --bx-primary: #4f46e5;
+            --bx-indigo: #6366f1;
+            --bx-purple: #a855f7;
+            --bx-emerald: #10b981;
+            --bx-amber: #f59e0b;
+            --bx-bg: #f4f6fb;
+            --bx-card: #ffffff;
+            --bx-border: #e5e9f2;
+            --bx-text: #0f172a;
+            --bx-muted: #64748b;
         }
 
         body, .main, p, div, span, select, input, button, table, h1, h2, h3, h4, h5, h6 {
             font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
         }
 
-        .num-mono {
+        .num {
             font-variant-numeric: tabular-nums;
-            letter-spacing: -0.02em;
+            letter-spacing: -0.025em;
         }
 
-        /* Slim Executive Header Bar */
-        .ma-header-bar {
+        /* Airy Floating Top Toolbar */
+        .bx-topbar {
             flex: 0 0 auto;
-            flex-shrink: 0;
-            background: linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #a855f7 100%);
-            border-radius: 10px;
-            padding: 0.65rem 1.1rem;
-            color: #FFFFFF;
-            box-shadow: 0 6px 18px -6px rgba(99, 102, 241, 0.38);
-            position: relative;
-            overflow: hidden;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            padding: 0.45rem 0.2rem 0.75rem 0.2rem;
         }
-        .ma-header-title {
-            font-size: 1.05rem;
+        .bx-title {
+            font-size: 1.32rem;
             font-weight: 800;
-            color: #FFFFFF;
-            letter-spacing: -0.02em;
+            color: var(--bx-text);
+            letter-spacing: -0.03em;
             margin: 0;
-            line-height: 1.2;
+            line-height: 1.15;
         }
-        .ma-header-sub {
+        .bx-subtitle {
+            font-size: 0.78rem;
+            color: var(--bx-muted);
+            margin-top: 2px;
+        }
+
+        .bx-controls {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--bx-card);
+            border: 1px solid var(--bx-border);
+            border-radius: 14px;
+            padding: 0.38rem 0.5rem;
+            box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
+        }
+        .bx-date-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 0.28rem 0.65rem;
+        }
+        .bx-date-pill label {
             font-size: 0.71rem;
-            color: rgba(255, 255, 255, 0.85);
-            margin-top: 1px;
+            font-weight: 700;
+            color: var(--bx-muted);
+            margin: 0;
         }
-        .ma-date-control {
-            background: rgba(255, 255, 255, 0.16);
-            border: 1px solid rgba(255, 255, 255, 0.28);
-            border-radius: 8px;
-            padding: 0.22rem 0.55rem;
-        }
-        .ma-date-control label {
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 0.69rem;
-            font-weight: 600;
-        }
-        .ma-date-control input[type="date"],
-        .ma-date-control select {
-            background: transparent;
+        .bx-date-pill input[type="date"] {
             border: none;
-            color: #FFFFFF;
-            font-weight: 600;
-            font-size: 0.76rem;
+            background: transparent;
+            font-size: 0.79rem;
+            font-weight: 700;
+            color: var(--bx-text);
             outline: none;
             cursor: pointer;
-            color-scheme: dark;
         }
-        .ma-date-control select option {
-            color: #0F172A;
-            background: #FFFFFF;
+
+        /* Segmented Control (Compare Mode & Tabs) */
+        .bx-seg {
+            display: inline-flex;
+            background: #f1f5f9;
+            border-radius: 10px;
+            padding: 3px;
+            gap: 2px;
         }
-        .ma-btn-refresh {
-            background: #FFFFFF;
-            color: #4f46e5;
+        .bx-seg-btn {
             border: none;
-            border-radius: 8px;
-            font-weight: 700;
+            background: transparent;
+            color: #475569;
             font-size: 0.75rem;
-            padding: 0.34rem 0.85rem;
+            font-weight: 700;
+            padding: 0.3rem 0.72rem;
+            border-radius: 8px;
             cursor: pointer;
-            transition: background-color 0.18s ease, color 0.18s ease;
+            transition: all 0.18s ease;
+            white-space: nowrap;
         }
-        .ma-btn-refresh:hover {
-            background: #EEF2FF;
-            color: #4338ca;
+        .bx-seg-btn:hover {
+            color: var(--bx-primary);
         }
-        .ma-btn-refresh:disabled {
-            opacity: 0.65;
+        .bx-seg-btn.active {
+            background: #ffffff;
+            color: var(--bx-primary);
+            box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
+        }
+
+        .bx-refresh-btn {
+            background: linear-gradient(135deg, #4f46e5 0%, #6366f1 55%, #a855f7 100%);
+            color: #ffffff;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            padding: 0.42rem 1rem;
+            cursor: pointer;
+            transition: opacity 0.18s ease, box-shadow 0.18s ease;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.28);
+        }
+        .bx-refresh-btn:hover {
+            opacity: 0.93;
+            box-shadow: 0 6px 16px rgba(99, 102, 241, 0.36);
+        }
+        .bx-refresh-btn:disabled {
+            opacity: 0.6;
             cursor: not-allowed;
         }
 
-        /* One-Page Viewport Container */
-        .ma-page-body {
+        /* Scrollable Bento Canvas */
+        .bx-canvas {
             flex: 1 1 auto;
             min-height: 0;
             overflow-y: auto;
             overflow-x: hidden;
             display: flex;
             flex-direction: column;
-            gap: 0.65rem;
-            padding-right: 2px;
+            gap: 1rem;
+            padding: 2px 4px 14px 2px;
         }
 
-        /* Single-Row 7-Card Executive KPI Strip */
-        .ma-kpi-strip {
+        /* Row 1: 3 Spacious Bento Story Cards */
+        .bx-hero-grid {
             display: grid;
-            grid-template-columns: repeat(7, minmax(0, 1fr));
-            gap: 0.55rem;
+            grid-template-columns: 1.25fr 1fr 1fr;
+            gap: 1rem;
             flex: 0 0 auto;
         }
-        @media (max-width: 1280px) {
-            .ma-kpi-strip {
-                grid-template-columns: repeat(4, minmax(0, 1fr));
-            }
-        }
-        @media (max-width: 768px) {
-            .ma-kpi-strip {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-            }
-        }
-
-        .ma-kpi-card {
-            background: var(--ma-surface);
-            border: 1px solid var(--ma-border);
-            border-radius: 10px;
-            padding: 0.65rem 0.78rem;
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
-            transition: border-color 0.18s ease, box-shadow 0.18s ease;
-        }
-        .ma-kpi-card::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: var(--accent-color, #6366f1);
-        }
-        .ma-kpi-card:hover {
-            border-color: #CBD5E1;
-            box-shadow: 0 6px 14px -6px rgba(15, 23, 42, 0.12);
-        }
-        .ma-kpi-label {
-            font-size: 0.68rem;
-            font-weight: 700;
-            color: var(--ma-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.03em;
-            line-height: 1.2;
-            margin-bottom: 0.28rem;
-        }
-        .ma-kpi-value {
-            font-size: 1.28rem;
-            font-weight: 800;
-            color: var(--ma-text);
-            line-height: 1.15;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .ma-kpi-meta {
-            margin-top: 0.35rem;
-            padding-top: 0.3rem;
-            border-top: 1px solid #F1F5F9;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 0.25rem;
-            font-size: 0.67rem;
-            color: var(--ma-muted);
-        }
-        .ma-sub-pill {
-            font-size: 0.64rem;
-            font-weight: 700;
-            padding: 1px 6px;
-            border-radius: 999px;
-            background: rgba(5, 150, 105, 0.12);
-            color: #047857;
-            white-space: nowrap;
-        }
-        .ma-kpi-ceft {
-            background: linear-gradient(145deg, #EEF2FF 0%, #FFFFFF 70%);
-            border-color: #C7D2FE;
-        }
-        .ma-kpi-ceft .ma-kpi-value {
-            color: #4f46e5;
-        }
-
-        /* Compact Delta Badges */
-        .ma-delta {
-            display: inline-flex;
-            align-items: center;
-            font-size: 0.66rem;
-            font-weight: 700;
-            padding: 1px 6px;
-            border-radius: 999px;
-            white-space: nowrap;
-            font-variant-numeric: tabular-nums;
-        }
-        .ma-delta-up { background: #DCFCE7; color: #166534; }
-        .ma-delta-down { background: #FEE2E2; color: #991B1B; }
-        .ma-delta-flat { background: #F1F5F9; color: #475569; }
-
-        /* Compact Bento Panels */
-        .ma-main-grid {
-            flex: 1 1 auto;
-            min-height: 0;
-            display: grid;
-            grid-template-columns: 1.38fr 1fr;
-            gap: 0.65rem;
-        }
         @media (max-width: 1199px) {
-            .ma-main-grid {
+            .bx-hero-grid {
                 grid-template-columns: 1fr;
             }
         }
-        .ma-col-stack {
+
+        .bx-card {
+            background: var(--bx-card);
+            border: 1px solid var(--bx-border);
+            border-radius: 18px;
+            padding: 1.25rem 1.4rem;
+            box-shadow: 0 4px 16px -4px rgba(15, 23, 42, 0.05);
+            transition: box-shadow 0.22s ease, border-color 0.22s ease;
             display: flex;
             flex-direction: column;
-            gap: 0.65rem;
-            min-height: 0;
+            justify-content: space-between;
+        }
+        .bx-card:hover {
+            border-color: #d5dce8;
+            box-shadow: 0 12px 28px -10px rgba(15, 23, 42, 0.1);
         }
 
-        .ma-panel {
-            background: var(--ma-surface);
-            border: 1px solid var(--ma-border);
-            border-radius: 10px;
-            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+        /* Hero Financial Card (System Indigo-Purple Gradient) */
+        .bx-card-hero {
+            background: linear-gradient(135deg, #4f46e5 0%, #6366f1 52%, #a855f7 100%);
+            border: none;
+            color: #ffffff;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 14px 30px -10px rgba(79, 70, 229, 0.42);
+        }
+        .bx-card-hero::after {
+            content: "";
+            position: absolute;
+            top: -40%;
+            right: -12%;
+            width: 260px;
+            height: 260px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 70%);
+            pointer-events: none;
+        }
+        .bx-hero-eyebrow {
+            font-size: 0.74rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            color: rgba(255, 255, 255, 0.82);
+        }
+        .bx-hero-amount {
+            font-size: 2.05rem;
+            font-weight: 800;
+            color: #ffffff;
+            line-height: 1.1;
+            margin-top: 0.3rem;
+        }
+        .bx-hero-substrip {
+            margin-top: 1rem;
+            padding-top: 0.85rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.85rem;
+            position: relative;
+            z-index: 1;
+        }
+        .bx-hero-mini-label {
+            font-size: 0.71rem;
+            color: rgba(255, 255, 255, 0.78);
+            font-weight: 600;
+        }
+        .bx-hero-mini-val {
+            font-size: 1.12rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin-top: 2px;
+        }
+        .bx-hero-delta {
+            display: inline-block;
+            margin-top: 2px;
+            font-size: 0.69rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+        }
+
+        /* White Story Cards (Customers & Savings) */
+        .bx-eyebrow {
+            font-size: 0.73rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--bx-muted);
+        }
+        .bx-big-num {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--bx-text);
+            line-height: 1.1;
+            margin-top: 0.28rem;
+        }
+        .bx-delta-pill {
+            display: inline-flex;
+            align-items: center;
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 3px 9px;
+            border-radius: 999px;
+            white-space: nowrap;
+        }
+        .bx-up { background: #dcfce7; color: #166534; }
+        .bx-down { background: #fee2e2; color: #991b1b; }
+        .bx-flat { background: #f1f5f9; color: #475569; }
+
+        /* Visual Progress Bar inside Bento Card */
+        .bx-bar-wrap {
+            margin-top: 0.85rem;
+        }
+        .bx-bar-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.73rem;
+            color: var(--bx-muted);
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        .bx-bar-track {
+            height: 7px;
+            background: #eef2ff;
+            border-radius: 999px;
+            overflow: hidden;
+        }
+        .bx-bar-fill {
+            height: 100%;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #6366f1, #a855f7);
+            transition: width 0.5s ease;
+        }
+
+        .bx-sub-grid {
+            margin-top: 0.9rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid #f1f5f9;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+        .bx-sub-label {
+            font-size: 0.71rem;
+            font-weight: 600;
+            color: var(--bx-muted);
+        }
+        .bx-sub-val {
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: var(--bx-text);
+            margin-top: 2px;
+        }
+
+        /* Row 2: 2-Column Interactive Workspace */
+        .bx-work-grid {
+            flex: 1 1 auto;
+            min-height: 360px;
+            display: grid;
+            grid-template-columns: 1.35fr 1fr;
+            gap: 1rem;
+        }
+        @media (max-width: 1199px) {
+            .bx-work-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .bx-panel {
+            background: var(--bx-card);
+            border: 1px solid var(--bx-border);
+            border-radius: 18px;
+            box-shadow: 0 4px 16px -4px rgba(15, 23, 42, 0.05);
             display: flex;
             flex-direction: column;
             overflow: hidden;
         }
-        .ma-panel-grow {
-            flex: 1 1 auto;
-            min-height: 210px;
-        }
-        .ma-panel-header {
-            padding: 0.52rem 0.85rem;
-            border-bottom: 1px solid #F1F5F9;
+        .bx-panel-head {
+            padding: 0.95rem 1.3rem;
+            border-bottom: 1px solid #f1f5f9;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 0.5rem;
+            gap: 0.75rem;
             flex-wrap: wrap;
             flex-shrink: 0;
         }
-        .ma-panel-title {
-            font-size: 0.83rem;
+        .bx-panel-title {
+            font-size: 0.95rem;
             font-weight: 800;
-            color: var(--ma-text);
+            color: var(--bx-text);
             margin: 0;
         }
-        .ma-panel-hint {
-            font-size: 0.68rem;
-            color: var(--ma-muted);
-            font-weight: 500;
-            margin-left: 6px;
+        .bx-panel-sub {
+            font-size: 0.74rem;
+            color: var(--bx-muted);
+            margin-top: 2px;
         }
 
-        /* Inline Header Pills / Select */
-        .ma-pill-group {
-            display: inline-flex;
-            gap: 4px;
+        /* Filter Strip inside Tab */
+        .bx-filter-row {
+            padding: 0.65rem 1.3rem;
+            background: #fafbfe;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
             flex-wrap: wrap;
+            gap: 0.4rem;
             align-items: center;
         }
-        .ma-filter-pill {
-            border: 1px solid #CBD5E1;
-            background: #FFFFFF;
-            color: #334155;
-            font-size: 0.68rem;
-            font-weight: 700;
-            padding: 2px 8px;
-            border-radius: 999px;
-            cursor: pointer;
-            transition: all 0.14s ease;
-        }
-        .ma-filter-pill:hover {
-            border-color: #6366f1;
-            color: #4f46e5;
-            background: #EEF2FF;
-        }
-        .ma-filter-pill.active {
-            background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
-            border-color: transparent;
-            color: #FFFFFF;
-        }
-        .ma-group-select {
+        .bx-chip {
+            border: 1px solid #dbe2ef;
+            background: #ffffff;
+            color: #475569;
             font-size: 0.72rem;
             font-weight: 700;
-            color: #334155;
-            border: 1px solid #CBD5E1;
-            border-radius: 8px;
-            padding: 2px 8px;
-            background: #F8FAFC;
+            padding: 4px 11px;
+            border-radius: 999px;
             cursor: pointer;
-            outline: none;
+            transition: all 0.15s ease;
+        }
+        .bx-chip:hover {
+            border-color: #6366f1;
+            color: #4f46e5;
+            background: #eef2ff;
+        }
+        .bx-chip.active {
+            background: linear-gradient(135deg, #4f46e5, #6366f1);
+            border-color: transparent;
+            color: #ffffff;
         }
 
-        /* Compact High-Readability Tables */
-        .ma-table-scroll {
+        /* Clean Breathable Tables */
+        .bx-table-wrap {
+            flex: 1 1 auto;
             overflow-y: auto;
             overflow-x: auto;
-            flex: 1 1 auto;
-            max-height: 245px;
+            max-height: 360px;
         }
-        .ma-table {
+        .bx-table {
             width: 100%;
             margin-bottom: 0;
             border-collapse: collapse;
         }
-        .ma-table thead th {
+        .bx-table thead th {
             position: sticky;
             top: 0;
             z-index: 2;
-            background: #F8FAFC;
-            color: #475569;
-            font-size: 0.65rem;
+            background: #f8fafc;
+            color: #64748b;
+            font-size: 0.7rem;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.04em;
-            padding: 0.45rem 0.75rem;
-            border-bottom: 1px solid #E2E8F0;
+            letter-spacing: 0.05em;
+            padding: 0.7rem 1.1rem;
+            border-bottom: 1px solid #e2e8f0;
             white-space: nowrap;
         }
-        .ma-table tbody td {
-            padding: 0.42rem 0.75rem;
-            font-size: 0.76rem;
-            color: #0F172A;
-            border-bottom: 1px solid #F1F5F9;
+        .bx-table tbody td {
+            padding: 0.78rem 1.1rem;
+            font-size: 0.83rem;
+            color: var(--bx-text);
+            border-bottom: 1px solid #f1f5f9;
             vertical-align: middle;
         }
-        .ma-table tbody tr:hover {
-            background-color: #F8FAFC;
+        .bx-table tbody tr:hover {
+            background: #f8fafc;
         }
-        .ma-table tfoot td {
+        .bx-table tfoot td {
             position: sticky;
             bottom: 0;
             z-index: 2;
-            padding: 0.48rem 0.75rem;
-            font-size: 0.77rem;
+            padding: 0.82rem 1.1rem;
+            font-size: 0.84rem;
             font-weight: 800;
-            color: #0F172A;
-            background: #F1F5F9;
-            border-top: 1.5px solid #CBD5E1;
+            color: var(--bx-text);
+            background: #f1f5f9;
+            border-top: 2px solid #cbd5e1;
         }
 
-        .ma-code-pill {
+        .bx-code {
             font-family: 'Fira Code', ui-monospace, monospace !important;
-            font-size: 0.65rem;
+            font-size: 0.7rem;
             font-weight: 600;
             color: #4338ca;
-            background: #EEF2FF;
-            padding: 1px 5px;
-            border-radius: 4px;
+            background: #eef2ff;
+            padding: 2px 7px;
+            border-radius: 6px;
         }
-        .ma-group-tag {
+        .bx-mini-bar {
+            height: 4px;
+            background: #eef2ff;
+            border-radius: 999px;
+            margin-top: 5px;
+            overflow: hidden;
+            max-width: 180px;
+        }
+        .bx-mini-bar > div {
+            height: 100%;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #6366f1, #a855f7);
+        }
+        .bx-tag-ceft {
             font-size: 0.64rem;
             font-weight: 700;
-            color: #334155;
-            background: #F1F5F9;
-            padding: 1px 6px;
+            color: #92400e;
+            background: #fef3c7;
+            padding: 2px 6px;
+            border-radius: 999px;
+            margin-left: 6px;
+        }
+        .bx-tag-grp {
+            font-size: 0.69rem;
+            font-weight: 700;
+            color: #475569;
+            background: #f1f5f9;
+            padding: 2px 8px;
             border-radius: 999px;
             white-space: nowrap;
         }
-        .ma-ceft-tag {
-            font-size: 0.6rem;
-            font-weight: 700;
-            color: #92400E;
-            background: #FEF3C7;
-            padding: 1px 5px;
-            border-radius: 999px;
-            margin-left: 4px;
-        }
-        .is-loading .ma-kpi-value {
+
+        .is-loading .bx-big-num,
+        .is-loading .bx-hero-amount {
             opacity: 0.45;
+            transition: opacity 0.2s ease;
         }
     </style>
 </head>
@@ -434,165 +536,201 @@
         <div class="content" id="dashboardRoot">
             <%@include file="../jspf/topbar.jspf" %>
 
-            <!-- Slim Executive Header Bar -->
-            <div class="ma-header-bar d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2 mt-1">
+            <!-- Clean Floating Executive Top Bar -->
+            <div class="bx-topbar">
                 <div>
-                    <h4 class="ma-header-title">My Fintrex — Mobile App Executive Summary</h4>
-                    <div class="ma-header-sub">Live status from 2026-06-01 onwards &middot; Fintrex (OWN) &amp; JustPay (OTHER)</div>
+                    <h4 class="bx-title">My Fintrex — Mobile App Overview</h4>
+                    <div class="bx-subtitle">Live executive insights from 2026-06-01 onwards &middot; Fintrex (OWN) &amp; JustPay (OTHER)</div>
                 </div>
-                <div class="d-flex flex-wrap align-items-center gap-2">
-                    <div class="ma-date-control d-flex align-items-center gap-1">
-                        <label for="fromDate" class="mb-0">From</label>
+                <div class="bx-controls">
+                    <div class="bx-date-pill">
+                        <label for="fromDate">From</label>
                         <input type="date" id="fromDate" min="2026-06-01" aria-label="From date">
                     </div>
-                    <div class="ma-date-control d-flex align-items-center gap-1">
-                        <label for="toDate" class="mb-0">To</label>
+                    <div class="bx-date-pill">
+                        <label for="toDate">To</label>
                         <input type="date" id="toDate" min="2026-06-01" aria-label="To date">
                     </div>
-                    <div class="ma-date-control d-flex align-items-center gap-1">
-                        <label for="compareMode" class="mb-0">Compare</label>
-                        <select id="compareMode" aria-label="Compare mode">
-                            <option value="DAY" selected>vs Prev Day</option>
-                            <option value="MONTH">vs Prev Month</option>
-                        </select>
+                    <div class="bx-seg" id="compareSeg" role="group" aria-label="Comparison period">
+                        <button type="button" class="bx-seg-btn active" data-compare="DAY">vs Prev Day</button>
+                        <button type="button" class="bx-seg-btn" data-compare="MONTH">vs Prev Month</button>
                     </div>
-                    <button type="button" id="refreshBtn" class="ma-btn-refresh">Refresh</button>
+                    <button type="button" id="refreshBtn" class="bx-refresh-btn">Refresh</button>
                 </div>
             </div>
 
-            <div class="ma-page-body">
+            <!-- Breathable Bento Canvas -->
+            <div class="bx-canvas">
                 <!-- Error Alert -->
-                <div id="errorAlert" class="alert alert-danger d-none align-items-center justify-content-between py-2 px-3 mb-0 rounded-3" role="alert" style="font-size: 0.78rem;">
+                <div id="errorAlert" class="alert alert-danger d-none align-items-center justify-content-between py-2 px-3 mb-0 rounded-3" role="alert">
                     <span id="errorMessage">Unable to load Mobile App dashboard data.</span>
-                    <button type="button" class="btn btn-sm btn-outline-danger py-0 px-2" onclick="loadDashboard()">Retry</button>
+                    <button type="button" class="btn btn-sm btn-outline-danger ms-3" onclick="loadDashboard()">Retry</button>
                 </div>
 
-                <!-- Single-Row 7-KPI Executive Strip -->
-                <div class="ma-kpi-strip">
-                    <div class="ma-kpi-card" style="--accent-color: #6366f1;">
-                        <div class="ma-kpi-label">App Initiated</div>
-                        <div class="ma-kpi-value num-mono" id="kpiInitiated">-</div>
-                        <div class="ma-kpi-meta">
-                            <span id="kpiInitiatedPrev">Prev: -</span>
-                            <span id="kpiInitiatedDelta" class="ma-delta ma-delta-flat">-</span>
-                        </div>
-                    </div>
-
-                    <div class="ma-kpi-card" style="--accent-color: #059669;">
-                        <div class="ma-kpi-label">Active Customers</div>
-                        <div class="ma-kpi-value num-mono" id="kpiActive">-</div>
-                        <div class="ma-kpi-meta">
-                            <span id="kpiActivePrev">Prev: -</span>
-                            <span id="kpiActiveDelta" class="ma-delta ma-delta-flat">-</span>
-                        </div>
-                    </div>
-
-                    <div class="ma-kpi-card" style="--accent-color: #f59e0b;">
-                        <div class="ma-kpi-label">Active Non-Fintrex</div>
-                        <div class="ma-kpi-value num-mono" id="kpiNonFintrex">-</div>
-                        <div class="ma-kpi-meta">
-                            <span id="kpiNonFintrexPrev">Prev: -</span>
-                            <span id="kpiNonFintrexDelta" class="ma-delta ma-delta-flat">-</span>
-                        </div>
-                    </div>
-
-                    <div class="ma-kpi-card" style="--accent-color: #0284c7;">
-                        <div class="d-flex align-items-center justify-content-between gap-1 mb-1">
-                            <div class="ma-kpi-label mb-0">Savings Opened</div>
-                            <span class="ma-sub-pill" id="kpiSavingsActivePill">Act: -</span>
-                        </div>
-                        <div class="ma-kpi-value num-mono" id="kpiSavings">-</div>
-                        <div class="ma-kpi-meta">
-                            <span id="kpiSavingsPrev">Prev: -</span>
-                            <span id="kpiSavingsDelta" class="ma-delta ma-delta-flat">-</span>
-                        </div>
-                    </div>
-
-                    <div class="ma-kpi-card" style="--accent-color: #8b5cf6;">
-                        <div class="ma-kpi-label">Success Txns</div>
-                        <div class="ma-kpi-value num-mono" id="kpiTxnCount">-</div>
-                        <div class="ma-kpi-meta">
-                            <span id="kpiTxnCountPrev">Prev: -</span>
-                            <span id="kpiTxnCountDelta" class="ma-delta ma-delta-flat">-</span>
-                        </div>
-                    </div>
-
-                    <div class="ma-kpi-card" style="--accent-color: #10b981;">
-                        <div class="ma-kpi-label">Success Txn Value</div>
-                        <div class="ma-kpi-value num-mono" id="kpiTxnValue">-</div>
-                        <div class="ma-kpi-meta">
-                            <span id="kpiTxnValuePrev">Prev: -</span>
-                            <span id="kpiTxnValueDelta" class="ma-delta ma-delta-flat">-</span>
-                        </div>
-                    </div>
-
-                    <div class="ma-kpi-card ma-kpi-ceft" style="--accent-color: #4f46e5;">
-                        <div class="ma-kpi-label">CEFT Revenue</div>
-                        <div class="ma-kpi-value num-mono" id="kpiCeftRevenue">-</div>
-                        <div class="ma-kpi-meta">
-                            <span id="kpiCeftRevenuePrev">Prev: -</span>
-                            <span id="kpiCeftRevenueDelta" class="ma-delta ma-delta-flat">-</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Main Compact 2-Column Executive Grid -->
-                <div class="ma-main-grid">
-                    <!-- Left Column: CEFT Revenue + Transaction Breakdown -->
-                    <div class="ma-col-stack">
-                        <!-- CEFT Revenue Table -->
-                        <div class="ma-panel">
-                            <div class="ma-panel-header">
-                                <div>
-                                    <span class="ma-panel-title">CEFT Revenue Breakdown</span>
-                                    <span class="ma-panel-hint">LKR 25 / successful txn</span>
-                                </div>
-                                <div class="ma-pill-group" id="ceftGroupFilterBar">
-                                    <button type="button" class="ma-filter-pill active" data-ceft-group="ALL">All</button>
-                                    <button type="button" class="ma-filter-pill" data-ceft-group="Credit Card">CC</button>
-                                    <button type="button" class="ma-filter-pill" data-ceft-group="Fund Transfers">FT</button>
-                                </div>
+                <!-- ROW 1: 3 Spacious Bento Story Cards (All 7 KPIs, Effortless to Read) -->
+                <div class="bx-hero-grid">
+                    <!-- Story Card 1: Financial Hero (CEFT Revenue + Txn Count + Txn Value) -->
+                    <div class="bx-card bx-card-hero">
+                        <div class="d-flex align-items-start justify-content-between gap-2 position-relative" style="z-index: 1;">
+                            <div>
+                                <div class="bx-hero-eyebrow">Total CEFT Revenue (LKR 25 / Txn)</div>
+                                <div class="bx-hero-amount num" id="kpiCeftRevenue">-</div>
                             </div>
-                            <div class="table-responsive">
-                                <table class="ma-table">
+                            <span class="bx-hero-delta num" id="kpiCeftRevenueDelta">-</span>
+                        </div>
+                        <div class="bx-hero-substrip">
+                            <div>
+                                <div class="bx-hero-mini-label">Successful Transactions</div>
+                                <div class="bx-hero-mini-val num" id="kpiTxnCount">-</div>
+                                <span class="bx-hero-delta num" id="kpiTxnCountDelta">-</span>
+                            </div>
+                            <div>
+                                <div class="bx-hero-mini-label">Total Transaction Value</div>
+                                <div class="bx-hero-mini-val num" id="kpiTxnValue">-</div>
+                                <span class="bx-hero-delta num" id="kpiTxnValueDelta">-</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Story Card 2: Customer Adoption (Active Customers + Initiated + Active Non-Fintrex) -->
+                    <div class="bx-card">
+                        <div class="d-flex align-items-start justify-content-between gap-2">
+                            <div>
+                                <div class="bx-eyebrow">Active Customers</div>
+                                <div class="bx-big-num num" id="kpiActive">-</div>
+                            </div>
+                            <span class="bx-delta-pill bx-flat num" id="kpiActiveDelta">-</span>
+                        </div>
+                        <div class="bx-bar-wrap">
+                            <div class="bx-bar-meta">
+                                <span>Active vs App Initiated</span>
+                                <span class="num" id="activeRateText">-</span>
+                            </div>
+                            <div class="bx-bar-track">
+                                <div class="bx-bar-fill" id="activeRateBar" style="width: 0%;"></div>
+                            </div>
+                        </div>
+                        <div class="bx-sub-grid">
+                            <div>
+                                <div class="bx-sub-label">App Initiated</div>
+                                <div class="bx-sub-val num" id="kpiInitiated">-</div>
+                                <span class="bx-delta-pill bx-flat num mt-1" id="kpiInitiatedDelta">-</span>
+                            </div>
+                            <div>
+                                <div class="bx-sub-label">Active Non-Fintrex</div>
+                                <div class="bx-sub-val num" id="kpiNonFintrex">-</div>
+                                <span class="bx-delta-pill bx-flat num mt-1" id="kpiNonFintrexDelta">-</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Story Card 3: Digital Savings & CEFT Share -->
+                    <div class="bx-card">
+                        <div class="d-flex align-items-start justify-content-between gap-2">
+                            <div>
+                                <div class="bx-eyebrow">Savings Accounts Opened</div>
+                                <div class="bx-big-num num" id="kpiSavings">-</div>
+                            </div>
+                            <span class="bx-delta-pill bx-flat num" id="kpiSavingsDelta">-</span>
+                        </div>
+                        <div class="bx-bar-wrap">
+                            <div class="bx-bar-meta">
+                                <span>Active Savings Ratio</span>
+                                <span class="num" id="savingsActiveRateText">-</span>
+                            </div>
+                            <div class="bx-bar-track">
+                                <div class="bx-bar-fill" id="savingsActiveBar" style="width: 0%; background: linear-gradient(90deg, #0ea5e9, #10b981);"></div>
+                            </div>
+                        </div>
+                        <div class="bx-sub-grid">
+                            <div>
+                                <div class="bx-sub-label">Active Savings Accounts</div>
+                                <div class="bx-sub-val num" style="color: #059669;" id="kpiActiveSavings">-</div>
+                            </div>
+                            <div>
+                                <div class="bx-sub-label">CEFT Eligible Txns</div>
+                                <div class="bx-sub-val num" style="color: #4f46e5;" id="kpiCeftCount">-</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ROW 2: Spacious 2-Column Workspace (Tabbed Tables + Switchable Visuals) -->
+                <div class="bx-work-grid">
+                    <!-- Left: Clean Tabbed Detail Panel -->
+                    <div class="bx-panel">
+                        <div class="bx-panel-head">
+                            <div>
+                                <h6 class="bx-panel-title" id="leftPanelTitle">CEFT Revenue Breakdown</h6>
+                                <div class="bx-panel-sub" id="leftPanelSub">LKR 25.00 per successful transaction across the 4 eligible CEFT codes</div>
+                            </div>
+                            <div class="bx-seg" id="detailTabs">
+                                <button type="button" class="bx-seg-btn active" data-tab="ceft">CEFT Revenue</button>
+                                <button type="button" class="bx-seg-btn" data-tab="groups">By Category</button>
+                                <button type="button" class="bx-seg-btn" data-tab="txns">All Types</button>
+                            </div>
+                        </div>
+
+                        <!-- Tab 1: CEFT Revenue -->
+                        <div id="pane-ceft" class="d-flex flex-column flex-grow-1">
+                            <div class="bx-filter-row" id="ceftFilterBar">
+                                <button type="button" class="bx-chip active" data-ceft-group="ALL">All CEFT</button>
+                                <button type="button" class="bx-chip" data-ceft-group="Credit Card">Credit Card (CC)</button>
+                                <button type="button" class="bx-chip" data-ceft-group="Fund Transfers">Fund Transfers (FT)</button>
+                            </div>
+                            <div class="bx-table-wrap">
+                                <table class="bx-table">
                                     <thead>
                                         <tr>
                                             <th>Transaction Type</th>
                                             <th>Code</th>
-                                            <th class="text-end">Count</th>
-                                            <th class="text-end" id="ceftDiffColHeader">Change</th>
+                                            <th class="text-end">Success Count</th>
+                                            <th class="text-end" id="ceftDiffCol">vs Prev Day</th>
                                             <th class="text-end">Revenue (LKR)</th>
                                         </tr>
                                     </thead>
                                     <tbody id="ceftTableBody">
-                                        <tr><td colspan="5" class="text-center text-muted py-3">Loading...</td></tr>
+                                        <tr><td colspan="5" class="text-center text-muted py-4">Loading...</td></tr>
                                     </tbody>
                                     <tfoot id="ceftTableFoot"></tfoot>
                                 </table>
                             </div>
                         </div>
 
-                        <!-- Transaction Type-Wise Breakdown -->
-                        <div class="ma-panel ma-panel-grow">
-                            <div class="ma-panel-header">
-                                <div>
-                                    <span class="ma-panel-title">Transaction Type Breakdown</span>
-                                    <span class="ma-panel-hint">OWN = Fintrex &middot; OTHER = JustPay</span>
-                                </div>
-                                <select id="txnGroupSelect" class="ma-group-select" aria-label="Filter transaction group">
-                                    <option value="ALL">All Groups</option>
-                                    <option value="CEFT">CEFT Only</option>
-                                    <option value="Leasing">Leasing (CR)</option>
-                                    <option value="Loan Payments">Loan Payments (MF)</option>
-                                    <option value="Pawning">Pawning</option>
-                                    <option value="Bill Payments">Bill Payments (BP)</option>
-                                    <option value="Fund Transfers">Fund Transfers (FT)</option>
-                                    <option value="Credit Card">Credit Card (CC)</option>
-                                    <option value="QR Payments">QR Payments (QR)</option>
-                                </select>
+                        <!-- Tab 2: Category Summary -->
+                        <div id="pane-groups" class="d-none flex-column flex-grow-1">
+                            <div class="bx-table-wrap">
+                                <table class="bx-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Category Group</th>
+                                            <th class="text-end">Success Count</th>
+                                            <th class="text-end" id="grpDiffCol">vs Prev Day</th>
+                                            <th class="text-end">Total Value (LKR)</th>
+                                            <th class="text-end">Share</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="groupTableBody"></tbody>
+                                    <tfoot id="groupTableFoot"></tfoot>
+                                </table>
                             </div>
-                            <div class="ma-table-scroll">
-                                <table class="ma-table">
+                        </div>
+
+                        <!-- Tab 3: All Transaction Types -->
+                        <div id="pane-txns" class="d-none flex-column flex-grow-1">
+                            <div class="bx-filter-row" id="txnFilterBar">
+                                <button type="button" class="bx-chip active" data-group="ALL">All</button>
+                                <button type="button" class="bx-chip" data-group="CEFT">CEFT</button>
+                                <button type="button" class="bx-chip" data-group="Leasing">Leasing</button>
+                                <button type="button" class="bx-chip" data-group="Loan Payments">Loan</button>
+                                <button type="button" class="bx-chip" data-group="Pawning">Pawning</button>
+                                <button type="button" class="bx-chip" data-group="Bill Payments">Bill</button>
+                                <button type="button" class="bx-chip" data-group="Fund Transfers">Fund</button>
+                                <button type="button" class="bx-chip" data-group="Credit Card">Credit Card</button>
+                                <button type="button" class="bx-chip" data-group="QR Payments">QR</button>
+                            </div>
+                            <div class="bx-table-wrap">
+                                <table class="bx-table">
                                     <thead>
                                         <tr>
                                             <th>Transaction Type</th>
@@ -600,42 +738,30 @@
                                             <th>Code</th>
                                             <th class="text-end">Count</th>
                                             <th class="text-end">Value (LKR)</th>
-                                            <th class="text-end" id="txnDiffColHeader">Change</th>
+                                            <th class="text-end" id="txnDiffCol">vs Prev Day</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="txnBreakdownBody">
-                                        <tr><td colspan="6" class="text-center text-muted py-3">Loading...</td></tr>
-                                    </tbody>
-                                    <tfoot id="txnBreakdownFoot"></tfoot>
+                                    <tbody id="txnTableBody"></tbody>
+                                    <tfoot id="txnTableFoot"></tfoot>
                                 </table>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Right Column: 2 Compact Charts -->
-                    <div class="ma-col-stack">
-                        <div class="ma-panel" style="flex: 1 1 48%;">
-                            <div class="ma-panel-header">
-                                <div>
-                                    <span class="ma-panel-title">Daily Activity Trend</span>
-                                    <span class="ma-panel-hint">Txns vs CEFT Revenue (LKR)</span>
-                                </div>
+                    <!-- Right: Clean Switchable Visual Chart Panel -->
+                    <div class="bx-panel">
+                        <div class="bx-panel-head">
+                            <div>
+                                <h6 class="bx-panel-title" id="chartPanelTitle">Daily Activity Trend</h6>
+                                <div class="bx-panel-sub" id="chartPanelSub">Successful transactions &amp; CEFT revenue over recent days</div>
                             </div>
-                            <div class="p-2 flex-grow-1" style="min-height: 175px; position: relative;">
-                                <canvas id="dailyTrendChart"></canvas>
+                            <div class="bx-seg" id="chartTabs">
+                                <button type="button" class="bx-seg-btn active" data-chart="trend">Trend</button>
+                                <button type="button" class="bx-seg-btn" data-chart="groups">By Group</button>
                             </div>
                         </div>
-
-                        <div class="ma-panel" style="flex: 1 1 52%;">
-                            <div class="ma-panel-header">
-                                <div>
-                                    <span class="ma-panel-title">Transaction Value by Group</span>
-                                    <span class="ma-panel-hint">LKR</span>
-                                </div>
-                            </div>
-                            <div class="p-2 flex-grow-1" style="min-height: 190px; position: relative;">
-                                <canvas id="txnTypeChart"></canvas>
-                            </div>
+                        <div class="p-3 flex-grow-1" style="min-height: 310px; position: relative;">
+                            <canvas id="mainVisualChart"></canvas>
                         </div>
                     </div>
                 </div>
@@ -653,11 +779,12 @@
 
 <script>
     const DATA_FLOOR = '2026-06-01';
-    let dailyTrendChart = null;
-    let txnTypeChart = null;
-    let lastPayload = null;
-    let activeTxnGroup = 'ALL';
+    let compareMode = 'DAY';
     let activeCeftGroup = 'ALL';
+    let activeTxnGroup = 'ALL';
+    let activeChartTab = 'trend';
+    let lastPayload = null;
+    let mainChart = null;
 
     function getLocalToday() {
         const now = new Date();
@@ -680,38 +807,30 @@
         return 'LKR ' + fmtCurrency(n);
     }
 
-    function renderTotalDeltaBadge(elId, currentTotal, prevTotal, isCurrency) {
+    function setPillDelta(elId, current, prev, isCurrency, isHero) {
         const el = document.getElementById(elId);
         if (!el) return;
-        const diff = Number(currentTotal || 0) - Number(prevTotal || 0);
-        el.classList.remove('ma-delta-up', 'ma-delta-down', 'ma-delta-flat');
+        const diff = Number(current || 0) - Number(prev || 0);
+        const suffix = compareMode === 'MONTH' ? ' vs prev mo' : ' vs prev day';
+        const absText = isCurrency ? fmtCompactLkr(Math.abs(diff)) : fmtInt(Math.abs(diff));
 
-        const formatted = isCurrency ? fmtCompactLkr(Math.abs(diff)) : fmtInt(Math.abs(diff));
-        if (diff > 0) {
-            el.classList.add('ma-delta-up');
-            el.textContent = '+' + formatted;
-        } else if (diff < 0) {
-            el.classList.add('ma-delta-down');
-            el.textContent = '-' + formatted;
-        } else {
-            el.classList.add('ma-delta-flat');
-            el.textContent = '0';
+        if (!isHero) {
+            el.classList.remove('bx-up', 'bx-down', 'bx-flat');
+            el.classList.add(diff > 0 ? 'bx-up' : (diff < 0 ? 'bx-down' : 'bx-flat'));
         }
+        el.textContent = (diff > 0 ? '+' : (diff < 0 ? '-' : '')) + (diff === 0 ? '0' : absText) + suffix;
+        el.title = 'Previous total: ' + (isCurrency ? 'LKR ' + fmtCurrency(prev) : fmtInt(prev));
     }
 
-    function diffPillHtml(diffVal) {
+    function diffBadgeHtml(diffVal) {
         const d = Number(diffVal || 0);
-        if (d > 0) return '<span class="ma-delta ma-delta-up">+' + fmtInt(d) + '</span>';
-        if (d < 0) return '<span class="ma-delta ma-delta-down">' + fmtInt(d) + '</span>';
-        return '<span class="ma-delta ma-delta-flat">0</span>';
+        if (d > 0) return '<span class="bx-delta-pill bx-up">+' + fmtInt(d) + '</span>';
+        if (d < 0) return '<span class="bx-delta-pill bx-down">' + fmtInt(d) + '</span>';
+        return '<span class="bx-delta-pill bx-flat">0</span>';
     }
 
     function escapeHtml(str) {
-        return String(str || '')
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;');
+        return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     }
 
     function loadDashboard() {
@@ -721,10 +840,9 @@
             $('#fromDate').val(DATA_FLOOR);
         }
         const toDate = $('#toDate').val() || getLocalToday();
-        const compareMode = $('#compareMode').val() || 'DAY';
 
         $('#errorAlert').addClass('d-none').removeClass('d-flex');
-        $('#refreshBtn').prop('disabled', true).text('...');
+        $('#refreshBtn').prop('disabled', true).text('Loading...');
         $('#dashboardRoot').addClass('is-loading');
 
         const qs = new URLSearchParams({ fromDate, toDate, compareMode }).toString();
@@ -736,49 +854,50 @@
             })
             .then(data => {
                 lastPayload = data;
-                const mode = data.compareMode || 'DAY';
-                const shortPrev = mode === 'MONTH' ? 'Prev Mo: ' : 'Prev: ';
-                const colLbl = mode === 'MONTH' ? 'vs Mo' : 'vs Day';
+                const colLbl = compareMode === 'MONTH' ? 'vs Prev Mo' : 'vs Prev Day';
+                $('#ceftDiffCol, #grpDiffCol, #txnDiffCol').text(colLbl);
 
-                $('#ceftDiffColHeader').text(colLbl);
-                $('#txnDiffColHeader').text(colLbl);
-
-                const c = data.customerInfo || {};
-                $('#kpiInitiated').text(fmtInt(c.totalInitiated));
-                $('#kpiInitiatedPrev').text(shortPrev + fmtInt(c.prevInitiated)).attr('title', 'Previous cutoff: ' + data.prevCutoffDate);
-                renderTotalDeltaBadge('kpiInitiatedDelta', c.totalInitiated, c.prevInitiated, false);
-
-                $('#kpiActive').text(fmtInt(c.totalActive));
-                $('#kpiActivePrev').text(shortPrev + fmtInt(c.prevActive)).attr('title', 'Previous cutoff: ' + data.prevCutoffDate);
-                renderTotalDeltaBadge('kpiActiveDelta', c.totalActive, c.prevActive, false);
-
-                $('#kpiNonFintrex').text(fmtInt(c.totalNonFintrex));
-                $('#kpiNonFintrexPrev').text(shortPrev + fmtInt(c.prevNonFintrex)).attr('title', 'Previous cutoff: ' + data.prevCutoffDate);
-                renderTotalDeltaBadge('kpiNonFintrexDelta', c.totalNonFintrex, c.prevNonFintrex, false);
-
-                $('#kpiSavings').text(fmtInt(c.totalSavings));
-                $('#kpiSavingsActivePill').text('Act: ' + fmtInt(c.activeSavings)).attr('title', 'Active Savings Accounts: ' + fmtInt(c.activeSavings));
-                $('#kpiSavingsPrev').text(shortPrev + fmtInt(c.prevSavings)).attr('title', 'Previous cutoff: ' + data.prevCutoffDate);
-                renderTotalDeltaBadge('kpiSavingsDelta', c.totalSavings, c.prevSavings, false);
-
+                // Financial Hero Card
                 const t = data.transactionInfo || {};
+                const ceft = data.ceftRevenue || {};
+                $('#kpiCeftRevenue').text('LKR ' + fmtCurrency(ceft.totalCeftRevenue));
+                setPillDelta('kpiCeftRevenueDelta', ceft.totalCeftRevenue, ceft.prevCeftRevenue, true, true);
+
                 $('#kpiTxnCount').text(fmtInt(t.totalSuccessCount));
-                $('#kpiTxnCountPrev').text(shortPrev + fmtInt(t.prevSuccessCount)).attr('title', 'Previous cutoff: ' + data.prevCutoffDate);
-                renderTotalDeltaBadge('kpiTxnCountDelta', t.totalSuccessCount, t.prevSuccessCount, false);
+                setPillDelta('kpiTxnCountDelta', t.totalSuccessCount, t.prevSuccessCount, false, true);
 
                 $('#kpiTxnValue').text(fmtCompactLkr(t.totalSuccessValue)).attr('title', 'LKR ' + fmtCurrency(t.totalSuccessValue));
-                $('#kpiTxnValuePrev').text(shortPrev + fmtCompactLkr(t.prevSuccessValue)).attr('title', 'Previous cutoff: ' + data.prevCutoffDate);
-                renderTotalDeltaBadge('kpiTxnValueDelta', t.totalSuccessValue, t.prevSuccessValue, true);
+                setPillDelta('kpiTxnValueDelta', t.totalSuccessValue, t.prevSuccessValue, true, true);
 
-                const ceft = data.ceftRevenue || {};
-                $('#kpiCeftRevenue').text(fmtCompactLkr(ceft.totalCeftRevenue)).attr('title', 'LKR ' + fmtCurrency(ceft.totalCeftRevenue));
-                $('#kpiCeftRevenuePrev').text(shortPrev + fmtCompactLkr(ceft.prevCeftRevenue)).attr('title', 'Previous cutoff: ' + data.prevCutoffDate);
-                renderTotalDeltaBadge('kpiCeftRevenueDelta', ceft.totalCeftRevenue, ceft.prevCeftRevenue, true);
+                // Customer Adoption Card
+                const c = data.customerInfo || {};
+                $('#kpiActive').text(fmtInt(c.totalActive));
+                setPillDelta('kpiActiveDelta', c.totalActive, c.prevActive, false, false);
+
+                $('#kpiInitiated').text(fmtInt(c.totalInitiated));
+                setPillDelta('kpiInitiatedDelta', c.totalInitiated, c.prevInitiated, false, false);
+
+                $('#kpiNonFintrex').text(fmtInt(c.totalNonFintrex));
+                setPillDelta('kpiNonFintrexDelta', c.totalNonFintrex, c.prevNonFintrex, false, false);
+
+                const activePct = c.totalInitiated > 0 ? Math.min(100, Math.round((c.totalActive / c.totalInitiated) * 100)) : 0;
+                $('#activeRateText').text(activePct + '% (' + fmtInt(c.totalActive) + ' / ' + fmtInt(c.totalInitiated) + ')');
+                $('#activeRateBar').css('width', activePct + '%');
+
+                // Savings & CEFT Activity Card
+                $('#kpiSavings').text(fmtInt(c.totalSavings));
+                setPillDelta('kpiSavingsDelta', c.totalSavings, c.prevSavings, false, false);
+                $('#kpiActiveSavings').text(fmtInt(c.activeSavings));
+                $('#kpiCeftCount').text(fmtInt(ceft.totalCeftCount));
+
+                const savPct = c.totalSavings > 0 ? Math.min(100, Math.round((c.activeSavings / c.totalSavings) * 100)) : 0;
+                $('#savingsActiveRateText').text(savPct + '% active');
+                $('#savingsActiveBar').css('width', savPct + '%');
 
                 renderCeftTable();
-                renderTxnBreakdownTable();
-                renderDailyTrendChart(data.dailyTrend || []);
-                renderGroupChart(data.groupSummary || []);
+                renderGroupTable();
+                renderTxnTable();
+                renderMainChart();
             })
             .catch(err => {
                 $('#errorMessage').text(err.message || 'Unable to load Mobile App dashboard data.');
@@ -797,34 +916,68 @@
         if (activeCeftGroup !== 'ALL') {
             rows = rows.filter(r => r.group === activeCeftGroup);
         }
+        const maxRev = Math.max(1, ...rows.map(r => Number(r.revenue || 0)));
 
         let sumCount = 0, sumDiff = 0, sumRev = 0;
-        let html = '';
-        rows.forEach(r => {
+        const html = rows.map(r => {
             sumCount += Number(r.successCount || 0);
             sumDiff += Number(r.diffCount || 0);
             sumRev += Number(r.revenue || 0);
-            html += '<tr>' +
-                '<td class="fw-semi-bold">' + escapeHtml(r.transactionType) + '</td>' +
-                '<td><span class="ma-code-pill">' + escapeHtml(r.transactionCode) + '</span></td>' +
-                '<td class="text-end num-mono fw-semi-bold">' + fmtInt(r.successCount) + '</td>' +
-                '<td class="text-end num-mono">' + diffPillHtml(r.diffCount) + '</td>' +
-                '<td class="text-end num-mono fw-bold" style="color:#4f46e5;">' + fmtCurrency(r.revenue) + '</td>' +
+            const pct = Math.round((Number(r.revenue || 0) / maxRev) * 100);
+            return '<tr>' +
+                '<td><div class="fw-bold">' + escapeHtml(r.transactionType) + '</div>' +
+                    '<div class="bx-mini-bar"><div style="width:' + pct + '%;"></div></div></td>' +
+                '<td><span class="bx-code">' + escapeHtml(r.transactionCode) + '</span></td>' +
+                '<td class="text-end num fw-semi-bold">' + fmtInt(r.successCount) + '</td>' +
+                '<td class="text-end num">' + diffBadgeHtml(r.diffCount) + '</td>' +
+                '<td class="text-end num fw-bold" style="color:#4f46e5;">' + fmtCurrency(r.revenue) + '</td>' +
             '</tr>';
-        });
-        $('#ceftTableBody').html(html || '<tr><td colspan="5" class="text-center text-muted py-3">No CEFT transactions</td></tr>');
+        }).join('');
 
+        $('#ceftTableBody').html(html || '<tr><td colspan="5" class="text-center text-muted py-4">No CEFT transactions found</td></tr>');
         $('#ceftTableFoot').html(
             '<tr>' +
                 '<td colspan="2">Total CEFT Revenue</td>' +
-                '<td class="text-end num-mono">' + fmtInt(sumCount) + '</td>' +
-                '<td class="text-end num-mono">' + diffPillHtml(sumDiff) + '</td>' +
-                '<td class="text-end num-mono" style="color:#4f46e5;">LKR ' + fmtCurrency(sumRev) + '</td>' +
+                '<td class="text-end num">' + fmtInt(sumCount) + '</td>' +
+                '<td class="text-end num">' + diffBadgeHtml(sumDiff) + '</td>' +
+                '<td class="text-end num" style="color:#4f46e5;">LKR ' + fmtCurrency(sumRev) + '</td>' +
             '</tr>'
         );
     }
 
-    function renderTxnBreakdownTable() {
+    function renderGroupTable() {
+        if (!lastPayload) return;
+        const groups = lastPayload.groupSummary || [];
+        const grandVal = groups.reduce((s, g) => s + Number(g.totalValue || 0), 0);
+        let sumCount = 0, sumDiff = 0;
+
+        const html = groups.map(g => {
+            sumCount += Number(g.totalCount || 0);
+            sumDiff += Number(g.diffCount || 0);
+            const share = grandVal > 0 ? ((Number(g.totalValue || 0) / grandVal) * 100).toFixed(1) : '0.0';
+            return '<tr>' +
+                '<td><div class="fw-bold">' + escapeHtml(g.group) + '</div>' +
+                    '<div class="bx-mini-bar"><div style="width:' + Math.min(100, Number(share)) + '%;"></div></div></td>' +
+                '<td class="text-end num fw-semi-bold">' + fmtInt(g.totalCount) + '</td>' +
+                '<td class="text-end num">' + diffBadgeHtml(g.diffCount) + '</td>' +
+                '<td class="text-end num fw-bold">' + fmtCurrency(g.totalValue) + '</td>' +
+                '<td class="text-end num text-muted">' + share + '%</td>' +
+            '</tr>';
+        }).join('');
+
+        $('#groupTableBody').html(html || '<tr><td colspan="5" class="text-center text-muted py-4">No data</td></tr>');
+        $('#groupTableFoot').html(
+            '<tr>' +
+                '<td>All Categories</td>' +
+                '<td class="text-end num">' + fmtInt(sumCount) + '</td>' +
+                '<td class="text-end num">' + diffBadgeHtml(sumDiff) + '</td>' +
+                '<td class="text-end num">LKR ' + fmtCurrency(grandVal) + '</td>' +
+                '<td class="text-end num">100%</td>' +
+            '</tr>'
+        );
+    }
+
+    function renderTxnTable() {
         if (!lastPayload) return;
         let list = lastPayload.transactionBreakdown || [];
         if (activeTxnGroup === 'CEFT') {
@@ -834,159 +987,187 @@
         }
 
         if (!list.length) {
-            $('#txnBreakdownBody').html('<tr><td colspan="6" class="text-center text-muted py-3">No successful transactions for this filter.</td></tr>');
-            $('#txnBreakdownFoot').empty();
+            $('#txnTableBody').html('<tr><td colspan="6" class="text-center text-muted py-4">No transactions for this filter.</td></tr>');
+            $('#txnTableFoot').empty();
             return;
         }
 
         let sumCount = 0, sumVal = 0, sumDiff = 0;
-        let html = '';
-        list.forEach(item => {
+        const html = list.map(item => {
             sumCount += Number(item.totalCount || 0);
             sumVal += Number(item.totalValue || 0);
             sumDiff += Number(item.diffCount || 0);
-            const ceftTag = item.isCeft ? '<span class="ma-ceft-tag">CEFT</span>' : '';
-            html += '<tr>' +
+            const ceftTag = item.isCeft ? '<span class="bx-tag-ceft">CEFT</span>' : '';
+            return '<tr>' +
                 '<td class="fw-semi-bold">' + escapeHtml(item.displayName) + ceftTag + '</td>' +
-                '<td><span class="ma-group-tag">' + escapeHtml(item.group) + '</span></td>' +
-                '<td><span class="ma-code-pill">' + escapeHtml(item.txnCode) + '</span></td>' +
-                '<td class="text-end num-mono">' + fmtInt(item.totalCount) + '</td>' +
-                '<td class="text-end num-mono fw-semi-bold">' + fmtCurrency(item.totalValue) + '</td>' +
-                '<td class="text-end num-mono">' + diffPillHtml(item.diffCount) + '</td>' +
+                '<td><span class="bx-tag-grp">' + escapeHtml(item.group) + '</span></td>' +
+                '<td><span class="bx-code">' + escapeHtml(item.txnCode) + '</span></td>' +
+                '<td class="text-end num">' + fmtInt(item.totalCount) + '</td>' +
+                '<td class="text-end num fw-bold">' + fmtCurrency(item.totalValue) + '</td>' +
+                '<td class="text-end num">' + diffBadgeHtml(item.diffCount) + '</td>' +
             '</tr>';
-        });
-        $('#txnBreakdownBody').html(html);
+        }).join('');
 
-        $('#txnBreakdownFoot').html(
+        $('#txnTableBody').html(html);
+        $('#txnTableFoot').html(
             '<tr>' +
                 '<td colspan="3">Total (' + escapeHtml(activeTxnGroup) + ')</td>' +
-                '<td class="text-end num-mono">' + fmtInt(sumCount) + '</td>' +
-                '<td class="text-end num-mono">' + fmtCurrency(sumVal) + '</td>' +
-                '<td class="text-end num-mono">' + diffPillHtml(sumDiff) + '</td>' +
+                '<td class="text-end num">' + fmtInt(sumCount) + '</td>' +
+                '<td class="text-end num">' + fmtCurrency(sumVal) + '</td>' +
+                '<td class="text-end num">' + diffBadgeHtml(sumDiff) + '</td>' +
             '</tr>'
         );
     }
 
-    function renderDailyTrendChart(trend) {
-        const ctx = document.getElementById('dailyTrendChart');
-        if (dailyTrendChart) dailyTrendChart.destroy();
+    function renderMainChart() {
+        if (!lastPayload) return;
+        const ctx = document.getElementById('mainVisualChart');
+        if (mainChart) mainChart.destroy();
 
-        const labels = trend.map(d => d.date.slice(5));
-        const counts = trend.map(d => Number(d.txnCount || 0));
-        const ceftRev = trend.map(d => Number(d.ceftRevenue || 0));
-
-        dailyTrendChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [
-                    {
-                        label: 'Txns',
-                        data: counts,
-                        backgroundColor: 'rgba(99, 102, 241, 0.8)',
-                        hoverBackgroundColor: '#4f46e5',
-                        borderRadius: 4,
-                        yAxisID: 'y'
+        if (activeChartTab === 'trend') {
+            $('#chartPanelTitle').text('Daily Activity Trend');
+            $('#chartPanelSub').text('Successful transactions & CEFT revenue (LKR)');
+            const trend = lastPayload.dailyTrend || [];
+            mainChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: trend.map(d => d.date.slice(5)),
+                    datasets: [
+                        {
+                            label: 'Successful Txns',
+                            data: trend.map(d => Number(d.txnCount || 0)),
+                            backgroundColor: 'rgba(99, 102, 241, 0.82)',
+                            hoverBackgroundColor: '#4f46e5',
+                            borderRadius: 6,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'CEFT Revenue (LKR)',
+                            data: trend.map(d => Number(d.ceftRevenue || 0)),
+                            type: 'line',
+                            borderColor: '#f59e0b',
+                            backgroundColor: 'rgba(245, 158, 11, 0.14)',
+                            fill: true,
+                            borderWidth: 2.5,
+                            tension: 0.38,
+                            pointRadius: 3.5,
+                            pointBackgroundColor: '#f59e0b',
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: { position: 'bottom', labels: { usePointStyle: true, padding: 14, font: { family: 'Plus Jakarta Sans', size: 11, weight: '600' } } }
                     },
-                    {
-                        label: 'CEFT Rev (LKR)',
-                        data: ceftRev,
-                        type: 'line',
-                        borderColor: '#F59E0B',
-                        backgroundColor: 'rgba(245, 158, 11, 0.14)',
-                        fill: true,
-                        borderWidth: 2,
-                        tension: 0.35,
-                        pointRadius: 2.5,
-                        pointBackgroundColor: '#F59E0B',
-                        yAxisID: 'y1'
+                    scales: {
+                        x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 11 } } },
+                        y: { beginAtZero: true, position: 'left', grid: { color: '#f1f5f9' }, ticks: { color: '#64748b' } },
+                        y1: { beginAtZero: true, position: 'right', grid: { drawOnChartArea: false }, ticks: { color: '#64748b' } }
                     }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                interaction: { mode: 'index', intersect: false },
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: { boxWidth: 10, usePointStyle: true, padding: 8, font: { family: 'Plus Jakarta Sans', size: 10, weight: '600' } }
-                    }
-                },
-                scales: {
-                    x: { grid: { display: false }, ticks: { color: '#475569', font: { size: 10 } } },
-                    y: { beginAtZero: true, position: 'left', grid: { color: '#F1F5F9' }, ticks: { color: '#475569', font: { size: 10 } } },
-                    y1: { beginAtZero: true, position: 'right', grid: { drawOnChartArea: false }, ticks: { color: '#475569', font: { size: 10 } } }
                 }
-            }
-        });
-    }
-
-    function renderGroupChart(groups) {
-        const ctx = document.getElementById('txnTypeChart');
-        if (txnTypeChart) txnTypeChart.destroy();
-
-        const labels = groups.map(g => g.group);
-        const values = groups.map(g => Number(g.totalValue || 0));
-        const palette = ['#4f46e5', '#6366f1', '#8b5cf6', '#a855f7', '#0ea5e9', '#10b981', '#f59e0b', '#64748b'];
-
-        txnTypeChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Value (LKR)',
-                    data: values,
-                    backgroundColor: labels.map((_, idx) => palette[idx % palette.length]),
-                    borderRadius: 4,
-                    barThickness: 14
-                }]
-            },
-            options: {
-                indexAxis: 'y',
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            label: ctx => 'LKR ' + fmtCurrency(ctx.parsed.x)
-                        }
-                    }
+            });
+        } else {
+            $('#chartPanelTitle').text('Transaction Value by Group');
+            $('#chartPanelSub').text('Distribution across Leasing, Loan, Pawning, Bill, Fund, CC & QR (LKR)');
+            const groups = (lastPayload.groupSummary || []).filter(g => Number(g.totalValue || 0) > 0);
+            const palette = ['#4f46e5', '#6366f1', '#8b5cf6', '#a855f7', '#0ea5e9', '#10b981', '#f59e0b', '#64748b'];
+            mainChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: groups.map(g => g.group),
+                    datasets: [{
+                        label: 'Value (LKR)',
+                        data: groups.map(g => Number(g.totalValue || 0)),
+                        backgroundColor: groups.map((_, idx) => palette[idx % palette.length]),
+                        borderRadius: 8,
+                        barThickness: 22
+                    }]
                 },
-                scales: {
-                    y: { grid: { display: false }, ticks: { color: '#0F172A', font: { size: 10, weight: '600' } } },
-                    x: {
-                        beginAtZero: true,
-                        grid: { color: '#F1F5F9' },
-                        ticks: {
-                            color: '#475569',
-                            font: { size: 10 },
-                            callback: v => v >= 1e6 ? (v / 1e6).toFixed(1) + 'M' : (v >= 1e3 ? (v / 1e3).toFixed(0) + 'K' : v)
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { callbacks: { label: c => 'LKR ' + fmtCurrency(c.parsed.x) } }
+                    },
+                    scales: {
+                        y: { grid: { display: false }, ticks: { color: '#0f172a', font: { size: 11, weight: '700' } } },
+                        x: {
+                            beginAtZero: true,
+                            grid: { color: '#f1f5f9' },
+                            ticks: {
+                                color: '#64748b',
+                                callback: v => v >= 1e6 ? (v / 1e6).toFixed(1) + 'M' : (v >= 1e3 ? (v / 1e3).toFixed(0) + 'K' : v)
+                            }
                         }
                     }
                 }
-            }
-        });
+            });
+        }
     }
 
     $(document).ready(function () {
         $('#fromDate').val(DATA_FLOOR);
         $('#toDate').val(getLocalToday());
 
-        $('#fromDate, #toDate, #compareMode').on('change', loadDashboard);
+        $('#fromDate, #toDate').on('change', loadDashboard);
         $('#refreshBtn').on('click', loadDashboard);
 
-        $('#ceftGroupFilterBar').on('click', '.ma-filter-pill', function () {
-            $('#ceftGroupFilterBar .ma-filter-pill').removeClass('active');
+        // Compare mode toggle
+        $('#compareSeg').on('click', '.bx-seg-btn', function () {
+            $('#compareSeg .bx-seg-btn').removeClass('active');
+            $(this).addClass('active');
+            compareMode = $(this).data('compare');
+            loadDashboard();
+        });
+
+        // Left panel tabs
+        $('#detailTabs').on('click', '.bx-seg-btn', function () {
+            $('#detailTabs .bx-seg-btn').removeClass('active');
+            $(this).addClass('active');
+            const tab = $(this).data('tab');
+            $('#pane-ceft, #pane-groups, #pane-txns').addClass('d-none').removeClass('d-flex');
+            $('#pane-' + tab).removeClass('d-none').addClass('d-flex');
+
+            if (tab === 'ceft') {
+                $('#leftPanelTitle').text('CEFT Revenue Breakdown');
+                $('#leftPanelSub').text('LKR 25.00 per successful transaction across the 4 eligible CEFT codes');
+            } else if (tab === 'groups') {
+                $('#leftPanelTitle').text('Category Group Summary');
+                $('#leftPanelSub').text('Leasing, Loan Payments, Pawning, Bill, Fund, Credit Card & QR share');
+            } else {
+                $('#leftPanelTitle').text('All Transaction Types');
+                $('#leftPanelSub').text('OWN = Fintrex · OTHER = JustPay');
+            }
+        });
+
+        // Right chart tabs
+        $('#chartTabs').on('click', '.bx-seg-btn', function () {
+            $('#chartTabs .bx-seg-btn').removeClass('active');
+            $(this).addClass('active');
+            activeChartTab = $(this).data('chart');
+            renderMainChart();
+        });
+
+        // CEFT group chips
+        $('#ceftFilterBar').on('click', '.bx-chip', function () {
+            $('#ceftFilterBar .bx-chip').removeClass('active');
             $(this).addClass('active');
             activeCeftGroup = $(this).data('ceft-group');
             renderCeftTable();
         });
 
-        $('#txnGroupSelect').on('change', function () {
-            activeTxnGroup = $(this).val() || 'ALL';
-            renderTxnBreakdownTable();
+        // Txn group chips
+        $('#txnFilterBar').on('click', '.bx-chip', function () {
+            $('#txnFilterBar .bx-chip').removeClass('active');
+            $(this).addClass('active');
+            activeTxnGroup = $(this).data('group');
+            renderTxnTable();
         });
 
         loadDashboard();
