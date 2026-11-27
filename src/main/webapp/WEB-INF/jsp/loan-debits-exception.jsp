@@ -52,24 +52,6 @@
                 box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2) !important;
                 color: #ffffff !important;
             }
-            .kpi-card {
-                background: #ffffff;
-                border-radius: 10px;
-                padding: 0.9rem 1.1rem;
-                box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
-                border: 1px solid rgba(226, 232, 240, 0.8);
-            }
-            .kpi-title {
-                font-size: 0.78rem;
-                font-weight: 600;
-                color: #64748b;
-                margin-bottom: 0.25rem;
-            }
-            .kpi-value {
-                font-size: 1.45rem;
-                font-weight: 800;
-                line-height: 1.2;
-            }
             #tableLoanDebitsException tbody tr {
                 cursor: pointer;
             }
@@ -94,31 +76,6 @@
                         <div>
                             <h4 class="mb-0 text-danger"><i class="fas fa-exclamation-triangle me-2"></i>Exception Reports - Loan Debits (Duplicate Monthly Debits)</h4>
                             <small class="text-muted">Accounts debited more than once in the same month with the same narration (<code>cbs.loan_debits</code>)</small>
-                        </div>
-                    </div>
-
-                    <!-- KPI Summary Cards -->
-                    <div class="row row-cols-1 row-cols-sm-3 g-3 mb-3">
-                        <div class="col">
-                            <div class="kpi-card border-start border-4 border-danger">
-                                <div class="kpi-title"><i class="fas fa-exclamation-circle me-1 text-danger"></i>Total Duplicate Debits</div>
-                                <div class="kpi-value text-danger" id="kpiTotalAmount">LKR 0.00</div>
-                                <div class="small text-muted mt-1" id="kpiTotalCount">0 Transactions</div>
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="kpi-card border-start border-4 border-warning">
-                                <div class="kpi-title"><i class="fas fa-layer-group me-1 text-warning"></i>Duplicate Groups</div>
-                                <div class="kpi-value text-warning" id="kpiDuplicateGroups">0</div>
-                                <div class="small text-muted mt-1">Same Account + Narration + Month</div>
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="kpi-card border-start border-4 border-primary">
-                                <div class="kpi-title"><i class="fas fa-user-tag me-1 text-primary"></i>Affected Accounts</div>
-                                <div class="kpi-value text-primary" id="kpiAffectedAccounts">0</div>
-                                <div class="small text-muted mt-1">Unique Loan Accounts</div>
-                            </div>
                         </div>
                     </div>
 
@@ -231,12 +188,6 @@
                     contentType: 'application/json',
                     data: JSON.stringify(filters),
                     success: function(res) {
-                        const kpis = res.kpis || {};
-                        $('#kpiTotalAmount').text('LKR ' + formatNumber(kpis.totalAmount || 0));
-                        $('#kpiTotalCount').text(Number(kpis.totalCount || 0).toLocaleString() + ' Transactions');
-                        $('#kpiDuplicateGroups').text(Number(kpis.duplicateGroups || 0).toLocaleString());
-                        $('#kpiAffectedAccounts').text(Number(kpis.affectedAccounts || 0).toLocaleString());
-
                         const rows = res.rows || [];
                         if (dtReport) {
                             dtReport.clear().rows.add(rows).draw();
